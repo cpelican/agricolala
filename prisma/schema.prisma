@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  parcels       Parcel[]
+  treatments    Treatment[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Parcel {
+  id          String      @id @default(cuid())
+  name        String
+  latitude    Float
+  longitude   Float
+  width       Float
+  height      Float
+  type        CultureType @default(VINEYARD)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  treatments  Treatment[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Treatment {
+  id                    String            @id @default(cuid())
+  name                  String
+  target                String
+  type                  String
+  maxCumulatedQuantity  Int?
+  maxApplications       Int?
+  description           String?
+  dateMin               DateTime?
+  dateMax               DateTime?
+  appliedDate           DateTime?
+  status                TreatmentStatus   @default(TODO)
+  waterDose             Float?
+  parcelId              String
+  parcel                Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  userId                String
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productApplications   ProductApplication[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+}
+
+model Product {
+  id                  String               @id @default(cuid())
+  brand               String
+  name                String
+  composition         SubstanceDose[]
+  productApplications ProductApplication[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model ProductApplication {
+  id          String    @id @default(cuid())
+  dose        Float
+  treatmentId String
+  treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Substance {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  maxDosage       Float // kg/ha
+  targets         Disease[]       @relation("SubstanceTargets")
+  substanceDoses  SubstanceDose[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model SubstanceDose {
+  id          String    @id @default(cuid())
+  dose        Float
+  substanceId String
+  substance   Substance @relation(fields: [substanceId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Disease {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String?
+  substances  Substance[] @relation("SubstanceTargets")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum CultureType {
+  VINEYARD
+  PEACHES
+}
+
+enum TreatmentStatus {
+  TODO
+  DONE
+}
