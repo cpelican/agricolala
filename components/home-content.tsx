@@ -1,5 +1,8 @@
 "use client";
 
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -7,9 +10,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { SubstanceChart } from "./substance-chart";
 import { ParcelWithTreatments, SubstanceData } from "./types";
 

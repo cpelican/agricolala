@@ -1,8 +1,11 @@
 "use client";
 
+import { LogOut, Mail, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -10,9 +13,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, User, Mail } from "lucide-react";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();

@@ -1,5 +1,8 @@
 "use client";
 
+import { format } from "date-fns";
+import { Calendar, Droplets, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Card,
 	CardContent,
@@ -7,9 +10,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Droplets } from "lucide-react";
-import { format } from "date-fns";
 import { ParcelWithTreatments } from "./types";
 
 interface TreatmentsContentProps {

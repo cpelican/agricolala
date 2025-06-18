@@ -1,8 +1,8 @@
-import { ParcelDetail } from "@/components/parcel-detail";
-import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
+import { ParcelDetail } from "@/components/parcel-detail";
 import { SubstanceData } from "@/components/types";
+import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
+import { prisma } from "@/lib/prisma";
 
 interface ParcelPageProps {
 	params: {

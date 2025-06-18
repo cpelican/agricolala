@@ -1,12 +1,12 @@
 "use client";
 
+import type { Parcel } from "@prisma/client";
+import { MapPin } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { ParcelMap } from "./parcel-map";
-import Link from "next/link";
-import type { Parcel } from "@prisma/client";
 
 interface ParcelsContentProps {
 	parcels: Parcel[];

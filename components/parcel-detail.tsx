@@ -1,5 +1,11 @@
 "use client";
 
+import { Disease, Parcel, Product } from "@prisma/client";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -7,16 +13,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { SubstanceChart } from "./substance-chart";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useState } from "react";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
-import { Disease, Product } from "@prisma/client";
+import { SubstanceChart } from "./substance-chart";
 import { ParcelWithTreatments, SubstanceData } from "./types";
-import { Parcel } from "@prisma/client";
 
 interface ParcelDetailProps {
 	parcel: Pick<

@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { HomeContent } from "@/components/home-content";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
 	const session = await getServerSession(authOptions);

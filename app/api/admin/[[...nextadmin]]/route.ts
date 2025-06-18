@@ -1,8 +1,8 @@
+import { createHandler } from "@premieroctet/next-admin/appHandler";
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "../../../../lib/prisma";
-import { createHandler } from "@premieroctet/next-admin/appHandler";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
 
 const { run } = createHandler({
 	apiBasePath: "/api/admin",

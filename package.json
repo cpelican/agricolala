@@ -3,12 +3,15 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"precommit": "npm run lint && npx biome check .",
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
 		"tsc": "tsc --noEmit",
-		"create-admin-user": "npx tsx scripts/create-admin-user.ts"
+		"prettify": "npx @biomejs/biome format --write .",
+		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@auth/core": "latest",
@@ -80,6 +83,7 @@
 		"@types/react-dom": "^18",
 		"eslint": "8.57.1",
 		"eslint-config-next": "15.3.3",
+		"husky": "^9.1.7",
 		"postcss": "^8.5",
 		"tailwindcss": "^3.4.17",
 		"typescript": "^5"

@@ -1,5 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Disease, Product } from "@prisma/client";
+import { Plus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,11 +16,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
 	Form,
 	FormControl,
@@ -22,6 +24,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -29,9 +32,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { Disease, Product } from "@prisma/client";
-import { Plus, X } from "lucide-react";
 
 const formSchema = z.object({
 	diseases: z
