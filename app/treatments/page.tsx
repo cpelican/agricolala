@@ -9,7 +9,7 @@ import { TreatmentsContent } from "@/components/treatments-content"
 export default async function TreatmentsPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session?.user?.id) {
     redirect("/auth/signin")
   }
 

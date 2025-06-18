@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -23,10 +23,21 @@ export function AddParcelDialog({ open, onOpenChange, selectedLocation }: AddPar
     width: "",
     height: "",
     type: "VINEYARD",
-    latitude: selectedLocation?.lat?.toString() || "",
-    longitude: selectedLocation?.lng?.toString() || "",
+    latitude: "",
+    longitude: "",
   })
   const router = useRouter()
+
+  // Update form data when selectedLocation changes
+  useEffect(() => {
+    if (selectedLocation) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: selectedLocation.lat.toString(),
+        longitude: selectedLocation.lng.toString(),
+      }))
+    }
+  }, [selectedLocation])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
