@@ -4,37 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Droplets } from "lucide-react"
 import { format } from "date-fns"
+import { ParcelWithTreatments } from './types'
 
-interface Treatment {
-  id: string
-  name: string
-  target: string
-  type: string
-  status: "TODO" | "DONE"
-  dateMin: Date | null
-  dateMax: Date | null
-  appliedDate: Date | null
-  waterDose: number | null
-  parcel: {
-    name: string
-  }
-  productApplications: Array<{
-    dose: number
-    product: {
-      brand: string
-      name: string
-      composition: Array<{
-        dose: number
-        substance: {
-          name: string
-        }
-      }>
-    }
-  }>
-}
 
 interface TreatmentsContentProps {
-  treatments: Treatment[]
+  treatments: ParcelWithTreatments['treatments']
 }
 
 export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
@@ -87,14 +61,15 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
   )
 }
 
-function TreatmentCard({ treatment }: { treatment: Treatment }) {
+function TreatmentCard({ treatment }: { treatment: ParcelWithTreatments['treatments'][number] }) {
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div>
-            <h3 className="font-medium">{treatment.name}</h3>
-            <p className="text-sm text-gray-600">Target: {treatment.target}</p>
+            <p className="text-sm text-gray-600">Target: {treatment.diseaseIds.map((diseaseId) => {
+              return diseaseId
+            }).join(", ")}</p>
           </div>
           <Badge variant={treatment.status === "DONE" ? "default" : "secondary"}>
             {treatment.status === "DONE" ? "Completed" : "Pending"}

@@ -11,13 +11,12 @@ const prismaClient = new PrismaClient();
     process.exit(1);
   }
 
-  void prismaClient.adminUser.upsert({
+  void prismaClient.user.update({
     where: {
       email,
     },
-    create: {
-      email,
+    data: {
+      isAdmin: true,
     },
-    update: {},
   });
 })();

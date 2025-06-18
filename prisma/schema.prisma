@@ -2,11 +2,6 @@ generator nextAdmin {
     provider = "next-admin-generator-prisma"
 }
 
-model AdminUser {
-  id    String @id @default(uuid())
-  email String @unique
-}
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -48,6 +43,7 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
+  isAdmin       Boolean   @default(false)
   image         String?
   accounts      Account[]
   sessions      Session[]
@@ -82,17 +78,12 @@ model Parcel {
 
 model Treatment {
   id                    String            @id @default(cuid())
-  name                  String
-  target                String
-  type                  String
-  maxCumulatedQuantity  Int?
-  maxApplications       Int?
-  description           String?
+  diseaseIds            String[]
   dateMin               DateTime?
   dateMax               DateTime?
   appliedDate           DateTime?
   status                TreatmentStatus   @default(TODO)
-  waterDose             Float?
+  waterDose             Float? // liter
   parcelId              String
   parcel                Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
   userId                String
@@ -106,6 +97,8 @@ model Product {
   id                  String               @id @default(cuid())
   brand               String
   name                String
+  maxCumulatedQuantity  Int? // kg/ha/y
+  maxApplications       Int?
   composition         SubstanceDose[]
   productApplications ProductApplication[]
   createdAt           DateTime             @default(now())

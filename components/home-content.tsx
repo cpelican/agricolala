@@ -5,30 +5,12 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import { SubstanceChart } from "./substance-chart"
-
-interface Parcel {
-  id: string
-  name: string
-  treatments: Array<{
-    productApplications: Array<{
-      dose: number
-      product: {
-        composition: Array<{
-          dose: number
-          substance: {
-            name: string
-            maxDosage: number
-          }
-        }>
-      }
-    }>
-    appliedDate: Date | null
-  }>
-}
+import { ParcelWithTreatments, SubstanceData } from './types'
 
 interface HomeContentProps {
-  parcels: Parcel[]
+  parcels: ParcelWithTreatments[]
 }
+
 
 export function HomeContent({ parcels }: HomeContentProps) {
   if (parcels.length === 0) {
@@ -89,7 +71,7 @@ export function HomeContent({ parcels }: HomeContentProps) {
       })
       return acc
     },
-    {} as Record<string, any>,
+    {} as Record<string, SubstanceData>,
   )
 
   const hasSubstanceData = Object.values(substanceData).length > 0
@@ -109,7 +91,7 @@ export function HomeContent({ parcels }: HomeContentProps) {
       {hasSubstanceData && (
         <div className="grid gap-4">
           <h2 className="text-lg font-semibold">Cumulated Doses</h2>
-          {Object.values(substanceData).map((substance: any) => (
+          {Object.values(substanceData).map((substance: SubstanceData) => (
             <Card key={substance.name}>
               <CardContent className="p-4">
                 <div className="flex justify-between items-center">

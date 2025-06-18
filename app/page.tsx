@@ -31,6 +31,7 @@ export default async function Home() {
               },
             },
           },
+          parcel: true,
         },
         where: {
           status: "DONE",

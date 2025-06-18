@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "tsc": "tsc --noEmit",
     "create-admin-user": "npx tsx scripts/create-admin-user.ts"
   },
   "dependencies": {

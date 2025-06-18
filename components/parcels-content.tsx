@@ -2,21 +2,11 @@
 
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Plus, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { AddParcelDialog } from "./add-parcel-dialog"
 import { ParcelMap } from "./parcel-map"
 import Link from "next/link"
-
-interface Parcel {
-  id: string
-  name: string
-  latitude: number
-  longitude: number
-  width: number
-  height: number
-  type: string
-}
+import type { Parcel } from '@prisma/client'
 
 interface ParcelsContentProps {
   parcels: Parcel[]
@@ -35,12 +25,8 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Your Parcels</h2>
-        {parcels.length > 0 && (
-          <Button onClick={() => setShowAddDialog(true)} size="sm" className="bg-green-600 hover:bg-green-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Parcel
-          </Button>
-        )}
+        <p className="text-sm text-gray-500">Click on the map to add a parcel</p>
+
       </div>
 
       <Card>

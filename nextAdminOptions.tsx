@@ -5,10 +5,10 @@ const options: NextAdminOptions = {
   model: {
     User: {
       list: {
-        display: ["name", "email", 'parcels', 'treatments'],
+        display: ["name", "email", "isAdmin"],
       },
       edit: {
-        display: ["name", "email", 'parcels', 'treatments'],
+        display: ["name", "email", "isAdmin"],
       },
     },
     Parcel: {
@@ -19,24 +19,9 @@ const options: NextAdminOptions = {
         display: ["name", "latitude", "longitude", "width", "height", "type", "user", "treatments"],
       },
     },
-    Treatment: {
-      list: {
-        display: ["name", "target", "type", "maxCumulatedQuantity", "maxApplications", "description", "dateMin", "dateMax", "appliedDate", "status", "waterDose", "parcel", "user", "productApplications"],
-      },
-    },
-    ProductApplication: {
-      list: {
-        display: ["dose", "treatment", "product"],
-      },
-    },
     Product: {
       list: {
-        display: ["name", "brand", "composition", "productApplications"],
-      },
-    },
-    SubstanceDose: {
-      list: {
-        display: ["dose", "substance", "product"],
+        display: ["name", "brand", "maxCumulatedQuantity", "maxApplications", "composition", "productApplications"],
       },
     },
     Substance: {
@@ -48,24 +33,20 @@ const options: NextAdminOptions = {
       list: {
         display: ["name", "description"],
       },
+      edit: {
+        display: ["name", "description"],
+      },
     },
   },
   sidebar: {
     groups: [
       {
-        title: "Users",
-        className: "!text-white !bg-green-600 p-2 rounded-md",
-        models: ["User"],
-      },
-      {
         className: 'pt-5 text-lg !text-white !bg-gray-800',
         title: 'Models',
         models: [
+          'User',
           'Parcel',
-          'Treatment',
-          'ProductApplication',
           'Product',
-          'SubstanceDose',
           'Substance',
           'Disease',
         ],
