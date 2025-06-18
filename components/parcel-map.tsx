@@ -1,136 +1,141 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
-import { Parcel } from '@prisma/client'
+import { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { Parcel } from "@prisma/client";
 
 // Fix Leaflet default icon
 const defaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-})
+	iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+	iconRetinaUrl:
+		"https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+	shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+	shadowSize: [41, 41],
+});
 
-L.Marker.prototype.options.icon = defaultIcon
+L.Marker.prototype.options.icon = defaultIcon;
 
 interface ParcelMapProps {
-  parcels: Parcel[]
-  onMapClick?: (lat: number, lng: number) => void
+	parcels: Parcel[];
+	onMapClick?: (lat: number, lng: number) => void;
 }
 
 export function ParcelMap({ parcels, onMapClick }: ParcelMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<L.Map | null>(null)
-  const markersRef = useRef<L.Marker[]>([])
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+	const mapRef = useRef<HTMLDivElement>(null);
+	const mapInstanceRef = useRef<L.Map | null>(null);
+	const markersRef = useRef<L.Marker[]>([]);
+	const [userLocation, setUserLocation] = useState<[number, number] | null>(
+		null,
+	);
+	const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Get user's current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          setUserLocation([latitude, longitude])
-          setIsLoading(false)
-        },
-        (error) => {
-          console.error("Error getting location:", error)
-          // Fallback to default location (45.0, 7.0)
-          setUserLocation([45.0, 7.0])
-          setIsLoading(false)
-        }
-      )
-    } else {
-      // Fallback to default location if geolocation is not supported
-      setUserLocation([45.0, 7.0])
-      setIsLoading(false)
-    }
-  }, [])
+	useEffect(() => {
+		// Get user's current location
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					const { latitude, longitude } = position.coords;
+					setUserLocation([latitude, longitude]);
+					setIsLoading(false);
+				},
+				(error) => {
+					console.error("Error getting location:", error);
+					// Fallback to default location (45.0, 7.0)
+					setUserLocation([45.0, 7.0]);
+					setIsLoading(false);
+				},
+			);
+		} else {
+			// Fallback to default location if geolocation is not supported
+			setUserLocation([45.0, 7.0]);
+			setIsLoading(false);
+		}
+	}, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !mapRef.current || !userLocation) return
+	useEffect(() => {
+		if (typeof window === "undefined" || !mapRef.current || !userLocation)
+			return;
 
-    // Initialize map
-    if (!mapInstanceRef.current) {
-      mapInstanceRef.current = L.map(mapRef.current, {
-        zoomControl: true,
-        attributionControl: true,
-        scrollWheelZoom: true,
-        dragging: true,
-      }).setView(userLocation, 13)
+		// Initialize map
+		if (!mapInstanceRef.current) {
+			mapInstanceRef.current = L.map(mapRef.current, {
+				zoomControl: true,
+				attributionControl: true,
+				scrollWheelZoom: true,
+				dragging: true,
+			}).setView(userLocation, 13);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(mapInstanceRef.current)
+			L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			}).addTo(mapInstanceRef.current);
 
-      // Add click handler for new parcels
-      mapInstanceRef.current.on("click", (e: L.LeafletMouseEvent) => {
-        if (onMapClick) {
-          onMapClick(e.latlng.lat, e.latlng.lng)
-        }
-      })
+			// Add click handler for new parcels
+			mapInstanceRef.current.on("click", (e: L.LeafletMouseEvent) => {
+				if (onMapClick) {
+					onMapClick(e.latlng.lat, e.latlng.lng);
+				}
+			});
 
-      // Add user location marker with a custom icon
-      const userIcon = L.divIcon({
-        className: "user-location-marker",
-        html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
-      })
+			// Add user location marker with a custom icon
+			const userIcon = L.divIcon({
+				className: "user-location-marker",
+				html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
+			});
 
-      L.marker(userLocation, { icon: userIcon })
-        .bindPopup("Your location")
-        .addTo(mapInstanceRef.current)
-    }
+			L.marker(userLocation, { icon: userIcon })
+				.bindPopup("Your location")
+				.addTo(mapInstanceRef.current);
+		}
 
-    // Clear existing markers
-    markersRef.current.forEach((marker) => marker.remove())
-    markersRef.current = []
+		// Clear existing markers
+		markersRef.current.forEach((marker) => marker.remove());
+		markersRef.current = [];
 
-    // Add markers for existing parcels
-    parcels.forEach((parcel) => {
-      const marker = L.marker([parcel.latitude, parcel.longitude])
-        .bindPopup(`
+		// Add markers for existing parcels
+		parcels.forEach((parcel) => {
+			const marker = L.marker([parcel.latitude, parcel.longitude])
+				.bindPopup(`
           <div class="p-2">
             <h3 class="font-medium">${parcel.name}</h3>
             <p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p>
           </div>
         `)
-        .addTo(mapInstanceRef.current!)
+				.addTo(mapInstanceRef.current!);
 
-      markersRef.current.push(marker)
-    })
+			markersRef.current.push(marker);
+		});
 
-    // Fit bounds to show all markers if there are any
-    if (parcels.length > 0 && userLocation) {
-      const coordinates: L.LatLngExpression[] = [
-        userLocation,
-        ...parcels.map((p) => [p.latitude, p.longitude] as [number, number])
-      ]
-      const bounds = L.latLngBounds(coordinates)
-      mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] })
-    }
+		// Fit bounds to show all markers if there are any
+		if (parcels.length > 0 && userLocation) {
+			const coordinates: L.LatLngExpression[] = [
+				userLocation,
+				...parcels.map((p) => [p.latitude, p.longitude] as [number, number]),
+			];
+			const bounds = L.latLngBounds(coordinates);
+			mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+		}
 
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
-      }
-    }
-  }, [parcels, onMapClick, userLocation])
+		return () => {
+			if (mapInstanceRef.current) {
+				mapInstanceRef.current.remove();
+				mapInstanceRef.current = null;
+			}
+		};
+	}, [parcels, onMapClick, userLocation]);
 
-  return (
-    <div className="w-full">
-      <div ref={mapRef} className="w-full h-[400px] rounded-lg relative z-0" />
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-        </div>
-      )}
-    </div>
-  )
+	return (
+		<div className="w-full">
+			<div ref={mapRef} className="w-full h-[400px] rounded-lg relative z-0" />
+			{isLoading && (
+				<div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+				</div>
+			)}
+		</div>
+	);
 }
