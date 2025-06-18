@@ -92,50 +92,54 @@ export function HomeContent({ parcels }: HomeContentProps) {
     {} as Record<string, any>,
   )
 
+  const hasSubstanceData = Object.values(substanceData).length > 0
+
   return (
     <div className="p-4 space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Substance Usage This Year</CardTitle>
-          <CardDescription>Track your substance applications across all parcels</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SubstanceChart data={Object.values(substanceData)} />
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Substance Usage This Year</CardTitle>
+            <CardDescription>Track your substance applications across all parcels</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SubstanceChart data={Object.values(substanceData)} />
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-4">
-        <h2 className="text-lg font-semibold">Cumulated Doses</h2>
-        {Object.values(substanceData).map((substance: any) => (
-          <Card key={substance.name}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-medium">{substance.name}</h3>
-                  <p className="text-sm text-gray-600">{substance.totalUsed.toFixed(2)} kg/ha used</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Max: {substance.maxDosage} kg/ha</p>
-                  <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
-                    <div
-                      className={`h-2 rounded-full ${
-                        substance.totalUsed / substance.maxDosage > 0.8
-                          ? "bg-red-500"
-                          : substance.totalUsed / substance.maxDosage > 0.6
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                      }`}
-                      style={{
-                        width: `${Math.min(100, (substance.totalUsed / substance.maxDosage) * 100)}%`,
-                      }}
-                    />
+      {hasSubstanceData && (
+        <div className="grid gap-4">
+          <h2 className="text-lg font-semibold">Cumulated Doses</h2>
+          {Object.values(substanceData).map((substance: any) => (
+            <Card key={substance.name}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">{substance.name}</h3>
+                    <p className="text-sm text-gray-600">{substance.totalUsed.toFixed(2)} kg/ha used</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Max: {substance.maxDosage} kg/ha</p>
+                    <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                      <div
+                        className={`h-2 rounded-full ${
+                          substance.totalUsed / substance.maxDosage > 0.8
+                            ? "bg-red-500"
+                            : substance.totalUsed / substance.maxDosage > 0.6
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                        }`}
+                        style={{
+                          width: `${Math.min(100, (substance.totalUsed / substance.maxDosage) * 100)}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
