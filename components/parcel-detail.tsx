@@ -1,38 +1,32 @@
 "use client";
 
-import { type Disease, type Parcel, type Product } from "@prisma/client";
-import { Plus } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { type Parcel } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
-import { type ParcelDetail } from "@/lib/parcel-helpers";
+import { type ParcelDetailType } from "@/lib/parcel-helpers";
+import { AddTreatmentButton } from "./add-treatment-button";
+import { useDiseases } from "@/contexts/cached-data-context";
 
 interface ParcelDetailProps {
 	parcel: Pick<
 		Parcel,
 		"id" | "name" | "latitude" | "longitude" | "width" | "height" | "type"
 	>;
-	upcomingTreatments: ParcelDetail["treatments"];
-	pastTreatments: ParcelDetail["treatments"];
+	upcomingTreatments: ParcelDetailType["treatments"];
+	pastTreatments: ParcelDetailType["treatments"];
 	substanceData: SubstanceData[];
-	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name">[];
 }
 
 export function ParcelDetail({
 	parcel,
-	diseases,
-	products,
 	upcomingTreatments,
 	pastTreatments,
 	substanceData,
 }: ParcelDetailProps) {
-	const [isAddTreatmentOpen, setIsAddTreatmentOpen] = useState(false);
+	const diseases = useDiseases();
 
 	return (
 		<div className="p-4 space-y-4">
@@ -53,13 +47,7 @@ export function ParcelDetail({
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2">
-				<Button
-					onClick={() => setIsAddTreatmentOpen(true)}
-					className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg"
-					size="icon"
-				>
-					<Plus className="h-6 w-6" />
-				</Button>
+				<AddTreatmentButton parcelId={parcel.id} />
 				<Card>
 					<CardHeader>
 						<CardTitle>Upcoming Treatments</CardTitle>
@@ -107,6 +95,7 @@ export function ParcelDetail({
 								{pastTreatments.map((treatment) => (
 									<TreatmentCard
 										key={treatment.id}
+										parcelName={parcel.name}
 										treatment={treatment}
 										diseases={diseases}
 									/>
@@ -120,14 +109,6 @@ export function ParcelDetail({
 			<SubstanceUsageSection
 				substanceData={substanceData}
 				description="Track your substance applications for this parcel"
-			/>
-
-			<AddTreatmentDialog
-				open={isAddTreatmentOpen}
-				onOpenChange={setIsAddTreatmentOpen}
-				parcelId={parcel.id}
-				diseases={diseases}
-				products={products}
 			/>
 		</div>
 	);

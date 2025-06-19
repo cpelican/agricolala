@@ -7,19 +7,17 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { TreatmentStatus, type Disease } from "@prisma/client";
+import { TreatmentStatus } from "@prisma/client";
 import { TreatmentCard } from "./treatment-card";
-import { type ParcelDetail } from "@/lib/parcel-helpers";
+import { type TreatmentType } from "@/lib/parcel-helpers";
+import { useDiseases } from "@/contexts/cached-data-context";
 
 interface TreatmentsContentProps {
-	diseases: Pick<Disease, "id" | "name">[];
-	treatments: ParcelDetail["treatments"];
+	treatments: TreatmentType[];
 }
 
-export function TreatmentsContent({
-	treatments,
-	diseases,
-}: TreatmentsContentProps) {
+export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
+	const diseases = useDiseases();
 	const upcomingTreatments = treatments.filter(
 		(t) => t.status === TreatmentStatus.TODO,
 	);
@@ -55,6 +53,7 @@ export function TreatmentsContent({
 						{upcomingTreatments.map((treatment) => (
 							<TreatmentCard
 								key={treatment.id}
+								parcelName={treatment.parcel.name}
 								treatment={treatment}
 								diseases={diseases}
 							/>
@@ -72,6 +71,7 @@ export function TreatmentsContent({
 					<div className="space-y-3">
 						{completedTreatments.map((treatment) => (
 							<TreatmentCard
+								parcelName={treatment.parcel.name}
 								key={treatment.id}
 								treatment={treatment}
 								diseases={diseases}

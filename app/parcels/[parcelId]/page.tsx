@@ -3,12 +3,11 @@ import { notFound } from "next/navigation";
 import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-utils";
-import { ParcelDetail } from "@/components/parcel-detail";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
+import { getParcelDetail, type ParcelDetailType } from "@/lib/parcel-helpers";
+import { ParcelDetail } from "@/components/parcel-detail";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -20,38 +19,11 @@ export default async function ParcelPage({
 }: PageProps<{ parcelId: string }>) {
 	const { parcelId } = await params;
 	const session = await requireAuth();
-	const [parcel, diseases, products] = await Promise.all([
-		prisma.parcel.findUnique({
-			where: { id: parcelId, userId: session.user.id },
-			include: {
-				treatments: {
-					include: {
-						productApplications: {
-							include: {
-								product: {
-									include: {
-										composition: {
-											include: {
-												substance: true,
-											},
-										},
-									},
-								},
-							},
-						},
-						parcel: true,
-					},
-					orderBy: {
-						appliedDate: "desc",
-					},
-				},
-			},
-		}),
-		getCachedDiseases(),
-		getCachedProducts(),
-	]);
-
-	if (!parcel) {
+	let parcel: ParcelDetailType;
+	try {
+		parcel = await getParcelDetail(parcelId, session.user.id);
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (e) {
 		notFound();
 	}
 
@@ -89,8 +61,6 @@ export default async function ParcelPage({
 					>
 						<ParcelDetail
 							parcel={parcel}
-							diseases={diseases}
-							products={products}
 							upcomingTreatments={upcomingTreatments}
 							pastTreatments={pastTreatments}
 							substanceData={substanceData}

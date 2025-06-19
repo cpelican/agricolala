@@ -3,13 +3,24 @@ import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "./ui/card";
-import { type ParcelDetail } from "@/lib/parcel-helpers";
+import { type TreatmentType } from "@/lib/parcel-helpers";
 
 export function TreatmentCard({
+	parcelName,
 	treatment,
 	diseases,
 }: {
-	treatment: ParcelDetail["treatments"][number];
+	parcelName: string;
+	treatment: Pick<
+		TreatmentType,
+		| "diseaseIds"
+		| "status"
+		| "dateMin"
+		| "dateMax"
+		| "appliedDate"
+		| "productApplications"
+		| "waterDose"
+	>;
 	diseases: Pick<Disease, "id" | "name">[];
 }) {
 	return (
@@ -42,7 +53,7 @@ export function TreatmentCard({
 
 				<div className="flex items-center text-sm text-gray-600 mb-2">
 					<MapPin className="h-4 w-4 mr-1" />
-					{treatment.parcel.name}
+					{parcelName}
 				</div>
 
 				{treatment.dateMin && (
