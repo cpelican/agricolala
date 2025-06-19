@@ -10,7 +10,7 @@ import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
-import { type ParcelDetail } from "@/app/parcels/[parcelId]/page";
+import { type ParcelDetail } from "@/lib/parcel-helpers";
 
 interface ParcelDetailProps {
 	parcel: Pick<

@@ -1,5 +1,4 @@
-import { getParcels } from "@/lib/parcel-helpers";
-import { type ParcelWithTreatments } from "@/components/types";
+import { getParcels, type ParcelWithTreatments } from "@/lib/parcel-helpers";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { AuthGuard } from "@/components/auth-guard";

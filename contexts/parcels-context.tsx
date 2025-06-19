@@ -1,13 +1,7 @@
 "use client";
 
-import {
-	createContext,
-	useContext,
-	ReactNode,
-	useState,
-	useEffect,
-} from "react";
-import { type ParcelWithTreatments } from "@/components/types";
+import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { createContext, useContext, type ReactNode, useState } from "react";
 
 interface ParcelsContextType {
 	parcels: ParcelWithTreatments[];
