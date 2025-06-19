@@ -2,6 +2,7 @@ import z from "zod";
 
 export const createTreatmentSchema = z.object({
 	appliedDate: z.date().default(() => new Date()),
+	parcelId: z.string().min(1, "Parcel is required"),
 	diseases: z
 		.array(
 			z.object({

@@ -9,10 +9,16 @@ const { run } = createHandler({
 	prisma,
 	onRequest: async () => {
 		const session = await getServerSession(authOptions);
+
+		if (!session?.user?.email) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
+
 		const adminUser = await prisma.adminUser.findFirst({
-			where: { email: session?.user?.email ?? "" },
+			where: { email: session.user.email },
 		});
-		if (adminUser == null) {
+
+		if (!adminUser) {
 			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 		}
 	},
