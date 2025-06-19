@@ -1,22 +1,16 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { HomeContent } from "@/components/home-content";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { TreatmentStatus } from "@prisma/client";
+import { requireAuth } from "@/lib/auth-utils";
 
 export default async function Home() {
-	const session = await getServerSession(authOptions);
-
-	if (!session) {
-		redirect("/auth/signin");
-	}
+	const session = await requireAuth();
 
 	const parcels = await prisma.parcel.findMany({
-		where: { userId: session.user.id },
+		where: { userId: session?.user?.id },
 		include: {
 			treatments: {
 				include: {
@@ -50,7 +44,7 @@ export default async function Home() {
 		<AuthGuard>
 			<LayoutWithHeader
 				title="Agricolala"
-				subtitle={`Welcome back, ${session.user?.name ?? session.user?.email}`}
+				subtitle={`Welcome back, ${session?.user?.name ?? session?.user?.email}`}
 			>
 				<HomeContent parcels={parcels} />
 				<BottomNavigation />

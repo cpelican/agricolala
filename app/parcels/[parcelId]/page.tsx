@@ -1,11 +1,14 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { AuthGuard } from "@/components/auth-guard";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { LayoutWithHeader } from "@/components/layout-with-header";
-import { ParcelDetail } from "@/components/parcel-detail";
+import { BottomNavigation } from "@/components/bottom-navigation";
 import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth-utils";
+import { ParcelDetail } from "@/components/parcel-detail";
+import { ParcelMap } from "@/components/parcel-map";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -16,9 +19,10 @@ export default async function ParcelPage({
 	params,
 }: PageProps<{ parcelId: string }>) {
 	const { parcelId } = await params;
+	const session = await requireAuth();
 	const [parcel, diseases, products] = await Promise.all([
 		prisma.parcel.findUnique({
-			where: { id: parcelId },
+			where: { id: parcelId, userId: session.user.id },
 			include: {
 				treatments: {
 					include: {
@@ -51,21 +55,18 @@ export default async function ParcelPage({
 		notFound();
 	}
 
-	// Get current year's treatments
 	const currentYear = new Date().getFullYear();
 	const currentYearTreatments = parcel.treatments.filter((treatment) => {
 		if (!treatment.appliedDate) return false;
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	// Calculate substance usage data using helper
 	const treatmentsWithParcelName = currentYearTreatments.map((treatment) => ({
 		...treatment,
 		parcelId: parcel.name,
 	}));
 	const substanceData = calculateSubstanceData(treatmentsWithParcelName);
 
-	// Split treatments into upcoming and past
 	const now = new Date();
 	const upcomingTreatments = currentYearTreatments.filter(
 		(t) => !t.appliedDate || new Date(t.appliedDate) > now,
@@ -80,14 +81,34 @@ export default async function ParcelPage({
 				title={`${parcel.name}`}
 				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
 			>
-				<ParcelDetail
-					parcel={parcel}
-					diseases={diseases}
-					products={products}
-					upcomingTreatments={upcomingTreatments}
-					pastTreatments={pastTreatments}
-					substanceData={substanceData}
-				/>
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					<div className="space-y-6">
+						<Suspense
+							fallback={
+								<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
+							}
+						>
+							<ParcelDetail
+								parcel={parcel}
+								diseases={diseases}
+								products={products}
+								upcomingTreatments={upcomingTreatments}
+								pastTreatments={pastTreatments}
+								substanceData={substanceData}
+							/>
+						</Suspense>
+					</div>
+
+					<div className="h-96 lg:h-full">
+						<Suspense
+							fallback={
+								<div className="animate-pulse h-96 bg-gray-200 rounded"></div>
+							}
+						>
+							<ParcelMap parcels={[parcel]} />
+						</Suspense>
+					</div>
+				</div>
 				<BottomNavigation />
 			</LayoutWithHeader>
 		</AuthGuard>

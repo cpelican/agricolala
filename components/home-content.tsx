@@ -41,7 +41,6 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 		);
 	}
 
-	// Calculate substance usage data using helper
 	const allTreatments = parcels.flatMap((parcel) =>
 		parcel.treatments.map((treatment) => ({
 			...treatment,

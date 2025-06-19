@@ -1,19 +1,13 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { TreatmentsContent } from "@/components/treatments-content";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { getCachedDiseases } from "@/lib/cached-data";
+import { requireAuth } from "@/lib/auth-utils";
 
 export default async function TreatmentsPage() {
-	const session = await getServerSession(authOptions);
-
-	if (!session?.user?.id) {
-		redirect("/auth/signin");
-	}
+	const session = await requireAuth();
 
 	const treatments = await prisma.treatment.findMany({
 		where: { userId: session.user.id },

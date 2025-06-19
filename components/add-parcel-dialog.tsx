@@ -43,7 +43,6 @@ export function AddParcelDialog({
 	});
 	const router = useRouter();
 
-	// Update form data when selectedLocation changes
 	useEffect(() => {
 		if (selectedLocation) {
 			setFormData((prev) => ({

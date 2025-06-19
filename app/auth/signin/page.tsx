@@ -11,6 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { MAIN_COLOR } from "@/app/const";
 
 export default function SignIn() {
 	const router = useRouter();
@@ -37,7 +38,8 @@ export default function SignIn() {
 				<CardContent>
 					<Button
 						onClick={() => signIn("google", { callbackUrl: "/" })}
-						className="w-full bg-green-600 hover:bg-green-700"
+						style={{ background: MAIN_COLOR }}
+						className="w-full hover:bg-green-700"
 						size="lg"
 					>
 						Sign in with Google
