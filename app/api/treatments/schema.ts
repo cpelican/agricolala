@@ -30,5 +30,12 @@ export const createTreatmentSchema = z.object({
 		),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const createTreatmentAutomaticValuesSchema = z.object({
+	parcelId: z.string().min(1, "Parcel is required"),
+});
+
 export type CreateTreatmentSchema = z.infer<typeof createTreatmentSchema>;
-export type CreateTreatmentAutomaticValuesSchema = { parcelId: string };
+export type CreateTreatmentAutomaticValuesSchema = z.infer<
+	typeof createTreatmentAutomaticValuesSchema
+>;

@@ -3,8 +3,8 @@ import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { ParcelDetail } from "@/components/parcel-detail";
-import { type SubstanceData } from "@/components/types";
 import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
+import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { prisma } from "@/lib/prisma";
 
 export type PageProps<T extends Record<string, string>> = {
@@ -58,41 +58,12 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	// Calculate substance usage data
-	const substanceData = currentYearTreatments.reduce(
-		(acc, treatment) => {
-			treatment.productApplications.forEach((app) => {
-				app.product.composition.forEach((comp) => {
-					const substanceName = comp.substance.name;
-					const totalDose = (app.dose * comp.dose) / 1000; // Convert to kg
-
-					if (!acc[substanceName]) {
-						acc[substanceName] = {
-							name: substanceName,
-							totalUsed: 0,
-							maxDosage: comp.substance.maxDosage,
-							monthlyData: Array(12).fill(0),
-							applications: [],
-						};
-					}
-
-					acc[substanceName].totalUsed += totalDose;
-
-					if (treatment.appliedDate) {
-						const month = new Date(treatment.appliedDate).getMonth();
-						acc[substanceName].monthlyData[month] += totalDose;
-						acc[substanceName].applications.push({
-							date: treatment.appliedDate,
-							dose: totalDose,
-							parcel: treatment.parcelId,
-						});
-					}
-				});
-			});
-			return acc;
-		},
-		{} as Record<string, SubstanceData>,
-	);
+	// Calculate substance usage data using helper
+	const treatmentsWithParcelName = currentYearTreatments.map((treatment) => ({
+		...treatment,
+		parcelId: parcel.name,
+	}));
+	const substanceData = calculateSubstanceData(treatmentsWithParcelName);
 
 	// Split treatments into upcoming and past
 	const now = new Date();
@@ -115,7 +86,7 @@ export default async function ParcelPage({
 					products={products}
 					upcomingTreatments={upcomingTreatments}
 					pastTreatments={pastTreatments}
-					substanceData={Object.values(substanceData)}
+					substanceData={substanceData}
 				/>
 				<BottomNavigation />
 			</LayoutWithHeader>
