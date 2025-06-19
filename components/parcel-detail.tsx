@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
+import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { type ParcelWithTreatments, type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
@@ -34,6 +35,22 @@ export function ParcelDetail({
 
 	return (
 		<div className="p-4 space-y-4">
+			<div className="flex justify-between items-center mb-6">
+				<div>
+					<h1 className="text-2xl font-bold">{parcel.name}</h1>
+					<p className="text-gray-600 capitalize">
+						{parcel.type.toLowerCase()} - {parcel.width}m × {parcel.height}m (
+						{((parcel.width * parcel.height) / 10_000).toFixed(2)} ha)
+					</p>
+				</div>
+				<DeleteParcelButton
+					parcelId={parcel.id}
+					parcelName={parcel.name}
+					redirectTo="/parcels"
+					iconSize="md"
+				/>
+			</div>
+
 			<div className="grid gap-4 md:grid-cols-2">
 				<Button
 					onClick={() => setIsAddTreatmentOpen(true)}

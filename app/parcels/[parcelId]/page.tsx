@@ -81,31 +81,29 @@ export default async function ParcelPage({
 				title={`${parcel.name}`}
 				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
 			>
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					<div className="space-y-6">
-						<Suspense
-							fallback={
-								<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
-							}
-						>
-							<ParcelDetail
-								parcel={parcel}
-								diseases={diseases}
-								products={products}
-								upcomingTreatments={upcomingTreatments}
-								pastTreatments={pastTreatments}
-								substanceData={substanceData}
-							/>
-						</Suspense>
-					</div>
+				<div className="space-y-6">
+					<Suspense
+						fallback={
+							<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
+						}
+					>
+						<ParcelDetail
+							parcel={parcel}
+							diseases={diseases}
+							products={products}
+							upcomingTreatments={upcomingTreatments}
+							pastTreatments={pastTreatments}
+							substanceData={substanceData}
+						/>
+					</Suspense>
 
-					<div className="h-96 lg:h-full">
+					<div className="h-64">
 						<Suspense
 							fallback={
-								<div className="animate-pulse h-96 bg-gray-200 rounded"></div>
+								<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
 							}
 						>
-							<ParcelMap parcels={[parcel]} />
+							<ParcelMap parcels={[parcel]} highlightParcelId={parcel.id} />
 						</Suspense>
 					</div>
 				</div>

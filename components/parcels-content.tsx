@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddParcelDialog } from "./add-parcel-dialog";
+import { DeleteParcelButton } from "./delete-parcel-button";
 import { ParcelMap } from "./parcel-map";
 
 interface ParcelsContentProps {
@@ -54,8 +55,8 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 					{parcels.map((parcel) => (
 						<Card key={parcel.id}>
 							<CardContent className="p-4">
-								<Link href={`/parcels/${parcel.id}`}>
-									<div className="flex justify-between items-start">
+								<div className="flex justify-between items-start">
+									<Link href={`/parcels/${parcel.id}`} className="flex-1">
 										<div>
 											<h3 className="font-medium">{parcel.name}</h3>
 											<p className="text-sm text-gray-600 capitalize">
@@ -66,16 +67,23 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 												{((parcel.width * parcel.height) / 10000).toFixed(2)}{" "}
 												ha)
 											</p>
+											<div className="flex items-center text-gray-400 mt-2">
+												<MapPin className="h-4 w-4 mr-1" />
+												<span className="text-xs">
+													{parcel.latitude.toFixed(4)},{" "}
+													{parcel.longitude.toFixed(4)}
+												</span>
+											</div>
 										</div>
-										<div className="flex items-center text-gray-400">
-											<MapPin className="h-4 w-4 mr-1" />
-											<span className="text-xs">
-												{parcel.latitude.toFixed(4)},{" "}
-												{parcel.longitude.toFixed(4)}
-											</span>
-										</div>
+									</Link>
+									<div className="ml-4 flex-shrink-0">
+										<DeleteParcelButton
+											parcelId={parcel.id}
+											parcelName={parcel.name}
+											iconSize="sm"
+										/>
 									</div>
-								</Link>
+								</div>
 							</CardContent>
 						</Card>
 					))}

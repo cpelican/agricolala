@@ -17,14 +17,27 @@ const defaultIcon = L.icon({
 	shadowSize: [41, 41],
 });
 
+// Highlighted parcel icon
+const highlightedIcon = L.divIcon({
+	className: "highlighted-parcel-marker",
+	html: `<div class="w-6 h-6 bg-red-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>`,
+	iconSize: [24, 24],
+	iconAnchor: [12, 12],
+});
+
 L.Marker.prototype.options.icon = defaultIcon;
 
 interface ParcelMapProps {
 	parcels: Parcel[];
 	onMapClick?: (lat: number, lng: number) => void;
+	highlightParcelId?: string;
 }
 
-export function ParcelMap({ parcels, onMapClick }: ParcelMapProps) {
+export function ParcelMap({
+	parcels,
+	onMapClick,
+	highlightParcelId,
+}: ParcelMapProps) {
 	const mapRef = useRef<HTMLDivElement>(null);
 	const mapInstanceRef = useRef<L.Map | null>(null);
 	const markersRef = useRef<L.Marker[]>([]);
@@ -98,7 +111,10 @@ export function ParcelMap({ parcels, onMapClick }: ParcelMapProps) {
 
 		// Add markers for existing parcels
 		parcels.forEach((parcel) => {
-			const marker = L.marker([parcel.latitude, parcel.longitude])
+			const isHighlighted = highlightParcelId === parcel.id;
+			const marker = L.marker([parcel.latitude, parcel.longitude], {
+				icon: isHighlighted ? highlightedIcon : defaultIcon,
+			})
 				.bindPopup(`
           <div class="p-2">
             <h3 class="font-medium">${parcel.name}</h3>
@@ -108,10 +124,19 @@ export function ParcelMap({ parcels, onMapClick }: ParcelMapProps) {
 				.addTo(mapInstanceRef.current!);
 
 			markersRef.current.push(marker);
+
+			// If this is the highlighted parcel, open its popup and zoom to it
+			if (isHighlighted) {
+				marker.openPopup();
+				mapInstanceRef.current!.setView(
+					[parcel.latitude, parcel.longitude],
+					15,
+				);
+			}
 		});
 
-		// Fit bounds to show all markers if there are any
-		if (parcels.length > 0 && userLocation) {
+		// Fit bounds to show all markers if there are any and no specific parcel is highlighted
+		if (parcels.length > 0 && userLocation && !highlightParcelId) {
 			const coordinates: L.LatLngExpression[] = [
 				userLocation,
 				...parcels.map((p) => [p.latitude, p.longitude] as [number, number]),
@@ -126,7 +151,7 @@ export function ParcelMap({ parcels, onMapClick }: ParcelMapProps) {
 				mapInstanceRef.current = null;
 			}
 		};
-	}, [parcels, onMapClick, userLocation]);
+	}, [parcels, onMapClick, userLocation, highlightParcelId]);
 
 	return (
 		<div className="w-full">
