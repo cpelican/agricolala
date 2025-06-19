@@ -7,13 +7,12 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Agraria - Vineyard Management",
+	title: "Agricolala - Vineyard Management",
 	description: "Manage your vineyard treatments and parcels",
 	manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-	themeColor: "#16a34a",
 	width: "device-width",
 	initialScale: 1,
 	maximumScale: 1,

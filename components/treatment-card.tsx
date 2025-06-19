@@ -1,9 +1,9 @@
 import { type Disease, TreatmentStatus } from "@prisma/client";
 import { MapPin, Calendar, Droplets } from "lucide-react";
-import { format } from "path";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { type ParcelWithTreatments } from "../types";
-import { Card, CardContent } from "./card";
+import { type ParcelWithTreatments } from "./types";
+import { Card, CardContent } from "./ui/card";
 
 export function TreatmentCard({
 	treatment,
@@ -48,7 +48,7 @@ export function TreatmentCard({
 				{treatment.dateMin && (
 					<div className="flex items-center text-sm text-gray-600 mb-2">
 						<Calendar className="h-4 w-4 mr-1" />
-						{treatment.status === "DONE" && treatment.appliedDate
+						{treatment.status === TreatmentStatus.DONE && treatment.appliedDate
 							? `Applied: ${format(new Date(treatment.appliedDate), "MMM dd, yyyy")}`
 							: `Scheduled: ${format(new Date(treatment.dateMin), "MMM dd")} - ${
 									treatment.dateMax

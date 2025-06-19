@@ -1,5 +1,7 @@
 "use client";
 
+import { MAIN_COLOR } from "@/app/const";
+
 interface LayoutWithHeaderProps {
 	children: React.ReactNode;
 	title: string;
@@ -13,9 +15,9 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = ({
 }) => {
 	return (
 		<div className="min-h-screen bg-gray-50 pb-20">
-			<div className="bg-green-600 text-white p-4">
+			<div style={{ background: MAIN_COLOR }} className="text-white p-4">
 				<h1 className="text-2xl font-bold">{title}</h1>
-				<p className="text-green-100">{subtitle}</p>
+				<p className="text-white-100">{subtitle}</p>
 			</div>
 
 			{children}

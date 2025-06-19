@@ -68,12 +68,12 @@ export default function ProfilePage() {
 
 					<Card>
 						<CardHeader>
-							<CardTitle>About Agraria</CardTitle>
+							<CardTitle>About Agricolala</CardTitle>
 							<CardDescription>Version 1.0.0</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-gray-600">
-								Agraria helps you manage your vineyard treatments and track
+								Agricolala helps you manage your vineyard treatments and track
 								substance usage to ensure compliance with agricultural
 								regulations.
 							</p>

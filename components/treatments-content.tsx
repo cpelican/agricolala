@@ -8,8 +8,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { type ParcelWithTreatments } from "./types";
-import { type Disease } from "@prisma/client";
-import { TreatmentCard } from "./ui/treatment-card";
+import { TreatmentStatus, type Disease } from "@prisma/client";
+import { TreatmentCard } from "./treatment-card";
 
 interface TreatmentsContentProps {
 	diseases: Pick<Disease, "id" | "name">[];
@@ -20,8 +20,12 @@ export function TreatmentsContent({
 	treatments,
 	diseases,
 }: TreatmentsContentProps) {
-	const upcomingTreatments = treatments.filter((t) => t.status === "TODO");
-	const completedTreatments = treatments.filter((t) => t.status === "DONE");
+	const upcomingTreatments = treatments.filter(
+		(t) => t.status === TreatmentStatus.TODO,
+	);
+	const completedTreatments = treatments.filter(
+		(t) => t.status === TreatmentStatus.DONE,
+	);
 
 	if (treatments.length === 0) {
 		return (

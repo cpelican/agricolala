@@ -18,6 +18,9 @@ interface TreatmentWithProducts {
 	}>;
 }
 
+type SubstanceName =
+	TreatmentWithProducts["productApplications"][number]["product"]["composition"][number]["substance"]["name"];
+
 export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
 ): SubstanceData[] {
@@ -53,7 +56,7 @@ export function calculateSubstanceData(
 			});
 			return acc;
 		},
-		{} as Record<string, SubstanceData>,
+		{} as Record<SubstanceName, SubstanceData>,
 	);
 
 	return Object.values(substanceDataMap);

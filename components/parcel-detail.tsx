@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { type ParcelWithTreatments, type SubstanceData } from "./types";
-import { TreatmentCard } from "./ui/treatment-card";
+import { TreatmentCard } from "./treatment-card";
 
 interface ParcelDetailProps {
 	parcel: Pick<

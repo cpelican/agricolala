@@ -24,7 +24,7 @@ export function HomeContent({ parcels }: HomeContentProps) {
 			<div className="p-4">
 				<Card>
 					<CardHeader className="text-center">
-						<CardTitle>Welcome to Agraria</CardTitle>
+						<CardTitle>Welcome to Agricolala</CardTitle>
 						<CardDescription>
 							To start managing your vineyard treatments, you need to add your
 							first parcel.

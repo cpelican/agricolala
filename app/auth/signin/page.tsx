@@ -28,7 +28,7 @@ export default function SignIn() {
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl font-bold text-green-700">
-						Agraria
+						Agricolala
 					</CardTitle>
 					<CardDescription>
 						Manage your vineyard treatments and parcels

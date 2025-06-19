@@ -5,11 +5,11 @@ export type SubstanceData = {
 	totalUsed: number;
 	maxDosage: number;
 	monthlyData: number[];
-	applications: Array<{
+	applications: {
 		date: Date;
 		dose: number;
 		parcel: string;
-	}>;
+	}[];
 };
 
 export type ParcelWithTreatments = Prisma.ParcelGetPayload<{
