@@ -11,7 +11,11 @@
 		"tsc": "tsc --noEmit",
 		"prettify": "npx @biomejs/biome format --write .",
 		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
-		"prepare": "husky"
+		"prepare": "husky",
+		"db:seed": "npx tsx prisma/seed.ts"
+	},
+	"prisma": {
+		"seed": "npx tsx prisma/seed.ts"
 	},
 	"dependencies": {
 		"@auth/core": "latest",

@@ -1,7 +1,7 @@
 import type { NextAdminOptions } from "@premieroctet/next-admin";
 
 const options: NextAdminOptions = {
-	title: "My awesome admin",
+	title: "Adminolala",
 	model: {
 		User: {
 			list: {
@@ -10,6 +10,15 @@ const options: NextAdminOptions = {
 			edit: {
 				display: ["name", "email", "isAdmin"],
 			},
+		},
+		AdminUser: {
+			list: {
+				display: ["email"],
+			},
+			edit: {
+				display: ["email"],
+			},
+			toString: (item) => item.email,
 		},
 		Parcel: {
 			list: {
@@ -51,12 +60,15 @@ const options: NextAdminOptions = {
 		},
 		Substance: {
 			list: {
-				display: ["name", "maxDosage", "targets", "substanceDoses"],
+				display: ["name", "maxDosage", "diseases", "substanceDoses"],
+			},
+			edit: {
+				display: ["name", "maxDosage", "diseases"],
 			},
 		},
 		Disease: {
 			list: {
-				display: ["name", "description"],
+				display: ["name"],
 			},
 			edit: {
 				display: ["name", "description"],
@@ -68,7 +80,14 @@ const options: NextAdminOptions = {
 			{
 				className: "pt-5 text-lg !text-white !bg-gray-800",
 				title: "Models",
-				models: ["User", "Parcel", "Product", "Substance", "Disease"],
+				models: [
+					"User",
+					"AdminUser",
+					"Parcel",
+					"Product",
+					"Substance",
+					"Disease",
+				],
 			},
 		],
 	},

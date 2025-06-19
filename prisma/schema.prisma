@@ -11,6 +11,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -43,7 +50,6 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
-  isAdmin       Boolean   @default(false)
   image         String?
   accounts      Account[]
   sessions      Session[]
@@ -107,7 +113,7 @@ model Product {
 
 model ProductApplication {
   id          String    @id @default(cuid())
-  dose        Float
+  dose        Float // kg/ha
   treatmentId String
   treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade)
   productId   String
@@ -120,15 +126,15 @@ model Substance {
   id              String          @id @default(cuid())
   name            String          @unique
   maxDosage       Float // kg/ha
-  targets         Disease[]       @relation("SubstanceTargets")
-  substanceDoses  SubstanceDose[]
+  diseases        Disease[]       @relation("SubstanceDiseases")
+  substanceDoses  SubstanceDose[] // dose of substance a product contains
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
 
 model SubstanceDose {
   id          String    @id @default(cuid())
-  dose        Float
+  dose        Float // % of substance in the product
   substanceId String
   substance   Substance @relation(fields: [substanceId], references: [id], onDelete: Cascade)
   productId   String
@@ -141,7 +147,7 @@ model Disease {
   id          String      @id @default(cuid())
   name        String      @unique
   description String?
-  substances  Substance[] @relation("SubstanceTargets")
+  substances  Substance[] @relation("SubstanceDiseases")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }

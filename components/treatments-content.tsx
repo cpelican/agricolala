@@ -10,7 +10,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { ParcelWithTreatments } from "./types";
+import { type ParcelWithTreatments } from "./types";
 
 interface TreatmentsContentProps {
 	treatments: ParcelWithTreatments["treatments"];

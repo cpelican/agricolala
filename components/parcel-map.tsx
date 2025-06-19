@@ -3,7 +3,7 @@
 import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { Parcel } from "@prisma/client";
+import { type Parcel } from "@prisma/client";
 
 // Fix Leaflet default icon
 const defaultIcon = L.icon({

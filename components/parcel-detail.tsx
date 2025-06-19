@@ -1,6 +1,6 @@
 "use client";
 
-import { Disease, Parcel, Product } from "@prisma/client";
+import { type Disease, type Parcel, type Product } from "@prisma/client";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Plus } from "lucide-react";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { SubstanceChart } from "./substance-chart";
-import { ParcelWithTreatments, SubstanceData } from "./types";
+import { type ParcelWithTreatments, type SubstanceData } from "./types";
 
 interface ParcelDetailProps {
 	parcel: Pick<

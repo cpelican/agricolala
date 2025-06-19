@@ -9,8 +9,8 @@ const { run } = createHandler({
 	prisma,
 	onRequest: async () => {
 		const session = await getServerSession(authOptions);
-		const adminUser = await prisma.user.findFirst({
-			where: { email: session?.user?.email ?? "", isAdmin: true },
+		const adminUser = await prisma.adminUser.findFirst({
+			where: { email: session?.user?.email ?? "" },
 		});
 		if (adminUser == null) {
 			return NextResponse.json({ error: "Forbidden" }, { status: 403 });

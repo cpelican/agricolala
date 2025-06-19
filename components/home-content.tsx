@@ -11,7 +11,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
-import { ParcelWithTreatments, SubstanceData } from "./types";
+import { type ParcelWithTreatments, type SubstanceData } from "./types";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];

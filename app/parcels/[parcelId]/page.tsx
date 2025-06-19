@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ParcelDetail } from "@/components/parcel-detail";
-import { SubstanceData } from "@/components/types";
+import { type SubstanceData } from "@/components/types";
 import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
 import { prisma } from "@/lib/prisma";
 
