@@ -27,8 +27,8 @@ const highlightedIcon = L.divIcon({
 
 L.Marker.prototype.options.icon = defaultIcon;
 
-interface ParcelMapProps {
-	parcels: Parcel[];
+export interface ParcelMapProps {
+	parcels: Pick<Parcel, "id" | "name" | "latitude" | "longitude">[];
 	onMapClick?: (lat: number, lng: number) => void;
 	highlightParcelId?: string;
 }

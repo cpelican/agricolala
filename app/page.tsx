@@ -1,44 +1,13 @@
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { HomeContent } from "@/components/home-content";
-import { prisma } from "@/lib/prisma";
 import { LayoutWithHeader } from "@/components/layout-with-header";
-import { TreatmentStatus } from "@prisma/client";
 import { requireAuth } from "@/lib/auth-utils";
+import { getParcels } from "@/lib/parcel-helpers";
 
 export default async function Home() {
 	const session = await requireAuth();
-
-	const parcels = await prisma.parcel.findMany({
-		where: { userId: session?.user?.id },
-		include: {
-			treatments: {
-				include: {
-					productApplications: {
-						include: {
-							product: {
-								include: {
-									composition: {
-										include: {
-											substance: true,
-										},
-									},
-								},
-							},
-						},
-					},
-					parcel: true,
-				},
-				where: {
-					status: TreatmentStatus.DONE,
-					appliedDate: {
-						gte: new Date(new Date().getFullYear(), 0, 1),
-						lte: new Date(new Date().getFullYear(), 11, 31),
-					},
-				},
-			},
-		},
-	});
+	const parcels = await getParcels(session.user.id);
 
 	return (
 		<AuthGuard>

@@ -1,5 +1,3 @@
-import { type Prisma } from "@prisma/client";
-
 export type SubstanceData = {
 	name: string;
 	totalUsed: number;
@@ -11,26 +9,3 @@ export type SubstanceData = {
 		parcel: string;
 	}[];
 };
-
-export type ParcelWithTreatments = Prisma.ParcelGetPayload<{
-	include: {
-		treatments: {
-			include: {
-				productApplications: {
-					include: {
-						product: {
-							include: {
-								composition: {
-									include: {
-										substance: true;
-									};
-								};
-							};
-						};
-					};
-				};
-				parcel: true;
-			};
-		};
-	};
-}>;

@@ -8,16 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "./substance-usage-section";
-import { type ParcelWithTreatments, type SubstanceData } from "./types";
+import { type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
+import { type ParcelDetail } from "@/app/parcels/[parcelId]/page";
 
 interface ParcelDetailProps {
 	parcel: Pick<
 		Parcel,
 		"id" | "name" | "latitude" | "longitude" | "width" | "height" | "type"
 	>;
-	upcomingTreatments: ParcelWithTreatments["treatments"];
-	pastTreatments: ParcelWithTreatments["treatments"];
+	upcomingTreatments: ParcelDetail["treatments"];
+	pastTreatments: ParcelDetail["treatments"];
 	substanceData: SubstanceData[];
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name">[];

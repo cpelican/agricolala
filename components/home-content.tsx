@@ -9,8 +9,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { SubstanceUsageSection } from "./substance-usage-section";
-import { type ParcelWithTreatments } from "./types";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
+import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];
@@ -41,7 +41,7 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 		);
 	}
 
-	const allTreatments = parcels.flatMap((parcel) =>
+	const allTreatments = parcels.flatMap((parcel: ParcelWithTreatments) =>
 		parcel.treatments.map((treatment) => ({
 			...treatment,
 			parcelId: parcel.name,

@@ -2,14 +2,14 @@ import { type Disease, TreatmentStatus } from "@prisma/client";
 import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { type ParcelWithTreatments } from "./types";
 import { Card, CardContent } from "./ui/card";
+import { type ParcelDetail } from "@/app/parcels/[parcelId]/page";
 
 export function TreatmentCard({
 	treatment,
 	diseases,
 }: {
-	treatment: ParcelWithTreatments["treatments"][number];
+	treatment: ParcelDetail["treatments"][number];
 	diseases: Pick<Disease, "id" | "name">[];
 }) {
 	return (

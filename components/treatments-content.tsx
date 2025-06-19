@@ -7,13 +7,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { type ParcelWithTreatments } from "./types";
 import { TreatmentStatus, type Disease } from "@prisma/client";
 import { TreatmentCard } from "./treatment-card";
+import { type ParcelDetail } from "@/app/parcels/[parcelId]/page";
 
 interface TreatmentsContentProps {
 	diseases: Pick<Disease, "id" | "name">[];
-	treatments: ParcelWithTreatments["treatments"];
+	treatments: ParcelDetail["treatments"];
 }
 
 export function TreatmentsContent({

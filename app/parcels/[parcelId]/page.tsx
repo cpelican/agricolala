@@ -8,7 +8,7 @@ import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelDetail } from "@/components/parcel-detail";
-import { ParcelMap } from "@/components/parcel-map";
+import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -103,7 +103,10 @@ export default async function ParcelPage({
 								<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
 							}
 						>
-							<ParcelMap parcels={[parcel]} highlightParcelId={parcel.id} />
+							<ParcelMapWrapper
+								parcels={[parcel]}
+								highlightParcelId={parcel.id}
+							/>
 						</Suspense>
 					</div>
 				</div>

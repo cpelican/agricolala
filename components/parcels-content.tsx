@@ -1,16 +1,16 @@
 "use client";
 
-import type { Parcel } from "@prisma/client";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { DeleteParcelButton } from "./delete-parcel-button";
-import { ParcelMap } from "./parcel-map";
+import { ParcelMapWrapper } from "./parcel-map-wrapper";
+import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
 
 interface ParcelsContentProps {
-	parcels: Parcel[];
+	parcels: ParcelWithTreatments[];
 }
 
 export function ParcelsContent({ parcels }: ParcelsContentProps) {
@@ -36,7 +36,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 
 			<Card>
 				<CardContent className="p-0">
-					<ParcelMap parcels={parcels} onMapClick={handleMapClick} />
+					<ParcelMapWrapper parcels={parcels} onMapClick={handleMapClick} />
 					{parcels.length === 0 && (
 						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-4 rounded-lg shadow-lg text-center">
 							<p className="text-gray-700 font-medium">
