@@ -11,6 +11,7 @@ import {
 	Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { useSubstances } from "@/contexts/cached-data-context";
 
 ChartJS.register(
 	CategoryScale,
@@ -33,38 +34,38 @@ interface SubstanceChartProps {
 	data: SubstanceData[];
 }
 
-export function SubstanceChart({ data }: SubstanceChartProps) {
-	const months = [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec",
-	];
+const months = [
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+];
 
-	const colors = [
-		"rgb(34, 197, 94)",
-		"rgb(59, 130, 246)",
-		"rgb(239, 68, 68)",
-		"rgb(245, 158, 11)",
-		"rgb(168, 85, 247)",
-		"rgb(236, 72, 153)",
-	];
+export function SubstanceChart({ data }: SubstanceChartProps) {
+	const substances = useSubstances();
+	const colors = substances.reduce(
+		(acc, substance) => {
+			acc[substance.name] = substance.color;
+			return acc;
+		},
+		{} as Record<string, string>,
+	);
 
 	const chartData = {
 		labels: months,
-		datasets: data.map((substance, index) => ({
+		datasets: data.map((substance) => ({
 			label: substance.name,
 			data: substance.monthlyData,
-			borderColor: colors[index % colors.length],
-			backgroundColor: colors[index % colors.length] + "20",
+			borderColor: colors[substance.name],
+			backgroundColor: colors[substance.name] + "20",
 			tension: 0.1,
 		})),
 	};

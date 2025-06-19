@@ -4,6 +4,10 @@
 
 body {
 	font-family: Arial, Helvetica, sans-serif;
+
+	#headlessui-dialog-panel-«rc» > .absolute button svg {
+		color: black !important;
+	}
 }
 
 @layer utilities {
@@ -47,27 +51,7 @@ body {
 		--sidebar-accent-foreground: 240 5.9% 10%;
 		--sidebar-border: 220 13% 91%;
 		--sidebar-ring: 217.2 91.2% 59.8%;
-
-		/* Next Admin specific variables */
-		--next-admin-sidebar-bg: #1f2937;
-		--next-admin-sidebar-text: #ffffff;
-		--next-admin-sidebar-hover: #374151;
-		--next-admin-sidebar-active: #4b5563;
 	}
-}
-
-/* Next Admin specific styles */
-.next-admin-sidebar {
-	background-color: var(--next-admin-sidebar-bg) !important;
-	color: var(--next-admin-sidebar-text) !important;
-}
-
-.next-admin-sidebar a:hover {
-	background-color: var(--next-admin-sidebar-hover) !important;
-}
-
-.next-admin-sidebar a.active {
-	background-color: var(--next-admin-sidebar-active) !important;
 }
 
 @layer base {

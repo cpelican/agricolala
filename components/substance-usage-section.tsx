@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
 import { type SubstanceData } from "./types";
+import { useSubstances } from "@/contexts/cached-data-context";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -22,6 +23,12 @@ export function SubstanceUsageSection({
 	description = "Track your substance applications across all treatments",
 }: SubstanceUsageSectionProps) {
 	const hasSubstanceData = substanceData.length > 0;
+	const substances = useSubstances();
+
+	const getSubstanceColor = (substanceName: string) => {
+		const substance = substances.find((s) => s.name === substanceName);
+		return substance?.color || "rgb(182, 182, 182)";
+	};
 
 	return (
 		<div className="space-y-4">
@@ -42,30 +49,31 @@ export function SubstanceUsageSection({
 						<Card key={substance.name}>
 							<CardContent className="p-4">
 								<div className="flex justify-between items-center">
-									<div>
-										<h3 className="font-medium">{substance.name}</h3>
-										<p className="text-sm text-muted-foreground">
-											{substance.totalUsed.toFixed(2)} kg/ha used
-										</p>
+									<div className="flex items-center gap-2">
+										<div
+											className="w-3 h-3 rounded-full"
+											style={{
+												backgroundColor: getSubstanceColor(substance.name),
+											}}
+										/>
+										<div>
+											<h3 className="font-medium">{substance.name}</h3>
+											<p className="text-sm text-muted-foreground">
+												{substance.totalUsed.toFixed(2)} kg/ha used
+											</p>
+										</div>
 									</div>
 									<div className="text-right">
 										<p className="text-sm text-muted-foreground">
 											Max: {substance.maxDosage} kg/ha
 										</p>
-										<div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
-											<div
-												className={`h-2 rounded-full ${
-													substance.totalUsed / substance.maxDosage > 0.8
-														? "bg-red-500"
-														: substance.totalUsed / substance.maxDosage > 0.6
-															? "bg-yellow-500"
-															: "bg-green-500"
-												}`}
-												style={{
-													width: `${Math.min(100, (substance.totalUsed / substance.maxDosage) * 100)}%`,
-												}}
-											/>
-										</div>
+										<meter
+											value={substance.totalUsed}
+											max={substance.maxDosage}
+											high={substance.maxDosage * 0.8}
+											optimum={substance.maxDosage * 0.4}
+											low={substance.maxDosage * 0.6}
+										/>
 									</div>
 								</div>
 							</CardContent>

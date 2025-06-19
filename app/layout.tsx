@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import type React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
+import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +29,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="pippola">
 			<body className={inter.className}>
-				<Providers>{children}</Providers>
+				<CachedDataWrapper>
+					<Providers>{children}</Providers>
+				</CachedDataWrapper>
 			</body>
 		</html>
 	);

@@ -1,5 +1,3 @@
-"use client";
-
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,7 +16,7 @@ interface HomeContentProps {
 	parcels: ParcelWithTreatments[];
 }
 
-export function HomeContent({ parcels }: HomeContentProps) {
+export async function HomeContent({ parcels }: HomeContentProps) {
 	if (parcels.length === 0) {
 		return (
 			<div className="p-4">
