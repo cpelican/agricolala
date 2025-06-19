@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Disease, type Product } from "@prisma/client";
+import type { Disease, Product } from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
+import { type z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -32,28 +32,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-
-const formSchema = z.object({
-	diseases: z
-		.array(
-			z.object({
-				diseaseId: z.string().min(1, "Disease is required"),
-			}),
-		)
-		.min(1, "At least one disease is required"),
-	type: z.string().min(1, "Type is required"),
-	dateMin: z.date(),
-	dateMax: z.date(),
-	waterDose: z.number().min(0),
-	productApplications: z
-		.array(
-			z.object({
-				productId: z.string(),
-				dose: z.number().min(0),
-			}),
-		)
-		.min(1, "At least one product is required"),
-});
+import { createTreatmentSchema } from "@/app/api/treatments/schema";
+import { Calendar } from "@/components/ui/calendar";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AddTreatmentDialogProps {
 	open: boolean;
@@ -73,14 +61,14 @@ export function AddTreatmentDialog({
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 
-	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<z.infer<typeof createTreatmentSchema>>({
+		resolver: zodResolver(createTreatmentSchema),
 		defaultValues: {
 			diseases: [{ diseaseId: "" }],
-			type: "",
-			waterDose: 0,
-			productApplications: [{ productId: "", dose: 0 }],
+			waterDose: 10,
+			productApplications: [{ productId: "", dose: undefined }],
 		},
+		mode: "onChange",
 	});
 
 	const {
@@ -101,7 +89,7 @@ export function AddTreatmentDialog({
 		name: "productApplications",
 	});
 
-	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+	const onSubmit = async (values: z.infer<typeof createTreatmentSchema>) => {
 		try {
 			setLoading(true);
 			const response = await fetch("/api/treatments", {
@@ -129,6 +117,8 @@ export function AddTreatmentDialog({
 		}
 	};
 
+	const isFormValid = form.formState.isValid;
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
@@ -140,6 +130,48 @@ export function AddTreatmentDialog({
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="appliedDate"
+							render={({ field }) => (
+								<FormItem className="flex flex-col">
+									<FormLabel>Application Date</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant={"outline"}
+													className={cn(
+														"w-full pl-3 text-left font-normal",
+														!field.value && "text-muted-foreground",
+													)}
+												>
+													{field.value ? (
+														format(field.value, "PPP")
+													) : (
+														<span>Pick a date</span>
+													)}
+													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0" align="start">
+											<Calendar
+												mode="single"
+												selected={field.value}
+												onSelect={field.onChange}
+												disabled={(date) =>
+													date > new Date() || date < new Date("1900-01-01")
+												}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
 								<FormLabel>Diseases</FormLabel>
@@ -198,7 +230,12 @@ export function AddTreatmentDialog({
 
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
-								<FormLabel>Products</FormLabel>
+								<div>
+									<FormLabel>Products</FormLabel>
+									<p className="text-sm text-muted-foreground">
+										Doses in grams (g)
+									</p>
+								</div>
 								<Button
 									type="button"
 									variant="outline"
@@ -245,7 +282,9 @@ export function AddTreatmentDialog({
 												<FormControl>
 													<Input
 														type="number"
-														placeholder="Dose"
+														placeholder="gr"
+														step="0.1"
+														min="0.1"
 														{...field}
 														onChange={(e) =>
 															field.onChange(Number(e.target.value))
@@ -276,10 +315,12 @@ export function AddTreatmentDialog({
 							name="waterDose"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Water Dose (L/ha)</FormLabel>
+									<FormLabel>Water Dose (L)</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
+											step="0.1"
+											min="0"
 											{...field}
 											onChange={(e) => field.onChange(Number(e.target.value))}
 										/>
@@ -290,7 +331,7 @@ export function AddTreatmentDialog({
 						/>
 
 						<DialogFooter>
-							<Button type="submit" disabled={loading}>
+							<Button type="submit" disabled={loading || !isFormValid}>
 								{loading ? "Creating..." : "Create Treatment"}
 							</Button>
 						</DialogFooter>

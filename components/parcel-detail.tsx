@@ -42,25 +42,14 @@ export function ParcelDetail({
 
 	return (
 		<div className="p-4 space-y-4">
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between">
-					<div>
-						<CardTitle>{parcel.name}</CardTitle>
-						<CardDescription>
-							{parcel.type} - {parcel.width}m x {parcel.height}m
-						</CardDescription>
-					</div>
-					<Button
-						onClick={() => setIsAddTreatmentOpen(true)}
-						className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-						size="icon"
-					>
-						<Plus className="h-6 w-6" />
-					</Button>
-				</CardHeader>
-			</Card>
-
 			<div className="grid gap-4 md:grid-cols-2">
+				<Button
+					onClick={() => setIsAddTreatmentOpen(true)}
+					className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg"
+					size="icon"
+				>
+					<Plus className="h-6 w-6" />
+				</Button>
 				<Card>
 					<CardHeader>
 						<CardTitle>Upcoming Treatments</CardTitle>

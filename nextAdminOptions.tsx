@@ -5,10 +5,10 @@ const options: NextAdminOptions = {
 	model: {
 		User: {
 			list: {
-				display: ["name", "email", "isAdmin"],
+				display: ["name", "email"],
 			},
 			edit: {
-				display: ["name", "email", "isAdmin"],
+				display: ["name", "email"],
 			},
 		},
 		AdminUser: {
@@ -58,6 +58,17 @@ const options: NextAdminOptions = {
 				],
 			},
 		},
+		Treatment: {
+			list: {
+				display: [
+					"appliedDate",
+					"waterDose",
+					"productApplications",
+					"parcel",
+					"user",
+				],
+			},
+		},
 		Substance: {
 			list: {
 				display: ["name", "maxDosage", "diseases", "substanceDoses"],
@@ -87,6 +98,7 @@ const options: NextAdminOptions = {
 					"Product",
 					"Substance",
 					"Disease",
+					"Treatment",
 				],
 			},
 		],

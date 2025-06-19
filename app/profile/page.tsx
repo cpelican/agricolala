@@ -13,18 +13,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { LayoutWithHeader } from "@/components/layout-with-header";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();
 
 	return (
 		<AuthGuard>
-			<div className="min-h-screen bg-gray-50 pb-20">
-				<div className="bg-green-600 text-white p-4">
-					<h1 className="text-2xl font-bold">Profile</h1>
-					<p className="text-green-100">Manage your account settings</p>
-				</div>
-
+			<LayoutWithHeader title="Profile" subtitle="Manage your account settings">
 				<div className="p-4 space-y-4">
 					<Card>
 						<CardHeader>
@@ -86,7 +82,7 @@ export default function ProfilePage() {
 				</div>
 
 				<BottomNavigation />
-			</div>
+			</LayoutWithHeader>
 		</AuthGuard>
 	);
 }

@@ -5,6 +5,7 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { ParcelsContent } from "@/components/parcels-content";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { LayoutWithHeader } from "@/components/layout-with-header";
 
 export default async function ParcelsPage() {
 	const session = await getServerSession(authOptions);
@@ -20,15 +21,13 @@ export default async function ParcelsPage() {
 
 	return (
 		<AuthGuard>
-			<div className="min-h-screen bg-gray-50 pb-20">
-				<div className="bg-green-600 text-white p-4">
-					<h1 className="text-2xl font-bold">My Parcels</h1>
-					<p className="text-green-100">Manage your vineyard parcels</p>
-				</div>
-
+			<LayoutWithHeader
+				title="My Parcels"
+				subtitle="Manage your vineyard parcels"
+			>
 				<ParcelsContent parcels={parcels} />
 				<BottomNavigation />
-			</div>
+			</LayoutWithHeader>
 		</AuthGuard>
 	);
 }

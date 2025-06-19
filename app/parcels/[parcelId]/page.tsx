@@ -1,19 +1,24 @@
 import { notFound } from "next/navigation";
+import { AuthGuard } from "@/components/auth-guard";
+import { BottomNavigation } from "@/components/bottom-navigation";
+import { LayoutWithHeader } from "@/components/layout-with-header";
 import { ParcelDetail } from "@/components/parcel-detail";
 import { type SubstanceData } from "@/components/types";
 import { getCachedDiseases, getCachedProducts } from "@/lib/cached-data";
 import { prisma } from "@/lib/prisma";
 
-interface ParcelPageProps {
-	params: {
-		parcelId: string;
-	};
-}
+export type PageProps<T extends Record<string, string>> = {
+	params: Promise<T>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default async function ParcelPage({ params }: ParcelPageProps) {
+export default async function ParcelPage({
+	params,
+}: PageProps<{ parcelId: string }>) {
+	const { parcelId } = await params;
 	const [parcel, diseases, products] = await Promise.all([
 		prisma.parcel.findUnique({
-			where: { id: params.parcelId },
+			where: { id: parcelId },
 			include: {
 				treatments: {
 					include: {
@@ -99,13 +104,21 @@ export default async function ParcelPage({ params }: ParcelPageProps) {
 	);
 
 	return (
-		<ParcelDetail
-			parcel={parcel}
-			diseases={diseases}
-			products={products}
-			upcomingTreatments={upcomingTreatments}
-			pastTreatments={pastTreatments}
-			substanceData={Object.values(substanceData)}
-		/>
+		<AuthGuard>
+			<LayoutWithHeader
+				title={`${parcel.name}`}
+				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+			>
+				<ParcelDetail
+					parcel={parcel}
+					diseases={diseases}
+					products={products}
+					upcomingTreatments={upcomingTreatments}
+					pastTreatments={pastTreatments}
+					substanceData={Object.values(substanceData)}
+				/>
+				<BottomNavigation />
+			</LayoutWithHeader>
+		</AuthGuard>
 	);
 }

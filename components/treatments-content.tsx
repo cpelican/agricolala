@@ -11,12 +11,17 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { type ParcelWithTreatments } from "./types";
+import { type Disease } from "@prisma/client";
 
 interface TreatmentsContentProps {
+	diseases: Pick<Disease, "id" | "name">[];
 	treatments: ParcelWithTreatments["treatments"];
 }
 
-export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
+export function TreatmentsContent({
+	treatments,
+	diseases,
+}: TreatmentsContentProps) {
 	const upcomingTreatments = treatments.filter((t) => t.status === "TODO");
 	const completedTreatments = treatments.filter((t) => t.status === "DONE");
 
@@ -46,7 +51,11 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 					</h2>
 					<div className="space-y-3">
 						{upcomingTreatments.map((treatment) => (
-							<TreatmentCard key={treatment.id} treatment={treatment} />
+							<TreatmentCard
+								key={treatment.id}
+								treatment={treatment}
+								diseases={diseases}
+							/>
 						))}
 					</div>
 				</div>
@@ -60,7 +69,11 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 					</h2>
 					<div className="space-y-3">
 						{completedTreatments.map((treatment) => (
-							<TreatmentCard key={treatment.id} treatment={treatment} />
+							<TreatmentCard
+								key={treatment.id}
+								treatment={treatment}
+								diseases={diseases}
+							/>
 						))}
 					</div>
 				</div>
@@ -71,9 +84,12 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 
 function TreatmentCard({
 	treatment,
+	diseases,
 }: {
 	treatment: ParcelWithTreatments["treatments"][number];
+	diseases: Pick<Disease, "id" | "name">[];
 }) {
+	console.log("diseases", diseases);
 	return (
 		<Card>
 			<CardContent className="p-4">
@@ -83,7 +99,8 @@ function TreatmentCard({
 							Target:{" "}
 							{treatment.diseaseIds
 								.map((diseaseId) => {
-									return diseaseId;
+									return diseases.find((disease) => disease.id === diseaseId)
+										?.name;
 								})
 								.join(", ")}
 						</p>

@@ -5,6 +5,8 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { TreatmentsContent } from "@/components/treatments-content";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { LayoutWithHeader } from "@/components/layout-with-header";
+import { getCachedDiseases } from "@/lib/cached-data";
 
 export default async function TreatmentsPage() {
 	const session = await getServerSession(authOptions);
@@ -33,18 +35,16 @@ export default async function TreatmentsPage() {
 		},
 		orderBy: [{ status: "asc" }, { dateMin: "asc" }],
 	});
-
+	const diseases = await getCachedDiseases();
 	return (
 		<AuthGuard>
-			<div className="min-h-screen bg-gray-50 pb-20">
-				<div className="bg-green-600 text-white p-4">
-					<h1 className="text-2xl font-bold">Treatments</h1>
-					<p className="text-green-100">Manage all your vineyard treatments</p>
-				</div>
-
-				<TreatmentsContent treatments={treatments} />
+			<LayoutWithHeader
+				title="Treatments"
+				subtitle="Manage all your vineyard treatments"
+			>
+				<TreatmentsContent treatments={treatments} diseases={diseases} />
 				<BottomNavigation />
-			</div>
+			</LayoutWithHeader>
 		</AuthGuard>
 	);
 }

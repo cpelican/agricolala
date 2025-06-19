@@ -5,6 +5,7 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { HomeContent } from "@/components/home-content";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { LayoutWithHeader } from "@/components/layout-with-header";
 
 export default async function Home() {
 	const session = await getServerSession(authOptions);
@@ -46,15 +47,13 @@ export default async function Home() {
 
 	return (
 		<AuthGuard>
-			<div className="min-h-screen bg-gray-50 pb-20">
-				<div className="bg-green-600 text-white p-4">
-					<h1 className="text-2xl font-bold">Agraria</h1>
-					<p className="text-green-100">Welcome back, {session.user.name}</p>
-				</div>
-
+			<LayoutWithHeader
+				title="Agraria"
+				subtitle={`Welcome back, ${session.user?.name ?? session.user?.email}`}
+			>
 				<HomeContent parcels={parcels} />
 				<BottomNavigation />
-			</div>
+			</LayoutWithHeader>
 		</AuthGuard>
 	);
 }
