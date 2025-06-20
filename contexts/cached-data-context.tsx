@@ -1,11 +1,11 @@
 "use client";
 
 import {
-	getCachedDiseases,
-	getCachedProducts,
-	getCachedSubstances,
+	type getCachedDiseases,
+	type getCachedProducts,
+	type getCachedSubstances,
 } from "@/lib/cached-data";
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
 interface CachedDataContextType {
 	substances: Awaited<ReturnType<typeof getCachedSubstances>>;

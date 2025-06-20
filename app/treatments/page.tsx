@@ -4,6 +4,7 @@ import { TreatmentsContent } from "@/components/treatments-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getTreatments } from "@/lib/parcel-helpers";
+import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
 export default async function TreatmentsPage() {
 	const session = await requireAuth();
@@ -11,13 +12,15 @@ export default async function TreatmentsPage() {
 	const treatments = await getTreatments(session.user.id);
 	return (
 		<AuthGuard>
-			<LayoutWithHeader
-				title="Treatments"
-				subtitle="Manage all your vineyard treatments"
-			>
-				<TreatmentsContent treatments={treatments} />
-				<BottomNavigation />
-			</LayoutWithHeader>
+			<CachedDataWrapper>
+				<LayoutWithHeader
+					title="Treatments"
+					subtitle="Manage all your vineyard treatments"
+				>
+					<TreatmentsContent treatments={treatments} />
+					<BottomNavigation />
+				</LayoutWithHeader>
+			</CachedDataWrapper>
 		</AuthGuard>
 	);
 }

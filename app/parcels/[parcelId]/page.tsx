@@ -8,6 +8,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
 import { getParcelDetail, type ParcelDetailType } from "@/lib/parcel-helpers";
 import { ParcelDetail } from "@/components/parcel-detail";
+import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -49,39 +50,41 @@ export default async function ParcelPage({
 
 	return (
 		<AuthGuard>
-			<LayoutWithHeader
-				title={`${parcel.name}`}
-				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
-			>
-				<div className="space-y-6">
-					<Suspense
-						fallback={
-							<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
-						}
-					>
-						<ParcelDetail
-							parcel={parcel}
-							upcomingTreatments={upcomingTreatments}
-							pastTreatments={pastTreatments}
-							substanceData={substanceData}
-						/>
-					</Suspense>
-
-					<div className="h-64">
+			<CachedDataWrapper>
+				<LayoutWithHeader
+					title={`${parcel.name}`}
+					subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+				>
+					<div className="space-y-6">
 						<Suspense
 							fallback={
-								<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
+								<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
 							}
 						>
-							<ParcelMapWrapper
-								parcels={[parcel]}
-								highlightParcelId={parcel.id}
+							<ParcelDetail
+								parcel={parcel}
+								upcomingTreatments={upcomingTreatments}
+								pastTreatments={pastTreatments}
+								substanceData={substanceData}
 							/>
 						</Suspense>
+
+						<div className="h-64">
+							<Suspense
+								fallback={
+									<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
+								}
+							>
+								<ParcelMapWrapper
+									parcels={[parcel]}
+									highlightParcelId={parcel.id}
+								/>
+							</Suspense>
+						</div>
 					</div>
-				</div>
-				<BottomNavigation />
-			</LayoutWithHeader>
+					<BottomNavigation />
+				</LayoutWithHeader>
+			</CachedDataWrapper>
 		</AuthGuard>
 	);
 }

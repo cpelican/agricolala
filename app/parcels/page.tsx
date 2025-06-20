@@ -4,6 +4,7 @@ import { ParcelsContent } from "@/components/parcels-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels } from "@/lib/parcel-helpers";
+import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
 export default async function ParcelsPage() {
 	const session = await requireAuth();
@@ -11,13 +12,15 @@ export default async function ParcelsPage() {
 
 	return (
 		<AuthGuard>
-			<LayoutWithHeader
-				title="My Parcels"
-				subtitle="Manage your vineyard parcels"
-			>
-				<ParcelsContent parcels={parcels} />
-				<BottomNavigation />
-			</LayoutWithHeader>
+			<CachedDataWrapper>
+				<LayoutWithHeader
+					title="My Parcels"
+					subtitle="Manage your vineyard parcels"
+				>
+					<ParcelsContent parcels={parcels} />
+					<BottomNavigation />
+				</LayoutWithHeader>
+			</CachedDataWrapper>
 		</AuthGuard>
 	);
 }
