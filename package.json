@@ -5,7 +5,7 @@
 	"scripts": {
 		"precommit": "npm run lint && npx biome check .",
 		"dev": "next dev",
-		"build": "next build",
+		"build": "prisma generate && next build",
 		"start": "next start",
 		"lint": "next lint",
 		"lint:fix": "next lint --no-cache --quiet --fix && npm run prettify",
