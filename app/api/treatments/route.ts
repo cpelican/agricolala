@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
 		const validatedData = createTreatmentSchema.parse(body);
+
 		const parcel = await prisma.parcel.findFirst({
 			where: {
 				id: validatedData.parcelId,
@@ -52,7 +53,10 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		if (error instanceof Error && error.name === "ZodError") {
 			return NextResponse.json(
-				{ error: "Invalid input data" },
+				{
+					error: "Invalid input data",
+					details: error instanceof Error ? error.message : "Validation failed",
+				},
 				{ status: 400 },
 			);
 		}

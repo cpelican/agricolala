@@ -1,9 +1,10 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { DeleteParcelButton } from "./delete-parcel-button";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
@@ -15,6 +16,7 @@ interface ParcelsContentProps {
 
 export function ParcelsContent({ parcels }: ParcelsContentProps) {
 	const [showAddDialog, setShowAddDialog] = useState(false);
+	const [showEmptyState, setShowEmptyState] = useState(true);
 	const [selectedLocation, setSelectedLocation] = useState<{
 		lat: number;
 		lng: number;
@@ -37,8 +39,16 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 			<Card>
 				<CardContent className="p-0">
 					<ParcelMapWrapper parcels={parcels} onMapClick={handleMapClick} />
-					{parcels.length === 0 && (
-						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-4 rounded-lg shadow-lg text-center">
+					{parcels.length === 0 && showEmptyState && (
+						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-6 rounded-lg shadow-lg text-center">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="absolute top-3 right-3 h-6 w-6 p-0"
+								onClick={() => setShowEmptyState(false)}
+							>
+								<X className="h-4 w-4" />
+							</Button>
 							<p className="text-gray-700 font-medium">
 								Click on the map to add your first parcel
 							</p>

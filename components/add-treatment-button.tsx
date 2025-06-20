@@ -12,7 +12,8 @@ export const AddTreatmentButton = ({ parcelId }: { parcelId: string }) => {
 		<>
 			<Button
 				onClick={() => setIsAddTreatmentOpen(true)}
-				className="z-10 fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg"
+				style={{ bottom: 100 }}
+				className="z-10 fixed right-6 h-20 w-20 rounded-full shadow-lg bg-green-600 hover:bg-green-700"
 				size="icon"
 			>
 				<Plus className="h-6 w-6" />
