@@ -31,7 +31,7 @@ npm run dev
 npx prisma migrate deploy
 ```
 
-the repository is connected to a vercel deployment. I f you push on main this will trigger a new deploy.
+the repository is connected to a vercel deployment. If you push on main this will trigger a new deploy.
 
 ## Linting - formatting
 
