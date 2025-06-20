@@ -14,6 +14,7 @@ ALTER TABLE "Substance" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "SubstanceDose" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Disease" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AdminUser" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
 
 -- Helper function to check if user is admin
 CREATE OR REPLACE FUNCTION is_admin(user_id text)
@@ -135,6 +136,10 @@ CREATE POLICY "Users can delete their own product applications or admins can del
         )
     );
 
+-- RLS policies for _SubstanceDiseases junction table
+CREATE POLICY "Anyone can view substance-disease relationships" ON "_SubstanceDiseases"
+    FOR SELECT USING (true);
+
 -- Public read access for reference tables (Product, Substance, Disease)
 CREATE POLICY "Anyone can view products" ON "Product"
     FOR SELECT USING (true);
@@ -165,6 +170,8 @@ CREATE POLICY "Only admins can modify substance doses" ON "SubstanceDose"
 CREATE POLICY "Admins can manage admin users" ON "AdminUser"
     FOR ALL USING (is_admin(auth.uid()::text));
 
+CREATE POLICY "Only admins can modify substance-disease relationships" ON "_SubstanceDiseases"
+    FOR ALL USING (is_admin(auth.uid()::text));
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_parcel_user_id ON "Parcel"("userId");
