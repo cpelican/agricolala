@@ -42,6 +42,7 @@ npm run tsc
 ```
 
 ## TODOs
+- [ ] create a stats db record that will be recalculated each time a user adds a treatment
 - [ ] We are sick and tired of Supabase: maybe we want to host our own database? This way we wouldn't need to keep it active
 - [ ] Improve the queries, make them smaller, avoid nesting
 - [ ] We want to check if the user has neighbors that have made some treatments: it could indicate they should do too
