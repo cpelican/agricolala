@@ -20,7 +20,11 @@ export default function ProfilePage() {
 
 	return (
 		<AuthGuard>
-			<LayoutWithHeader title="Profile" subtitle="Manage your account settings">
+			<LayoutWithHeader
+				title="Profile"
+				subtitle="Manage your account settings"
+				icon={<User />}
+			>
 				<div className="p-4 space-y-4">
 					<Card>
 						<CardHeader>

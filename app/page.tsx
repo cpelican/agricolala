@@ -5,6 +5,7 @@ import { HomeContent } from "@/components/home-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels } from "@/lib/data-fetcher";
+import { Grape } from "lucide-react";
 
 export default async function Home() {
 	const session = await requireAuth();
@@ -16,6 +17,7 @@ export default async function Home() {
 				<LayoutWithHeader
 					title="Agricolala"
 					subtitle={`Welcome back, ${session?.user?.name ?? session?.user?.email}`}
+					icon={<Grape />}
 				>
 					<HomeContent parcels={parcels} />
 					<BottomNavigation />

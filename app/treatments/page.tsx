@@ -6,6 +6,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import { getParcels, getTreatments } from "@/lib/data-fetcher";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { AddTreatmentButton } from "@/components/add-treatment-button";
+import { Calendar } from "lucide-react";
 
 export default async function TreatmentsPage() {
 	const session = await requireAuth();
@@ -18,6 +19,7 @@ export default async function TreatmentsPage() {
 				<LayoutWithHeader
 					title="Treatments"
 					subtitle="Manage all your vineyard treatments"
+					icon={<Calendar />}
 				>
 					<TreatmentsContent treatments={treatments} />
 					<AddTreatmentButton parcels={parcels} />

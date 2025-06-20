@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { Map } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { BottomNavigation } from "@/components/bottom-navigation";
@@ -54,6 +55,7 @@ export default async function ParcelPage({
 				<LayoutWithHeader
 					title={`${parcel.name}`}
 					subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+					icon={<Map />}
 				>
 					<div className="space-y-6">
 						<Suspense

@@ -10,7 +10,7 @@ const navigation = [
 	{ name: "Parcels", href: "/parcels", icon: Map },
 	{ name: "Treatments", href: "/treatments", icon: Calendar },
 	{ name: "Profile", href: "/profile", icon: User },
-];
+] as const;
 
 export function BottomNavigation() {
 	const pathname = usePathname();
