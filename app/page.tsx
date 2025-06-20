@@ -4,7 +4,7 @@ import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { HomeContent } from "@/components/home-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
-import { getParcels } from "@/lib/parcel-helpers";
+import { getParcels } from "@/lib/data-fetcher";
 
 export default async function Home() {
 	const session = await requireAuth();

@@ -31,7 +31,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 interface AddTreatmentDialogProps {
 	open: boolean;

@@ -3,7 +3,7 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { TreatmentsContent } from "@/components/treatments-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
-import { getParcels, getTreatments } from "@/lib/parcel-helpers";
+import { getParcels, getTreatments } from "@/lib/data-fetcher";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { AddTreatmentButton } from "@/components/add-treatment-button";
 

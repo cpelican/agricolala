@@ -1,4 +1,4 @@
-import { getParcels, type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { getParcels, type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 interface ParcelsDataProviderProps {
 	userId: string;

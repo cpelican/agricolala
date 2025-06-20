@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { DeleteParcelButton } from "./delete-parcel-button";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
-import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 interface ParcelsContentProps {
 	parcels: ParcelWithTreatments[];

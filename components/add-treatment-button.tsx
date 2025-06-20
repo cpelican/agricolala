@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { useDiseases, useProducts } from "@/contexts/cached-data-context";
-import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 export const AddTreatmentButton = ({
 	parcelId,

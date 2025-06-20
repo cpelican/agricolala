@@ -3,7 +3,7 @@ import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "./ui/card";
-import { type TreatmentType } from "@/lib/parcel-helpers";
+import { type TreatmentType } from "@/lib/data-fetcher";
 
 export function TreatmentCard({
 	parcelName,

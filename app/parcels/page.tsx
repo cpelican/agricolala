@@ -3,7 +3,7 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { ParcelsContent } from "@/components/parcels-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
-import { getParcels } from "@/lib/parcel-helpers";
+import { getParcels } from "@/lib/data-fetcher";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
 export default async function ParcelsPage() {

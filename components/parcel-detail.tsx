@@ -6,7 +6,7 @@ import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
-import { type ParcelDetailType } from "@/lib/parcel-helpers";
+import { type ParcelDetailType } from "@/lib/data-fetcher";
 import { AddTreatmentButton } from "./add-treatment-button";
 import { useDiseases } from "@/contexts/cached-data-context";
 

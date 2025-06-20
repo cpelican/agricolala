@@ -1,6 +1,6 @@
 "use client";
 
-import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 import { createContext, useContext, type ReactNode, useState } from "react";
 
 interface ParcelsContextType {

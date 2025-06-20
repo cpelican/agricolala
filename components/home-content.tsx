@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
-import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
+import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];

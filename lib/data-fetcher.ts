@@ -94,6 +94,12 @@ const parcelDetailSelect = {
 			diseaseIds: true,
 			productApplications: { select: productApplicationsSelect },
 		},
+		where: {
+			appliedDate: {
+				gte: new Date(new Date().getFullYear(), 0, 1), // January 1st of current year
+			},
+		},
+		orderBy: [{ status: "asc" as const }, { appliedDate: "desc" as const }],
 	},
 };
 
@@ -142,9 +148,25 @@ export const getParcelDetail = cache(
 
 export const getTreatments = cache(async (userId: string) => {
 	return await prisma.treatment.findMany({
-		where: { userId },
+		where: {
+			userId,
+			OR: [
+				// Treatments with appliedDate in current year (January onwards)
+				{
+					appliedDate: {
+						gte: new Date(new Date().getFullYear(), 0, 1), // January 1st of current year
+					},
+				},
+				// Treatments with dateMin in current year (for scheduled treatments)
+				{
+					dateMin: {
+						gte: new Date(new Date().getFullYear(), 0, 1), // January 1st of current year
+					},
+				},
+			],
+		},
 		select: treatmentSelect,
-		orderBy: [{ status: "asc" }, { dateMin: "asc" }],
+		orderBy: [{ status: "asc" as const }, { dateMin: "asc" as const }],
 	});
 });
 

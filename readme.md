@@ -40,3 +40,12 @@ npm run lint:fix
 npm run prettify
 npm run tsc
 ```
+
+
+## TODOs
+- [ ] we are sick and tired of supabase: maybe we want to host our own database? This way we wouldn't need to keep it active
+- [ ] improve the queries, make them smaller, avoid nesting
+- [ ] we want to check if the user has neighbours that have made some treatments: it could indicate they should do too
+- [ ] when the user does a treatment, we want to find out what was the weather before and after -> maybe one day we can train a model dependening on this
+- [ ] still thinking about a model, we could ask them how was their year just after the harvest.
+- [ ] we let the user know if they are using less product compared to last year, give them a bit more data about how good they are at not using too much products

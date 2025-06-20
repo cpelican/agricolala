@@ -6,7 +6,7 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
-import { getParcelDetail, type ParcelDetailType } from "@/lib/parcel-helpers";
+import { getParcelDetail, type ParcelDetailType } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcel-detail";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
