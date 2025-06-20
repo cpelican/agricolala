@@ -3,13 +3,15 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { TreatmentsContent } from "@/components/treatments-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
-import { getTreatments } from "@/lib/parcel-helpers";
+import { getParcels, getTreatments } from "@/lib/parcel-helpers";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
+import { AddTreatmentButton } from "@/components/add-treatment-button";
 
 export default async function TreatmentsPage() {
 	const session = await requireAuth();
 
 	const treatments = await getTreatments(session.user.id);
+	const parcels = await getParcels(session.user.id);
 	return (
 		<AuthGuard>
 			<CachedDataWrapper>
@@ -18,6 +20,7 @@ export default async function TreatmentsPage() {
 					subtitle="Manage all your vineyard treatments"
 				>
 					<TreatmentsContent treatments={treatments} />
+					<AddTreatmentButton parcels={parcels} />
 					<BottomNavigation />
 				</LayoutWithHeader>
 			</CachedDataWrapper>

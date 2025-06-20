@@ -31,11 +31,13 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
 
 interface AddTreatmentDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	parcelId: string;
+	parcelId?: string;
+	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name">[];
 }
@@ -44,6 +46,7 @@ export function AddTreatmentDialog({
 	open,
 	onOpenChange,
 	parcelId,
+	parcels,
 	diseases,
 	products,
 }: AddTreatmentDialogProps) {
@@ -54,6 +57,7 @@ export function AddTreatmentDialog({
 		diseases: [{ diseaseId: "" }],
 		productApplications: [{ productId: "", dose: 0 }],
 		waterDose: 10,
+		parcelId,
 	});
 
 	const addDisease = () => {
@@ -95,6 +99,13 @@ export function AddTreatmentDialog({
 			productApplications: prev.productApplications.filter(
 				(_, i) => i !== index,
 			),
+		}));
+	};
+
+	const updateParcel = (value: string) => {
+		setFormData((prev) => ({
+			...prev,
+			parcelId: value,
 		}));
 	};
 
@@ -150,7 +161,7 @@ export function AddTreatmentDialog({
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					...formData,
-					parcelId,
+					parcelId: parcelId ?? formData.parcelId,
 				}),
 			});
 
@@ -166,6 +177,7 @@ export function AddTreatmentDialog({
 				diseases: [{ diseaseId: "" }],
 				productApplications: [{ productId: "", dose: 0 }],
 				waterDose: 10,
+				parcelId: undefined,
 			});
 			router.refresh();
 		} catch (error) {
@@ -180,12 +192,32 @@ export function AddTreatmentDialog({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Add Treatment</DialogTitle>
-					<DialogDescription>
-						Add a new treatment for this parcel. Fill in the details below.
-					</DialogDescription>
+					{parcelId && (
+						<DialogDescription>
+							Add a new treatment for this parcel. Fill in the details below.
+						</DialogDescription>
+					)}
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
+					{!!parcels?.length && (
+						<div>
+							<Label>Parcels</Label>
+							<Select value={parcelId} onValueChange={updateParcel}>
+								<SelectTrigger className="flex-1">
+									<SelectValue placeholder="Select parcel" />
+								</SelectTrigger>
+								<SelectContent>
+									{parcels.map((p) => (
+										<SelectItem key={p.id} value={p.id}>
+											{p.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					)}
+
 					<div>
 						<Label>Application Date</Label>
 						<Popover>

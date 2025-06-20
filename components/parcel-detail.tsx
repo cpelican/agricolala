@@ -47,7 +47,7 @@ export function ParcelDetail({
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2">
-				<AddTreatmentButton parcelId={parcel.id} />
+				<AddTreatmentButton parcelId={parcel.id} parcels={[]} />
 				<Card>
 					<CardHeader>
 						<CardTitle>Upcoming Treatments</CardTitle>

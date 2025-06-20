@@ -1,10 +1,19 @@
+"use client";
+
 import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import { useDiseases, useProducts } from "@/contexts/cached-data-context";
+import { type ParcelWithTreatments } from "@/lib/parcel-helpers";
 
-export const AddTreatmentButton = ({ parcelId }: { parcelId: string }) => {
+export const AddTreatmentButton = ({
+	parcelId,
+	parcels,
+}: {
+	parcelId?: string;
+	parcels: ParcelWithTreatments[];
+}) => {
 	const [isAddTreatmentOpen, setIsAddTreatmentOpen] = useState(false);
 	const diseases = useDiseases();
 	const products = useProducts();
@@ -24,6 +33,7 @@ export const AddTreatmentButton = ({ parcelId }: { parcelId: string }) => {
 				parcelId={parcelId}
 				diseases={diseases}
 				products={products}
+				parcels={parcels}
 			/>
 		</>
 	);
