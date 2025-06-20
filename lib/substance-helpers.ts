@@ -26,24 +26,26 @@ export function calculateSubstanceData(
 ): SubstanceData[] {
 	const substanceDataMap = treatments.reduce(
 		(acc, treatment) => {
-			treatment.productApplications.forEach((app) => {
-				app.product.composition.forEach((comp) => {
-					const substanceName = comp.substance.name;
-					const totalDose = (app.dose * comp.dose) / 1000; // Convert to kg
+			treatment.productApplications.forEach((application) => {
+				application.product.composition.forEach((composition) => {
+					const substanceName = composition.substance.name;
+					// application dose (gr of product applied during the treatment)
+					// composition dose (% of active substance present in the product used in the treatemnt)
+					const totalDose = application.dose * (composition.dose / 100) * 1_000; // Convert to kg
 
 					if (!acc[substanceName]) {
 						acc[substanceName] = {
 							name: substanceName,
 							totalUsed: 0,
-							maxDosage: comp.substance.maxDosage,
+							// kg / ha / year -> https://www.ccpb.it/blog/2019/04/03/rame-agricoltura-biologica/
+							maxDosage: composition.substance.maxDosage,
 							monthlyData: Array(12).fill(0),
 							applications: [],
 						};
 					}
 
-					acc[substanceName].totalUsed += totalDose;
-
 					if (treatment.appliedDate) {
+						acc[substanceName].totalUsed += totalDose;
 						const month = new Date(treatment.appliedDate).getMonth();
 						acc[substanceName].monthlyData[month] += totalDose;
 						acc[substanceName].applications.push({
