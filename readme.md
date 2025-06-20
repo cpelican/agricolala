@@ -1,26 +1,42 @@
 
 
-Node.js: v18 or later (recommended: latest LTS)
-npm: v9+ (or use yarn/pnpm if preferred)
-[Optional] PostgreSQL/MySQL: If using Prisma with a database, ensure your DB is running and accessible.
+# Agricolala
+Agricolala helps you manage your vineyard treatments and track substance usage to ensure compliance with organic EU agricultural regulations.
+
+## Run locally agricolala
+
+1. Create a googlauth platform client
+    - Add http://localhost:3000 as javascript origins
+    - Add http://localhost:3000/api/auth/callback/google as redirect url
+
+2. create an .env file with all the necessary variables
 
 
-# Example for NextAuth/Prisma
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-NEXTAUTH_SECRET=your-secret
-# Add other required variables as needed
+```bash
+asdf install
 
+npm i
+
+docker compose up
 
 npx prisma migrate dev
 
-If you need seed data, add a prisma/seed.ts and run npx prisma db seed.
+npm run dev
+```
 
-5. Run the Development Server
-Apply
-dev
-The app will be available at http://localhost:3000.
+## Deploy agricolala
 
-6. Linting & Formatting
-Apply
-lint
-Add Prettier or other formatting tools if needed.
+```bash
+# pushes migrations to supabase
+npx prisma migrate deploy
+```
+
+the repository is connected to a vercel deployment. I f you push on main this will trigger a new deploy.
+
+## Linting - formatting
+
+```bash
+npm run lint:fix
+npm run prettify
+npm run tsc
+```
