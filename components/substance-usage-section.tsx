@@ -63,12 +63,14 @@ export function SubstanceUsageSection({
 												used
 											</p>
 											<p className="text-sm text-muted-foreground">
-												{substance.totalUsedOfPureActiveSubstance} gr of pure
-												active substance used
+												{Math.round(substance.totalUsedOfPureActiveSubstance)}{" "}
+												gr of pure active substance used
 											</p>
 											<p className="text-sm text-muted-foreground">
-												{substance.totalUsedOfPureActiveSubstancePerHa} kg/ha of
-												pure active substance used
+												{Math.round(
+													substance.totalUsedOfPureActiveSubstancePerHa,
+												)}{" "}
+												kg/ha of pure active substance used
 											</p>
 										</div>
 									</div>
