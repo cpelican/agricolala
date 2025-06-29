@@ -46,16 +46,14 @@ export function ParcelDetail({
 				/>
 			</div>
 
-			<div className="grid gap-4 md:grid-cols-2">
+			<div className="grid gap-4">
 				<AddTreatmentButton parcelId={parcel.id} parcels={[]} />
-				<Card>
-					<CardHeader>
-						<CardTitle>Upcoming Treatments</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{upcomingTreatments.length === 0 ? (
-							<p className="text-muted-foreground">No upcoming treatments</p>
-						) : (
+				{upcomingTreatments.length === 0 ? null : (
+					<Card>
+						<CardHeader>
+							<CardTitle>Upcoming Treatments</CardTitle>
+						</CardHeader>
+						<CardContent>
 							<div className="space-y-4">
 								{upcomingTreatments.map((treatment) => (
 									<div key={treatment.id} className="border rounded-lg p-4">
@@ -79,9 +77,9 @@ export function ParcelDetail({
 									</div>
 								))}
 							</div>
-						)}
-					</CardContent>
-				</Card>
+						</CardContent>
+					</Card>
+				)}
 
 				<Card>
 					<CardHeader>

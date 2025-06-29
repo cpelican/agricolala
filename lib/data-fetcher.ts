@@ -166,7 +166,7 @@ export const getTreatments = cache(async (userId: string) => {
 			],
 		},
 		select: treatmentSelect,
-		orderBy: [{ status: "asc" as const }, { dateMin: "asc" as const }],
+		orderBy: [{ appliedDate: "desc" as const }, { dateMin: "desc" as const }],
 	});
 });
 
