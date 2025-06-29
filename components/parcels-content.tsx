@@ -1,12 +1,11 @@
 "use client";
 
-import { MapPin, X } from "lucide-react";
+import { MapPin, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddParcelDialog } from "./add-parcel-dialog";
-import { DeleteParcelButton } from "./delete-parcel-button";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
@@ -64,35 +63,28 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 				<div className="grid gap-4">
 					{parcels.map((parcel) => (
 						<Card key={parcel.id}>
-							<CardContent className="p-4">
-								<div className="flex justify-between items-start">
-									<Link href={`/parcels/${parcel.id}`} className="flex-1">
-										<div>
-											<h3 className="font-medium">{parcel.name}</h3>
-											<p className="text-sm text-gray-600 capitalize">
-												{parcel.type.toLowerCase()}
-											</p>
-											<p className="text-sm text-gray-500">
-												{parcel.width}m × {parcel.height}m (
-												{((parcel.width * parcel.height) / 10000).toFixed(2)}{" "}
-												ha)
-											</p>
-											<div className="flex items-center text-gray-400 mt-2">
-												<MapPin className="h-4 w-4 mr-1" />
-												<span className="text-xs">
-													{parcel.latitude.toFixed(4)},{" "}
-													{parcel.longitude.toFixed(4)}
-												</span>
-											</div>
+							<CardContent className="p-4 flex justify-between items-start items-center">
+								<Link href={`/parcels/${parcel.id}`} className="flex-1">
+									<div>
+										<h3 className="font-medium">{parcel.name}</h3>
+										<p className="text-sm text-gray-600 capitalize">
+											{parcel.type.toLowerCase()}
+										</p>
+										<p className="text-sm text-gray-500">
+											{parcel.width}m × {parcel.height}m (
+											{((parcel.width * parcel.height) / 10000).toFixed(2)} ha)
+										</p>
+										<div className="flex items-center text-gray-400 mt-2">
+											<MapPin className="h-4 w-4 mr-1" />
+											<span className="text-xs">
+												{parcel.latitude.toFixed(4)},{" "}
+												{parcel.longitude.toFixed(4)}
+											</span>
 										</div>
-									</Link>
-									<div className="ml-4 shrink-0">
-										<DeleteParcelButton
-											parcelId={parcel.id}
-											parcelName={parcel.name}
-											iconSize="sm"
-										/>
 									</div>
+								</Link>
+								<div className="">
+									<ChevronRight className="h-6 w-6 text-gray-400" />
 								</div>
 							</CardContent>
 						</Card>

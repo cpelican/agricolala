@@ -48,7 +48,7 @@ export function SubstanceUsageSection({
 					{substanceData.map((substance) => (
 						<Card key={substance.name}>
 							<CardContent className="p-4">
-								<div className="flex justify-between items-center">
+								<div className="flex justify-between items-center gap-2">
 									<div className="flex items-center gap-2">
 										<div
 											className="w-3 h-3 rounded-full"
@@ -75,7 +75,7 @@ export function SubstanceUsageSection({
 										</div>
 									</div>
 									<div className="text-right">
-										<p className="text-sm text-muted-foreground">
+										<p className="text-xs text-muted-foreground">
 											Max: {substance.maxDosage} kg/ha
 										</p>
 										<meter
