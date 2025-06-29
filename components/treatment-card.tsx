@@ -5,6 +5,27 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 
+function formatTreatmentDate(
+	treatment: Pick<
+		TreatmentType,
+		"status" | "dateMin" | "dateMax" | "appliedDate"
+	>,
+) {
+	if (treatment.status === TreatmentStatus.DONE && treatment.appliedDate) {
+		return `Applied: ${format(new Date(treatment.appliedDate), "MMM dd, yyyy")}`;
+	}
+
+	if (treatment.dateMin) {
+		return `Scheduled: ${format(new Date(treatment.dateMin), "MMM dd")} - ${
+			treatment.dateMax
+				? format(new Date(treatment.dateMax), "MMM dd, yyyy")
+				: "Open"
+		}`;
+	}
+
+	return null;
+}
+
 export function TreatmentCard({
 	parcelName,
 	treatment,
@@ -23,6 +44,8 @@ export function TreatmentCard({
 	>;
 	diseases: Pick<Disease, "id" | "name">[];
 }) {
+	const formattedDate = formatTreatmentDate(treatment);
+
 	return (
 		<Card>
 			<CardContent className="p-4">
@@ -56,16 +79,10 @@ export function TreatmentCard({
 					{parcelName}
 				</div>
 
-				{treatment.dateMin && (
+				{formattedDate && (
 					<div className="flex items-center text-sm text-gray-600 mb-2">
 						<Calendar className="h-4 w-4 mr-1" />
-						{treatment.status === TreatmentStatus.DONE && treatment.appliedDate
-							? `Applied: ${format(new Date(treatment.appliedDate), "MMM dd, yyyy")}`
-							: `Scheduled: ${format(new Date(treatment.dateMin), "MMM dd")} - ${
-									treatment.dateMax
-										? format(new Date(treatment.dateMax), "MMM dd, yyyy")
-										: "Open"
-								}`}
+						{formattedDate}
 					</div>
 				)}
 
