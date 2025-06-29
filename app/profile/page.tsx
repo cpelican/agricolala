@@ -1,7 +1,5 @@
-"use client";
-
 import { LogOut, Mail, User } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,9 +12,10 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { LayoutWithHeader } from "@/components/layout-with-header";
+import { requireAuth } from "@/lib/auth-utils";
 
-export default function ProfilePage() {
-	const { data: session } = useSession();
+export default async function ProfilePage() {
+	const session = await requireAuth();
 
 	return (
 		<AuthGuard>

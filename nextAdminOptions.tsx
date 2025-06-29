@@ -5,10 +5,10 @@ const options: NextAdminOptions = {
 	model: {
 		User: {
 			list: {
-				display: ["name", "email"],
+				display: ["name", "email", "isAuthorized"],
 			},
 			edit: {
-				display: ["name", "email"],
+				display: ["name", "email", "isAuthorized"],
 			},
 		},
 		AdminUser: {
