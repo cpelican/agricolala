@@ -42,8 +42,9 @@ npm run tsc
 ```
 
 ## TODOs
+- [ ] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
 - [ ] create a stats db record that will be recalculated each time a user adds a treatment
-- [ ] We are sick and tired of Supabase: maybe we want to host our own database? This way we wouldn't need to keep it active
+- [ ] Find alternatives to supabase
 - [ ] Improve the queries, make them smaller, avoid nesting
 - [ ] We want to check if the user has neighbors that have made some treatments: it could indicate they should do too
 - [ ] When the user does a treatment, we want to find out what the weather was before and after -> maybe one day we can train a model depending on this
