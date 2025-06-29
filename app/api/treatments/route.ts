@@ -16,40 +16,80 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const validatedData = createTreatmentSchema.parse(body);
 
-		const parcel = await prisma.parcel.findFirst({
+		const parcels = await prisma.parcel.findMany({
 			where: {
-				id: validatedData.parcelId,
+				id: { in: validatedData.parcelIds },
 				userId: session.user.id,
+			},
+			select: {
+				id: true,
+				name: true,
+				width: true,
+				height: true,
 			},
 		});
 
-		if (!parcel) {
+		if (parcels.length !== validatedData.parcelIds.length) {
 			return NextResponse.json(
-				{ error: "Parcel not found or access denied" },
+				{ error: "One or more parcels not found or access denied" },
 				{ status: 403 },
 			);
 		}
 
-		const treatment = await prisma.treatment.create({
-			data: {
-				waterDose: validatedData.waterDose,
-				parcelId: validatedData.parcelId,
-				appliedDate: validatedData.appliedDate || new Date(),
-				status: TreatmentStatus.DONE,
-				userId: session.user.id,
-				diseaseIds: validatedData.diseases.map((disease) => disease.diseaseId),
-			},
-		});
+		const totalArea = parcels.reduce(
+			(sum, parcel) => sum + parcel.width * parcel.height,
+			0,
+		);
 
-		await prisma.productApplication.createMany({
-			data: validatedData.productApplications.map((product) => ({
-				dose: product.dose || 0,
-				productId: product.productId,
-				treatmentId: treatment.id,
-			})),
-		});
+		const calculateDosePerParcel = (totalDose: number, parcelArea: number) => {
+			return (totalDose * parcelArea) / totalArea;
+		};
 
-		return NextResponse.json({ success: true, treatmentId: treatment.id });
+		const createdTreatments = await Promise.all(
+			parcels.map(async (parcel) => {
+				const treatment = await prisma.treatment.create({
+					data: {
+						waterDose: validatedData.waterDose,
+						parcelId: parcel.id,
+						appliedDate: validatedData.appliedDate || new Date(),
+						status: TreatmentStatus.DONE,
+						userId: session.user.id,
+						diseaseIds: validatedData.diseases.map(
+							(disease) => disease.diseaseId,
+						),
+					},
+				});
+
+				const productApplications = await Promise.all(
+					validatedData.productApplications.map(async (product) => {
+						const parcelArea = parcel.width * parcel.height;
+						const calculatedDose = calculateDosePerParcel(
+							product.dose,
+							parcelArea,
+						);
+
+						return prisma.productApplication.create({
+							data: {
+								dose: calculatedDose,
+								productId: product.productId,
+								treatmentId: treatment.id,
+							},
+						});
+					}),
+				);
+
+				return {
+					treatment,
+					productApplications,
+				};
+			}),
+		);
+
+		return NextResponse.json({
+			success: true,
+			treatments: createdTreatments.map((t) => t.treatment.id),
+			message: `Created ${createdTreatments.length} treatments across ${parcels.length} parcels`,
+		});
 	} catch (error) {
 		if (error instanceof Error && error.name === "ZodError") {
 			return NextResponse.json(

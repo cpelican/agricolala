@@ -57,7 +57,7 @@ export function AddTreatmentDialog({
 		diseases: [{ diseaseId: "" }],
 		productApplications: [{ productId: "", dose: 0 }],
 		waterDose: 10,
-		parcelId,
+		parcelIds: parcelId ? [parcelId] : [""],
 	});
 
 	const addDisease = () => {
@@ -83,6 +83,27 @@ export function AddTreatmentDialog({
 		}));
 	};
 
+	const addParcel = () => {
+		setFormData((prev) => ({
+			...prev,
+			parcelIds: prev.parcelIds.length === 0 ? [""] : [...prev.parcelIds, ""],
+		}));
+	};
+
+	const removeParcel = (index: number) => {
+		setFormData((prev) => ({
+			...prev,
+			parcelIds: prev.parcelIds.filter((_, i) => i !== index),
+		}));
+	};
+
+	const updateParcel = (index: number, parcelId: string) => {
+		setFormData((prev) => ({
+			...prev,
+			parcelIds: prev.parcelIds.map((id, i) => (i === index ? parcelId : id)),
+		}));
+	};
+
 	const addProduct = () => {
 		setFormData((prev) => ({
 			...prev,
@@ -99,13 +120,6 @@ export function AddTreatmentDialog({
 			productApplications: prev.productApplications.filter(
 				(_, i) => i !== index,
 			),
-		}));
-	};
-
-	const updateParcel = (value: string) => {
-		setFormData((prev) => ({
-			...prev,
-			parcelId: value,
 		}));
 	};
 
@@ -134,6 +148,10 @@ export function AddTreatmentDialog({
 				errors.push("Application date is required");
 			}
 
+			if (formData.parcelIds.filter((id) => id).length === 0) {
+				errors.push("At least one parcel is required");
+			}
+
 			if (!formData.diseases.some((d) => d.diseaseId)) {
 				errors.push("At least one disease is required");
 			}
@@ -159,7 +177,9 @@ export function AddTreatmentDialog({
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					...formData,
-					parcelId: parcelId ?? formData.parcelId,
+					parcelIds: parcelId
+						? [parcelId]
+						: formData.parcelIds.filter((id) => id),
 				}),
 			});
 
@@ -175,7 +195,7 @@ export function AddTreatmentDialog({
 				diseases: [{ diseaseId: "" }],
 				productApplications: [{ productId: "", dose: 0 }],
 				waterDose: 10,
-				parcelId: undefined,
+				parcelIds: [],
 			});
 			router.refresh();
 		} catch (error) {
@@ -198,24 +218,6 @@ export function AddTreatmentDialog({
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					{!!parcels?.length && (
-						<div>
-							<Label>Parcels</Label>
-							<Select value={parcelId} onValueChange={updateParcel}>
-								<SelectTrigger className="flex-1">
-									<SelectValue placeholder="Select parcel" />
-								</SelectTrigger>
-								<SelectContent>
-									{parcels.map((p) => (
-										<SelectItem key={p.id} value={p.id}>
-											{p.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-					)}
-
 					<div>
 						<Label>Application Date</Label>
 						<Popover>
@@ -251,6 +253,53 @@ export function AddTreatmentDialog({
 							</PopoverContent>
 						</Popover>
 					</div>
+
+					{!!parcels?.length && (
+						<div className="space-y-4">
+							<div className="flex items-center justify-between">
+								<Label>Parcels</Label>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={addParcel}
+								>
+									<Plus className="h-4 w-4 mr-2" />
+									Add Parcel
+								</Button>
+							</div>
+							{formData.parcelIds.map((parcelId, index) => (
+								<div key={index} className="flex gap-2 items-start">
+									<Select
+										value={parcelId}
+										onValueChange={(value) => updateParcel(index, value)}
+									>
+										<SelectTrigger className="flex-1">
+											<SelectValue placeholder="Select parcel" />
+										</SelectTrigger>
+										<SelectContent>
+											{parcels.map((parcel) => (
+												<SelectItem key={parcel.id} value={parcel.id}>
+													{parcel.name} ({parcel.width}m × {parcel.height}m)
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{formData.parcelIds.length > 1 && (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											onClick={() => removeParcel(index)}
+											className="mt-2"
+										>
+											<X className="h-4 w-4" />
+										</Button>
+									)}
+								</div>
+							))}
+						</div>
+					)}
 
 					<div className="space-y-4">
 						<div className="flex items-center justify-between">

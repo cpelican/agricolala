@@ -4,7 +4,9 @@ export const createTreatmentSchema = z.object({
 	appliedDate: z
 		.union([z.string().transform((str) => new Date(str)), z.date()])
 		.default(() => new Date()),
-	parcelId: z.string().min(1, "Parcel is required"),
+	parcelIds: z
+		.array(z.string().min(1, "Parcel ID is required"))
+		.min(1, "At least one parcel is required"),
 	diseases: z
 		.array(
 			z.object({
@@ -35,7 +37,7 @@ export const createTreatmentSchema = z.object({
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createTreatmentAutomaticValuesSchema = z.object({
-	parcelId: z.string().min(1, "Parcel is required"),
+	parcelIds: z.array(z.string().min(1, "Parcel ID is required")),
 });
 
 export type CreateTreatmentSchema = z.infer<typeof createTreatmentSchema>;

@@ -40,7 +40,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 				<CardContent className="p-0">
 					<ParcelMapWrapper parcels={parcels} onMapClick={handleMapClick} />
 					{parcels.length === 0 && showEmptyState && (
-						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-6 rounded-lg shadow-lg text-center">
+						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-8 rounded-lg shadow-lg text-center">
 							<Button
 								variant="ghost"
 								size="sm"
