@@ -1,6 +1,8 @@
 export type SubstanceData = {
 	name: string;
-	totalUsed: number;
+	totalDoseOfProduct: number;
+	totalUsedOfPureActiveSubstance: number;
+	totalUsedOfPureActiveSubstancePerHa: number;
 	maxDosage: number;
 	monthlyData: number[];
 	applications: {

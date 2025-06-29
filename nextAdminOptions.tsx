@@ -51,7 +51,6 @@ const options: NextAdminOptions = {
 				display: [
 					"name",
 					"brand",
-					"maxCumulatedQuantity",
 					"maxApplications",
 					"composition",
 					"productApplications",

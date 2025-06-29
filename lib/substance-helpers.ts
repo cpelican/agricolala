@@ -1,9 +1,14 @@
 import { type SubstanceData } from "@/components/types";
 
+const HECTARE_IN_METERS = 10_000;
 interface TreatmentWithProducts {
 	id: string;
 	appliedDate: Date | null;
-	parcelId?: string;
+	parcelName?: string;
+	parcel: {
+		width: number;
+		height: number;
+	};
 	productApplications: Array<{
 		dose: number;
 		product: {
@@ -31,12 +36,18 @@ export function calculateSubstanceData(
 					const substanceName = composition.substance.name;
 					// application dose (gr of product applied during the treatment)
 					// composition dose (% of active substance present in the product used in the treatemnt)
-					const totalDose = application.dose * (composition.dose / 100) * 1_000; // Convert to kg
+					const doseOfPureActiveSubstance =
+						application.dose * (composition.dose / 100); // in grams
+					const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
+					const doseOfPureActiveSubstancePerHa =
+						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in kg per hectare
 
 					if (!acc[substanceName]) {
 						acc[substanceName] = {
 							name: substanceName,
-							totalUsed: 0,
+							totalDoseOfProduct: 0,
+							totalUsedOfPureActiveSubstance: 0,
+							totalUsedOfPureActiveSubstancePerHa: 0,
 							// kg / ha / year -> https://www.ccpb.it/blog/2019/04/03/rame-agricoltura-biologica/
 							maxDosage: composition.substance.maxDosage,
 							monthlyData: Array(12).fill(0),
@@ -45,13 +56,17 @@ export function calculateSubstanceData(
 					}
 
 					if (treatment.appliedDate) {
-						acc[substanceName].totalUsed += totalDose;
+						acc[substanceName].totalDoseOfProduct += application.dose;
+						acc[substanceName].totalUsedOfPureActiveSubstance +=
+							doseOfPureActiveSubstance;
+						acc[substanceName].totalUsedOfPureActiveSubstancePerHa +=
+							doseOfPureActiveSubstancePerHa;
 						const month = new Date(treatment.appliedDate).getMonth();
-						acc[substanceName].monthlyData[month] += totalDose;
+						acc[substanceName].monthlyData[month] += doseOfPureActiveSubstance; //gr
 						acc[substanceName].applications.push({
 							date: treatment.appliedDate,
-							dose: totalDose,
-							parcel: treatment.parcelId || "Unknown",
+							dose: application.dose, // gr
+							parcel: treatment.parcelName || "Unknown",
 						});
 					}
 				});

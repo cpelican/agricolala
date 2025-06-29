@@ -44,7 +44,11 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 	const allTreatments = parcels.flatMap((parcel: ParcelWithTreatments) =>
 		parcel.treatments.map((treatment) => ({
 			...treatment,
-			parcelId: parcel.name,
+			parcel: {
+				width: parcel.width,
+				height: parcel.height,
+			},
+			parcelName: parcel.name,
 		})),
 	);
 	const substanceData = calculateSubstanceData(allTreatments);

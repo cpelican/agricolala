@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useSubstances } from "@/contexts/cached-data-context";
+import type { SubstanceData } from "./types";
 
 ChartJS.register(
 	CategoryScale,
@@ -22,13 +23,6 @@ ChartJS.register(
 	Tooltip,
 	Legend,
 );
-
-interface SubstanceData {
-	name: string;
-	monthlyData: number[];
-	totalUsed: number;
-	maxDosage: number;
-}
 
 interface SubstanceChartProps {
 	data: SubstanceData[];

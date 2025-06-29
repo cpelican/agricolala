@@ -154,8 +154,6 @@ export function AddTreatmentDialog({
 				return;
 			}
 
-			console.log("Submitting values:", formData);
-
 			const response = await fetch("/api/treatments", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

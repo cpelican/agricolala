@@ -59,7 +59,16 @@ export function SubstanceUsageSection({
 										<div>
 											<h3 className="font-medium">{substance.name}</h3>
 											<p className="text-sm text-muted-foreground">
-												{substance.totalUsed.toFixed(2)} kg/ha used
+												{substance.totalDoseOfProduct.toFixed(2)} gr of product
+												used
+											</p>
+											<p className="text-sm text-muted-foreground">
+												{substance.totalUsedOfPureActiveSubstance} gr of pure
+												active substance used
+											</p>
+											<p className="text-sm text-muted-foreground">
+												{substance.totalUsedOfPureActiveSubstancePerHa} kg/ha of
+												pure active substance used
 											</p>
 										</div>
 									</div>
@@ -68,7 +77,7 @@ export function SubstanceUsageSection({
 											Max: {substance.maxDosage} kg/ha
 										</p>
 										<meter
-											value={substance.totalUsed}
+											value={substance.totalUsedOfPureActiveSubstancePerHa}
 											max={substance.maxDosage}
 											high={substance.maxDosage * 0.8}
 											optimum={substance.maxDosage * 0.4}

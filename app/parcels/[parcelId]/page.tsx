@@ -37,7 +37,11 @@ export default async function ParcelPage({
 
 	const treatmentsWithParcelName = currentYearTreatments.map((treatment) => ({
 		...treatment,
-		parcelId: parcel.name,
+		parcel: {
+			width: parcel.width,
+			height: parcel.height,
+		},
+		parcelName: parcel.name,
 	}));
 	const substanceData = calculateSubstanceData(treatmentsWithParcelName);
 

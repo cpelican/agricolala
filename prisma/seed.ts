@@ -54,7 +54,6 @@ async function main() {
 		data: {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
-			maxCumulatedQuantity: MAX_APPLICATIONS * 3.0,
 			maxApplications: MAX_APPLICATIONS,
 			composition: {
 				create: [{ substanceId: copper.id, dose: 25.0 }],
@@ -66,7 +65,6 @@ async function main() {
 		data: {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",
-			maxCumulatedQuantity: MAX_APPLICATIONS_SULFUR * 4.0,
 			maxApplications: MAX_APPLICATIONS_SULFUR,
 			composition: {
 				create: [{ substanceId: sulfur.id, dose: 80.0 }],
