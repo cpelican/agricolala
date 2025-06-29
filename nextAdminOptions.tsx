@@ -88,7 +88,7 @@ const options: NextAdminOptions = {
 	sidebar: {
 		groups: [
 			{
-				className: "pt-5 text-lg !text-white !bg-gray-800",
+				className: "pt-5 text-lg text-white! bg-gray-800!",
 				title: "Models",
 				models: [
 					"User",

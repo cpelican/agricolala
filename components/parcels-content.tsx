@@ -86,7 +86,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 											</div>
 										</div>
 									</Link>
-									<div className="ml-4 flex-shrink-0">
+									<div className="ml-4 shrink-0">
 										<DeleteParcelButton
 											parcelId={parcel.id}
 											parcelName={parcel.name}

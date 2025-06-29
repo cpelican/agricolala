@@ -223,7 +223,7 @@ export function AddTreatmentDialog({
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
-									variant={"outline"}
+									variant="outline"
 									className={cn(
 										"w-full pl-3 text-left font-normal",
 										!formData.appliedDate && "text-muted-foreground",
