@@ -1,9 +1,7 @@
-import { LogOut, Mail, User } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { Mail, User } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -13,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
+import { SignOutButton } from "@/components/signoutButton";
 
 export default async function ProfilePage() {
 	const session = await requireAuth();
@@ -58,14 +57,7 @@ export default async function ProfilePage() {
 							<CardDescription>Account management options</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<Button
-								onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-								variant="destructive"
-								className="w-full"
-							>
-								<LogOut className="h-4 w-4 mr-2" />
-								Sign Out
-							</Button>
+							<SignOutButton />
 						</CardContent>
 					</Card>
 
