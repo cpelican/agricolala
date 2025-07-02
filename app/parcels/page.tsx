@@ -15,7 +15,7 @@ export default async function ParcelsPage() {
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title="My Parcels"
-					subtitle="Manage your vineyard parcels"
+					subtitle="Manage your wineyard parcels"
 					icon={<Map />}
 				>
 					<ParcelsContent parcels={parcels} />

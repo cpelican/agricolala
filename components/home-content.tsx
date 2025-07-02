@@ -24,7 +24,7 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 					<CardHeader className="text-center">
 						<CardTitle>Welcome to Agricolala</CardTitle>
 						<CardDescription>
-							To start managing your vineyard treatments, you need to add your
+							To start managing your wineyard treatments, you need to add your
 							first parcel.
 						</CardDescription>
 					</CardHeader>

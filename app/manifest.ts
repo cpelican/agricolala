@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
 	return {
-		name: "Agricolala - Vineyard Management",
+		name: "Agricolala - Wineyard Management",
 		short_name: "Agricolala",
-		description: "Manage your vineyard treatments and parcels",
+		description: "Manage your wineyard treatments and parcels",
 		start_url: "/",
 		display: "standalone",
 		icons: [],

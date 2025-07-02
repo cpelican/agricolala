@@ -96,7 +96,7 @@ export function AddParcelDialog({
 				<DialogHeader>
 					<DialogTitle>Add New Parcel</DialogTitle>
 					<DialogDescription>
-						Add a new parcel to your vineyard management system
+						Add a new parcel to your wineyard management system
 					</DialogDescription>
 				</DialogHeader>
 
@@ -155,7 +155,7 @@ export function AddParcelDialog({
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="VINEYARD">Vineyard</SelectItem>
+								<SelectItem value="VINEYARD">Wineyard</SelectItem>
 								<SelectItem value="PEACHES">Peaches</SelectItem>
 							</SelectContent>
 						</Select>

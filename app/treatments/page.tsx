@@ -18,7 +18,7 @@ export default async function TreatmentsPage() {
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title="Treatments"
-					subtitle="Manage all your vineyard treatments"
+					subtitle="Manage all your wineyard treatments"
 					icon={<Calendar />}
 				>
 					<TreatmentsContent treatments={treatments} />

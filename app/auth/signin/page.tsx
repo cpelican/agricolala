@@ -32,7 +32,7 @@ export default function SignIn() {
 						Agricolala
 					</CardTitle>
 					<CardDescription>
-						Manage your vineyard treatments and parcels
+						Manage your wineyard treatments and parcels
 					</CardDescription>
 				</CardHeader>
 				<CardContent>

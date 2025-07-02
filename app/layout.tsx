@@ -7,8 +7,8 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Agricolala - Vineyard Management",
-	description: "Manage your vineyard treatments and parcels",
+	title: "Agricolala - Wineyard Management",
+	description: "Manage your wineyard treatments and parcels",
 	manifest: "/manifest.json",
 };
 

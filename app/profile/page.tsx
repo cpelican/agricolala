@@ -68,7 +68,7 @@ export default async function ProfilePage() {
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-gray-600">
-								Agricolala helps you manage your vineyard treatments and track
+								Agricolala helps you manage your wineyard treatments and track
 								substance usage to ensure compliance with agricultural
 								regulations.
 							</p>
