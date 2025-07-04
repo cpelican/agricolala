@@ -437,7 +437,7 @@ export function AddTreatmentDialog({
 						<Button
 							type="submit"
 							disabled={loading}
-							className="bg-green-600 hover:bg-green-700"
+							className="bg-primary-600 hover:bg-primary-700"
 						>
 							{loading ? "Creating..." : "Create Treatment"}
 						</Button>

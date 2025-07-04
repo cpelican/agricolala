@@ -12,6 +12,20 @@
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
 
+  /* Primary color palette - generated from --primary variable */
+  --color-primary-10: color-mix(in srgb, hsl(var(--primary)) 2%, white);
+  --color-primary-50: color-mix(in srgb, hsl(var(--primary)) 10%, white);
+  --color-primary-100: color-mix(in srgb, hsl(var(--primary)) 15%, white);
+  --color-primary-200: color-mix(in srgb, hsl(var(--primary)) 37%, white);
+  --color-primary-300: color-mix(in srgb, hsl(var(--primary)) 49%, white);
+  --color-primary-400: color-mix(in srgb, hsl(var(--primary)) 60%, white);
+  --color-primary-500: hsl(var(--primary));
+  --color-primary-600: color-mix(in srgb, hsl(var(--primary)) 80%, black);
+  --color-primary-700: color-mix(in srgb, hsl(var(--primary)) 70%, black);
+  --color-primary-800: color-mix(in srgb, hsl(var(--primary)) 60%, black);
+  --color-primary-900: color-mix(in srgb, hsl(var(--primary)) 50%, black);
+  --color-primary-950: color-mix(in srgb, hsl(var(--primary)) 40%, black);
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
@@ -57,6 +71,38 @@
   text-wrap: balance;
 }
 
+@utility bg-main-gradient {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-700) 0%,
+    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
+  );
+}
+
+@utility bg-secondary-gradient {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-400) 0%,
+    hsl(calc(var(--primary-hue) - 60) calc(var(--primary-saturation) * 0.6) calc(var(--primary-lightness) + 60%)) 100%
+  );
+}
+
+@keyframes grape-color {
+  0% {
+    color: var(--color-primary-700);
+  }
+  50% {
+    color: hsl(calc(var(--primary-hue) - 38) var(--primary-saturation) var(--primary-lightness));
+  }
+  100% {
+    color: hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness));
+  }
+}
+
+@utility animate-grape-color {
+  animation: grape-color 3s ease-in-out infinite alternate;
+}
+
 @layer utilities {
   body {
     font-family: Arial, Helvetica, sans-serif;
@@ -75,7 +121,10 @@
 		--card-foreground: 0 0% 3.9%;
 		--popover: 0 0% 100%;
 		--popover-foreground: 0 0% 3.9%;
-		--primary: 0 0% 9%;
+		--primary: 136, 100%, 21%;
+		--primary-hue: 136;
+		--primary-saturation: 100%;
+		--primary-lightness: 21%;
 		--primary-foreground: 0 0% 98%;
 		--secondary: 0 0% 96.1%;
 		--secondary-foreground: 0 0% 9%;

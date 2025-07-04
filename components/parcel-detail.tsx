@@ -30,18 +30,12 @@ export function ParcelDetail({
 
 	return (
 		<div className="p-4 space-y-4">
-			<div className="flex justify-between items-center mb-6">
-				<div>
-					<h1 className="text-2xl font-bold">{parcel.name}</h1>
-					<p className="text-gray-600 capitalize">
-						{parcel.type.toLowerCase()} - {parcel.width}m × {parcel.height}m (
-						{((parcel.width * parcel.height) / 10_000).toFixed(2)} ha)
-					</p>
-				</div>
+			<div className="flex justify-end items-center">
 				<DeleteParcelButton
 					parcelId={parcel.id}
 					parcelName={parcel.name}
 					redirectTo="/parcels"
+					className="absolute top-6"
 					iconSize="md"
 				/>
 			</div>
@@ -81,11 +75,11 @@ export function ParcelDetail({
 					</Card>
 				)}
 
-				<Card>
-					<CardHeader>
-						<CardTitle>Past Treatments</CardTitle>
-					</CardHeader>
-					<CardContent>
+				<div>
+					<h2 className="text-lg font-semibold mb-3 flex items-center">
+						Past Treatments
+					</h2>
+					<div className="space-y-3">
 						{pastTreatments.length === 0 ? (
 							<p className="text-muted-foreground">No past treatments</p>
 						) : (
@@ -100,8 +94,8 @@ export function ParcelDetail({
 								))}
 							</div>
 						)}
-					</CardContent>
-				</Card>
+					</div>
+				</div>
 			</div>
 
 			<SubstanceUsageSection

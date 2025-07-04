@@ -29,7 +29,7 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="text-center">
-						<Button asChild className="bg-green-600 hover:bg-green-700">
+						<Button asChild className="bg-primary-600 hover:bg-primary-700">
 							<Link href="/parcels">
 								<Plus className="h-4 w-4 mr-2" />
 								Add Your First Parcel

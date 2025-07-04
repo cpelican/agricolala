@@ -203,7 +203,7 @@ export function AddParcelDialog({
 						<Button
 							type="submit"
 							disabled={loading}
-							className="bg-green-600 hover:bg-green-700"
+							className="bg-primary-600 hover:bg-primary-700"
 						>
 							{loading ? "Adding..." : "Add Parcel"}
 						</Button>

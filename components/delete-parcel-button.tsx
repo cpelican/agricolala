@@ -2,12 +2,14 @@
 
 import { Trash2 } from "lucide-react";
 import { DeleteParcelDialog } from "./delete-parcel-dialog";
+import { cn } from "@/lib/utils";
 
 interface DeleteParcelButtonProps {
 	parcelId: string;
 	parcelName: string;
 	redirectTo?: string;
 	iconSize?: "sm" | "md";
+	className?: string;
 }
 
 export function DeleteParcelButton({
@@ -15,6 +17,7 @@ export function DeleteParcelButton({
 	parcelName,
 	redirectTo,
 	iconSize = "sm",
+	className,
 }: DeleteParcelButtonProps) {
 	const iconClass = iconSize === "sm" ? "h-4 w-4" : "h-5 w-5";
 
@@ -24,7 +27,12 @@ export function DeleteParcelButton({
 			parcelName={parcelName}
 			redirectTo={redirectTo}
 			trigger={
-				<button className="p-2 text-red-500 hover:text-red-700 transition-colors">
+				<button
+					className={cn(
+						"p-2 text-red-500 hover:text-red-700 transition-colors",
+						className,
+					)}
+				>
 					<Trash2 className={iconClass} />
 				</button>
 			}

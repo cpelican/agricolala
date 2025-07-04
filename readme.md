@@ -51,4 +51,6 @@ npm run tsc
 - [ ] When the user does a treatment, we want to find out what the weather was before and after -> maybe one day we can train a model depending on this
 - [ ] Still thinking about a model, we could ask them how their year was just after the harvest. This way we would have a clue about wether thir general behaviour was successful
 - [ ] We let the user know if they are using less product compared to last year, give them a bit more data about how good they are at not using too much product
+- [ ] Very interesting: Look at https://api.open-meteo.com/v1/forecast?latitude=44.0998&longitude=9.7387&hourly=temperature_2m,precipitation_probability,precipitation,apparent_temperature,temperature_80m&past_days=7
 
+- [ ] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile

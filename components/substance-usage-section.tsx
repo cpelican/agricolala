@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
 import { type SubstanceData } from "./types";
-import { useSubstances } from "@/contexts/cached-data-context";
+import { SubStanceCircle } from "./substance-circle";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -23,16 +23,10 @@ export function SubstanceUsageSection({
 	description = "Track your substance applications across all treatments",
 }: SubstanceUsageSectionProps) {
 	const hasSubstanceData = substanceData.length > 0;
-	const substances = useSubstances();
-
-	const getSubstanceColor = (substanceName: string) => {
-		const substance = substances.find((s) => s.name === substanceName);
-		return substance?.color || "rgb(182, 182, 182)";
-	};
 
 	return (
 		<div className="space-y-4">
-			<Card>
+			<Card className="bg-card">
 				<CardHeader>
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
@@ -50,27 +44,21 @@ export function SubstanceUsageSection({
 							<CardContent className="p-4">
 								<div className="flex justify-between items-center gap-2">
 									<div className="flex items-center gap-2">
-										<div
-											className="w-3 h-3 rounded-full"
-											style={{
-												backgroundColor: getSubstanceColor(substance.name),
-											}}
-										/>
+										<SubStanceCircle substanceName={substance.name} />
 										<div>
 											<h3 className="font-medium">{substance.name}</h3>
 											<p className="text-sm text-muted-foreground">
 												{substance.totalDoseOfProduct.toFixed(2)} gr of product
-												used
 											</p>
 											<p className="text-sm text-muted-foreground">
 												{Math.round(substance.totalUsedOfPureActiveSubstance)}{" "}
-												gr of pure active substance used
+												gr of pure active substance
 											</p>
 											<p className="text-sm text-muted-foreground">
 												{Math.round(
 													substance.totalUsedOfPureActiveSubstancePerHa,
 												)}{" "}
-												kg/ha of pure active substance used
+												kg/ha of pure active substance
 											</p>
 										</div>
 									</div>

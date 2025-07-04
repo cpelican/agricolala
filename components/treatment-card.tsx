@@ -1,9 +1,9 @@
 import { type Disease, TreatmentStatus } from "@prisma/client";
 import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
+import { SubStanceCircle } from "./substance-circle";
 
 function formatTreatmentDate(
 	treatment: Pick<
@@ -61,22 +61,10 @@ export function TreatmentCard({
 								.join(", ")}
 						</p>
 					</div>
-					<Badge
-						variant={
-							treatment.status === TreatmentStatus.DONE
-								? "default"
-								: "secondary"
-						}
-					>
-						{treatment.status === TreatmentStatus.DONE
-							? "Completed"
-							: "Pending"}
-					</Badge>
-				</div>
-
-				<div className="flex items-center text-sm text-gray-600 mb-2">
-					<MapPin className="h-4 w-4 mr-1" />
-					{parcelName}
+					<div className="flex items-center text-sm text-gray-600 mb-2">
+						<MapPin className="h-4 w-4 mr-1" />
+						{parcelName}
+					</div>
 				</div>
 
 				{formattedDate && (
@@ -95,7 +83,6 @@ export function TreatmentCard({
 
 				{treatment.productApplications.length > 0 && (
 					<div>
-						<p className="text-sm font-medium mb-2">Products Used:</p>
 						<div className="space-y-1">
 							{treatment.productApplications.map((app, index) => (
 								<div
@@ -103,15 +90,19 @@ export function TreatmentCard({
 									className="text-sm text-gray-600 bg-gray-50 p-2 rounded"
 								>
 									<div className="font-medium">
-										{app.product.brand} {app.product.name}
+										{app.dose}gr of {app.product.brand} {app.product.name}
 									</div>
-									<div>Dose: {app.dose}gr</div>
 									{app.product.composition.length > 0 && (
 										<div className="text-xs mt-1">
-											Active substances:{" "}
-											{app.product.composition
-												.map((c) => c.substance.name)
-												.join(", ")}
+											{app.product.composition.map((c, i) => (
+												<div
+													key={`composition-${i}`}
+													className="flex items-center gap-1"
+												>
+													<SubStanceCircle substanceName={c.substance.name} />
+													{c.substance.name}
+												</div>
+											))}
 										</div>
 									)}
 								</div>

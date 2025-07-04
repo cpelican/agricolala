@@ -1,4 +1,3 @@
-import { MAIN_COLOR } from "@/app/const";
 import { requireAuth } from "@/lib/auth-utils";
 import {
 	Card,
@@ -40,15 +39,12 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 		);
 	}
 	return (
-		<div className="min-h-screen bg-gray-50 pb-20">
-			<div
-				style={{ background: MAIN_COLOR }}
-				className="text-white p-4 flex items-center gap-x-4"
-			>
+		<div className="min-h-screen bg-primary-10 pb-20">
+			<div className="text-white/90 p-4 flex items-center gap-x-4 bg-main-gradient">
 				{icon}
 				<div>
-					<h1 className="text-2xl font-bold">{title}</h1>
-					<p className="text-white-100">{subtitle}</p>
+					<h1 className="text-2xl font-semibold">{title}</h1>
+					<p className="font-light">{subtitle}</p>
 				</div>
 			</div>
 

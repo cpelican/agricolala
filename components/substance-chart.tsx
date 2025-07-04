@@ -59,13 +59,14 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 			label: substance.name,
 			data: substance.monthlyData,
 			borderColor: colors[substance.name],
-			backgroundColor: colors[substance.name] + "20",
+			backgroundColor: colors[substance.name],
 			tension: 0.1,
 		})),
 	};
 
 	const options = {
 		responsive: true,
+		aspectRatio: 1.2,
 		plugins: {
 			legend: {
 				position: "top" as const,

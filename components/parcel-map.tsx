@@ -158,7 +158,7 @@ export function ParcelMap({
 			<div ref={mapRef} className="w-full h-[400px] rounded-lg relative z-0" />
 			{isLoading && (
 				<div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
 				</div>
 			)}
 		</div>

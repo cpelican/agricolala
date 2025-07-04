@@ -17,7 +17,7 @@ export default async function Home() {
 				<LayoutWithHeader
 					title="Agricolala"
 					subtitle={`Welcome back, ${session?.user?.name ?? session?.user?.email}`}
-					icon={<Grape />}
+					icon={<Grape className="w-8 h-8" />}
 				>
 					<HomeContent parcels={parcels} />
 					<BottomNavigation />

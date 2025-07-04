@@ -28,8 +28,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 
 	return (
 		<div className="p-4 space-y-4">
-			<div className="flex justify-between items-center">
-				<h2 className="text-lg font-semibold">Your Parcels</h2>
+			<div className="flex justify-end items-center">
 				<p className="text-sm text-gray-500">
 					Click on the map to add a parcel
 				</p>

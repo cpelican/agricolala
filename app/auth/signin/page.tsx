@@ -11,7 +11,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { MAIN_COLOR } from "@/app/const";
 
 export default function SignIn() {
 	const router = useRouter();
@@ -25,10 +24,10 @@ export default function SignIn() {
 	}, [router]);
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-green-100 px-4">
+		<div className="min-h-screen flex items-center justify-center bg-primary-10 px-4">
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
-					<CardTitle className="text-2xl font-bold text-green-700">
+					<CardTitle className="text-2xl font-bold text-primary-700">
 						Agricolala
 					</CardTitle>
 					<CardDescription>
@@ -38,8 +37,7 @@ export default function SignIn() {
 				<CardContent>
 					<Button
 						onClick={() => signIn("google", { callbackUrl: "/" })}
-						style={{ background: MAIN_COLOR }}
-						className="w-full hover:bg-green-700"
+						className="w-full bg-main-gradient hover:bg-primary-700"
 						size="lg"
 					>
 						Sign in with Google

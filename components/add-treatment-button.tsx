@@ -22,7 +22,7 @@ export const AddTreatmentButton = ({
 			<Button
 				onClick={() => setIsAddTreatmentOpen(true)}
 				style={{ bottom: 100 }}
-				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-green-600 hover:bg-green-700"
+				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-primary-600 hover:bg-primary-700"
 				size="icon"
 			>
 				<Plus className="h-6 w-6" />

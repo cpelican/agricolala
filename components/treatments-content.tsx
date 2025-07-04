@@ -65,8 +65,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 			{completedTreatments.length > 0 && (
 				<div>
 					<h2 className="text-lg font-semibold mb-3 flex items-center">
-						<Calendar className="h-5 w-5 mr-2 text-green-500" />
-						Completed Treatments ({completedTreatments.length})
+						{completedTreatments.length} Completed
 					</h2>
 					<div className="space-y-3">
 						{completedTreatments.map((treatment) => (
