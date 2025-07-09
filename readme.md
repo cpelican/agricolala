@@ -53,4 +53,4 @@ npm run tsc
 - [ ] We let the user know if they are using less product compared to last year, give them a bit more data about how good they are at not using too much product
 - [ ] Very interesting: Look at https://api.open-meteo.com/v1/forecast?latitude=44.0998&longitude=9.7387&hourly=temperature_2m,precipitation_probability,precipitation,apparent_temperature,temperature_80m&past_days=7
 
-- [ ] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
+- [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile

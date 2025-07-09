@@ -54,6 +54,7 @@ const options: NextAdminOptions = {
 					"maxApplications",
 					"composition",
 					"productApplications",
+					"daysBetweenApplications",
 				],
 			},
 		},

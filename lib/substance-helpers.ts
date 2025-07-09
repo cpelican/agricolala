@@ -1,6 +1,14 @@
 import { type SubstanceData } from "@/components/types";
+import {
+	type Product,
+	type Substance,
+	type SubstanceDose,
+} from "@prisma/client";
+import { type ParcelWithTreatments } from "./data-fetcher";
 
 const HECTARE_IN_METERS = 10_000;
+const KG_IN_GR = 1_000;
+
 interface TreatmentWithProducts {
 	id: string;
 	appliedDate: Date | null;
@@ -22,9 +30,6 @@ interface TreatmentWithProducts {
 		};
 	}>;
 }
-
-type SubstanceName =
-	TreatmentWithProducts["productApplications"][number]["product"]["composition"][number]["substance"]["name"];
 
 export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
@@ -73,8 +78,72 @@ export function calculateSubstanceData(
 			});
 			return acc;
 		},
-		{} as Record<SubstanceName, SubstanceData>,
+		{} as Record<string, SubstanceData>,
 	);
 
 	return Object.values(substanceDataMap);
+}
+
+export function calculateAdvisedDosePerProduct(
+	parcelIds: string[],
+	substanceDoses: Pick<
+		SubstanceDose,
+		"id" | "dose" | "productId" | "substanceId"
+	>[],
+	products: Pick<Product, "id" | "name" | "maxApplications">[],
+	substances: Pick<Substance, "id" | "maxDosage" | "name">[],
+	parcels: ParcelWithTreatments[],
+): Record<string, number> {
+	const totalAreaHa = parcels.reduce((total, parcel) => {
+		if (parcelIds.includes(parcel.id)) {
+			const areaM2 = parcel.width * parcel.height;
+			total += areaM2 / HECTARE_IN_METERS;
+		}
+		return total;
+	}, 0);
+
+	if (totalAreaHa === 0) {
+		return {};
+	}
+	const productIdsToProduct = products.reduce<
+		Record<string, Pick<Product, "id" | "name" | "maxApplications">>
+	>((acc, p) => {
+		acc[p.id] = p;
+		return acc;
+	}, {});
+
+	const productSubstanceDoses = substanceDoses.reduce<
+		Array<
+			Pick<SubstanceDose, "id" | "dose" | "productId" | "substanceId"> &
+				Pick<Product, "id" | "name" | "maxApplications"> &
+				Pick<Substance, "id" | "maxDosage" | "name">
+		>
+	>((acc, sd) => {
+		const substance = substances.find((s) => s.id === sd.substanceId);
+		if (!substance) {
+			return acc;
+		}
+		if (sd.productId in productIdsToProduct) {
+			acc.push({ ...sd, ...productIdsToProduct[sd.productId], ...substance });
+		}
+		return acc;
+	}, []);
+
+	return productSubstanceDoses.reduce<Record<string, number>>((acc, s) => {
+		if (!s.maxApplications) {
+			return acc;
+		}
+
+		if (!s.maxDosage) {
+			return acc;
+		}
+
+		const advisedDoseForProductInGr =
+			(s.maxDosage / s.maxApplications) * totalAreaHa * KG_IN_GR;
+		if (advisedDoseForProductInGr > 0) {
+			acc[s.productId] = advisedDoseForProductInGr;
+		}
+
+		return acc;
+	}, {});
 }

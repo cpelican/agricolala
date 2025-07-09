@@ -27,7 +27,7 @@ WHERE (d.name = 'Peronospora' AND s.name = 'Copper')
    OR (d.name = 'Oidium' AND s.name = 'Sulfur');
 
 -- Create products
-INSERT INTO "Product" (id, name, brand, "maxCumulatedQuantity", "maxApplications", "createdAt", "updatedAt") VALUES
+INSERT INTO "Product" (id, name, brand, "maxApplications", "createdAt", "updatedAt") VALUES
 (gen_random_uuid(), 'Pasta cafaro', 'Pasta cafaro', 18.0, 6, NOW(), NOW()),
 (gen_random_uuid(), 'Zolfo tiovit', 'Zolfo tiovit', 40.0, 10, NOW(), NOW());
 

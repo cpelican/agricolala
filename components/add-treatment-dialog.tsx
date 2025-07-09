@@ -1,6 +1,11 @@
 "use client";
 
-import type { Disease, Product } from "@prisma/client";
+import type {
+	Disease,
+	Product,
+	Substance,
+	SubstanceDose,
+} from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,6 +37,8 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
+import React from "react";
 
 interface AddTreatmentDialogProps {
 	open: boolean;
@@ -39,7 +46,12 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name">[];
+	products: Pick<Product, "id" | "name" | "maxApplications">[];
+	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
+	substanceDoses: Pick<
+		SubstanceDose,
+		"id" | "dose" | "productId" | "substanceId"
+	>[];
 }
 
 const defaultErrors: Record<string, string[]> = {
@@ -57,6 +69,8 @@ export function AddTreatmentDialog({
 	parcels,
 	diseases,
 	products,
+	substances,
+	substanceDoses,
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
@@ -131,6 +145,14 @@ export function AddTreatmentDialog({
 			),
 		}));
 	};
+	// Calculate advised dose using the helper function
+	const advisedDosePerProduct = calculateAdvisedDosePerProduct(
+		formData.parcelIds,
+		substanceDoses,
+		products,
+		substances,
+		parcels || [],
+	);
 
 	const updateProduct = (
 		index: number,
@@ -173,7 +195,9 @@ export function AddTreatmentDialog({
 			if (
 				!formData.productApplications.some((p) => p.productId && p.dose > 0)
 			) {
-				errors.productApplications.push("At least one product with valid dose is required");
+				errors.productApplications.push(
+					"At least one product with valid dose is required",
+				);
 			}
 
 			if (formData.waterDose <= 0) {
@@ -266,7 +290,11 @@ export function AddTreatmentDialog({
 								/>
 							</PopoverContent>
 						</Popover>
-						{errors.appliedDate.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
+						{errors.appliedDate.map((er) => (
+							<p key={er} className="text-sm text-red-700">
+								{er}
+							</p>
+						))}
 					</div>
 
 					{!!parcels?.length && (
@@ -313,7 +341,11 @@ export function AddTreatmentDialog({
 									)}
 								</div>
 							))}
-							{errors.parcelIds.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
+							{errors.parcelIds.map((er) => (
+								<p key={er} className="text-sm text-red-700">
+									{er}
+								</p>
+							))}
 						</div>
 					)}
 
@@ -360,7 +392,11 @@ export function AddTreatmentDialog({
 								)}
 							</div>
 						))}
-						{errors.diseases.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
+						{errors.diseases.map((er) => (
+							<p key={er} className="text-sm text-red-700">
+								{er}
+							</p>
+						))}
 					</div>
 
 					<div className="space-y-4">
@@ -382,49 +418,62 @@ export function AddTreatmentDialog({
 							</Button>
 						</div>
 						{formData.productApplications.map((product, index) => (
-							<div key={index} className="flex gap-2 items-start mb-1">
-								<Select
-									value={product.productId}
-									onValueChange={(value) =>
-										updateProduct(index, "productId", value)
-									}
-								>
-									<SelectTrigger className="flex-1">
-										<SelectValue placeholder="Select product" />
-									</SelectTrigger>
-									<SelectContent>
-										{products.map((p) => (
-											<SelectItem key={p.id} value={p.id}>
-												{p.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<Input
-									type="number"
-									placeholder="gr"
-									step="0.1"
-									min="0.1"
-									value={product.dose || ""}
-									onChange={(e) =>
-										updateProduct(index, "dose", Number(e.target.value))
-									}
-									className="w-24"
-								/>
-								{index > 0 && (
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										onClick={() => removeProduct(index)}
-										className="mt-2"
+							<React.Fragment key={index}>
+								<div className="flex gap-2 items-start mb-1">
+									<Select
+										value={product.productId}
+										onValueChange={(value) =>
+											updateProduct(index, "productId", value)
+										}
 									>
-										<X className="h-4 w-4" />
-									</Button>
-								)}
-							</div>
+										<SelectTrigger className="flex-1">
+											<SelectValue placeholder="Select product" />
+										</SelectTrigger>
+										<SelectContent>
+											{products.map((p) => (
+												<SelectItem key={p.id} value={p.id}>
+													{p.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									<Input
+										type="number"
+										placeholder="gr"
+										step="0.1"
+										min="0.1"
+										value={product.dose || ""}
+										onChange={(e) =>
+											updateProduct(index, "dose", Number(e.target.value))
+										}
+										className="w-24"
+									/>
+									{index > 0 && (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											onClick={() => removeProduct(index)}
+											className="mt-2"
+										>
+											<X className="h-4 w-4" />
+										</Button>
+									)}
+								</div>
+								{advisedDosePerProduct[product.productId] &&
+								advisedDosePerProduct[product.productId] < product.dose ? (
+									<p className="text-sm text-orange-400">
+										It is advised not to go beyond the dosage of{" "}
+										{Math.round(advisedDosePerProduct[product.productId])}gr
+									</p>
+								) : null}
+							</React.Fragment>
 						))}
-						{errors.productApplications.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
+						{errors.productApplications.map((er) => (
+							<p key={er} className="text-sm text-red-700">
+								{er}
+							</p>
+						))}
 					</div>
 
 					<div>
@@ -442,7 +491,11 @@ export function AddTreatmentDialog({
 								}))
 							}
 						/>
-						{errors.waterDose.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
+						{errors.waterDose.map((er) => (
+							<p key={er} className="text-sm text-red-700">
+								{er}
+							</p>
+						))}
 					</div>
 
 					<DialogFooter>

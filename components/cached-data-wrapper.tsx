@@ -2,6 +2,7 @@ import {
 	getCachedSubstances,
 	getCachedDiseases,
 	getCachedProducts,
+	getCachedSubstanceDoses,
 } from "@/lib/cached-data";
 import { CachedDataProvider } from "@/contexts/cached-data-context";
 
@@ -10,10 +11,11 @@ interface CachedDataWrapperProps {
 }
 
 export async function CachedDataWrapper({ children }: CachedDataWrapperProps) {
-	const [substances, diseases, products] = await Promise.all([
+	const [substances, diseases, products, substanceDoses] = await Promise.all([
 		getCachedSubstances(),
 		getCachedDiseases(),
 		getCachedProducts(),
+		getCachedSubstanceDoses(),
 	]);
 
 	return (
@@ -21,6 +23,7 @@ export async function CachedDataWrapper({ children }: CachedDataWrapperProps) {
 			substances={substances}
 			diseases={diseases}
 			products={products}
+			substanceDoses={substanceDoses}
 		>
 			{children}
 		</CachedDataProvider>

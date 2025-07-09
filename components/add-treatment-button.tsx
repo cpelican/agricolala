@@ -4,7 +4,12 @@ import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
-import { useDiseases, useProducts } from "@/contexts/cached-data-context";
+import {
+	useDiseases,
+	useProducts,
+	useSubstances,
+	useSubstanceDoses,
+} from "@/contexts/cached-data-context";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 export const AddTreatmentButton = ({
@@ -17,6 +22,8 @@ export const AddTreatmentButton = ({
 	const [isAddTreatmentOpen, setIsAddTreatmentOpen] = useState(false);
 	const diseases = useDiseases();
 	const products = useProducts();
+	const substances = useSubstances();
+	const substanceDoses = useSubstanceDoses();
 	return (
 		<>
 			<Button
@@ -34,6 +41,8 @@ export const AddTreatmentButton = ({
 				diseases={diseases}
 				products={products}
 				parcels={parcels}
+				substances={substances}
+				substanceDoses={substanceDoses}
 			/>
 		</>
 	);

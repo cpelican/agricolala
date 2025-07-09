@@ -10,7 +10,7 @@ export const getCachedDiseases = cache(async () => {
 
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
-		select: { id: true, name: true },
+		select: { id: true, name: true, maxApplications: true },
 		orderBy: { name: "asc" },
 	});
 });
@@ -22,7 +22,7 @@ const substanceToColors = {
 
 export const getCachedSubstances = cache(async () => {
 	const substances = await prisma.substance.findMany({
-		select: { id: true, name: true },
+		select: { id: true, name: true, maxDosage: true },
 		orderBy: { name: "asc" },
 	});
 
@@ -35,6 +35,17 @@ export const getCachedSubstances = cache(async () => {
 			};
 		}
 		return { ...substance, color: "rgb(182, 182, 182)" };
+	});
+});
+
+export const getCachedSubstanceDoses = cache(async () => {
+	return prisma.substanceDose.findMany({
+		select: {
+			id: true,
+			dose: true,
+			productId: true,
+			substanceId: true,
+		},
 	});
 });
 

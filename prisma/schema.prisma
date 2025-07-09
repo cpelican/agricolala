@@ -110,6 +110,7 @@ model Product {
   brand                String
   name                 String
   maxApplications      Int?
+  daysBetweenApplications Int?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   productApplications  ProductApplication[]
