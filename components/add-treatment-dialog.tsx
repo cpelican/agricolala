@@ -42,6 +42,14 @@ interface AddTreatmentDialogProps {
 	products: Pick<Product, "id" | "name">[];
 }
 
+const defaultErrors: Record<string, string[]> = {
+	appliedDate: [],
+	parcelIds: [],
+	diseases: [],
+	productApplications: [],
+	waterDose: [],
+} as const;
+
 export function AddTreatmentDialog({
 	open,
 	onOpenChange,
@@ -52,6 +60,7 @@ export function AddTreatmentDialog({
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
+	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
 	const [formData, setFormData] = useState({
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
@@ -141,34 +150,39 @@ export function AddTreatmentDialog({
 		setLoading(true);
 
 		try {
-			// Basic validation
-			const errors: string[] = [];
+			const errors: Record<string, string[]> = {
+				appliedDate: [],
+				parcelIds: [],
+				diseases: [],
+				productApplications: [],
+				waterDose: [],
+			};
 
 			if (!formData.appliedDate) {
-				errors.push("Application date is required");
+				errors.appliedDate.push("Application date is required");
 			}
 
 			if (formData.parcelIds.filter((id) => id).length === 0) {
-				errors.push("At least one parcel is required");
+				errors.parcelIds.push("At least one parcel is required");
 			}
 
 			if (!formData.diseases.some((d) => d.diseaseId)) {
-				errors.push("At least one disease is required");
+				errors.diseases.push("At least one disease is required");
 			}
 
 			if (
 				!formData.productApplications.some((p) => p.productId && p.dose > 0)
 			) {
-				errors.push("At least one product with valid dose is required");
+				errors.productApplications.push("At least one product with valid dose is required");
 			}
 
 			if (formData.waterDose <= 0) {
-				errors.push("Water dose must be greater than 0");
+				errors.waterDose.push("Water dose must be greater than 0");
 			}
 
-			if (errors.length > 0) {
+			if (Object.values(errors).flat().length > 0) {
 				console.error("Validation errors:", errors);
-				alert("Please fix the following errors:\n" + errors.join("\n"));
+				setErrors(errors);
 				return;
 			}
 
@@ -252,6 +266,7 @@ export function AddTreatmentDialog({
 								/>
 							</PopoverContent>
 						</Popover>
+						{errors.appliedDate.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
 					</div>
 
 					{!!parcels?.length && (
@@ -269,7 +284,7 @@ export function AddTreatmentDialog({
 								</Button>
 							</div>
 							{formData.parcelIds.map((parcelId, index) => (
-								<div key={index} className="flex gap-2 items-start">
+								<div key={index} className="flex gap-2 items-start mb-1">
 									<Select
 										value={parcelId}
 										onValueChange={(value) => updateParcel(index, value)}
@@ -298,6 +313,7 @@ export function AddTreatmentDialog({
 									)}
 								</div>
 							))}
+							{errors.parcelIds.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
 						</div>
 					)}
 
@@ -315,7 +331,7 @@ export function AddTreatmentDialog({
 							</Button>
 						</div>
 						{formData.diseases.map((disease, index) => (
-							<div key={index} className="flex gap-2 items-start">
+							<div key={index} className="flex gap-2 items-start mb-1">
 								<Select
 									value={disease.diseaseId}
 									onValueChange={(value) => updateDisease(index, value)}
@@ -344,6 +360,7 @@ export function AddTreatmentDialog({
 								)}
 							</div>
 						))}
+						{errors.diseases.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
 					</div>
 
 					<div className="space-y-4">
@@ -365,7 +382,7 @@ export function AddTreatmentDialog({
 							</Button>
 						</div>
 						{formData.productApplications.map((product, index) => (
-							<div key={index} className="flex gap-2 items-start">
+							<div key={index} className="flex gap-2 items-start mb-1">
 								<Select
 									value={product.productId}
 									onValueChange={(value) =>
@@ -407,6 +424,7 @@ export function AddTreatmentDialog({
 								)}
 							</div>
 						))}
+						{errors.productApplications.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
 					</div>
 
 					<div>
@@ -424,6 +442,7 @@ export function AddTreatmentDialog({
 								}))
 							}
 						/>
+						{errors.waterDose.map((er) => (<p className='text-sm text-red-700'>{er}</p>))}
 					</div>
 
 					<DialogFooter>
