@@ -22,6 +22,7 @@ docker compose up
 npx prisma migrate dev
 
 npm run dev
+npx run prisma studio
 ```
 
 ## Deploy Agricolala
@@ -43,7 +44,7 @@ npm run tsc
 
 ## TODOs
 - [ ] use prisma studio
-- [ ] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
+- [x] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
 - [ ] create a stats db record that will be recalculated each time a user adds a treatment
 - [ ] Find alternatives to supabase
 - [ ] Improve the queries, make them smaller, avoid nesting

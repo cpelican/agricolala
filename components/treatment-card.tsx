@@ -3,7 +3,8 @@ import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "./ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
-import { SubStanceCircle } from "./substance-circle";
+import { SubstanceCircle } from "./substance-circle";
+import { useCompositions } from "@/contexts/cached-data-context";
 
 function formatTreatmentDate(
 	treatment: Pick<
@@ -44,6 +45,7 @@ export function TreatmentCard({
 	>;
 	diseases: Pick<Disease, "id" | "name">[];
 }) {
+	const compositions = useCompositions();
 	const formattedDate = formatTreatmentDate(treatment);
 
 	return (
@@ -94,15 +96,20 @@ export function TreatmentCard({
 									</div>
 									{app.product.composition.length > 0 && (
 										<div className="text-xs mt-1">
-											{app.product.composition.map((c, i) => (
-												<div
-													key={`composition-${i}`}
-													className="flex items-center gap-1"
-												>
-													<SubStanceCircle substanceName={c.substance.name} />
-													{c.substance.name}
-												</div>
-											))}
+											{app.product.composition.map((c, i) => {
+												const substance =
+													compositions[c.substanceId][app.product.id]
+														?.substance;
+												return (
+													<div
+														key={`composition-${i}`}
+														className="flex items-center gap-1"
+													>
+														<SubstanceCircle substanceName={substance.name} />
+														{substance.name}
+													</div>
+												);
+											})}
 										</div>
 									)}
 								</div>

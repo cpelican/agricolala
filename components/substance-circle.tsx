@@ -1,6 +1,6 @@
 import { useSubstances } from "@/contexts/cached-data-context";
 
-export const SubStanceCircle = ({
+export const SubstanceCircle = ({
 	substanceName,
 }: {
 	substanceName: string;

@@ -11,8 +11,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -27,8 +31,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -43,8 +51,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -59,8 +71,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -75,8 +91,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -91,8 +111,12 @@ const treatments = [
 			{
 				dose: 30,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -107,8 +131,12 @@ const treatments = [
 			{
 				dose: 15,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -123,8 +151,12 @@ const treatments = [
 			{
 				dose: 15,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -139,8 +171,12 @@ const treatments = [
 			{
 				dose: 15,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -155,8 +191,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -171,8 +211,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -187,8 +231,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -203,8 +251,12 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
@@ -219,14 +271,30 @@ const treatments = [
 			{
 				dose: 20,
 				product: {
+					id: "product1",
 					composition: [
-						{ dose: 25, substance: { name: "rame", maxDosage: 4 } },
+						{
+							dose: 25,
+							substanceId: "1",
+						},
 					],
 				},
 			},
 		],
 	},
 ];
+
+const compositions = {
+	"1": {
+		product1: {
+			id: "1",
+			substance: { name: "rame", maxDosage: 4 },
+			dose: 25,
+			substanceId: "1",
+			productId: "product1",
+		},
+	},
+};
 
 const expected = [
 	{
@@ -257,7 +325,7 @@ const expected = [
 
 describe("calculateSubstanceData", () => {
 	test("should calculate substance data correctly", () => {
-		const substanceData = calculateSubstanceData(treatments);
+		const substanceData = calculateSubstanceData(treatments, compositions);
 		expect(substanceData).toEqual(expected);
 	});
 });

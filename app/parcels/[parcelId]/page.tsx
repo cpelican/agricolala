@@ -7,7 +7,11 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
-import { getParcelDetail, type ParcelDetailType } from "@/lib/data-fetcher";
+import {
+	getCachedCompositions,
+	getParcelDetail,
+	type ParcelDetailType,
+} from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcel-detail";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 
@@ -35,6 +39,8 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
+	const compositions = await getCachedCompositions();
+
 	const treatmentsWithParcelName = currentYearTreatments.map((treatment) => ({
 		...treatment,
 		parcel: {
@@ -43,7 +49,10 @@ export default async function ParcelPage({
 		},
 		parcelName: parcel.name,
 	}));
-	const substanceData = calculateSubstanceData(treatmentsWithParcelName);
+	const substanceData = calculateSubstanceData(
+		treatmentsWithParcelName,
+		compositions,
+	);
 
 	const now = new Date();
 	const upcomingTreatments = currentYearTreatments.filter(

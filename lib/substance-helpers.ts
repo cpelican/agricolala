@@ -1,10 +1,9 @@
 import { type SubstanceData } from "@/components/types";
+import { type Product, type Substance } from "@prisma/client";
 import {
-	type Product,
-	type Substance,
-	type SubstanceDose,
-} from "@prisma/client";
-import { type ParcelWithTreatments } from "./data-fetcher";
+	type getCachedCompositions,
+	type ParcelWithTreatments,
+} from "./data-fetcher";
 
 const HECTARE_IN_METERS = 10_000;
 const KG_IN_GR = 1_000;
@@ -20,12 +19,10 @@ interface TreatmentWithProducts {
 	productApplications: Array<{
 		dose: number;
 		product: {
+			id: string;
 			composition: Array<{
 				dose: number;
-				substance: {
-					name: string;
-					maxDosage: number;
-				};
+				substanceId: string;
 			}>;
 		};
 	}>;
@@ -33,12 +30,16 @@ interface TreatmentWithProducts {
 
 export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
+	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
 ): SubstanceData[] {
 	const substanceDataMap = treatments.reduce(
 		(acc, treatment) => {
 			treatment.productApplications.forEach((application) => {
 				application.product.composition.forEach((composition) => {
-					const substanceName = composition.substance.name;
+					const substance =
+						compositions[composition.substanceId][application.product.id]
+							?.substance;
+					const substanceName = substance.name;
 					// application dose (gr of product applied during the treatment)
 					// composition dose (% of active substance present in the product used in the treatemnt)
 					const doseOfPureActiveSubstance =
@@ -54,7 +55,7 @@ export function calculateSubstanceData(
 							totalUsedOfPureActiveSubstance: 0,
 							totalUsedOfPureActiveSubstancePerHa: 0,
 							// kg / ha / year -> https://www.ccpb.it/blog/2019/04/03/rame-agricoltura-biologica/
-							maxDosage: composition.substance.maxDosage,
+							maxDosage: substance.maxDosage,
 							monthlyData: Array(12).fill(0),
 							applications: [],
 						};
@@ -86,10 +87,7 @@ export function calculateSubstanceData(
 
 export function calculateAdvisedDosePerProduct(
 	parcelIds: string[],
-	substanceDoses: Pick<
-		SubstanceDose,
-		"id" | "dose" | "productId" | "substanceId"
-	>[],
+	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
 	products: Pick<Product, "id" | "name" | "maxApplications">[],
 	substances: Pick<Substance, "id" | "maxDosage" | "name">[],
 	parcels: ParcelWithTreatments[],
@@ -105,6 +103,7 @@ export function calculateAdvisedDosePerProduct(
 	if (totalAreaHa === 0) {
 		return {};
 	}
+
 	const productIdsToProduct = products.reduce<
 		Record<string, Pick<Product, "id" | "name" | "maxApplications">>
 	>((acc, p) => {
@@ -112,24 +111,41 @@ export function calculateAdvisedDosePerProduct(
 		return acc;
 	}, {});
 
-	const productSubstanceDoses = substanceDoses.reduce<
-		Array<
-			Pick<SubstanceDose, "id" | "dose" | "productId" | "substanceId"> &
-				Pick<Product, "id" | "name" | "maxApplications"> &
-				Pick<Substance, "id" | "maxDosage" | "name">
-		>
-	>((acc, sd) => {
-		const substance = substances.find((s) => s.id === sd.substanceId);
-		if (!substance) {
-			return acc;
-		}
-		if (sd.productId in productIdsToProduct) {
-			acc.push({ ...sd, ...productIdsToProduct[sd.productId], ...substance });
-		}
+	const substanceBySubstanceId = substances.reduce<
+		Record<string, Pick<Substance, "id" | "maxDosage" | "name">>
+	>((acc, s) => {
+		acc[s.id] = s;
 		return acc;
-	}, []);
+	}, {});
 
-	return productSubstanceDoses.reduce<Record<string, number>>((acc, s) => {
+	const productCompositions: Array<{
+		id: string;
+		maxDosage: number;
+		name: string;
+		productId: string;
+		substanceId: string;
+		dose: number;
+		maxApplications?: number | null;
+	}> = [];
+
+	for (const id in compositions) {
+		if (productIdsToProduct[id]) {
+			const productSubstances = compositions[id];
+			for (const substanceId in productSubstances) {
+				const substance = productSubstances[substanceId];
+				if (!substance) {
+					continue;
+				}
+				productCompositions.push({
+					...substanceBySubstanceId[substanceId],
+					...substance,
+					...productIdsToProduct[substance.productId],
+				});
+			}
+		}
+	}
+
+	return productCompositions.reduce<Record<string, number>>((acc, s) => {
 		if (!s.maxApplications) {
 			return acc;
 		}

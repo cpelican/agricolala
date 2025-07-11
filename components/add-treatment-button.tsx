@@ -8,7 +8,7 @@ import {
 	useDiseases,
 	useProducts,
 	useSubstances,
-	useSubstanceDoses,
+	useCompositions,
 } from "@/contexts/cached-data-context";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
@@ -23,7 +23,7 @@ export const AddTreatmentButton = ({
 	const diseases = useDiseases();
 	const products = useProducts();
 	const substances = useSubstances();
-	const substanceDoses = useSubstanceDoses();
+	const compositions = useCompositions();
 	return (
 		<>
 			<Button
@@ -42,7 +42,7 @@ export const AddTreatmentButton = ({
 				products={products}
 				parcels={parcels}
 				substances={substances}
-				substanceDoses={substanceDoses}
+				compositions={compositions}
 			/>
 		</>
 	);

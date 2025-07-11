@@ -1,11 +1,6 @@
 "use client";
 
-import type {
-	Disease,
-	Product,
-	Substance,
-	SubstanceDose,
-} from "@prisma/client";
+import type { Disease, Product, Substance } from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -36,7 +31,10 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import {
+	type getCachedCompositions,
+	type ParcelWithTreatments,
+} from "@/lib/data-fetcher";
 import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
 import React from "react";
 
@@ -48,10 +46,7 @@ interface AddTreatmentDialogProps {
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name" | "maxApplications">[];
 	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
-	substanceDoses: Pick<
-		SubstanceDose,
-		"id" | "dose" | "productId" | "substanceId"
-	>[];
+	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
 
 const defaultErrors: Record<string, string[]> = {
@@ -70,7 +65,7 @@ export function AddTreatmentDialog({
 	diseases,
 	products,
 	substances,
-	substanceDoses,
+	compositions,
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
@@ -148,7 +143,7 @@ export function AddTreatmentDialog({
 	// Calculate advised dose using the helper function
 	const advisedDosePerProduct = calculateAdvisedDosePerProduct(
 		formData.parcelIds,
-		substanceDoses,
+		compositions,
 		products,
 		substances,
 		parcels || [],

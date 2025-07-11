@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
 import { type SubstanceData } from "./types";
-import { SubStanceCircle } from "./substance-circle";
+import { SubstanceCircle } from "./substance-circle";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -44,7 +44,7 @@ export function SubstanceUsageSection({
 							<CardContent className="p-4">
 								<div className="flex justify-between items-center gap-2">
 									<div className="flex items-center gap-2">
-										<SubStanceCircle substanceName={substance.name} />
+										<SubstanceCircle substanceName={substance.name} />
 										<div>
 											<h3 className="font-medium">{substance.name}</h3>
 											<p className="text-sm text-muted-foreground">

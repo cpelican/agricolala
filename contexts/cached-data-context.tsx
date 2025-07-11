@@ -1,18 +1,18 @@
 "use client";
 
 import {
+	getCachedSubstances,
 	getCachedDiseases,
 	getCachedProducts,
-	getCachedSubstances,
-	getCachedSubstanceDoses,
-} from "@/lib/cached-data";
+	getCachedCompositions,
+} from "@/lib/data-fetcher";
 import { createContext, useContext, type ReactNode } from "react";
 
 interface CachedDataContextType {
 	substances: Awaited<ReturnType<typeof getCachedSubstances>>;
 	diseases: Awaited<ReturnType<typeof getCachedDiseases>>;
 	products: Awaited<ReturnType<typeof getCachedProducts>>;
-	substanceDoses: Awaited<ReturnType<typeof getCachedSubstanceDoses>>;
+	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
 
 const CachedDataContext = createContext<CachedDataContextType | undefined>(
@@ -24,7 +24,7 @@ interface CachedDataProviderProps {
 	substances: CachedDataContextType["substances"];
 	diseases: CachedDataContextType["diseases"];
 	products: CachedDataContextType["products"];
-	substanceDoses: CachedDataContextType["substanceDoses"];
+	compositions: CachedDataContextType["compositions"];
 }
 
 export function CachedDataProvider({
@@ -32,7 +32,7 @@ export function CachedDataProvider({
 	substances,
 	diseases,
 	products,
-	substanceDoses,
+	compositions,
 }: CachedDataProviderProps) {
 	return (
 		<CachedDataContext.Provider
@@ -40,7 +40,7 @@ export function CachedDataProvider({
 				substances,
 				diseases,
 				products,
-				substanceDoses,
+				compositions,
 			}}
 		>
 			{children}
@@ -72,7 +72,7 @@ export function useProducts() {
 	return products;
 }
 
-export function useSubstanceDoses() {
-	const { substanceDoses } = useCachedData();
-	return substanceDoses;
+export function useCompositions() {
+	const { compositions } = useCachedData();
+	return compositions;
 }

@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/card";
 import { SubstanceUsageSection } from "./substance-usage-section";
 import { calculateSubstanceData } from "@/lib/substance-helpers";
-import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import {
+	getCachedCompositions,
+	type ParcelWithTreatments,
+} from "@/lib/data-fetcher";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];
@@ -51,7 +54,9 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 			parcelName: parcel.name,
 		})),
 	);
-	const substanceData = calculateSubstanceData(allTreatments);
+	const compositions = await getCachedCompositions();
+	console.log(allTreatments);
+	const substanceData = calculateSubstanceData(allTreatments, compositions);
 
 	return (
 		<div className="p-4 space-y-4">

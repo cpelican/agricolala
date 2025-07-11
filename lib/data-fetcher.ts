@@ -2,6 +2,23 @@ import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
 
+const productApplicationsSelect = {
+	dose: true,
+	product: {
+		select: {
+			id: true,
+			name: true,
+			brand: true,
+			composition: {
+				select: {
+					dose: true,
+					substanceId: true,
+				},
+			},
+		},
+	},
+};
+
 const parcelSelect = {
 	id: true,
 	name: true,
@@ -18,26 +35,7 @@ const parcelSelect = {
 			appliedDate: true,
 			status: true,
 			productApplications: {
-				select: {
-					dose: true,
-					product: {
-						select: {
-							id: true,
-							name: true,
-							composition: {
-								select: {
-									dose: true,
-									substance: {
-										select: {
-											name: true,
-											maxDosage: true,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
+				select: productApplicationsSelect,
 			},
 		},
 		where: {
@@ -48,28 +46,6 @@ const parcelSelect = {
 			},
 		},
 		take: 5, // Limit treatments per parcel for performance
-	},
-};
-
-const productApplicationsSelect = {
-	dose: true,
-	product: {
-		select: {
-			id: true,
-			name: true,
-			brand: true,
-			composition: {
-				select: {
-					dose: true,
-					substance: {
-						select: {
-							name: true,
-							maxDosage: true,
-						},
-					},
-				},
-			},
-		},
 	},
 };
 
@@ -92,7 +68,9 @@ const parcelDetailSelect = {
 			status: true,
 			waterDose: true,
 			diseaseIds: true,
-			productApplications: { select: productApplicationsSelect },
+			productApplications: {
+				select: productApplicationsSelect,
+			},
 		},
 		where: {
 			appliedDate: {
@@ -103,7 +81,6 @@ const parcelDetailSelect = {
 	},
 };
 
-// Optimized select for treatments list
 const treatmentSelect = {
 	id: true,
 	appliedDate: true,
@@ -167,6 +144,79 @@ export const getTreatments = cache(async (userId: string) => {
 		},
 		select: treatmentSelect,
 		orderBy: [{ appliedDate: "desc" as const }, { dateMin: "desc" as const }],
+	});
+});
+
+export const getCachedDiseases = cache(async () => {
+	return prisma.disease.findMany({
+		select: { id: true, name: true },
+		orderBy: { name: "asc" },
+	});
+});
+
+export const getCachedProducts = cache(async () => {
+	return prisma.product.findMany({
+		select: { id: true, name: true, maxApplications: true },
+		orderBy: { name: "asc" },
+	});
+});
+
+const substanceToColors = {
+	Copper: "rgb(59, 130, 246)",
+	Sulfur: "rgb(34, 197, 94)",
+} as const;
+
+export const getCachedCompositions = cache(async () => {
+	const compositions = await prisma.substanceDose.findMany({
+		select: {
+			id: true,
+			dose: true,
+			productId: true,
+			substanceId: true,
+			substance: {
+				select: {
+					name: true,
+					maxDosage: true,
+				},
+			},
+		},
+	});
+
+	return compositions.reduce(
+		(
+			acc: Record<string, Record<string, (typeof compositions)[number]>>,
+			value,
+		) => {
+			if (!acc[value.substanceId]) {
+				acc[value.substanceId] = {};
+			}
+			// a product cannot be composed of 2 same substances
+			acc[value.substanceId][value.productId] = value;
+			if (!acc[value.productId]) {
+				acc[value.productId] = {};
+			}
+			acc[value.productId][value.substanceId] = value;
+			return acc;
+		},
+		{},
+	);
+});
+
+export const getCachedSubstances = cache(async () => {
+	const substances = await prisma.substance.findMany({
+		select: { id: true, name: true, maxDosage: true },
+		orderBy: { name: "asc" },
+	});
+
+	return substances.map((substance) => {
+		if (substance.name in substanceToColors) {
+			return {
+				...substance,
+				color:
+					substanceToColors[substance.name as keyof typeof substanceToColors],
+			};
+		}
+		return { ...substance, color: "rgb(182, 182, 182)" };
 	});
 });
 

@@ -8,7 +8,7 @@ import { type SubstanceData } from "./types";
 import { TreatmentCard } from "./treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
 import { AddTreatmentButton } from "./add-treatment-button";
-import { useDiseases } from "@/contexts/cached-data-context";
+import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
 
 interface ParcelDetailProps {
 	parcel: Pick<
@@ -27,6 +27,7 @@ export function ParcelDetail({
 	substanceData,
 }: ParcelDetailProps) {
 	const diseases = useDiseases();
+	const compositions = useCompositions();
 
 	return (
 		<div className="p-4 space-y-4">
@@ -52,21 +53,26 @@ export function ParcelDetail({
 								{upcomingTreatments.map((treatment) => (
 									<div key={treatment.id} className="border rounded-lg p-4">
 										<div className="mt-2 space-y-2">
-											{treatment.productApplications.map((app, index) => (
-												<div key={index} className="text-sm">
-													<p>
-														{app.product.name} - {app.dose}L/ha
-													</p>
-													<p className="text-muted-foreground">
-														{app.product.composition
-															.map(
-																(comp) =>
-																	`${comp.substance.name} (${comp.dose}%)`,
-															)
-															.join(", ")}
-													</p>
-												</div>
-											))}
+											{treatment.productApplications.map((app, index) => {
+												const substance =
+													compositions[app.product.composition[0].substanceId][
+														app.product.id
+													]?.substance;
+												return (
+													<div key={index} className="text-sm">
+														<p>
+															{app.product.name} - {app.dose}L/ha
+														</p>
+														<p className="text-muted-foreground">
+															{app.product.composition
+																.map(
+																	(comp) => `${substance.name} (${comp.dose}%)`,
+																)
+																.join(", ")}
+														</p>
+													</div>
+												);
+											})}
 										</div>
 									</div>
 								))}
