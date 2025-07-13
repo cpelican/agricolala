@@ -5,6 +5,7 @@ import { Card, CardContent } from "./ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 import { SubstanceCircle } from "./substance-circle";
 import { useCompositions } from "@/contexts/cached-data-context";
+import { DeleteTreatmentButton } from "./delete-treatment-button";
 
 function formatTreatmentDate(
 	treatment: Pick<
@@ -35,6 +36,7 @@ export function TreatmentCard({
 	parcelName: string;
 	treatment: Pick<
 		TreatmentType,
+		| "id"
 		| "diseaseIds"
 		| "status"
 		| "dateMin"
@@ -48,11 +50,18 @@ export function TreatmentCard({
 	const compositions = useCompositions();
 	const formattedDate = formatTreatmentDate(treatment);
 
+	// Create a treatment name for the delete dialog
+	const treatmentName = `Treatment for ${parcelName} - ${treatment.diseaseIds
+		.map((diseaseId) => {
+			return diseases.find((disease) => disease.id === diseaseId)?.name;
+		})
+		.join(", ")}`;
+
 	return (
 		<Card>
 			<CardContent className="p-4">
 				<div className="flex justify-between items-start mb-3">
-					<div>
+					<div className="flex-1">
 						<p className="text-sm text-gray-600">
 							Target:{" "}
 							{treatment.diseaseIds
@@ -63,10 +72,16 @@ export function TreatmentCard({
 								.join(", ")}
 						</p>
 					</div>
-					<div className="flex items-center text-sm text-gray-600 mb-2">
-						<MapPin className="h-4 w-4 mr-1" />
-						{parcelName}
-					</div>
+					<DeleteTreatmentButton
+						treatmentId={treatment.id}
+						treatmentName={treatmentName}
+						className="ml-2"
+					/>
+				</div>
+
+				<div className="flex items-center text-sm text-gray-600 mb-2">
+					<MapPin className="h-4 w-4 mr-1" />
+					{parcelName}
 				</div>
 
 				{formattedDate && (
