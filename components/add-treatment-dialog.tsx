@@ -240,7 +240,7 @@ export function AddTreatmentDialog({
 			});
 			router.refresh();
 		} catch (error) {
-			console.error("Error creating treatment:", error);
+			console.error("Error creating treatment");
 			setServerError(
 				error instanceof Error ? error.message : "Failed to create treatment",
 			);

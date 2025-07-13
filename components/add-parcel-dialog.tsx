@@ -81,7 +81,7 @@ export function AddParcelDialog({
 			});
 			router.refresh();
 		} catch (error) {
-			console.error("Error adding parcel:", error);
+			console.error("Error adding parcel");
 			setError(
 				error instanceof Error ? error.message : "Failed to create parcel",
 			);

@@ -1,5 +1,6 @@
 "use client";
 
+import { Errors } from "@/app/const";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 import { createContext, useContext, type ReactNode, useState } from "react";
 
@@ -32,12 +33,12 @@ export function ParcelsProvider({
 		try {
 			const response = await fetch("/api/parcels");
 			if (!response.ok) {
-				throw new Error("Failed to fetch parcels");
+				throw new Error(Errors.RESOURCE_NOT_FOUND);
 			}
 			const data = await response.json();
 			setParcels(data);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to fetch parcels");
+			setError(err instanceof Error ? err.message : Errors.RESOURCE_NOT_FOUND);
 		} finally {
 			setLoading(false);
 		}

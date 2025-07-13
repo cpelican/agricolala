@@ -44,8 +44,9 @@ export function DeleteTreatmentDialog({
 			} else {
 				router.refresh();
 			}
-		} catch (error) {
-			console.error("Error deleting treatment:", error);
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (_error) {
+			console.error("Error deleting treatment");
 			// You might want to show a toast notification here
 		} finally {
 			setIsDeleting(false);

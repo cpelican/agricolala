@@ -1,6 +1,7 @@
 import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
+import { Errors } from "@/app/const";
 
 const productApplicationsSelect = {
 	dose: true,
@@ -116,7 +117,7 @@ export const getParcelDetail = cache(
 		});
 
 		if (!parcel) {
-			throw new Error(`Parcel ${parcelId} not found`);
+			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
 		return parcel;

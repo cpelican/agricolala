@@ -56,7 +56,7 @@ export function DeleteParcelDialog({
 				router.refresh();
 			}
 		} catch (error) {
-			console.error("Error deleting parcel:", error);
+			console.error("Error deleting parcel");
 			setError(
 				error instanceof Error ? error.message : "Failed to delete parcel",
 			);

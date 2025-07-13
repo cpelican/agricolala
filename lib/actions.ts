@@ -8,16 +8,13 @@ import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations
 import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
 import { taintUtils } from "@/lib/taint-utils";
+import { Errors } from "@/app/const";
 
 // Treatment Actions
 export async function createTreatment(formData: FormData) {
 	const session = await getServerSession(authOptions);
-	if (!session?.user?.id) {
-		throw new Error("Authentication required");
-	}
-
-	if (!session.user.isAuthorized) {
-		throw new Error("Unauthorized");
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
 	}
 
 	taintUtils.taintUserSession(session.user);
@@ -56,7 +53,7 @@ export async function createTreatment(formData: FormData) {
 		});
 
 		if (parcels.length !== validatedData.parcelIds.length) {
-			throw new Error("One or more parcels not found or access denied");
+			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
 		// Calculate total area
@@ -129,21 +126,17 @@ export async function createTreatment(formData: FormData) {
 			message: `Created ${createdTreatments.length} treatments across ${parcels.length} parcels`,
 		};
 	} catch (error) {
-		console.error("Error creating treatment:", error);
+		console.error("Error creating treatment");
 		throw new Error(
-			error instanceof Error ? error.message : "Failed to create treatment",
+			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
 		);
 	}
 }
 
 export async function deleteTreatment(treatmentId: string) {
 	const session = await getServerSession(authOptions);
-	if (!session?.user?.id) {
-		throw new Error("Authentication required");
-	}
-
-	if (!session.user.isAuthorized) {
-		throw new Error("Unauthorized");
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
 	}
 
 	taintUtils.taintUserSession(session.user);
@@ -158,7 +151,7 @@ export async function deleteTreatment(treatmentId: string) {
 		});
 
 		if (!treatment) {
-			throw new Error("Treatment not found or access denied");
+			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
 		// Delete treatment (cascades to product applications)
@@ -182,9 +175,9 @@ export async function deleteTreatment(treatmentId: string) {
 			message: "Treatment deleted successfully",
 		};
 	} catch (error) {
-		console.error("Error deleting treatment:", error);
+		console.error("Error deleting treatment");
 		throw new Error(
-			error instanceof Error ? error.message : "Failed to delete treatment",
+			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
 		);
 	}
 }
@@ -192,12 +185,8 @@ export async function deleteTreatment(treatmentId: string) {
 // Parcel Actions
 export async function createParcel(formData: FormData) {
 	const session = await getServerSession(authOptions);
-	if (!session?.user?.id) {
-		throw new Error("Authentication required");
-	}
-
-	if (!session.user.isAuthorized) {
-		throw new Error("Unauthorized");
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
 	}
 
 	taintUtils.taintUserSession(session.user);
@@ -237,21 +226,17 @@ export async function createParcel(formData: FormData) {
 			parcel,
 		};
 	} catch (error) {
-		console.error("Error creating parcel:", error);
+		console.error("Error creating parcel");
 		throw new Error(
-			error instanceof Error ? error.message : "Failed to create parcel",
+			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
 		);
 	}
 }
 
 export async function deleteParcel(parcelId: string) {
 	const session = await getServerSession(authOptions);
-	if (!session?.user?.id) {
-		throw new Error("Authentication required");
-	}
-
-	if (!session.user.isAuthorized) {
-		throw new Error("Unauthorized");
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
 	}
 
 	taintUtils.taintUserSession(session.user);
@@ -266,7 +251,7 @@ export async function deleteParcel(parcelId: string) {
 		});
 
 		if (!parcel) {
-			throw new Error("Parcel not found or access denied");
+			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
 		// Delete parcel (cascades to treatments)
@@ -289,9 +274,9 @@ export async function deleteParcel(parcelId: string) {
 			message: "Parcel deleted successfully",
 		};
 	} catch (error) {
-		console.error("Error deleting parcel:", error);
+		console.error("Error deleting parcel");
 		throw new Error(
-			error instanceof Error ? error.message : "Failed to delete parcel",
+			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
 		);
 	}
 }

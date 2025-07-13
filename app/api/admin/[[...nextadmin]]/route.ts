@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "../../../../lib/prisma";
 import { taintUtils } from "@/lib/taint-utils";
+import { Errors } from "@/app/const";
 
 const { run } = createHandler({
 	apiBasePath: "/api/admin",
@@ -12,7 +13,7 @@ const { run } = createHandler({
 		const session = await getServerSession(authOptions);
 
 		if (!session?.user?.email) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+			return NextResponse.json({ error: Errors.UNAUTHORIZED }, { status: 401 });
 		}
 
 		taintUtils.taintObject(
@@ -25,7 +26,7 @@ const { run } = createHandler({
 		});
 
 		if (!adminUser) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+			return NextResponse.json({ error: Errors.UNAUTHORIZED }, { status: 403 });
 		}
 
 		taintUtils.taintObject(
