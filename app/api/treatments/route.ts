@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createTreatmentSchema } from "./schema";
+import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 
 export async function POST(request: NextRequest) {
 	const session = await getServerSession(authOptions);
@@ -84,6 +85,9 @@ export async function POST(request: NextRequest) {
 				};
 			}),
 		);
+
+		const currentYear = new Date().getFullYear();
+		await updateSubstanceAggregations(session.user.id, currentYear);
 
 		return NextResponse.json({
 			success: true,

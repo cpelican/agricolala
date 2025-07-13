@@ -5,9 +5,5 @@ export type SubstanceData = {
 	totalUsedOfPureActiveSubstancePerHa: number;
 	maxDosage: number;
 	monthlyData: number[];
-	applications: {
-		date: Date;
-		dose: number;
-		parcel: string;
-	}[];
+	applicationCount: number;
 };

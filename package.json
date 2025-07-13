@@ -15,7 +15,9 @@
 		"prettify": "npx @biomejs/biome format --write --fix .",
 		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
 		"prepare": "husky",
-		"db:seed": "npx tsx prisma/seed.ts"
+		"seed": "npx tsx prisma/seed.ts",
+		"studio": "npx prisma studio",
+		"populate-aggregations": "npx tsx scripts/update-substance-aggregations.ts"
 	},
 	"prisma": {
 		"seed": "npx tsx prisma/seed.ts"

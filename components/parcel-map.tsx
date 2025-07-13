@@ -56,7 +56,7 @@ export function ParcelMap({
 					setIsLoading(false);
 				},
 				(error) => {
-					console.error("Error getting location:", error);
+					console.warn("Error getting location:", error);
 					// Fallback to default location (45.0, 7.0)
 					setUserLocation([45.0, 7.0]);
 					setIsLoading(false);

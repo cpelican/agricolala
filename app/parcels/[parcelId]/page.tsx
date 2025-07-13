@@ -4,11 +4,11 @@ import { Map } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import { calculateSubstanceData } from "@/lib/substance-helpers";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
 import {
-	getCachedCompositions,
+	getCachedParcelSubstanceAggregations,
+	getCachedSubstances,
 	getParcelDetail,
 	type ParcelDetailType,
 } from "@/lib/data-fetcher";
@@ -39,20 +39,11 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	const compositions = await getCachedCompositions();
-
-	const treatmentsWithParcelName = currentYearTreatments.map((treatment) => ({
-		...treatment,
-		parcel: {
-			width: parcel.width,
-			height: parcel.height,
-		},
-		parcelName: parcel.name,
-	}));
-	const substanceData = calculateSubstanceData(
-		treatmentsWithParcelName,
-		compositions,
+	const substanceData = await getCachedParcelSubstanceAggregations(
+		parcelId,
+		currentYear,
 	);
+	const substances = await getCachedSubstances();
 
 	const now = new Date();
 	const upcomingTreatments = currentYearTreatments.filter(
@@ -61,6 +52,16 @@ export default async function ParcelPage({
 	const pastTreatments = currentYearTreatments.filter(
 		(t) => t.appliedDate && new Date(t.appliedDate) <= now,
 	);
+
+	const enrichedSubstanceData = substanceData.map((substance) => {
+		const substanceMeta = substances.find((s) => s.name === substance.name);
+
+		return {
+			...substance,
+			maxDosage: substanceMeta?.maxDosage || -1,
+			color: substanceMeta?.color || "rgb(182, 182, 182)",
+		};
+	});
 
 	return (
 		<AuthGuard>
@@ -80,7 +81,7 @@ export default async function ParcelPage({
 								parcel={parcel}
 								upcomingTreatments={upcomingTreatments}
 								pastTreatments={pastTreatments}
-								substanceData={substanceData}
+								substanceData={enrichedSubstanceData}
 							/>
 						</Suspense>
 

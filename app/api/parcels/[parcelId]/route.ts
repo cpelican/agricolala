@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 
 export async function DELETE(
 	request: NextRequest,
@@ -35,6 +36,9 @@ export async function DELETE(
 				id: parcelId,
 			},
 		});
+
+		const currentYear = new Date().getFullYear();
+		await updateSubstanceAggregations(session.user.id, currentYear);
 
 		return NextResponse.json({ success: true });
 	} catch (error) {

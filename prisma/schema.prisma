@@ -158,6 +158,42 @@ model Disease {
   substances  Substance[] @relation("SubstanceDiseases")
 }
 
+model UserSubstanceAggregation {
+  id                              String   @id @default(cuid())
+  userId                          String
+  substanceId                     String
+  substanceName                   String
+  year                           Int
+  totalDoseOfProduct             Float    @default(0)
+  totalUsedOfPureActiveSubstance Float    @default(0)
+  totalUsedOfPureActiveSubstancePerHa Float @default(0)
+  monthlyData                    Float[]  @default([])
+  applicationCount               Int      @default(0)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  @@unique([userId, substanceId, year])
+  @@index([userId, year])
+}
+
+model ParcelSubstanceAggregation {
+  id                              String   @id @default(cuid())
+  parcelId                        String
+  substanceId                     String
+  substanceName                   String
+  year                           Int
+  totalDoseOfProduct             Float    @default(0)
+  totalUsedOfPureActiveSubstance Float    @default(0)
+  totalUsedOfPureActiveSubstancePerHa Float @default(0)
+  monthlyData                    Float[]  @default([])
+  applicationCount               Int      @default(0)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  @@unique([parcelId, substanceId, year])
+  @@index([parcelId, year])
+}
+
 enum CultureType {
   VINEYARD
   PEACHES

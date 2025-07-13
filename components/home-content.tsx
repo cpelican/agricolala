@@ -9,17 +9,19 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { SubstanceUsageSection } from "./substance-usage-section";
-import { calculateSubstanceData } from "@/lib/substance-helpers";
 import {
-	getCachedCompositions,
+	getCachedSubstanceAggregations,
+	getCachedSubstances,
 	type ParcelWithTreatments,
 } from "@/lib/data-fetcher";
+import { requireAuth } from "@/lib/auth-utils";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];
 }
 
 export async function HomeContent({ parcels }: HomeContentProps) {
+	const session = await requireAuth();
 	if (parcels.length === 0) {
 		return (
 			<div className="p-4">
@@ -44,24 +46,25 @@ export async function HomeContent({ parcels }: HomeContentProps) {
 		);
 	}
 
-	const allTreatments = parcels.flatMap((parcel: ParcelWithTreatments) =>
-		parcel.treatments.map((treatment) => ({
-			...treatment,
-			parcel: {
-				width: parcel.width,
-				height: parcel.height,
-			},
-			parcelName: parcel.name,
-		})),
+	const substanceData = await getCachedSubstanceAggregations(
+		session.user.id,
+		new Date().getFullYear(),
 	);
-	const compositions = await getCachedCompositions();
-	console.log(allTreatments);
-	const substanceData = calculateSubstanceData(allTreatments, compositions);
+	const substances = await getCachedSubstances();
+
+	const enrichedSubstanceData = substanceData.map((substance) => {
+		const substanceMeta = substances.find((s) => s.name === substance.name);
+		return {
+			...substance,
+			maxDosage: substanceMeta?.maxDosage || 0,
+			color: substanceMeta?.color || "rgb(182, 182, 182)",
+		};
+	});
 
 	return (
 		<div className="p-4 space-y-4">
 			<SubstanceUsageSection
-				substanceData={substanceData}
+				substanceData={enrichedSubstanceData}
 				description="Track your substance applications across all parcels"
 			/>
 		</div>

@@ -51,13 +51,13 @@ export function calculateSubstanceData(
 					if (!acc[substanceName]) {
 						acc[substanceName] = {
 							name: substanceName,
+							applicationCount: 0,
 							totalDoseOfProduct: 0,
 							totalUsedOfPureActiveSubstance: 0,
 							totalUsedOfPureActiveSubstancePerHa: 0,
 							// kg / ha / year -> https://www.ccpb.it/blog/2019/04/03/rame-agricoltura-biologica/
 							maxDosage: substance.maxDosage,
 							monthlyData: Array(12).fill(0),
-							applications: [],
 						};
 					}
 
@@ -69,11 +69,7 @@ export function calculateSubstanceData(
 							doseOfPureActiveSubstancePerHa;
 						const month = new Date(treatment.appliedDate).getMonth();
 						acc[substanceName].monthlyData[month] += doseOfPureActiveSubstance; //gr
-						acc[substanceName].applications.push({
-							date: treatment.appliedDate,
-							dose: application.dose, // gr
-							parcel: treatment.parcelName || "Unknown",
-						});
+						acc[substanceName].applicationCount++;
 					}
 				});
 			});
