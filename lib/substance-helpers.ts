@@ -152,6 +152,7 @@ export function calculateAdvisedDosePerProduct(
 
 		const advisedDoseForProductInGr =
 			(s.maxDosage / s.maxApplications) * totalAreaHa * KG_IN_GR;
+
 		if (advisedDoseForProductInGr > 0) {
 			acc[s.productId] = advisedDoseForProductInGr;
 		}

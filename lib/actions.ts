@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
+import { taintUtils } from "@/lib/taint-utils";
 
 // Treatment Actions
 export async function createTreatment(formData: FormData) {
@@ -15,15 +16,17 @@ export async function createTreatment(formData: FormData) {
 		throw new Error("Authentication required");
 	}
 
+	taintUtils.taintUserSession(session.user);
+
 	try {
 		// Parse form data
-		const appliedDate = formData.get("appliedDate") as string;
-		const parcelIds = formData.getAll("parcelIds") as string[];
-		const diseases = JSON.parse(formData.get("diseases") as string);
+		const appliedDate = String(formData.get("appliedDate"));
+		const parcelIds = formData.getAll("parcelIds").map(String);
+		const diseases = JSON.parse(String(formData.get("diseases")));
 		const productApplications = JSON.parse(
-			formData.get("productApplications") as string,
+			String(formData.get("productApplications")),
 		);
-		const waterDose = parseFloat(formData.get("waterDose") as string);
+		const waterDose = parseFloat(String(formData.get("waterDose")));
 
 		// Validate with Zod
 		const validatedData = createTreatmentSchema.parse({
@@ -59,7 +62,11 @@ export async function createTreatment(formData: FormData) {
 		);
 
 		const calculateDosePerParcel = (totalDose: number, parcelArea: number) => {
-			return (totalDose * parcelArea) / totalArea;
+			const result = (totalDose * parcelArea) / totalArea;
+
+			taintUtils.taintBusinessLogic({ result });
+
+			return result;
 		};
 
 		// Create treatments
@@ -131,6 +138,8 @@ export async function deleteTreatment(treatmentId: string) {
 		throw new Error("Authentication required");
 	}
 
+	taintUtils.taintUserSession(session.user);
+
 	try {
 		// Verify treatment exists and belongs to user
 		const treatment = await prisma.treatment.findFirst({
@@ -179,14 +188,15 @@ export async function createParcel(formData: FormData) {
 		throw new Error("Authentication required");
 	}
 
+	taintUtils.taintUserSession(session.user);
+
 	try {
-		// Parse form data
-		const name = formData.get("name") as string;
-		const width = parseFloat(formData.get("width") as string);
-		const height = parseFloat(formData.get("height") as string);
-		const type = formData.get("type") as string;
-		const latitude = parseFloat(formData.get("latitude") as string);
-		const longitude = parseFloat(formData.get("longitude") as string);
+		const name = String(formData.get("name"));
+		const width = parseFloat(String(formData.get("width")));
+		const height = parseFloat(String(formData.get("height")));
+		const type = String(formData.get("type"));
+		const latitude = parseFloat(String(formData.get("latitude")));
+		const longitude = parseFloat(String(formData.get("longitude")));
 
 		// Validate with Zod
 		const validatedData = createParcelSchema.parse({
@@ -227,6 +237,8 @@ export async function deleteParcel(parcelId: string) {
 	if (!session?.user?.id) {
 		throw new Error("Authentication required");
 	}
+
+	taintUtils.taintUserSession(session.user);
 
 	try {
 		// Verify parcel exists and belongs to user

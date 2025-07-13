@@ -107,7 +107,8 @@ export function TreatmentCard({
 									className="text-sm text-gray-600 bg-gray-50 p-2 rounded"
 								>
 									<div className="font-medium">
-										{app.dose}gr of {app.product.brand} {app.product.name}
+										{Math.round(app.dose)}gr of {app.product.brand}{" "}
+										{app.product.name}
 									</div>
 									{app.product.composition.length > 0 && (
 										<div className="text-xs mt-1">

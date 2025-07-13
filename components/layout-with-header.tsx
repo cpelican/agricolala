@@ -1,12 +1,14 @@
+import type React from "react";
 import { requireAuth } from "@/lib/auth-utils";
+import { SignOutButton } from "@/components/signoutButton";
 import {
 	Card,
-	CardHeader,
-	CardTitle,
 	CardDescription,
 	CardFooter,
-} from "./ui/card";
-import { SignOutButton } from "./signoutButton";
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { taintUtils } from "@/lib/taint-utils";
 
 interface LayoutWithHeaderProps {
 	children: React.ReactNode;
@@ -22,6 +24,12 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 	subtitle,
 }) => {
 	const session = await requireAuth();
+
+	taintUtils.taintObject(
+		"Do not pass user session data to the client. Instead, pick off specific properties you need.",
+		session,
+	);
+
 	if (!session.user.isAuthorized) {
 		return (
 			<Card className="p-4 m-4">
