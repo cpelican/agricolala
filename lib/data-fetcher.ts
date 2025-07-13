@@ -82,7 +82,7 @@ const parcelDetailSelect = {
 	},
 };
 
-const treatmentSelect = {
+export const treatmentSelect = {
 	id: true,
 	appliedDate: true,
 	dateMin: true,

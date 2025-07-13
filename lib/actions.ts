@@ -8,7 +8,33 @@ import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations
 import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
 import { taintUtils } from "@/lib/taint-utils";
+import { generateTreatmentsExcel } from "./excel-export";
 import { Errors } from "@/app/const";
+
+export async function downloadTreatmentsExcel(year: number) {
+	const session = await getServerSession(authOptions);
+	if (!session?.user?.id) {
+		throw new Error("Access denied");
+	}
+
+	taintUtils.taintUserSession(session.user);
+
+	try {
+		const excelBuffer = await generateTreatmentsExcel(session.user.id, year);
+
+		// Return the Excel file as a base64 string for client-side download
+		const base64Data = excelBuffer.toString("base64");
+
+		return {
+			success: true,
+			data: base64Data,
+			filename: `treatments-${year}-${session.user.email}.xlsx`,
+		};
+	} catch {
+		console.error("Error generating Excel file");
+		throw new Error(Errors.INTERNAL_SERVER);
+	}
+}
 
 // Treatment Actions
 export async function createTreatment(formData: FormData) {
