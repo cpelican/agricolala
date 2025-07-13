@@ -45,9 +45,9 @@ npm run tsc
 ## TODOs
 - [ ] use prisma studio
 - [x] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
-- [ ] create a stats db record that will be recalculated each time a user adds a treatment
+- [x] create a stats db record that will be recalculated each time a user adds a treatment
 - [ ] Find alternatives to supabase
-- [ ] Improve the queries, make them smaller, avoid nesting
+- [x] Improve the queries, make them smaller, avoid nesting
 - [ ] We want to check if the user has neighbors that have made some treatments: it could indicate they should do too
 - [ ] When the user does a treatment, we want to find out what the weather was before and after -> maybe one day we can train a model depending on this
 - [ ] Still thinking about a model, we could ask them how their year was just after the harvest. This way we would have a clue about wether thir general behaviour was successful
