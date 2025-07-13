@@ -36,6 +36,7 @@ import {
 	type ParcelWithTreatments,
 } from "@/lib/data-fetcher";
 import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
+import { createTreatment } from "@/lib/actions";
 import React from "react";
 
 interface AddTreatmentDialogProps {
@@ -70,6 +71,7 @@ export function AddTreatmentDialog({
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
+	const [serverError, setServerError] = useState<string | null>(null);
 	const [formData, setFormData] = useState({
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
@@ -140,6 +142,7 @@ export function AddTreatmentDialog({
 			),
 		}));
 	};
+
 	// Calculate advised dose using the helper function
 	const advisedDosePerProduct = calculateAdvisedDosePerProduct(
 		formData.parcelIds,
@@ -162,65 +165,70 @@ export function AddTreatmentDialog({
 		}));
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const validateForm = () => {
+		const newErrors: Record<string, string[]> = {
+			appliedDate: [],
+			parcelIds: [],
+			diseases: [],
+			productApplications: [],
+			waterDose: [],
+		};
+
+		if (!formData.appliedDate) {
+			newErrors.appliedDate.push("Application date is required");
+		}
+
+		if (formData.parcelIds.filter((id) => id).length === 0) {
+			newErrors.parcelIds.push("At least one parcel is required");
+		}
+
+		if (!formData.diseases.some((d) => d.diseaseId)) {
+			newErrors.diseases.push("At least one disease is required");
+		}
+
+		if (!formData.productApplications.some((p) => p.productId && p.dose > 0)) {
+			newErrors.productApplications.push(
+				"At least one product with valid dose is required",
+			);
+		}
+
+		if (formData.waterDose <= 0) {
+			newErrors.waterDose.push("Water dose must be greater than 0");
+		}
+
+		setErrors(newErrors);
+		return Object.values(newErrors).flat().length === 0;
+	};
+
+	const handleSubmit = async (formDataParam: FormData) => {
 		setLoading(true);
+		setServerError(null);
+
+		// Client-side validation
+		if (!validateForm()) {
+			setLoading(false);
+			return;
+		}
 
 		try {
-			const errors: Record<string, string[]> = {
-				appliedDate: [],
-				parcelIds: [],
-				diseases: [],
-				productApplications: [],
-				waterDose: [],
-			};
+			formDataParam.append(
+				"appliedDate",
+				formData.appliedDate.toISOString().split("T")[0],
+			);
 
-			if (!formData.appliedDate) {
-				errors.appliedDate.push("Application date is required");
-			}
+			const parcelIds = parcelId
+				? [parcelId]
+				: formData.parcelIds.filter((id) => id);
+			parcelIds.forEach((id) => formDataParam.append("parcelIds", id));
 
-			if (formData.parcelIds.filter((id) => id).length === 0) {
-				errors.parcelIds.push("At least one parcel is required");
-			}
+			formDataParam.append("diseases", JSON.stringify(formData.diseases));
+			formDataParam.append(
+				"productApplications",
+				JSON.stringify(formData.productApplications),
+			);
+			formDataParam.append("waterDose", formData.waterDose.toString());
 
-			if (!formData.diseases.some((d) => d.diseaseId)) {
-				errors.diseases.push("At least one disease is required");
-			}
-
-			if (
-				!formData.productApplications.some((p) => p.productId && p.dose > 0)
-			) {
-				errors.productApplications.push(
-					"At least one product with valid dose is required",
-				);
-			}
-
-			if (formData.waterDose <= 0) {
-				errors.waterDose.push("Water dose must be greater than 0");
-			}
-
-			if (Object.values(errors).flat().length > 0) {
-				console.error("Validation errors:", errors);
-				setErrors(errors);
-				return;
-			}
-
-			const response = await fetch("/api/treatments", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					...formData,
-					parcelIds: parcelId
-						? [parcelId]
-						: formData.parcelIds.filter((id) => id),
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.text();
-				console.error("Response error:", errorData);
-				throw new Error(`Failed to create treatment: ${errorData}`);
-			}
+			await createTreatment(formDataParam);
 
 			onOpenChange(false);
 			setFormData({
@@ -233,6 +241,9 @@ export function AddTreatmentDialog({
 			router.refresh();
 		} catch (error) {
 			console.error("Error creating treatment:", error);
+			setServerError(
+				error instanceof Error ? error.message : "Failed to create treatment",
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -250,12 +261,19 @@ export function AddTreatmentDialog({
 					)}
 				</DialogHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-4">
+				{serverError && (
+					<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+						<p className="text-sm text-destructive">{serverError}</p>
+					</div>
+				)}
+
+				<form action={handleSubmit} className="space-y-4">
 					<div>
 						<Label>Application Date</Label>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
+									type="button"
 									variant="outline"
 									className={cn(
 										"w-full pl-3 text-left font-normal",
@@ -285,6 +303,11 @@ export function AddTreatmentDialog({
 								/>
 							</PopoverContent>
 						</Popover>
+						<input
+							type="hidden"
+							name="appliedDate"
+							value={formData.appliedDate.toISOString().split("T")[0]}
+						/>
 						{errors.appliedDate.map((er) => (
 							<p key={er} className="text-sm text-red-700">
 								{er}
@@ -475,6 +498,7 @@ export function AddTreatmentDialog({
 						<Label htmlFor="waterDose">Water Dose (L)</Label>
 						<Input
 							id="waterDose"
+							name="waterDose"
 							type="number"
 							step="0.1"
 							min="0"
@@ -492,6 +516,18 @@ export function AddTreatmentDialog({
 							</p>
 						))}
 					</div>
+
+					{/* Hidden inputs for server action */}
+					<input
+						type="hidden"
+						name="diseases"
+						value={JSON.stringify(formData.diseases)}
+					/>
+					<input
+						type="hidden"
+						name="productApplications"
+						value={JSON.stringify(formData.productApplications)}
+					/>
 
 					<DialogFooter>
 						<Button

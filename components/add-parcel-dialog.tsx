@@ -20,6 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { createParcel } from "@/lib/actions";
 
 interface AddParcelDialogProps {
 	open: boolean;
@@ -33,6 +34,7 @@ export function AddParcelDialog({
 	selectedLocation,
 }: AddParcelDialogProps) {
 	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const [formData, setFormData] = useState({
 		name: "",
 		width: "",
@@ -53,38 +55,36 @@ export function AddParcelDialog({
 		}
 	}, [selectedLocation]);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSubmit = async (formDataParam: FormData) => {
 		setLoading(true);
+		setError(null);
 
 		try {
-			const response = await fetch("/api/parcels", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name: formData.name,
-					width: Number.parseFloat(formData.width),
-					height: Number.parseFloat(formData.height),
-					type: formData.type,
-					latitude: Number.parseFloat(formData.latitude),
-					longitude: Number.parseFloat(formData.longitude),
-				}),
-			});
+			// Add form data to FormData
+			formDataParam.append("name", formData.name);
+			formDataParam.append("width", formData.width);
+			formDataParam.append("height", formData.height);
+			formDataParam.append("type", formData.type);
+			formDataParam.append("latitude", formData.latitude);
+			formDataParam.append("longitude", formData.longitude);
 
-			if (response.ok) {
-				onOpenChange(false);
-				setFormData({
-					name: "",
-					width: "",
-					height: "",
-					type: "VINEYARD",
-					latitude: "",
-					longitude: "",
-				});
-				router.refresh();
-			}
+			await createParcel(formDataParam);
+
+			onOpenChange(false);
+			setFormData({
+				name: "",
+				width: "",
+				height: "",
+				type: "VINEYARD",
+				latitude: "",
+				longitude: "",
+			});
+			router.refresh();
 		} catch (error) {
 			console.error("Error adding parcel:", error);
+			setError(
+				error instanceof Error ? error.message : "Failed to create parcel",
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -100,11 +100,18 @@ export function AddParcelDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-4">
+				{error && (
+					<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+						<p className="text-sm text-destructive">{error}</p>
+					</div>
+				)}
+
+				<form action={handleSubmit} className="space-y-4">
 					<div>
 						<Label htmlFor="name">Parcel Name</Label>
 						<Input
 							id="name"
+							name="name"
 							value={formData.name}
 							onChange={(e) =>
 								setFormData({ ...formData, name: e.target.value })
@@ -119,6 +126,7 @@ export function AddParcelDialog({
 							<Label htmlFor="width">Width (meters)</Label>
 							<Input
 								id="width"
+								name="width"
 								type="number"
 								value={formData.width}
 								onChange={(e) =>
@@ -132,6 +140,7 @@ export function AddParcelDialog({
 							<Label htmlFor="height">Height (meters)</Label>
 							<Input
 								id="height"
+								name="height"
 								type="number"
 								value={formData.height}
 								onChange={(e) =>
@@ -159,6 +168,7 @@ export function AddParcelDialog({
 								<SelectItem value="PEACHES">Peaches</SelectItem>
 							</SelectContent>
 						</Select>
+						<input type="hidden" name="type" value={formData.type} />
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
@@ -166,6 +176,7 @@ export function AddParcelDialog({
 							<Label htmlFor="latitude">Latitude</Label>
 							<Input
 								id="latitude"
+								name="latitude"
 								type="number"
 								step="any"
 								value={formData.latitude}
@@ -180,6 +191,7 @@ export function AddParcelDialog({
 							<Label htmlFor="longitude">Longitude</Label>
 							<Input
 								id="longitude"
+								name="longitude"
 								type="number"
 								step="any"
 								value={formData.longitude}

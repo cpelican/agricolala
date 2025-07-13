@@ -15,6 +15,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { deleteParcel } from "@/lib/actions";
 
 interface DeleteParcelDialogProps {
 	parcelId: string;
@@ -33,19 +34,15 @@ export function DeleteParcelDialog({
 }: DeleteParcelDialogProps) {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
 
 	const handleDelete = async () => {
 		setLoading(true);
+		setError(null);
 
 		try {
-			const response = await fetch(`/api/parcels/${parcelId}`, {
-				method: "DELETE",
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to delete parcel");
-			}
+			await deleteParcel(parcelId);
 
 			setOpen(false);
 
@@ -60,6 +57,9 @@ export function DeleteParcelDialog({
 			}
 		} catch (error) {
 			console.error("Error deleting parcel:", error);
+			setError(
+				error instanceof Error ? error.message : "Failed to delete parcel",
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -90,6 +90,11 @@ export function DeleteParcelDialog({
 						<li>• All product applications for those treatments</li>
 					</ul>
 				</div>
+				{error && (
+					<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+						<p className="text-sm text-destructive">{error}</p>
+					</div>
+				)}
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
 					<AlertDialogAction

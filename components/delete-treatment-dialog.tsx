@@ -14,6 +14,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { deleteTreatment } from "@/lib/actions";
 
 interface DeleteTreatmentDialogProps {
 	treatmentId: string;
@@ -35,13 +36,7 @@ export function DeleteTreatmentDialog({
 	const handleDelete = async () => {
 		setIsDeleting(true);
 		try {
-			const response = await fetch(`/api/treatments/${treatmentId}`, {
-				method: "DELETE",
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to delete treatment");
-			}
+			await deleteTreatment(treatmentId);
 
 			setIsOpen(false);
 			if (redirectTo) {
