@@ -21,6 +21,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { createParcel } from "@/lib/actions";
+import { CultureType } from "@prisma/client";
 
 interface AddParcelDialogProps {
 	open: boolean;
@@ -35,11 +36,18 @@ export function AddParcelDialog({
 }: AddParcelDialogProps) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<{
+		name: string;
+		width: string;
+		height: string;
+		type: CultureType;
+		latitude: string;
+		longitude: string;
+	}>({
 		name: "",
 		width: "",
 		height: "",
-		type: "VINEYARD",
+		type: CultureType.VINEYARD,
 		latitude: "",
 		longitude: "",
 	});
@@ -75,7 +83,7 @@ export function AddParcelDialog({
 				name: "",
 				width: "",
 				height: "",
-				type: "VINEYARD",
+				type: CultureType.VINEYARD,
 				latitude: "",
 				longitude: "",
 			});
@@ -156,7 +164,7 @@ export function AddParcelDialog({
 						<Label htmlFor="type">Culture Type</Label>
 						<Select
 							value={formData.type}
-							onValueChange={(value) =>
+							onValueChange={(value: CultureType) =>
 								setFormData({ ...formData, type: value })
 							}
 						>
@@ -164,8 +172,8 @@ export function AddParcelDialog({
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="VINEYARD">Wineyard</SelectItem>
-								<SelectItem value="PEACHES">Peaches</SelectItem>
+								<SelectItem value={CultureType.VINEYARD}>Wineyard</SelectItem>
+								<SelectItem value={CultureType.PEACHES}>Peaches</SelectItem>
 							</SelectContent>
 						</Select>
 						<input type="hidden" name="type" value={formData.type} />
