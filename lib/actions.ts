@@ -16,6 +16,10 @@ export async function createTreatment(formData: FormData) {
 		throw new Error("Authentication required");
 	}
 
+	if (!session.user.isAuthorized) {
+		throw new Error("Unauthorized");
+	}
+
 	taintUtils.taintUserSession(session.user);
 
 	try {
@@ -138,6 +142,10 @@ export async function deleteTreatment(treatmentId: string) {
 		throw new Error("Authentication required");
 	}
 
+	if (!session.user.isAuthorized) {
+		throw new Error("Unauthorized");
+	}
+
 	taintUtils.taintUserSession(session.user);
 
 	try {
@@ -188,6 +196,10 @@ export async function createParcel(formData: FormData) {
 		throw new Error("Authentication required");
 	}
 
+	if (!session.user.isAuthorized) {
+		throw new Error("Unauthorized");
+	}
+
 	taintUtils.taintUserSession(session.user);
 
 	try {
@@ -236,6 +248,10 @@ export async function deleteParcel(parcelId: string) {
 	const session = await getServerSession(authOptions);
 	if (!session?.user?.id) {
 		throw new Error("Authentication required");
+	}
+
+	if (!session.user.isAuthorized) {
+		throw new Error("Unauthorized");
 	}
 
 	taintUtils.taintUserSession(session.user);

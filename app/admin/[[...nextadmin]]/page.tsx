@@ -3,6 +3,7 @@ import { getNextAdminProps } from "@premieroctet/next-admin/appRouter";
 import nextAdminOptions from "@/nextAdminOptions";
 import { prisma } from "../../../lib/prisma";
 import { requireAuth } from "@/lib/auth-utils";
+import { notFound } from "next/navigation";
 
 export default async function AdminPage({
 	params,
@@ -11,7 +12,22 @@ export default async function AdminPage({
 	params: Promise<{ nextadmin: string[] }>;
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-	await requireAuth();
+	const session = await requireAuth();
+	if (!session.user.isAuthorized) {
+		return notFound();
+	}
+	if (!session?.user?.email) {
+		return notFound();
+	}
+
+	const adminUser = await prisma.adminUser.findFirst({
+		where: { email: session.user.email },
+	});
+
+	if (!adminUser) {
+		return notFound();
+	}
+
 	const props = await getNextAdminProps({
 		params: (await params).nextadmin,
 		searchParams: await searchParams,
