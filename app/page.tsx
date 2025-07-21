@@ -1,5 +1,4 @@
 import { AuthGuard } from "@/components/auth-guard";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { HomeContent } from "@/components/home-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
@@ -20,7 +19,6 @@ export default async function Home() {
 					icon={<Grape className="w-8 h-8" />}
 				>
 					<HomeContent parcels={parcels} />
-					<BottomNavigation />
 				</LayoutWithHeader>
 			</CachedDataWrapper>
 		</AuthGuard>

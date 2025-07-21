@@ -1,5 +1,4 @@
 import { AuthGuard } from "@/components/auth-guard";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { TreatmentsContent } from "@/components/treatments-content";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
@@ -26,7 +25,6 @@ export default async function TreatmentsPage() {
 					<ExcelExportDialog className="absolute top-6 right-8" />
 					<TreatmentsContent treatments={treatments} />
 					<AddTreatmentButton parcels={parcels} />
-					<BottomNavigation />
 				</LayoutWithHeader>
 			</CachedDataWrapper>
 		</AuthGuard>

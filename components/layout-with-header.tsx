@@ -9,6 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { taintUtils } from "@/lib/taint-utils";
+import { BottomNavigation } from "./bottom-navigation";
 
 interface LayoutWithHeaderProps {
 	children: React.ReactNode;
@@ -57,6 +58,7 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 			</div>
 
 			{children}
+			<BottomNavigation />
 		</div>
 	);
 };

@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Map } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
 import {
@@ -98,7 +97,6 @@ export default async function ParcelPage({
 							</Suspense>
 						</div>
 					</div>
-					<BottomNavigation />
 				</LayoutWithHeader>
 			</CachedDataWrapper>
 		</AuthGuard>
