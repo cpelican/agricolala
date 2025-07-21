@@ -1,6 +1,5 @@
 "use client";
 
-import { Calendar } from "lucide-react";
 import {
 	Card,
 	CardDescription,
@@ -46,8 +45,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 			{upcomingTreatments.length > 0 && (
 				<div>
 					<h2 className="text-lg font-semibold mb-3 flex items-center">
-						<Calendar className="h-5 w-5 mr-2 text-orange-500" />
-						Upcoming Treatments ({upcomingTreatments.length})
+						{upcomingTreatments.length} Upcoming
 					</h2>
 					<div className="space-y-3">
 						{upcomingTreatments.map((treatment) => (

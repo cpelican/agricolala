@@ -21,7 +21,7 @@ import { SignOutButton } from "@/components/signoutButton";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getTosStatus } from '../actions/get-tos-status';
+import { getTosStatus } from "../actions/get-tos-status";
 
 interface LegalAcceptanceStatusProps {
 	tosAcceptedAt?: Date | null;
