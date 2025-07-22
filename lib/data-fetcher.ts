@@ -261,6 +261,34 @@ export const getCachedParcelSubstanceAggregations = cache(
 	},
 );
 
+// Cache should not be a problem if it doesnt last too long
+export const getCurrentDiseases = cache(
+	async (): Promise<{ id: string; substances: { id: string }[] }[]> => {
+		const currentMonth = new Date().getMonth() + 1;
+
+		return await prisma.disease.findMany({
+			select: {
+				id: true,
+				substances: {
+					select: {
+						id: true,
+					},
+				},
+			},
+			where: {
+				sensitivityMonthMin: {
+					// after
+					gte: currentMonth,
+				},
+				sensitivityMonthMax: {
+					// before
+					lte: currentMonth,
+				},
+			},
+		});
+	},
+);
+
 export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];
 export type ParcelWithTreatments = Awaited<
 	ReturnType<typeof getParcels>

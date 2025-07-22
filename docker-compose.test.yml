@@ -1,0 +1,22 @@
+services:
+  postgres-test:
+    image: postgres:15-alpine
+    command:
+      ["postgres","-c","fsync=off","-c","synchronous_commit=off","-c","full_page_writes=off"]
+    ports:
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_USER: agraria
+      POSTGRES_PASSWORD: agraria
+      POSTGRES_DB: agraria
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agraria -d agraria"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_test_data:
+    driver: local

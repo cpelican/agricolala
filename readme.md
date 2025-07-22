@@ -4,6 +4,9 @@ See you at https://agricolala-eta.vercel.app/
 
 Agricolala helps you manage your wineyard treatments and track substance usage to ensure compliance with organic EU agricultural regulations.
 
+![Welcome page of agricolala](https://github.com/cpelican/agricolala/blob/main/public/welcome_page.png)
+
+
 ## Run Agricolala locally
 
 1. Create a Google Auth platform client
@@ -57,3 +60,4 @@ npm run tsc
 - [ ] Very interesting: Look at https://api.open-meteo.com/v1/forecast?latitude=44.0998&longitude=9.7387&hourly=temperature_2m,precipitation_probability,precipitation,apparent_temperature,temperature_80m&past_days=7
 
 - [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
+

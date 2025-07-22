@@ -157,6 +157,9 @@ model Disease {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   substances  Substance[] @relation("SubstanceDiseases")
+  // Months of disease presence, between 1 and 12
+  sensitivityMonthMin Int?
+  sensitivityMonthMax Int?
 }
 
 model UserSubstanceAggregation {

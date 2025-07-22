@@ -12,6 +12,8 @@
 		"lint:fix": "next lint --no-cache --quiet --fix && npm run prettify",
 		"tsc": "tsc --noEmit",
 		"test": "vitest",
+		"test:db:start": "scripts/run-test-integration.sh",
+		"test:db:stop": "docker-compose -f docker-compose.test.yml down",
 		"prettify": "npx @biomejs/biome format --write --fix .",
 		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
 		"prepare": "husky",
