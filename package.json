@@ -11,7 +11,7 @@
 		"migrate": "npx prisma migrate dev & npx prisma generate",
 		"lint:fix": "next lint --no-cache --quiet --fix && npm run prettify",
 		"tsc": "tsc --noEmit",
-		"test": "vitest",
+		"test": "dotenvx run -f .env.test -- vitest",
 		"test:db:start": "scripts/run-test-integration.sh",
 		"test:db:stop": "docker-compose -f docker-compose.test.yml down",
 		"prettify": "npx @biomejs/biome format --write --fix .",
@@ -88,6 +88,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.0.0",
+		"@dotenvx/dotenvx": "^1.48.3",
 		"@premieroctet/next-admin-generator-prisma": "^1.0.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@testing-library/dom": "^10.4.0",
