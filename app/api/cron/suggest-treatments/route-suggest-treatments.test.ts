@@ -19,7 +19,8 @@ describe("[Integration] Suggest Treatments", () => {
 		await cleanDatabase();
 		testData = await seedTestData();
 	});
-	// todo: maybe we want to re-create it after all?
+	// This is because otherwise the logic becomes too complicated:
+	// we would need to look for all previous user treatments and for now we dont want this
 	test("should not create a TODO treatment if one of the product used in last treatment is considered still active (daysBetweenApplications not reached)", async () => {
 		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
 			testData;
