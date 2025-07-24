@@ -3,7 +3,7 @@ import { getTestPrisma } from "./test-prisma-client";
 export async function cleanDatabase() {
 	const testPrisma = getTestPrisma();
 	try {
-		console.log("Starting database cleanup...");
+		console.info("Starting database cleanup...");
 
 		// Get all tables in the public schema
 		const tablenames = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
@@ -53,20 +53,28 @@ export async function cleanDatabase() {
 			}
 		}
 
-		console.log("Database cleaned successfully - all tables are empty");
+		console.info("Database cleaned successfully - all tables are empty");
 	} catch (error) {
 		console.error("Error cleaning database:", error);
 		throw error;
 	}
 }
 
+export const OIDIUM_SENSITIVITY_MONTH_MIN = 4;
+export const OIDIUM_SENSITIVITY_MONTH_MAX = 8;
+export const PERONOSPORA_SENSITIVITY_MONTH_MIN = 3;
+export const PERONOSPORA_SENSITIVITY_MONTH_MAX = 7;
+
 export async function seedTestData() {
 	const testPrisma = getTestPrisma();
+
 	// Test diseases
 	const oidium = await testPrisma.disease.create({
 		data: {
 			name: "Oidium",
 			description: "Powdery mildew, a fungal disease affecting grapevines",
+			sensitivityMonthMin: OIDIUM_SENSITIVITY_MONTH_MIN,
+			sensitivityMonthMax: OIDIUM_SENSITIVITY_MONTH_MAX,
 		},
 	});
 
@@ -74,6 +82,8 @@ export async function seedTestData() {
 		data: {
 			name: "Peronospora",
 			description: "Downy mildew, a fungal disease affecting grapevines",
+			sensitivityMonthMin: PERONOSPORA_SENSITIVITY_MONTH_MIN,
+			sensitivityMonthMax: PERONOSPORA_SENSITIVITY_MONTH_MAX,
 		},
 	});
 
@@ -99,12 +109,13 @@ export async function seedTestData() {
 	});
 
 	// Test products
+	const COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS = 7;
 	const copperProduct = await testPrisma.product.create({
 		data: {
 			name: "Test Copper Product",
 			brand: "Test Brand",
 			maxApplications: 6,
-			daysBetweenApplications: 30,
+			daysBetweenApplications: COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
 			composition: {
 				create: [{ substanceId: copper.id, dose: 25.0 }],
 			},
@@ -116,7 +127,7 @@ export async function seedTestData() {
 			name: "Test Sulfur Product",
 			brand: "Test Brand",
 			maxApplications: 10,
-			daysBetweenApplications: 7,
+			daysBetweenApplications: 8,
 			composition: {
 				create: [{ substanceId: sulfur.id, dose: 80.0 }],
 			},
@@ -145,13 +156,16 @@ export async function seedTestData() {
 		},
 	});
 
-	// Past treatment (30 days ago)
+	// Past treatment (COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS days ago)
 	const pastTreatment = await testPrisma.treatment.create({
 		data: {
 			parcelId: testParcel.id,
 			userId: testUser.id,
 			status: "DONE",
-			appliedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+			appliedDate: new Date(
+				Date.now() -
+					COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS * 24 * 60 * 60 * 1000,
+			),
 			waterDose: 10,
 			diseaseIds: [peronospora.id, oidium.id],
 			productApplications: {
@@ -177,5 +191,10 @@ export async function seedTestData() {
 		sulfurProduct,
 		oidium,
 		peronospora,
+		COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		OIDIUM_SENSITIVITY_MONTH_MIN,
+		OIDIUM_SENSITIVITY_MONTH_MAX,
+		PERONOSPORA_SENSITIVITY_MONTH_MIN,
+		PERONOSPORA_SENSITIVITY_MONTH_MAX,
 	};
 }

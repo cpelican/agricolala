@@ -10,8 +10,8 @@ const prismaClient = new PrismaClient();
 		console.error("Please provide an email as an argument");
 		process.exit(1);
 	}
-	console.log(`Creating admin user with email ${email}`);
+	console.info(`Creating admin user with email ${email}`);
 
 	const adminUser = await prismaClient.adminUser.create({ data: { email } });
-	console.log(`Admin user created with id ${adminUser.id}`);
+	console.info(`Admin user created with id ${adminUser.id}`);
 })();

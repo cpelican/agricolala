@@ -12,7 +12,7 @@ async function main() {
 
 	try {
 		await updateSubstanceAggregations(userId, year);
-		console.log(`✅ Aggregations updated for user ${userId}, year ${year}`);
+		console.info(`✅ Aggregations updated for user ${userId}, year ${year}`);
 	} catch (error) {
 		console.error("❌ Error:", error);
 	} finally {

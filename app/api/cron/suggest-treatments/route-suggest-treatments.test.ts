@@ -1,19 +1,64 @@
 import { describe, test, expect, beforeEach } from "vitest";
-import { TreatmentStatus } from "@prisma/client";
-import { cleanDatabase, seedTestData } from "../../../../test/setup-utilities";
+import { type PrismaClient, TreatmentStatus } from "@prisma/client";
+import {
+	cleanDatabase,
+	OIDIUM_SENSITIVITY_MONTH_MAX,
+	PERONOSPORA_SENSITIVITY_MONTH_MAX,
+	PERONOSPORA_SENSITIVITY_MONTH_MIN,
+	seedTestData,
+} from "../../../../test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
+import { getCurrentDiseases } from "@/lib/data-fetcher";
 
-describe("Suggest Treatments", () => {
+describe("[Integration] Suggest Treatments", () => {
+	let testPrisma: PrismaClient;
 	let testData: Awaited<ReturnType<typeof seedTestData>>;
 
 	beforeEach(async () => {
+		testPrisma = getTestPrisma();
 		await cleanDatabase();
 		testData = await seedTestData();
 	});
+	// todo: maybe we want to re-create it after all?
+	test("should not create a TODO treatment if one of the product used in last treatment is considered still active (daysBetweenApplications not reached)", async () => {
+		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
+			testData;
+		// we cannot mock the date since the server is inside another node process
+		// and it uses new Date as well to know which diseases are currently active
+		const currentDate = new Date();
+		const lastTreatmentDate = new Date(
+			currentDate.getFullYear(),
+			currentDate.getMonth(),
+			currentDate.getDate() -
+				(COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS - 2),
+		);
 
-	test("should create TODO treatment when daysBetweenApplications is reached", async () => {
-		// Get the test data
-		// const { testUser, testParcel, copperProduct, sulfurProduct } = testData
+		await testPrisma.treatment.update({
+			where: { id: pastTreatment.id },
+			data: {
+				appliedDate: lastTreatmentDate,
+				diseaseIds: [testData.peronospora.id, testData.oidium.id],
+			},
+		});
+
+		await testPrisma.disease.update({
+			where: { id: testData.oidium.id },
+			data: {
+				name: "Oidium",
+				description: "Powdery mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: currentDate.getMonth() - 2,
+				sensitivityMonthMax: currentDate.getMonth() + 3,
+			},
+		});
+
+		await testPrisma.disease.update({
+			where: { id: testData.peronospora.id },
+			data: {
+				sensitivityMonthMin: currentDate.getMonth() - 2,
+				sensitivityMonthMax: currentDate.getMonth() + 3,
+			},
+		});
+		const previousTreatmentsCount = await testPrisma.treatment.count();
 
 		// Simulate the cron job query logic by calling its endpoint
 		const response = await fetch(
@@ -27,97 +72,102 @@ describe("Suggest Treatments", () => {
 		const data = await response.json();
 
 		expect(response.status).toBe(200);
-		console.log("data:", data);
+
 		expect(data).toBeDefined();
 		expect(data.success).toBe(true);
+		expect(data.message).toBe(`Created 0 suggested treatments`);
+
+		expect(await testPrisma.treatment.count()).toEqual(previousTreatmentsCount);
 	});
 
-	test.skip("should not create TODO treatment if the daysBetweenApplications is not reached", async () => {});
+	test("should create a TODO treatment when all products used in last treatment are no longer considered active (daysBetweenApplications reached)", async () => {
+		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
+			testData;
+		// we cannot mock the date since the server is inside another node process
+		// and it uses new Date as well to know which diseases are currently active
+		const currentDate = new Date();
+		const lastTreatmentDate = new Date(
+			currentDate.getFullYear(),
+			currentDate.getMonth(),
+			currentDate.getDate() - COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		);
 
-	test.skip("should not create duplicate TODO treatments for the same parcel", async () => {
-		// const { testUser, testParcel, copperProduct, sulfurProduct } = testData
-		// Create an existing TODO treatment
-		// const existingTodo = await testPrisma.treatment.create({
-		//   data: {
-		//     parcelId: testParcel.id,
-		//     userId: testUser.id,
-		//     status: TreatmentStatus.TODO,
-		//     dateMin: new Date(),
-		//     dateMax: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-		//     waterDose: 10,
-		//     diseaseIds: [],
-		//     productApplications: {
-		//       create: {
-		//         productId: copperProduct.id,
-		//         dose: 5,
-		//       },
-		//     },
-		//   },
-		// })
-		// Simulate the cron job query logic by calling its endpoint
-	});
-
-	test.skip("should delete expired TODO treatments", async () => {
-		const testPrisma = getTestPrisma();
-		const { testUser, testParcel, copperProduct } = testData;
-
-		// Create an expired TODO treatment (dateMax in the past)
-		const expiredTodo = await testPrisma.treatment.create({
+		testPrisma.treatment.update({
+			where: { id: pastTreatment.id },
 			data: {
-				parcelId: testParcel.id,
-				userId: testUser.id,
-				status: TreatmentStatus.TODO,
-				dateMin: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-				dateMax: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago (expired)
-				waterDose: 10,
-				diseaseIds: [],
-				productApplications: {
-					create: {
-						productId: copperProduct.id,
-						dose: 5,
-					},
-				},
+				appliedDate: lastTreatmentDate,
+				diseaseIds: [testData.peronospora.id, testData.oidium.id],
 			},
 		});
 
-		// Verify expired TODO exists
-		const existingExpired = await testPrisma.treatment.findUnique({
-			where: { id: expiredTodo.id },
+		await testPrisma.disease.update({
+			where: { id: testData.oidium.id },
+			data: {
+				name: "Oidium",
+				description: "Powdery mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: currentDate.getMonth() - 2,
+				sensitivityMonthMax: currentDate.getMonth() + 3,
+			},
 		});
-		expect(existingExpired).toBeDefined();
 
-		// Simulate the cron job query logic by calling its endpoint
+		await testPrisma.disease.update({
+			where: { id: testData.peronospora.id },
+			data: {
+				sensitivityMonthMin: currentDate.getMonth() - 2,
+				sensitivityMonthMax: currentDate.getMonth() + 3,
+			},
+		});
+
+		const previousTreatmentsCount = await testPrisma.treatment.count();
+
+		const response = await fetch(
+			"http://localhost:3001/api/cron/suggest-treatments",
+			{
+				headers: {
+					Authorization: `Bearer ${process.env.CRON_SECRET}`,
+				},
+			},
+		);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+
+		expect(data).toBeDefined();
+		expect(data.success).toBe(true);
+		expect(data.message).toBe(`Created 1 suggested treatments`);
+		expect(await testPrisma.treatment.count()).toEqual(
+			previousTreatmentsCount + 1,
+		);
+		const createdTreatments = await testPrisma.treatment.findMany({
+			where: {
+				status: TreatmentStatus.TODO,
+			},
+		});
+		expect(createdTreatments.length).toBe(1);
+		const createdTreatment = createdTreatments[0];
+		expect(createdTreatment.dateMin?.getDate()).toBe(currentDate.getDate());
+		expect(createdTreatment.dateMax?.getDate()).toBe(
+			currentDate.getDate() + COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		);
 	});
 
-	test.skip("should calculate correct dateMax based on shortest daysBetweenApplications", async () => {
-		// const { testUser, testParcel, copperProduct, sulfurProduct } = testData
-		// Copper: 30 days, Sulfur: 7 days
-		// Sulfur has shorter interval, so dateMax should be based on sulfur
-		// const suggestedDate = new Date()
-		// const shortestDaysBetween = Math.min(30, 7) // 7 days
-		// const todoTreatment = await testPrisma.treatment.create({
-		//   data: {
-		//     parcelId: testParcel.id,
-		//     userId: testUser.id,
-		//     status: TreatmentStatus.TODO,
-		//     dateMin: suggestedDate,
-		//     dateMax: new Date(suggestedDate.getTime() + shortestDaysBetween * 24 * 60 * 60 * 1000),
-		//     waterDose: 10,
-		//     diseaseIds: [],
-		//     productApplications: {
-		//       create: [
-		//         {
-		//           productId: copperProduct.id,
-		//           dose: 5,
-		//         },
-		//         {
-		//           productId: sulfurProduct.id,
-		//           dose: 3,
-		//         },
-		//       ],
-		//     },
-		//   },
-		// })
-		// call the cront job url
+	test.each([
+		[
+			new Date(2024, PERONOSPORA_SENSITIVITY_MONTH_MIN - 1, 24, 0, 0, 0),
+			["Peronospora"],
+		],
+		[
+			new Date(2024, PERONOSPORA_SENSITIVITY_MONTH_MIN, 24, 0, 0, 0),
+			["Oidium", "Peronospora"],
+		],
+		[new Date(2024, OIDIUM_SENSITIVITY_MONTH_MAX - 1, 24, 0, 0, 0), ["Oidium"]],
+		[
+			new Date(2024, PERONOSPORA_SENSITIVITY_MONTH_MAX - 1, 24, 0, 0, 0),
+			["Oidium", "Peronospora"],
+		],
+		[new Date(2024, OIDIUM_SENSITIVITY_MONTH_MAX, 24, 0, 0, 0), []],
+	])("getCurrentDiseases", async (currentDate, expectedDiseases) => {
+		const diseases = await getCurrentDiseases(currentDate);
+		expect(diseases.map((d) => d.name)).toEqual(expectedDiseases);
 	});
 });

@@ -263,12 +263,17 @@ export const getCachedParcelSubstanceAggregations = cache(
 
 // Cache should not be a problem if it doesnt last too long
 export const getCurrentDiseases = cache(
-	async (): Promise<{ id: string; substances: { id: string }[] }[]> => {
-		const currentMonth = new Date().getMonth() + 1;
+	async (
+		testDate?: Date,
+	): Promise<{ id: string; name?: string; substances: { id: string }[] }[]> => {
+		const currentMonth = testDate
+			? testDate.getMonth() + 1
+			: new Date().getMonth() + 1;
 
 		return await prisma.disease.findMany({
 			select: {
 				id: true,
+				name: testDate ? true : false, // we need to fetch the name to be able to test it
 				substances: {
 					select: {
 						id: true,
@@ -277,12 +282,10 @@ export const getCurrentDiseases = cache(
 			},
 			where: {
 				sensitivityMonthMin: {
-					// after
-					gte: currentMonth,
+					lte: currentMonth,
 				},
 				sensitivityMonthMax: {
-					// before
-					lte: currentMonth,
+					gte: currentMonth,
 				},
 			},
 		});

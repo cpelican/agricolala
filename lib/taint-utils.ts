@@ -6,12 +6,12 @@ import {
 
 export const taintUtils = {
 	taintObject: (message: string, obj: Reference) => {
-		if (process.env.NODE_ENV !== "production") {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			experimental_taintObjectReference(message, obj);
 		}
 	},
 	taintUserSession: (user: Reference) => {
-		if (process.env.NODE_ENV !== "production") {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			experimental_taintObjectReference(
 				"Do not pass user session data to the client. Instead, pick off specific properties you need.",
 				user,
@@ -19,7 +19,7 @@ export const taintUtils = {
 		}
 	},
 	taintDatabaseCredentials: () => {
-		if (process.env.NODE_ENV !== "production") {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			if (process.env.DATABASE_URL) {
 				experimental_taintUniqueValue(
 					"Do not pass database URLs to the client.",
@@ -37,7 +37,7 @@ export const taintUtils = {
 		}
 	},
 	taintOAuthSecrets: () => {
-		if (process.env.NODE_ENV !== "production") {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			if (process.env.GOOGLE_CLIENT_SECRET) {
 				experimental_taintUniqueValue(
 					"Do not pass OAuth secrets to the client.",
@@ -55,7 +55,7 @@ export const taintUtils = {
 		}
 	},
 	taintBusinessLogic: <Type extends Reference>(obj: Type) => {
-		if (process.env.NODE_ENV !== "production") {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			experimental_taintObjectReference(
 				"Do not pass proprietary agricultural calculation logic to the client.",
 				obj,

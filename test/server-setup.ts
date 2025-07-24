@@ -28,7 +28,7 @@ export default async function globalSetup() {
 
 	await new Promise<void>((resolve) => {
 		server.listen(process.env.PORT, () => {
-			console.log(`> Ready on http://localhost:${process.env.PORT}`);
+			console.info(`> Ready on http://localhost:${process.env.PORT}`);
 			resolve();
 		});
 	});

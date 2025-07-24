@@ -52,7 +52,6 @@ const getAuthorizedUsersWithLastTreatmentsData = async () => {
 };
 
 export async function GET(request: NextRequest) {
-	// Verify this is a Vercel cron job
 	const authHeader = request.headers.get("authorization");
 	if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,36 +61,31 @@ export async function GET(request: NextRequest) {
 		let suggestedTreatments = 0;
 		const currentDate = new Date();
 
-		// Delete all TODO treatments that are no longer valid
-		// A TODO treatment is invalid when at least one of its products has reached its daysBetweenApplications
+		// Delete all TODO treatments
+		// We want a one to one type relationship for todo treatment with the parcel
+		// it is easier / simpler to re-create the todo rather than update it
 		await prisma.treatment.deleteMany({
 			where: {
 				status: TreatmentStatus.TODO,
-				dateMax: {
-					// less then: before
-					lt: currentDate,
-				},
 			},
 		});
 
 		const users = await getAuthorizedUsersWithLastTreatmentsData();
 		const compositions = await getCachedCompositions();
 
-		// Process each user's parcels
 		for (const user of users) {
 			for (const parcel of user.parcels) {
-				// Skip parcels without any treatments
 				if (parcel.treatments.length === 0) continue;
 
 				const lastTreatment = parcel.treatments[0];
+
 				if (!lastTreatment.appliedDate) continue;
 
-				// Calculate days since last treatment
 				const daysSinceLastTreatment = Math.floor(
 					(currentDate.getTime() - lastTreatment.appliedDate.getTime()) /
 						(1000 * 60 * 60 * 24),
 				);
-				// Filter diseaseIds to only include currently sensitive diseases
+				// Filter diseaseIds to only include currently active diseases
 				const currentDiseases = await getCurrentDiseases();
 				const { currentDiseaseIds, substancesByDiseaseId } =
 					currentDiseases.reduce<{
@@ -125,132 +119,62 @@ export async function GET(request: NextRequest) {
 				if (productIdsCurrentlyValidToApply.size === 0) {
 					continue;
 				}
+				// productIdsCurrentlyValidToApply contains only products already previously used by the user:
+				// this means the app cannot propose new products to use as the disease become active,
+				// since several products can be available for one disease and it is not for the app to choose
+				const isProductsUsedInLastTreatmentAndValidToApply = (
+					pa: (typeof lastTreatment.productApplications)[number],
+				): pa is {
+					product: { id: string; daysBetweenApplications: number };
+					dose: number;
+				} => {
+					return (
+						productIdsCurrentlyValidToApply.has(pa.product.id) &&
+						pa.product.daysBetweenApplications !== null &&
+						daysSinceLastTreatment >= pa.product.daysBetweenApplications
+					);
+				};
 
-				// Check if we already have TODO treatments for this parcel
-				const existingTodos = await prisma.treatment.findMany({
-					where: {
+				const productsUsedInLastTreatmentAndValidToApply =
+					lastTreatment.productApplications.filter(
+						isProductsUsedInLastTreatmentAndValidToApply,
+					);
+				const minDaysBetweenApplications = Math.min(
+					...productsUsedInLastTreatmentAndValidToApply.map(
+						(el) => el.product.daysBetweenApplications,
+					),
+				);
+				const suggestedDate = new Date(lastTreatment.appliedDate);
+				suggestedDate.setDate(
+					suggestedDate.getDate() + minDaysBetweenApplications,
+				);
+				const newDateMax = new Date(suggestedDate);
+				newDateMax.setDate(newDateMax.getDate() + minDaysBetweenApplications);
+
+				if (productsUsedInLastTreatmentAndValidToApply.length <= 0) {
+					console.info("No products used in last treatment and valid to apply");
+					continue;
+				}
+
+				await prisma.treatment.create({
+					data: {
 						parcelId: parcel.id,
+						userId: user.id,
 						status: TreatmentStatus.TODO,
-					},
-					select: {
-						id: true,
-						dateMax: true,
+						dateMin: suggestedDate,
+						dateMax: newDateMax,
+						waterDose: lastTreatment.waterDose || 10,
+						diseaseIds: lastTreatment.diseaseIds,
 						productApplications: {
-							select: {
-								product: {
-									select: {
-										id: true,
-									},
-								},
-							},
+							create: productsUsedInLastTreatmentAndValidToApply.map((el) => ({
+								dose: el.dose,
+								productId: el.product.id,
+							})),
 						},
 					},
 				});
 
-				// Delete any additional TODO treatments: we want a one to one type relationship with the parcel
-				if (existingTodos.length > 1) {
-					const additionalTodoIds = existingTodos
-						.slice(1)
-						.map((todo) => todo.id);
-					await prisma.treatment.deleteMany({
-						where: {
-							id: {
-								in: additionalTodoIds,
-							},
-						},
-					});
-				}
-
-				/// OLD LOGIC ///
-				// Check each product application from the last treatment
-				for (const productApplication of lastTreatment.productApplications) {
-					const product = productApplication.product;
-
-					// Skip products without daysBetweenApplications
-					if (!product.daysBetweenApplications) continue;
-
-					// If the product is not due for application, skip it
-					if (daysSinceLastTreatment < product.daysBetweenApplications) {
-						continue;
-					}
-
-					// Calculate the suggested date for this product
-					const suggestedDate = new Date(lastTreatment.appliedDate);
-					suggestedDate.setDate(
-						suggestedDate.getDate() + product.daysBetweenApplications,
-					);
-
-					if (existingTodos.length > 0) {
-						// Use the first TODO treatment and delete any others to ensure only one per parcel
-						const primaryTodo = existingTodos[0];
-
-						// Update existing TODO treatment to include this product if not already present
-						const hasProduct = primaryTodo.productApplications.some(
-							(pa) => pa.product.id === product.id,
-						);
-
-						// Eventually if the disease is not longer active the treatment will be deleted
-						if (
-							!hasProduct &&
-							productIdsCurrentlyValidToApply.has(product.id)
-						) {
-							await prisma.productApplication.create({
-								data: {
-									treatmentId: primaryTodo.id,
-									productId: product.id,
-									dose: productApplication.dose, // Use the same dose as last time. We trust the user will check the dose and update it
-								},
-							});
-
-							// Update dateMax if the new product's next application date is earlier
-							const newProductDateMax = new Date(suggestedDate);
-							newProductDateMax.setDate(
-								newProductDateMax.getDate() + product.daysBetweenApplications,
-							);
-
-							if (
-								primaryTodo.dateMax &&
-								newProductDateMax < primaryTodo.dateMax
-							) {
-								await prisma.treatment.update({
-									where: { id: primaryTodo.id },
-									data: { dateMax: newProductDateMax },
-								});
-							}
-						}
-					} else {
-						if (
-							filteredDiseaseIds.length > 0 &&
-							productIdsCurrentlyValidToApply.has(product.id)
-						) {
-							// Create new TODO treatment with this product
-							const newDateMax = new Date(suggestedDate);
-							newDateMax.setDate(
-								newDateMax.getDate() + product.daysBetweenApplications,
-							);
-
-							await prisma.treatment.create({
-								data: {
-									parcelId: parcel.id,
-									userId: user.id,
-									status: TreatmentStatus.TODO,
-									dateMin: suggestedDate,
-									dateMax: newDateMax,
-									waterDose: lastTreatment.waterDose || 10,
-									diseaseIds: lastTreatment.diseaseIds,
-									productApplications: {
-										create: {
-											productId: product.id,
-											dose: productApplication.dose, // Use the same dose as last time
-										},
-									},
-								},
-							});
-
-							suggestedTreatments++;
-						}
-					}
-				}
+				suggestedTreatments++;
 			}
 		}
 
