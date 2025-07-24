@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { TreatmentStatus } from "@prisma/client";
 
 import { getCachedCompositions, getCurrentDiseases } from "@/lib/data-fetcher";
+import { Errors } from "@/app/const";
 
 const getAuthorizedUsersWithLastTreatmentsData = async () => {
 	return prisma.user.findMany({
@@ -54,7 +55,7 @@ const getAuthorizedUsersWithLastTreatmentsData = async () => {
 export async function GET(request: NextRequest) {
 	const authHeader = request.headers.get("authorization");
 	if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		return NextResponse.json({ error: Errors.UNAUTHORIZED }, { status: 401 });
 	}
 
 	try {
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest) {
 	} catch (error) {
 		console.error("Error in cron job:", error);
 		return NextResponse.json(
-			{ error: "Internal server error" },
+			{ error: Errors.INTERNAL_SERVER },
 			{ status: 500 },
 		);
 	}
