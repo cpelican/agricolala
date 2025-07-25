@@ -2,8 +2,6 @@
 
 import { appLanguages, getLocaleFromPathname } from '@/lib/server-translations';
 import { useRouter, usePathname } from 'next/navigation';
-import { updateUserLocale } from '@/lib/actions';
-import { type Locale } from '@/lib/server-translations';
 
 export function LanguageSwitcher() {
   const router = useRouter();
@@ -14,7 +12,7 @@ export function LanguageSwitcher() {
   
   const changeLanguage = async (newLocale: string) => {
     try {
-      await updateUserLocale(newLocale as Locale);
+      console.info('changeLanguage', newLocale);
       
       const newPath = pathname.replace(/^\/(en|it)/, `/${newLocale}`);
       router.push(newPath);
