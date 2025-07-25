@@ -1,3 +1,4 @@
+import { Locale } from '@/lib/server-translations';
 import "next-auth";
 
 declare module "next-auth" {
@@ -8,10 +9,12 @@ declare module "next-auth" {
 			email?: string | null;
 			image?: string | null;
 			isAuthorized: boolean;
+			locale: Locale;
 		};
 	}
 
 	interface User {
 		isAuthorized: boolean;
+		locale: Locale;
 	}
 }

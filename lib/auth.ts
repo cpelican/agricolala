@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
 				...session.user,
 				id: user.id,
 				isAuthorized: user.isAuthorized,
+				locale: user.locale,
 			},
 		}),
 	},
