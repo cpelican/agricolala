@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { type Locale } from "./server-translations";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
@@ -13,8 +14,8 @@ import { Errors } from "@/app/const";
 
 export async function downloadTreatmentsExcel(year: number) {
 	const session = await getServerSession(authOptions);
-	if (!session?.user?.id) {
-		throw new Error("Access denied");
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
 	}
 
 	taintUtils.taintUserSession(session.user);
@@ -301,6 +302,41 @@ export async function deleteParcel(parcelId: string) {
 		};
 	} catch (error) {
 		console.error("Error deleting parcel");
+		throw new Error(
+			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
+		);
+	}
+}
+
+// User Locale Actions
+export async function updateUserLocale(locale: Locale) {
+	const session = await getServerSession(authOptions);
+	if (!session?.user?.id || !session.user.isAuthorized) {
+		throw new Error(Errors.ACCESS_DENIED);
+	}
+
+	taintUtils.taintUserSession(session.user);
+
+	try {
+		await prisma.user.update({
+			where: {
+				id: session.user.id,
+			},
+			data: {
+				locale,
+			},
+		});
+
+		// Revalidate pages
+		revalidatePath("/");
+		revalidatePath("/profile");
+
+		return {
+			success: true,
+			message: "Locale updated successfully",
+		};
+	} catch (error) {
+		console.error("Error updating user locale");
 		throw new Error(
 			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
 		);

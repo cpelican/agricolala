@@ -8,6 +8,7 @@ import {
 } from "@/lib/server-translations";
 import { useTranslations } from "@/lib/translations";
 import { useRouter, usePathname } from "next/navigation";
+import { updateUserLocale } from "@/lib/actions";
 
 export function LanguageSwitcher() {
 	const router = useRouter();
@@ -22,8 +23,7 @@ export function LanguageSwitcher() {
 
 	const changeLanguage = async (newLocale: Locale) => {
 		try {
-			console.info("changeLanguage", newLocale);
-
+			await updateUserLocale(newLocale);
 			redirectToLocale(newLocale);
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (_error) {

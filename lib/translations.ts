@@ -11,9 +11,11 @@ import {
 import { useState, useEffect } from "react";
 import type { Dictionary } from "./dictionaries";
 
-export function useTranslations() {
+export function useTranslations(localeFromBrowser?: Locale) {
 	const pathname = usePathname();
-	const locale = getLocaleFromPathname(pathname);
+	const localeFromPathname = getLocaleFromPathname(pathname);
+	const locale = localeFromBrowser || localeFromPathname;
+
 	const [translations, setTranslations] = useState<Dictionary | null>(null);
 
 	useEffect(() => {
@@ -39,11 +41,6 @@ export function useTranslations() {
 		return Array.isArray(value) ? value : [];
 	};
 
-	const getDiseaseTranslation = (diseaseName: string): string => {
-		const name = diseaseName.toLowerCase();
-		return t(`diseases.${name}`) || diseaseName;
-	};
-
 	const getSubstanceTranslation = (substanceName: string): string => {
 		const name = substanceName.toLowerCase();
 		return t(`substances.${name}`) || substanceName;
@@ -53,7 +50,6 @@ export function useTranslations() {
 		t,
 		getArray,
 		locale,
-		getDiseaseTranslation,
 		getSubstanceTranslation,
 	};
 }

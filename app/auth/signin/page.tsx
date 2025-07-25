@@ -11,6 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { getLocaleFromBrowser, useTranslations } from "@/lib/translations";
 
 const signInWithGoogle = () => {
 	signIn("google", { callbackUrl: "/" });
@@ -18,6 +19,8 @@ const signInWithGoogle = () => {
 
 export default function SignIn() {
 	const router = useRouter();
+	// Here we cannot take the locale from the pathname therefore we take it from the browser
+	const { t } = useTranslations(getLocaleFromBrowser());
 
 	useEffect(() => {
 		getSession().then((session) => {
@@ -32,11 +35,9 @@ export default function SignIn() {
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl font-bold text-primary-700">
-						Agricolala
+						{t("auth.title")}
 					</CardTitle>
-					<CardDescription>
-						Manage your wineyard treatments and parcels
-					</CardDescription>
+					<CardDescription>{t("auth.description")}</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<Button
@@ -44,7 +45,7 @@ export default function SignIn() {
 						className="w-full bg-main-gradient hover:bg-primary-700"
 						size="lg"
 					>
-						Sign in with Google
+						{t("auth.signInWithGoogle")}
 					</Button>
 				</CardContent>
 			</Card>

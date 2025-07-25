@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import type React from "react";
 import "../globals.css";
 import { Providers } from "../providers";
-import { LocaleInitializer } from "@/components/locale-initializer";
 
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",
@@ -23,10 +22,5 @@ export default async function Layout({
 }: {
 	children: React.ReactNode;
 }) {
-	return (
-		<Providers>
-			<LocaleInitializer />
-			{children}
-		</Providers>
-	);
+	return <Providers>{children}</Providers>;
 }
