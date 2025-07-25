@@ -3,6 +3,7 @@
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/translations";
 
 interface BackButtonProps {
 	fallbackPath?: string;
@@ -10,6 +11,7 @@ interface BackButtonProps {
 }
 
 export function BackButton({ fallbackPath = "/", className }: BackButtonProps) {
+	const { t } = useTranslations();
 	const router = useRouter();
 
 	const handleGoBack = () => {
@@ -28,7 +30,7 @@ export function BackButton({ fallbackPath = "/", className }: BackButtonProps) {
 			onClick={handleGoBack}
 		>
 			<ChevronLeft className="h-4 w-4" />
-			Back
+			{t("backButton.back")}
 		</Button>
 	);
 }

@@ -9,6 +9,7 @@ import { TreatmentCard } from "./treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
 import { AddTreatmentButton } from "./add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
+import { useTranslations } from "@/lib/translations";
 
 interface ParcelDetailProps {
 	parcel: Pick<
@@ -26,6 +27,7 @@ export function ParcelDetail({
 	pastTreatments,
 	substanceData,
 }: ParcelDetailProps) {
+	const { t } = useTranslations();
 	const diseases = useDiseases();
 	const compositions = useCompositions();
 
@@ -46,7 +48,7 @@ export function ParcelDetail({
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>
 						<CardHeader>
-							<CardTitle>Upcoming Treatments</CardTitle>
+							<CardTitle>{t("parcels.upcomingTreatments")}</CardTitle>
 						</CardHeader>
 						<CardContent>
 							<div className="space-y-4">
@@ -61,7 +63,7 @@ export function ParcelDetail({
 												return (
 													<div key={index} className="text-sm">
 														<p>
-															{app.product.name} - {app.dose}L/ha
+															{app.product.name} - {app.dose}{t("parcels.productDose")}
 														</p>
 														<p className="text-muted-foreground">
 															{app.product.composition
@@ -83,11 +85,11 @@ export function ParcelDetail({
 
 				<div>
 					<h2 className="text-lg font-semibold mb-3 flex items-center">
-						Past Treatments
+						{t("parcels.pastTreatments")}
 					</h2>
 					<div className="space-y-3">
 						{pastTreatments.length === 0 ? (
-							<p className="text-muted-foreground">No past treatments</p>
+							<p className="text-muted-foreground">{t("parcels.noPastTreatments")}</p>
 						) : (
 							<div className="space-y-4">
 								{pastTreatments.map((treatment) => (
@@ -106,7 +108,7 @@ export function ParcelDetail({
 
 			<SubstanceUsageSection
 				substanceData={substanceData}
-				description="Track your substance applications for this parcel"
+				description={t("parcels.trackSubstanceApplications")}
 			/>
 		</div>
 	);

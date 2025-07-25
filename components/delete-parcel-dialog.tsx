@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteParcel } from "@/lib/actions";
+import { useTranslations } from "@/lib/translations";
 
 interface DeleteParcelDialogProps {
 	parcelId: string;
@@ -32,6 +33,7 @@ export function DeleteParcelDialog({
 	redirectTo,
 	trigger,
 }: DeleteParcelDialogProps) {
+	const { t, getArray } = useTranslations();
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -58,7 +60,7 @@ export function DeleteParcelDialog({
 		} catch (error) {
 			console.error("Error deleting parcel");
 			setError(
-				error instanceof Error ? error.message : "Failed to delete parcel",
+				error instanceof Error ? error.message : t("deleteParcel.error"),
 			);
 		} finally {
 			setLoading(false);
@@ -71,23 +73,22 @@ export function DeleteParcelDialog({
 				{trigger || (
 					<Button variant="destructive" size="sm">
 						<Trash2 className="h-4 w-4 mr-2" />
-						Delete
+						{t("deleteParcel.delete")}
 					</Button>
 				)}
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Delete Parcel</AlertDialogTitle>
+					<AlertDialogTitle>{t("deleteParcel.title")}</AlertDialogTitle>
 					<AlertDialogDescription>
-						Are you sure you want to delete &quot;{parcelName}&quot;? This
-						action cannot be undone and will permanently remove:
+						{t("deleteParcel.description").replace("{name}", parcelName)}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="my-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
 					<ul className="text-sm text-destructive space-y-1">
-						<li>• The parcel and all its data</li>
-						<li>• All treatments associated with this parcel</li>
-						<li>• All product applications for those treatments</li>
+						{getArray("deleteParcel.warningItems").map((item, index) => (
+							<li key={index}>• {item}</li>
+						))}
 					</ul>
 				</div>
 				{error && (
@@ -96,13 +97,13 @@ export function DeleteParcelDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+					<AlertDialogCancel disabled={loading}>{t("deleteParcel.cancel")}</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleDelete}
 						disabled={loading}
 						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 					>
-						{loading ? "Deleting..." : "Delete Parcel"}
+						{loading ? t("deleteParcel.deleting") : t("deleteParcel.delete")}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

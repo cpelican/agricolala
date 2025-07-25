@@ -13,6 +13,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { useSubstances } from "@/contexts/cached-data-context";
 import type { SubstanceData } from "./types";
+import { useTranslations } from "@/lib/translations";
 
 ChartJS.register(
 	CategoryScale,
@@ -44,6 +45,7 @@ const months = [
 ];
 
 export function SubstanceChart({ data }: SubstanceChartProps) {
+	const { t } = useTranslations();
 	const substances = useSubstances();
 	const colors = substances.reduce(
 		(acc, substance) => {
@@ -86,7 +88,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 	if (data.length === 0) {
 		return (
 			<div className="text-center py-8 text-gray-500">
-				No treatment data available for this year
+				{t("substances.noTreatmentData")}
 			</div>
 		);
 	}

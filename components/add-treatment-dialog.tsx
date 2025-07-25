@@ -4,6 +4,7 @@ import type { Disease, Product, Substance } from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -69,6 +70,7 @@ export function AddTreatmentDialog({
 	compositions,
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
+	const { t } = useTranslations();
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
 	const [serverError, setServerError] = useState<string | null>(null);
@@ -175,25 +177,25 @@ export function AddTreatmentDialog({
 		};
 
 		if (!formData.appliedDate) {
-			newErrors.appliedDate.push("Application date is required");
+			newErrors.appliedDate.push(t("treatments.errors.applicationDateRequired"));
 		}
 
 		if (formData.parcelIds.filter((id) => id).length === 0) {
-			newErrors.parcelIds.push("At least one parcel is required");
+			newErrors.parcelIds.push(t("treatments.errors.parcelRequired"));
 		}
 
 		if (!formData.diseases.some((d) => d.diseaseId)) {
-			newErrors.diseases.push("At least one disease is required");
+			newErrors.diseases.push(t("treatments.errors.diseaseRequired"));
 		}
 
 		if (!formData.productApplications.some((p) => p.productId && p.dose > 0)) {
 			newErrors.productApplications.push(
-				"At least one product with valid dose is required",
+				t("treatments.errors.productRequired"),
 			);
 		}
 
 		if (formData.waterDose <= 0) {
-			newErrors.waterDose.push("Water dose must be greater than 0");
+			newErrors.waterDose.push(t("treatments.errors.waterDoseRequired"));
 		}
 
 		setErrors(newErrors);
@@ -242,7 +244,7 @@ export function AddTreatmentDialog({
 		} catch (error) {
 			console.error("Error creating treatment");
 			setServerError(
-				error instanceof Error ? error.message : "Failed to create treatment",
+				error instanceof Error ? error.message : t("treatments.errors.createFailed"),
 			);
 		} finally {
 			setLoading(false);
@@ -253,10 +255,10 @@ export function AddTreatmentDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Add Treatment</DialogTitle>
+					<DialogTitle>{t("treatments.addTreatment")}</DialogTitle>
 					{parcelId && (
 						<DialogDescription>
-							Add a new treatment for this parcel. Fill in the details below.
+							{t("treatments.addTreatmentDescription")}
 						</DialogDescription>
 					)}
 				</DialogHeader>
@@ -269,7 +271,7 @@ export function AddTreatmentDialog({
 
 				<form action={handleSubmit} className="space-y-4">
 					<div>
-						<Label>Application Date</Label>
+						<Label>{t("treatments.applicationDate")}</Label>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
@@ -283,7 +285,7 @@ export function AddTreatmentDialog({
 									{formData.appliedDate ? (
 										format(formData.appliedDate, "PPP")
 									) : (
-										<span>Pick a date</span>
+										<span>{t("treatments.pickDate")}</span>
 									)}
 									<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
 								</Button>
@@ -318,7 +320,7 @@ export function AddTreatmentDialog({
 					{!!parcels?.length && (
 						<div className="space-y-4">
 							<div className="flex items-center justify-between">
-								<Label>Parcels</Label>
+								<Label>{t("treatments.parcels")}</Label>
 								<Button
 									type="button"
 									variant="outline"
@@ -326,7 +328,7 @@ export function AddTreatmentDialog({
 									onClick={addParcel}
 								>
 									<Plus className="h-4 w-4 mr-2" />
-									Add Parcel
+									{t("treatments.addParcel")}
 								</Button>
 							</div>
 							{formData.parcelIds.map((parcelId, index) => (
@@ -336,7 +338,7 @@ export function AddTreatmentDialog({
 										onValueChange={(value) => updateParcel(index, value)}
 									>
 										<SelectTrigger className="flex-1">
-											<SelectValue placeholder="Select parcel" />
+											<SelectValue placeholder={t("treatments.selectParcel")} />
 										</SelectTrigger>
 										<SelectContent>
 											{parcels.map((parcel) => (
@@ -369,7 +371,7 @@ export function AddTreatmentDialog({
 
 					<div className="space-y-4">
 						<div className="flex items-center justify-between">
-							<Label>Diseases</Label>
+							<Label>{t("treatments.diseases")}</Label>
 							<Button
 								type="button"
 								variant="outline"
@@ -377,7 +379,7 @@ export function AddTreatmentDialog({
 								onClick={addDisease}
 							>
 								<Plus className="h-4 w-4 mr-2" />
-								Add Disease
+								{t("treatments.addDisease")}
 							</Button>
 						</div>
 						{formData.diseases.map((disease, index) => (
@@ -387,7 +389,7 @@ export function AddTreatmentDialog({
 									onValueChange={(value) => updateDisease(index, value)}
 								>
 									<SelectTrigger className="flex-1">
-										<SelectValue placeholder="Select disease" />
+										<SelectValue placeholder={t("treatments.selectDisease")} />
 									</SelectTrigger>
 									<SelectContent>
 										{diseases.map((d) => (
@@ -420,9 +422,9 @@ export function AddTreatmentDialog({
 					<div className="space-y-4">
 						<div className="flex items-center justify-between">
 							<div>
-								<Label>Products</Label>
+								<Label>{t("treatments.products")}</Label>
 								<p className="text-sm text-muted-foreground">
-									Doses in grams (g)
+									{t("treatments.dosesInGrams")}
 								</p>
 							</div>
 							<Button
@@ -432,7 +434,7 @@ export function AddTreatmentDialog({
 								onClick={addProduct}
 							>
 								<Plus className="h-4 w-4 mr-2" />
-								Add Product
+								{t("treatments.addProduct")}
 							</Button>
 						</div>
 						{formData.productApplications.map((product, index) => (
@@ -445,7 +447,7 @@ export function AddTreatmentDialog({
 										}
 									>
 										<SelectTrigger className="flex-1">
-											<SelectValue placeholder="Select product" />
+											<SelectValue placeholder={t("treatments.selectProduct")} />
 										</SelectTrigger>
 										<SelectContent>
 											{products.map((p) => (
@@ -481,7 +483,7 @@ export function AddTreatmentDialog({
 								{advisedDosePerProduct[product.productId] &&
 								advisedDosePerProduct[product.productId] < product.dose ? (
 									<p className="text-sm text-orange-400">
-										It is advised not to go beyond the dosage of{" "}
+										{t("treatments.warnings.doseAdvice")}{" "}
 										{Math.round(advisedDosePerProduct[product.productId])}gr
 									</p>
 								) : null}
@@ -495,7 +497,7 @@ export function AddTreatmentDialog({
 					</div>
 
 					<div>
-						<Label htmlFor="waterDose">Water Dose (L)</Label>
+						<Label htmlFor="waterDose">{t("treatments.waterDose")}</Label>
 						<Input
 							id="waterDose"
 							name="waterDose"
@@ -535,14 +537,14 @@ export function AddTreatmentDialog({
 							variant="outline"
 							onClick={() => onOpenChange(false)}
 						>
-							Cancel
+							{t("treatments.cancel")}
 						</Button>
 						<Button
 							type="submit"
 							disabled={loading}
 							className="bg-primary-600 hover:bg-primary-700"
 						>
-							{loading ? "Creating..." : "Create Treatment"}
+							{loading ? t("treatments.creating") : t("treatments.createTreatment")}
 						</Button>
 					</DialogFooter>
 				</form>

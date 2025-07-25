@@ -38,10 +38,10 @@ export async function cleanDatabase() {
 		for (const table of tables) {
 			const tableName = table.replace(/"/g, "");
 			try {
-				const countResult = await testPrisma.$queryRawUnsafe(
+				const countResult: { count: number }[] = await testPrisma.$queryRawUnsafe(
 					`SELECT COUNT(*) as count FROM ${table}`,
 				);
-				const count = (countResult as any)[0]?.count;
+				const count = countResult[0]?.count;
 				if (count > 0) {
 					console.error(
 						`Table ${tableName} still has ${count} records after cleanup`,

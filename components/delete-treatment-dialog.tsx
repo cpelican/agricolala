@@ -15,6 +15,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteTreatment } from "@/lib/actions";
+import { useTranslations } from "@/lib/translations";
 
 interface DeleteTreatmentDialogProps {
 	treatmentId: string;
@@ -29,6 +30,7 @@ export function DeleteTreatmentDialog({
 	redirectTo,
 	trigger,
 }: DeleteTreatmentDialogProps) {
+	const { t, getArray } = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const router = useRouter();
@@ -58,21 +60,20 @@ export function DeleteTreatmentDialog({
 			<AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Delete Treatment</AlertDialogTitle>
+					<AlertDialogTitle>{t("deleteTreatment.title")}</AlertDialogTitle>
 					<AlertDialogDescription>
-						Are you sure you want to delete the treatment &quot;{treatmentName}
-						&quot;? This action cannot be undone.
+						{t("deleteTreatment.description").replace("{name}", treatmentName)}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="my-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
 					<ul className="text-sm text-destructive space-y-1">
-						<li>• The treatment and all its data</li>
-						<li>• All product applications for this treatment</li>
-						<li>• Substance usage calculations will be updated</li>
+						{getArray("deleteTreatment.warningItems").map((item, index) => (
+							<li key={index}>• {item}</li>
+						))}
 					</ul>
 				</div>
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+					<AlertDialogCancel disabled={isDeleting}>{t("deleteTreatment.cancel")}</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleDelete}
 						disabled={isDeleting}
@@ -81,12 +82,12 @@ export function DeleteTreatmentDialog({
 						{isDeleting ? (
 							<>
 								<Trash2 className="h-4 w-4 mr-2 animate-spin" />
-								Deleting...
+								{t("deleteTreatment.deleting")}
 							</>
 						) : (
 							<>
 								<Trash2 className="h-4 w-4 mr-2" />
-								Delete Treatment
+								{t("deleteTreatment.delete")}
 							</>
 						)}
 					</AlertDialogAction>

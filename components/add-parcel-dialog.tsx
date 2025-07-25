@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -34,6 +35,7 @@ export function AddParcelDialog({
 	onOpenChange,
 	selectedLocation,
 }: AddParcelDialogProps) {
+	const { t } = useTranslations();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [formData, setFormData] = useState<{
@@ -91,7 +93,7 @@ export function AddParcelDialog({
 		} catch (error) {
 			console.error("Error adding parcel");
 			setError(
-				error instanceof Error ? error.message : "Failed to create parcel",
+				error instanceof Error ? error.message : t("parcels.errors.createFailed"),
 			);
 		} finally {
 			setLoading(false);
@@ -102,9 +104,9 @@ export function AddParcelDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Add New Parcel</DialogTitle>
+					<DialogTitle>{t("parcels.addNewParcel")}</DialogTitle>
 					<DialogDescription>
-						Add a new parcel to your wineyard management system
+						{t("parcels.addNewParcelDescription")}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -116,7 +118,7 @@ export function AddParcelDialog({
 
 				<form action={handleSubmit} className="space-y-4">
 					<div>
-						<Label htmlFor="name">Parcel Name</Label>
+						<Label htmlFor="name">{t("parcels.parcelName")}</Label>
 						<Input
 							id="name"
 							name="name"
@@ -124,14 +126,14 @@ export function AddParcelDialog({
 							onChange={(e) =>
 								setFormData({ ...formData, name: e.target.value })
 							}
-							placeholder="e.g., North Field"
+							placeholder={t("parcels.parcelNamePlaceholder")}
 							required
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
 						<div>
-							<Label htmlFor="width">Width (meters)</Label>
+							<Label htmlFor="width">{t("parcels.width")}</Label>
 							<Input
 								id="width"
 								name="width"
@@ -140,12 +142,12 @@ export function AddParcelDialog({
 								onChange={(e) =>
 									setFormData({ ...formData, width: e.target.value })
 								}
-								placeholder="100"
+								placeholder={t("parcels.widthPlaceholder")}
 								required
 							/>
 						</div>
 						<div>
-							<Label htmlFor="height">Height (meters)</Label>
+							<Label htmlFor="height">{t("parcels.height")}</Label>
 							<Input
 								id="height"
 								name="height"
@@ -154,14 +156,14 @@ export function AddParcelDialog({
 								onChange={(e) =>
 									setFormData({ ...formData, height: e.target.value })
 								}
-								placeholder="50"
+								placeholder={t("parcels.heightPlaceholder")}
 								required
 							/>
 						</div>
 					</div>
 
 					<div>
-						<Label htmlFor="type">Culture Type</Label>
+						<Label htmlFor="type">{t("parcels.cultureType")}</Label>
 						<Select
 							value={formData.type}
 							onValueChange={(value: CultureType) =>
@@ -172,8 +174,8 @@ export function AddParcelDialog({
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={CultureType.VINEYARD}>Wineyard</SelectItem>
-								<SelectItem value={CultureType.PEACHES}>Peaches</SelectItem>
+								<SelectItem value={CultureType.VINEYARD}>{t("parcels.wineyard")}</SelectItem>
+								<SelectItem value={CultureType.PEACHES}>{t("parcels.peaches")}</SelectItem>
 							</SelectContent>
 						</Select>
 						<input type="hidden" name="type" value={formData.type} />
@@ -181,7 +183,7 @@ export function AddParcelDialog({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div>
-							<Label htmlFor="latitude">Latitude</Label>
+							<Label htmlFor="latitude">{t("parcels.latitude")}</Label>
 							<Input
 								id="latitude"
 								name="latitude"
@@ -191,12 +193,12 @@ export function AddParcelDialog({
 								onChange={(e) =>
 									setFormData({ ...formData, latitude: e.target.value })
 								}
-								placeholder="45.0000"
+								placeholder={t("parcels.latitudePlaceholder")}
 								required
 							/>
 						</div>
 						<div>
-							<Label htmlFor="longitude">Longitude</Label>
+							<Label htmlFor="longitude">{t("parcels.longitude")}</Label>
 							<Input
 								id="longitude"
 								name="longitude"
@@ -206,7 +208,7 @@ export function AddParcelDialog({
 								onChange={(e) =>
 									setFormData({ ...formData, longitude: e.target.value })
 								}
-								placeholder="7.0000"
+								placeholder={t("parcels.longitudePlaceholder")}
 								required
 							/>
 						</div>
@@ -218,14 +220,14 @@ export function AddParcelDialog({
 							variant="outline"
 							onClick={() => onOpenChange(false)}
 						>
-							Cancel
+							{t("parcels.cancel")}
 						</Button>
 						<Button
 							type="submit"
 							disabled={loading}
 							className="bg-primary-600 hover:bg-primary-700"
 						>
-							{loading ? "Adding..." : "Add Parcel"}
+							{loading ? t("parcels.adding") : t("parcels.addParcelButton")}
 						</Button>
 					</div>
 				</form>

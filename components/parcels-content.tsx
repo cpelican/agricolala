@@ -1,13 +1,14 @@
 "use client";
 
 import { MapPin, X, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { LocaleLink } from "./locale-link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import { useTranslations } from "@/lib/translations";
 
 interface ParcelsContentProps {
 	parcels: ParcelWithTreatments[];
@@ -20,6 +21,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 		lat: number;
 		lng: number;
 	} | null>(null);
+	const { t } = useTranslations();
 
 	const handleMapClick = (lat: number, lng: number) => {
 		setSelectedLocation({ lat, lng });
@@ -30,7 +32,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 		<div className="p-4 space-y-4">
 			<div className="flex justify-end items-center">
 				<p className="text-sm text-gray-500">
-					Click on the map to add a parcel
+					{t("parcels.clickMapToAdd")}
 				</p>
 			</div>
 
@@ -48,10 +50,10 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 								<X className="h-4 w-4" />
 							</Button>
 							<p className="text-gray-700 font-medium">
-								Click on the map to add your first parcel
+								{t("parcels.clickMapToAddFirst")}
 							</p>
 							<p className="text-sm text-gray-500 mt-1">
-								Zoom in to find your exact location
+								{t("parcels.zoomInToFindLocation")}
 							</p>
 						</div>
 					)}
@@ -63,7 +65,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 					{parcels.map((parcel) => (
 						<Card key={parcel.id}>
 							<CardContent className="p-4 flex justify-between items-start items-center">
-								<Link href={`/parcels/${parcel.id}`} className="flex-1">
+								<LocaleLink href={`/parcels/${parcel.id}`} className="flex-1">
 									<div>
 										<h3 className="font-medium">{parcel.name}</h3>
 										<p className="text-sm text-gray-600 capitalize">
@@ -81,7 +83,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 											</span>
 										</div>
 									</div>
-								</Link>
+								</LocaleLink>
 								<div className="">
 									<ChevronRight className="h-6 w-6 text-gray-400" />
 								</div>

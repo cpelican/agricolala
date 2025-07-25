@@ -17,6 +17,8 @@ async function main() {
 		data: {
 			name: "Oidium",
 			description: "Powdery mildew, a fungal disease affecting grapevines",
+			sensitivityMonthMin: 4,
+			sensitivityMonthMax: 8,
 		},
 	});
 
@@ -24,6 +26,8 @@ async function main() {
 		data: {
 			name: "Peronospora",
 			description: "Downy mildew, a fungal disease affecting grapevines",
+			sensitivityMonthMin: 3,
+			sensitivityMonthMax: 7,
 		},
 	});
 

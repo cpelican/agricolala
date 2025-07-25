@@ -1,27 +1,30 @@
 "use client";
 
 import { Calendar, Home, Map, User } from "lucide-react";
-import Link from "next/link";
+import { LocaleLink } from "./locale-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const navigation = [
-	{ name: "Home", href: "/", icon: Home },
-	{ name: "Parcels", href: "/parcels", icon: Map },
-	{ name: "Treatments", href: "/treatments", icon: Calendar },
-	{ name: "Profile", href: "/profile", icon: User },
-] as const;
+import { useTranslations } from "@/lib/translations";
 
 export function BottomNavigation() {
 	const pathname = usePathname();
+	const { t } = useTranslations();
+
+	const navigation = [
+		{ name: t("navigation.home"), href: "/", icon: Home },
+		{ name: t("navigation.parcels"), href: "/parcels", icon: Map },
+		{ name: t("navigation.treatments"), href: "/treatments", icon: Calendar },
+		{ name: t("navigation.profile"), href: "/profile", icon: User },
+	] as const;
 
 	return (
 		<nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 safe-area-pb">
 			<div className="flex justify-around">
 				{navigation.map((item) => {
-					const isActive = pathname === item.href;
+					const pathWithoutLocale = pathname.replace(/^\/(en|it)/, '') || '/';
+					const isActive = pathWithoutLocale === item.href;
 					return (
-						<Link
+						<LocaleLink
 							key={item.name}
 							href={item.href}
 							className={cn(
@@ -33,7 +36,7 @@ export function BottomNavigation() {
 						>
 							<item.icon className="h-6 w-6 mb-1" />
 							{item.name}
-						</Link>
+						</LocaleLink>
 					);
 				})}
 			</div>

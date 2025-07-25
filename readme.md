@@ -24,6 +24,8 @@ docker compose up
 
 npx prisma migrate dev
 
+npm run seed
+
 npm run dev
 npx run prisma studio
 ```

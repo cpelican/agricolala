@@ -10,6 +10,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { TreatmentCard } from "./treatment-card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 import { useDiseases } from "@/contexts/cached-data-context";
+import { useTranslations } from "@/lib/translations";
 
 interface TreatmentsContentProps {
 	treatments: TreatmentType[];
@@ -17,6 +18,8 @@ interface TreatmentsContentProps {
 
 export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 	const diseases = useDiseases();
+	const { t } = useTranslations();
+	
 	const upcomingTreatments = treatments.filter(
 		(t) => t.status === TreatmentStatus.TODO,
 	);
@@ -29,10 +32,9 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 			<div className="p-4">
 				<Card>
 					<CardHeader className="text-center">
-						<CardTitle>No Treatments Yet</CardTitle>
+						<CardTitle>{t("treatments.noTreatments")}</CardTitle>
 						<CardDescription>
-							Treatments will appear here once you add parcels and schedule
-							treatments
+							{t("treatments.noTreatmentsDescription")}
 						</CardDescription>
 					</CardHeader>
 				</Card>
@@ -45,7 +47,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 			{upcomingTreatments.length > 0 && (
 				<div>
 					<h2 className="text-lg font-semibold mb-3 flex items-center">
-						{upcomingTreatments.length} Upcoming
+						{upcomingTreatments.length} {t("treatments.upcoming")}
 					</h2>
 					<div className="space-y-3">
 						{upcomingTreatments.map((treatment) => (
@@ -63,7 +65,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 			{completedTreatments.length > 0 && (
 				<div>
 					<h2 className="text-lg font-semibold mb-3 flex items-center">
-						{completedTreatments.length} Completed
+						{completedTreatments.length} {t("treatments.completed")}
 					</h2>
 					<div className="space-y-3">
 						{completedTreatments.map((treatment) => (

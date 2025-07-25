@@ -1,15 +1,8 @@
 import type React from "react";
 import { requireAuth } from "@/lib/auth-utils";
-import { SignOutButton } from "@/components/signoutButton";
-import {
-	Card,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { taintUtils } from "@/lib/taint-utils";
 import { BottomNavigation } from "./bottom-navigation";
+import { UnauthorizedMessage } from "./unauthorized-message";
 
 interface LayoutWithHeaderProps {
 	children: React.ReactNode;
@@ -32,20 +25,7 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 	);
 
 	if (!session.user.isAuthorized) {
-		return (
-			<Card className="p-4 m-4">
-				<CardHeader className="text-center">
-					<CardTitle>Welcome to Agricolala</CardTitle>
-					<CardDescription>
-						This app is still a work in progress, so we prefer to know a bit who
-						will use it. Please contact the admin to unlock your account.
-					</CardDescription>
-				</CardHeader>
-				<CardFooter>
-					<SignOutButton />
-				</CardFooter>
-			</Card>
-		);
+		return <UnauthorizedMessage />;
 	}
 	return (
 		<div className="min-h-screen bg-primary-10 pb-20">
