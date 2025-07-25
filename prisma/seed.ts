@@ -54,7 +54,7 @@ async function main() {
 
 	// create products
 	const MAX_APPLICATIONS = 6;
-	const rame = await prisma.product.create({
+	await prisma.product.create({
 		data: {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
@@ -65,7 +65,7 @@ async function main() {
 		},
 	});
 	const MAX_APPLICATIONS_SULFUR = 10;
-	const zolfo = await prisma.product.create({
+	await prisma.product.create({
 		data: {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",

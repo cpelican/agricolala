@@ -48,7 +48,7 @@ export function CachedDataProvider({
 	);
 }
 
-export function useCachedData() {
+function useCachedData() {
 	const context = useContext(CachedDataContext);
 	if (context === undefined) {
 		throw new Error("useCachedData must be used within a CachedDataProvider");

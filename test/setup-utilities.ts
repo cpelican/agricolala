@@ -61,7 +61,7 @@ export async function cleanDatabase() {
 	}
 }
 
-export const OIDIUM_SENSITIVITY_MONTH_MIN = 4;
+const OIDIUM_SENSITIVITY_MONTH_MIN = 4;
 export const OIDIUM_SENSITIVITY_MONTH_MAX = 8;
 export const PERONOSPORA_SENSITIVITY_MONTH_MIN = 3;
 export const PERONOSPORA_SENSITIVITY_MONTH_MAX = 7;

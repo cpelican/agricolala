@@ -54,17 +54,3 @@ export const createTreatmentSchema = z
 			),
 	})
 	.strict();
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const createTreatmentAutomaticValuesSchema = z
-	.object({
-		parcelIds: z.array(z.string().min(1, "Parcel ID is required")),
-	})
-	.strict();
-
-export type CreateTreatmentSchema = z.infer<typeof createTreatmentSchema>;
-export type CreateTreatmentAutomaticValuesSchema = z.infer<
-	typeof createTreatmentAutomaticValuesSchema
->;
-
-export type CreateParcelSchema = z.infer<typeof createParcelSchema>;

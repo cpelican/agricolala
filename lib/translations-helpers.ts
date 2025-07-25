@@ -10,9 +10,7 @@ export const defaultLocale = appLanguages.en;
 const localePattern = Object.values(appLanguages).join("|");
 export const localeRegex = new RegExp(`^/(${localePattern})`);
 
-export const languageIsLocale = (
-	language: string | undefined,
-): language is Locale => {
+const languageIsLocale = (language: string | undefined): language is Locale => {
 	if (!language) return false;
 	return language in appLanguages;
 };
