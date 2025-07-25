@@ -5,8 +5,8 @@ import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels } from "@/lib/data-fetcher";
 import { Grape } from "lucide-react";
-import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from "@/lib/server-translations";
+import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function Home({
 	params,
@@ -14,7 +14,7 @@ export default async function Home({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await getDictionary(lang);
+	const dict = await tServer(lang);
 	const session = await requireAuth();
 	const parcels = await getParcels(session.user.id);
 

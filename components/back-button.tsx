@@ -3,7 +3,7 @@
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "@/lib/translations";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface BackButtonProps {
 	fallbackPath?: string;

@@ -13,7 +13,7 @@ import {
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcel-detail";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
-import { type Locale } from "@/lib/server-translations";
+import { type Locale } from "@/lib/translations-helpers";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;

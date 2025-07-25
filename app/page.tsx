@@ -1,4 +1,4 @@
-import { defaultLocale } from "@/lib/server-translations";
+import { defaultLocale } from "@/lib/translations-helpers";
 import { redirect } from "next/navigation";
 import { requireAuth } from "@/lib/auth-utils";
 

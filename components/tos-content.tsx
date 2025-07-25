@@ -2,7 +2,7 @@
 
 import { FileText, Shield, ExternalLink } from "lucide-react";
 import { LocaleLink } from "./locale-link";
-import { useTranslations } from "@/lib/translations";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface TosContentProps {
 	showLinks?: boolean;

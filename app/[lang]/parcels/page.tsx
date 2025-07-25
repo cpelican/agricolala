@@ -5,8 +5,8 @@ import { requireAuth } from "@/lib/auth-utils";
 import { Map } from "lucide-react";
 import { getParcels } from "@/lib/data-fetcher";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
-import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from "@/lib/server-translations";
+import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function ParcelsPage({
 	params,
@@ -14,7 +14,7 @@ export default async function ParcelsPage({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await getDictionary(lang);
+	const dict = await tServer(lang);
 	const session = await requireAuth();
 	const parcels = await getParcels(session.user.id);
 

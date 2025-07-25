@@ -3,8 +3,8 @@ import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { TosContent } from "@/components/tos-content";
 import { BackButton } from "@/components/back-button";
-import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from "@/lib/server-translations";
+import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function TermsOfServicePage({
 	params,
@@ -12,7 +12,7 @@ export default async function TermsOfServicePage({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await getDictionary(lang);
+	const dict = await tServer(lang);
 
 	return (
 		<AuthGuard>

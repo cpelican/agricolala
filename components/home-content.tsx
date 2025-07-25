@@ -6,8 +6,8 @@ import {
 } from "@/lib/data-fetcher";
 import { requireAuth } from "@/lib/auth-utils";
 import { HomeContentUI } from "@/components/home-content-ui";
-import { type Locale } from "@/lib/server-translations";
-import { getDictionary } from "@/lib/dictionaries";
+import { type Locale } from "@/lib/translations-helpers";
+import { tServer } from "@/lib/translations-server-only";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];
@@ -34,7 +34,7 @@ export async function HomeContent({ parcels, locale }: HomeContentProps) {
 			color: substanceMeta?.color || "rgb(182, 182, 182)",
 		};
 	});
-	const dict = await getDictionary(locale);
+	const dict = await tServer(locale);
 
 	return (
 		<div className="p-4 space-y-4">

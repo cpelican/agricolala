@@ -11,7 +11,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { getLocaleFromBrowser, useTranslations } from "@/lib/translations";
+import {
+	getLocaleFromBrowser,
+	useTranslations,
+} from "@/hooks/use-translations";
 
 const signInWithGoogle = () => {
 	signIn("google", { callbackUrl: "/" });

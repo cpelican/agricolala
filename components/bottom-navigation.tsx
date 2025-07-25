@@ -4,8 +4,8 @@ import { Calendar, Home, Map, User } from "lucide-react";
 import { LocaleLink } from "./locale-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "@/lib/translations";
-import { localeRegex } from "@/lib/server-translations";
+import { useTranslations } from "@/hooks/use-translations";
+import { localeRegex } from "@/lib/translations-helpers";
 
 export function BottomNavigation() {
 	const pathname = usePathname();

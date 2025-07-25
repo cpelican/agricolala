@@ -6,8 +6,8 @@ import { requireAuth } from "@/lib/auth-utils";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { getTosStatus } from "../../actions/get-tos-status";
 import { ProfileContent } from "@/components/profile-content";
-import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from "@/lib/server-translations";
+import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function ProfilePage({
 	params,
@@ -15,7 +15,7 @@ export default async function ProfilePage({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await getDictionary(lang);
+	const dict = await tServer(lang);
 	const session = await requireAuth();
 	const tosStatus = await getTosStatus();
 

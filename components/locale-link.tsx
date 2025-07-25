@@ -1,6 +1,6 @@
 "use client";
 
-import { getLocaleFromPathname } from "@/lib/server-translations";
+import { getLocaleFromPathname } from "@/lib/translations-helpers";
 import Link, { type LinkProps } from "next/link";
 import { usePathname } from "next/navigation";
 

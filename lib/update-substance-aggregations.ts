@@ -1,3 +1,4 @@
+import "server-only";
 import { prisma } from "./prisma";
 import { calculateSubstanceData } from "./substance-helpers";
 import { getCachedCompositions } from "./data-fetcher";

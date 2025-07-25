@@ -13,7 +13,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { useSubstances } from "@/contexts/cached-data-context";
 import type { SubstanceData } from "./types";
-import { useTranslations } from "@/lib/translations";
+import { useTranslations } from "@/hooks/use-translations";
 
 ChartJS.register(
 	CategoryScale,

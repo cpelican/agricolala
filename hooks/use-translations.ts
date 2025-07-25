@@ -7,16 +7,18 @@ import {
 	getLanguageAsLocale,
 	getLocaleFromPathname,
 	type Locale,
-} from "./server-translations";
+} from "../lib/translations-helpers";
 import { useState, useEffect } from "react";
-import type { Dictionary } from "./dictionaries";
+import type { TranslationType } from "../lib/translations-server-only";
 
 export function useTranslations(localeFromBrowser?: Locale) {
 	const pathname = usePathname();
 	const localeFromPathname = getLocaleFromPathname(pathname);
 	const locale = localeFromBrowser || localeFromPathname;
 
-	const [translations, setTranslations] = useState<Dictionary | null>(null);
+	const [translations, setTranslations] = useState<TranslationType | null>(
+		null,
+	);
 
 	useEffect(() => {
 		import(`../locales/${locale}.json`)

@@ -16,7 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteParcel } from "@/lib/actions";
-import { useTranslations } from "@/lib/translations";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface DeleteParcelDialogProps {
 	parcelId: string;

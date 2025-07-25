@@ -10,7 +10,7 @@ import {
 import { SubstanceChart } from "./substance-chart";
 import { type SubstanceData } from "./types";
 import { SubstanceCircle } from "./substance-circle";
-import { useTranslations } from "@/lib/translations";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];

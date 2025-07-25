@@ -7,8 +7,8 @@ import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { AddTreatmentButton } from "@/components/add-treatment-button";
 import { ExcelExportDialog } from "@/components/excel-export-dialog";
 import { Calendar } from "lucide-react";
-import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from "@/lib/server-translations";
+import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function TreatmentsPage({
 	params,
@@ -16,7 +16,7 @@ export default async function TreatmentsPage({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await getDictionary(lang);
+	const dict = await tServer(lang);
 	const session = await requireAuth();
 
 	const treatments = await getTreatments(session.user.id);
