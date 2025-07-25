@@ -31,9 +31,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 	return (
 		<div className="p-4 space-y-4">
 			<div className="flex justify-end items-center">
-				<p className="text-sm text-gray-500">
-					{t("parcels.clickMapToAdd")}
-				</p>
+				<p className="text-sm text-gray-500">{t("parcels.clickMapToAdd")}</p>
 			</div>
 
 			<Card>

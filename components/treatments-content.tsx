@@ -19,7 +19,7 @@ interface TreatmentsContentProps {
 export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 	const diseases = useDiseases();
 	const { t } = useTranslations();
-	
+
 	const upcomingTreatments = treatments.filter(
 		(t) => t.status === TreatmentStatus.TODO,
 	);

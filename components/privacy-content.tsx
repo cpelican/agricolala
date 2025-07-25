@@ -3,7 +3,6 @@ import { Shield, ExternalLink } from "lucide-react";
 import { LocaleLink } from "./locale-link";
 import { useTranslations } from "@/lib/translations";
 
-
 interface PrivacyContentProps {
 	showLinks?: boolean;
 }
@@ -16,7 +15,9 @@ export function PrivacyContent({ showLinks = false }: PrivacyContentProps) {
 			title: t("legal.privacy.sections.information.title"),
 			content: getArray("legal.privacy.sections.information.content"),
 			listItems: getArray("legal.privacy.sections.information.listItems"),
-			additionalContent: t("legal.privacy.sections.information.additionalContent"),
+			additionalContent: t(
+				"legal.privacy.sections.information.additionalContent",
+			),
 		},
 		{
 			title: t("legal.privacy.sections.usage.title"),
@@ -121,7 +122,9 @@ export function PrivacyContent({ showLinks = false }: PrivacyContentProps) {
 							<ExternalLink className="h-5 w-5 text-blue-600" />
 						</LocaleLink>
 					</div>
-					<p className="text-xs text-blue-600">{t("legal.privacy.links.note")}</p>
+					<p className="text-xs text-blue-600">
+						{t("legal.privacy.links.note")}
+					</p>
 				</section>
 			)}
 		</div>

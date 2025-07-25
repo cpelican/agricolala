@@ -8,17 +8,16 @@ import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { getDictionary } from "@/lib/dictionaries";
 import { type Locale } from "@/lib/server-translations";
 
-
 export default async function ParcelsPage({
 	params,
 }: {
-	params: Promise<{ lang: Locale}>;
+	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
 	const dict = await getDictionary(lang);
 	const session = await requireAuth();
 	const parcels = await getParcels(session.user.id);
-	
+
 	return (
 		<AuthGuard>
 			<CachedDataWrapper>
@@ -32,4 +31,4 @@ export default async function ParcelsPage({
 			</CachedDataWrapper>
 		</AuthGuard>
 	);
-} 
+}

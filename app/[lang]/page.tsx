@@ -6,7 +6,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import { getParcels } from "@/lib/data-fetcher";
 import { Grape } from "lucide-react";
 import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from '@/lib/server-translations';
+import { type Locale } from "@/lib/server-translations";
 
 export default async function Home({
 	params,
@@ -31,4 +31,4 @@ export default async function Home({
 			</CachedDataWrapper>
 		</AuthGuard>
 	);
-} 
+}

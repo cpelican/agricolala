@@ -63,7 +63,8 @@ export function ParcelDetail({
 												return (
 													<div key={index} className="text-sm">
 														<p>
-															{app.product.name} - {app.dose}{t("parcels.productDose")}
+															{app.product.name} - {app.dose}
+															{t("parcels.productDose")}
 														</p>
 														<p className="text-muted-foreground">
 															{app.product.composition
@@ -89,7 +90,9 @@ export function ParcelDetail({
 					</h2>
 					<div className="space-y-3">
 						{pastTreatments.length === 0 ? (
-							<p className="text-muted-foreground">{t("parcels.noPastTreatments")}</p>
+							<p className="text-muted-foreground">
+								{t("parcels.noPastTreatments")}
+							</p>
 						) : (
 							<div className="space-y-4">
 								{pastTreatments.map((treatment) => (

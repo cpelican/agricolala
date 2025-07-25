@@ -12,13 +12,17 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
+const signInWithGoogle = () => {
+	signIn("google", { callbackUrl: "/" });
+};
+
 export default function SignIn() {
 	const router = useRouter();
 
 	useEffect(() => {
 		getSession().then((session) => {
 			if (session) {
-				router.push("/");
+				router.push(`/${session.user.locale}`);
 			}
 		});
 	}, [router]);
@@ -36,7 +40,7 @@ export default function SignIn() {
 				</CardHeader>
 				<CardContent>
 					<Button
-						onClick={() => signIn("google", { callbackUrl: "/" })}
+						onClick={signInWithGoogle}
 						className="w-full bg-main-gradient hover:bg-primary-700"
 						size="lg"
 					>

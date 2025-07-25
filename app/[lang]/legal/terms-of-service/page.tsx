@@ -4,7 +4,7 @@ import { LayoutWithHeader } from "@/components/layout-with-header";
 import { TosContent } from "@/components/tos-content";
 import { BackButton } from "@/components/back-button";
 import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from '@/lib/server-translations';
+import { type Locale } from "@/lib/server-translations";
 
 export default async function TermsOfServicePage({
 	params,
@@ -13,7 +13,7 @@ export default async function TermsOfServicePage({
 }) {
 	const { lang } = await params;
 	const dict = await getDictionary(lang);
-	
+
 	return (
 		<AuthGuard>
 			<LayoutWithHeader
@@ -28,4 +28,4 @@ export default async function TermsOfServicePage({
 			</LayoutWithHeader>
 		</AuthGuard>
 	);
-} 
+}

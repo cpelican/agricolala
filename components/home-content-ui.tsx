@@ -26,9 +26,7 @@ export function HomeContentUI({ parcels }: HomeContentUIProps) {
 				<Card>
 					<CardHeader className="text-center">
 						<CardTitle>{t("home.welcome")}</CardTitle>
-						<CardDescription>
-							{t("home.description")}
-						</CardDescription>
+						<CardDescription>{t("home.description")}</CardDescription>
 					</CardHeader>
 					<CardContent className="text-center">
 						<Button asChild className="bg-primary-600 hover:bg-primary-700">
@@ -44,4 +42,4 @@ export function HomeContentUI({ parcels }: HomeContentUIProps) {
 	}
 
 	return null;
-} 
+}

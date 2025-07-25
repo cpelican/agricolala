@@ -177,7 +177,9 @@ export function AddTreatmentDialog({
 		};
 
 		if (!formData.appliedDate) {
-			newErrors.appliedDate.push(t("treatments.errors.applicationDateRequired"));
+			newErrors.appliedDate.push(
+				t("treatments.errors.applicationDateRequired"),
+			);
 		}
 
 		if (formData.parcelIds.filter((id) => id).length === 0) {
@@ -244,7 +246,9 @@ export function AddTreatmentDialog({
 		} catch (error) {
 			console.error("Error creating treatment");
 			setServerError(
-				error instanceof Error ? error.message : t("treatments.errors.createFailed"),
+				error instanceof Error
+					? error.message
+					: t("treatments.errors.createFailed"),
 			);
 		} finally {
 			setLoading(false);
@@ -447,7 +451,9 @@ export function AddTreatmentDialog({
 										}
 									>
 										<SelectTrigger className="flex-1">
-											<SelectValue placeholder={t("treatments.selectProduct")} />
+											<SelectValue
+												placeholder={t("treatments.selectProduct")}
+											/>
 										</SelectTrigger>
 										<SelectContent>
 											{products.map((p) => (
@@ -544,7 +550,9 @@ export function AddTreatmentDialog({
 							disabled={loading}
 							className="bg-primary-600 hover:bg-primary-700"
 						>
-							{loading ? t("treatments.creating") : t("treatments.createTreatment")}
+							{loading
+								? t("treatments.creating")
+								: t("treatments.createTreatment")}
 						</Button>
 					</DialogFooter>
 				</form>

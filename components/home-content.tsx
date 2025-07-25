@@ -7,7 +7,7 @@ import {
 import { requireAuth } from "@/lib/auth-utils";
 import { HomeContentUI } from "@/components/home-content-ui";
 import { type Locale } from "@/lib/server-translations";
-import { getDictionary } from '@/lib/dictionaries';
+import { getDictionary } from "@/lib/dictionaries";
 
 interface HomeContentProps {
 	parcels: ParcelWithTreatments[];

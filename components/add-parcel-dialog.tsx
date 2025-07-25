@@ -93,7 +93,9 @@ export function AddParcelDialog({
 		} catch (error) {
 			console.error("Error adding parcel");
 			setError(
-				error instanceof Error ? error.message : t("parcels.errors.createFailed"),
+				error instanceof Error
+					? error.message
+					: t("parcels.errors.createFailed"),
 			);
 		} finally {
 			setLoading(false);
@@ -174,8 +176,12 @@ export function AddParcelDialog({
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value={CultureType.VINEYARD}>{t("parcels.wineyard")}</SelectItem>
-								<SelectItem value={CultureType.PEACHES}>{t("parcels.peaches")}</SelectItem>
+								<SelectItem value={CultureType.VINEYARD}>
+									{t("parcels.wineyard")}
+								</SelectItem>
+								<SelectItem value={CultureType.PEACHES}>
+									{t("parcels.peaches")}
+								</SelectItem>
 							</SelectContent>
 						</Select>
 						<input type="hidden" name="type" value={formData.type} />

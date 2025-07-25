@@ -23,11 +23,10 @@ export default async function Layout({
 }: {
 	children: React.ReactNode;
 }) {
-	
 	return (
 		<Providers>
-            <LocaleInitializer />
-            {children}
-        </Providers>
+			<LocaleInitializer />
+			{children}
+		</Providers>
 	);
-} 
+}

@@ -22,7 +22,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { ChevronRight } from "lucide-react";
 import { LocaleLink } from "./locale-link";
 import { useTranslations } from "@/lib/translations";
-import { type getTosStatus } from '@/app/actions/get-tos-status';
+import { type getTosStatus } from "@/app/actions/get-tos-status";
 
 interface LegalAcceptanceStatusProps {
 	tosAcceptedAt?: Date | null;
@@ -30,7 +30,7 @@ interface LegalAcceptanceStatusProps {
 
 function LegalAcceptanceStatus({ tosAcceptedAt }: LegalAcceptanceStatusProps) {
 	const { t } = useTranslations();
-	
+
 	return (
 		<div className="flex items-center">
 			{tosAcceptedAt ? (
@@ -43,9 +43,7 @@ function LegalAcceptanceStatus({ tosAcceptedAt }: LegalAcceptanceStatusProps) {
 			) : (
 				<>
 					<XCircle className="h-4 w-4 text-red-600 mr-2" />
-					<span className="text-sm text-red-600">
-						{t("legal.notAccepted")}
-					</span>
+					<span className="text-sm text-red-600">{t("legal.notAccepted")}</span>
 				</>
 			)}
 		</div>
@@ -88,7 +86,7 @@ interface ProfileContentProps {
 		name: string;
 		email: string;
 		image: string;
-	}
+	};
 	tosStatus: Awaited<ReturnType<typeof getTosStatus>>;
 }
 
@@ -105,10 +103,7 @@ export function ProfileContent({ user, tosStatus }: ProfileContentProps) {
 				<CardContent className="space-y-4">
 					<div className="flex items-center space-x-4">
 						<Avatar className="h-16 w-16">
-							<AvatarImage
-								src={user?.image || ""}
-								alt={user?.name || ""}
-							/>
+							<AvatarImage src={user?.image || ""} alt={user?.name || ""} />
 							<AvatarFallback>
 								<User className="h-8 w-8" />
 							</AvatarFallback>
@@ -182,4 +177,4 @@ export function ProfileContent({ user, tosStatus }: ProfileContentProps) {
 			</Card>
 		</div>
 	);
-} 
+}

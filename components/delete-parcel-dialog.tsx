@@ -97,7 +97,9 @@ export function DeleteParcelDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={loading}>{t("deleteParcel.cancel")}</AlertDialogCancel>
+					<AlertDialogCancel disabled={loading}>
+						{t("deleteParcel.cancel")}
+					</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleDelete}
 						disabled={loading}

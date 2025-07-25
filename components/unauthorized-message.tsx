@@ -17,13 +17,11 @@ export function UnauthorizedMessage() {
 		<Card className="p-4 m-4">
 			<CardHeader className="text-center">
 				<CardTitle>{t("home.welcome")}</CardTitle>
-				<CardDescription>
-					{t("auth.unauthorizedMessage")}
-				</CardDescription>
+				<CardDescription>{t("auth.unauthorizedMessage")}</CardDescription>
 			</CardHeader>
 			<CardFooter>
 				<SignOutButton />
 			</CardFooter>
 		</Card>
 	);
-} 
+}

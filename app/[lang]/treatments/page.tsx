@@ -8,7 +8,7 @@ import { AddTreatmentButton } from "@/components/add-treatment-button";
 import { ExcelExportDialog } from "@/components/excel-export-dialog";
 import { Calendar } from "lucide-react";
 import { getDictionary } from "@/lib/dictionaries";
-import { type Locale } from '@/lib/server-translations';
+import { type Locale } from "@/lib/server-translations";
 
 export default async function TreatmentsPage({
 	params,
@@ -27,7 +27,9 @@ export default async function TreatmentsPage({
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title={dict.treatments.title}
-					subtitle={dict.treatments.description || "Manage all your wineyard treatments"}
+					subtitle={
+						dict.treatments.description || "Manage all your wineyard treatments"
+					}
 					icon={<Calendar />}
 				>
 					<ExcelExportDialog className="absolute top-6 right-8" />
@@ -37,4 +39,4 @@ export default async function TreatmentsPage({
 			</CachedDataWrapper>
 		</AuthGuard>
 	);
-} 
+}

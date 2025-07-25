@@ -43,10 +43,12 @@ export function SubstanceUsageSection({
 
 			{hasSubstanceData && (
 				<div className="grid gap-4">
-					<h2 className="text-lg font-semibold">{t("substances.cumulatedDoses")}</h2>
+					<h2 className="text-lg font-semibold">
+						{t("substances.cumulatedDoses")}
+					</h2>
 					{substanceData.map((substance) => {
 						const translatedName = getSubstanceTranslation(substance.name);
-						
+
 						return (
 							<Card key={substance.name}>
 								<CardContent className="p-4">
@@ -56,7 +58,8 @@ export function SubstanceUsageSection({
 											<div>
 												<h3 className="font-medium">{translatedName}</h3>
 												<p className="text-sm text-muted-foreground">
-													{substance.totalDoseOfProduct.toFixed(2)} {t("substances.grOfProduct")}
+													{substance.totalDoseOfProduct.toFixed(2)}{" "}
+													{t("substances.grOfProduct")}
 												</p>
 												<p className="text-sm text-muted-foreground">
 													{Math.round(substance.totalUsedOfPureActiveSubstance)}{" "}

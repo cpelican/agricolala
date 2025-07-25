@@ -73,7 +73,9 @@ export function DeleteTreatmentDialog({
 					</ul>
 				</div>
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={isDeleting}>{t("deleteTreatment.cancel")}</AlertDialogCancel>
+					<AlertDialogCancel disabled={isDeleting}>
+						{t("deleteTreatment.cancel")}
+					</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleDelete}
 						disabled={isDeleting}

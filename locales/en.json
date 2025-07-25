@@ -1,377 +1,379 @@
 {
-  "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-    "back": "Back",
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "close": "Close",
-    "confirm": "Confirm",
-    "yes": "Yes",
-    "no": "No"
-  },
-  "navigation": {
-    "home": "Home",
-    "parcels": "Parcels",
-    "treatments": "Treatments",
-    "profile": "Profile"
-  },
-  "parcels": {
-    "title": "Parcels",
-    "description": "Manage your wineyard parcels",
-    "addParcel": "Add Parcel",
-    "addNewParcel": "Add New Parcel",
-    "addNewParcelDescription": "Add a new parcel to your wineyard management system",
-    "parcelName": "Parcel Name",
-    "parcelNamePlaceholder": "e.g., North Field",
-    "parcelType": "Parcel Type",
-    "cultureType": "Culture Type",
-    "coordinates": "Coordinates",
-    "width": "Width (meters)",
-    "height": "Height (meters)",
-    "latitude": "Latitude",
-    "longitude": "Longitude",
-    "latitudePlaceholder": "45.0000",
-    "longitudePlaceholder": "7.0000",
-    "widthPlaceholder": "100",
-    "heightPlaceholder": "50",
-    "wineyard": "Wineyard",
-    "peaches": "Peaches",
-    "noParcels": "No parcels found",
-    "deleteParcel": "Delete Parcel",
-    "deleteParcelConfirm": "Are you sure you want to delete this parcel?",
-    "parcelDeleted": "Parcel deleted successfully",
-    "parcelAdded": "Parcel added successfully",
-    "parcelUpdated": "Parcel updated successfully",
-    "enterParcelName": "Enter parcel name",
-    "selectParcelType": "Select parcel type",
-    "enterCoordinates": "Enter coordinates",
-    "enterWidth": "Enter width",
-    "enterHeight": "Enter height",
-    "clickMapToAdd": "Click on the map to add a parcel",
-    "clickMapToAddFirst": "Click on the map to add your first parcel",
-    "zoomInToFindLocation": "Zoom in to find your exact location",
-    "cancel": "Cancel",
-    "adding": "Adding...",
-    "addParcelButton": "Add Parcel",
-    "upcomingTreatments": "Upcoming Treatments",
-    "pastTreatments": "Past Treatments",
-    "noPastTreatments": "No past treatments",
-    "trackSubstanceApplications": "Track your substance applications for this parcel",
-    "productDose": "L/ha",
-    "errors": {
-      "createFailed": "Failed to create parcel"
-    }
-  },
-  "treatments": {
-    "title": "Treatments",
-    "description": "Manage all your wineyard treatments",
-    "addTreatment": "Add Treatment",
-    "addTreatmentDescription": "Add a new treatment for this parcel. Fill in the details below.",
-    "applicationDate": "Application Date",
-    "pickDate": "Pick a date",
-    "parcels": "Parcels",
-    "addParcel": "Add Parcel",
-    "selectParcel": "Select parcel",
-    "diseases": "Diseases",
-    "addDisease": "Add Disease",
-    "selectDisease": "Select disease",
-    "products": "Products",
-    "dosesInGrams": "Doses in grams (g)",
-    "addProduct": "Add Product",
-    "selectProduct": "Select product",
-    "waterDose": "Water Dose (L)",
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createTreatment": "Create Treatment",
-    "status": {
-      "todo": "To Do",
-      "done": "Done"
-    },
-    "appliedDate": "Applied Date",
-    "noTreatments": "No treatments found",
-    "deleteTreatment": "Delete Treatment",
-    "deleteTreatmentConfirm": "Are you sure you want to delete this treatment?",
-    "treatmentDeleted": "Treatment deleted successfully",
-    "treatmentAdded": "Treatment added successfully",
-    "treatmentUpdated": "Treatment updated successfully",
-    "selectDiseases": "Select diseases",
-    "selectProducts": "Select products",
-    "enterWaterDose": "Enter water dose",
-    "selectAppliedDate": "Select applied date",
-    "noTreatmentsDescription": "Treatments will appear here once you add parcels and schedule treatments",
-    "upcoming": "Upcoming",
-    "completed": "Completed",
-    "errors": {
-      "applicationDateRequired": "Application date is required",
-      "parcelRequired": "At least one parcel is required",
-      "diseaseRequired": "At least one disease is required",
-      "productRequired": "At least one product with valid dose is required",
-      "waterDoseRequired": "Water dose must be greater than 0",
-      "createFailed": "Failed to create treatment"
-    },
-    "warnings": {
-      "doseAdvice": "It is advised not to go beyond the dosage of"
-    }
-  },
-  "profile": {
-    "title": "Profile",
-    "email": "Email",
-    "language": "Language",
-    "signOut": "Sign Out",
-    "languageChanged": "Language changed successfully",
-    "accountSettings": "Account Settings",
-    "accountInformation": "Account Information",
-    "accountDetails": "Your profile details",
-    "languageDescription": "Choose your preferred language",
-    "actions": "Actions",
-    "accountManagement": "Account management options",
-    "aboutAgricolala": "About Agricolala",
-    "aboutDescription": "Agricolala helps you manage your wineyard treatments and track substance usage to ensure compliance with agricultural regulations."
-  },
-  "auth": {
-    "title": "Agricolala",
-    "description": "Manage your wineyard treatments and parcels",
-    "signIn": "Sign In",
-    "signOut": "Sign Out",
-    "email": "Email",
-    "password": "Password",
-    "signInWithGoogle": "Sign in with Google",
-    "unauthorizedMessage": "This app is still a work in progress, so we prefer to know a bit who will use it. Please contact the admin to unlock your account."
-  },
-  "diseases": {
-    "peronospora": "Downy Mildew",
-    "oidium": "Powdery Mildew"
-  },
-  "substances": {
-    "copper": "Copper",
-    "sulfur": "Sulfur",
-    "usageThisYear": "Substance Usage This Year",
-    "trackApplications": "Track your substance applications across all treatments",
-    "trackApplicationsHome": "Track your substance applications across all parcels",
-    "cumulatedDoses": "Cumulated Doses",
-    "grOfProduct": "gr of product",
-    "grOfPureActiveSubstance": "gr of pure active substance",
-    "kgPerHa": "kg/ha of pure active substance",
-    "max": "Max",
-    "noTreatmentData": "No treatment data available for this year"
-  },
-  "deleteTreatment": {
-    "title": "Delete Treatment",
-    "description": "Are you sure you want to delete the treatment \"{name}\"? This action cannot be undone.",
-    "warningTitle": "This will permanently remove:",
-    "warningItems": [
-      "The treatment and all its data",
-      "All product applications for this treatment",
-      "Substance usage calculations will be updated"
-    ],
-    "cancel": "Cancel",
-    "delete": "Delete Treatment",
-    "deleting": "Deleting..."
-  },
-  "deleteParcel": {
-    "title": "Delete Parcel",
-    "description": "Are you sure you want to delete \"{name}\"? This action cannot be undone and will permanently remove:",
-    "warningItems": [
-      "The parcel and all its data",
-      "All treatments associated with this parcel",
-      "All product applications for those treatments"
-    ],
-    "cancel": "Cancel",
-    "delete": "Delete Parcel",
-    "deleting": "Deleting...",
-    "error": "Failed to delete parcel"
-  },
-  "backButton": {
-    "back": "Back"
-  },
-  "legal": {
-    "title": "Legal",
-    "description": "Terms and privacy information",
-    "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "acceptTerms": "I accept the terms of service",
-    "acceptPrivacy": "I accept the privacy policy",
-    "acceptedOn": "Terms of Service and Privacy Policy accepted on",
-    "notAccepted": "Terms of Service and Privacy Policy not accepted",
-    "readTerms": "Read the full terms",
-    "howWeHandleData": "How we handle your data",
-    "tos": {
-      "sections": {
-        "acceptance": {
-          "title": "1. Acceptance of Terms",
-          "content": "By accessing and using Agraria PWA (\"the Service\"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service."
-        },
-        "description": {
-          "title": "2. Description of Service",
-          "content": "Agraria PWA is an agricultural management application that allows users to:",
-          "listItems": [
-            "Track agricultural parcels and their characteristics",
-            "Record treatment applications and chemical usage",
-            "Monitor substance usage and compliance",
-            "Generate reports and analytics for agricultural operations"
-          ]
-        },
-        "responsibilities": {
-          "title": "3. User Responsibilities",
-          "content": "As a user of this Service, you agree to:",
-          "listItems": [
-            "Provide accurate and complete information about your agricultural operations",
-            "Comply with all applicable local, state, and federal agricultural regulations",
-            "Use the Service only for lawful agricultural purposes",
-            "Maintain the security of your account credentials",
-            "Not share your account with unauthorized users",
-            "Report any suspected security breaches immediately"
-          ]
-        },
-        "compliance": {
-          "title": "4. Agricultural Data and Compliance",
-          "content": "Important Disclaimer: This application is designed to assist with agricultural record-keeping and is not a substitute for professional agricultural advice or regulatory compliance.",
-          "listItems": [
-            "Users are responsible for ensuring compliance with all applicable agricultural regulations",
-            "The Service does not guarantee regulatory compliance or agricultural outcomes",
-            "Users must verify all chemical usage data against official product labels and regulations",
-            "Agricultural decisions should be made in consultation with qualified professionals"
-          ]
-        },
-        "dataOwnership": {
-          "title": "5. Data Ownership and Usage",
-          "content": [
-            "Your Data: You retain ownership of all agricultural data you enter into the Service.",
-            "Service Usage: We may use aggregated, anonymized data to improve the Service and provide analytics, but we will never sell your individual agricultural data to third parties.",
-            "Data Export: You can export your data at any time through the Service's export features."
-          ]
-        },
-        "liability": {
-          "title": "6. Limitation of Liability",
-          "content": "Agricultural Disclaimer: The Service is provided \"as is\" without warranties of any kind. We are not liable for:",
-          "listItems": [
-            "Crop losses or agricultural outcomes based on data entered in the Service",
-            "Regulatory compliance issues or violations",
-            "Incorrect chemical application rates or timing",
-            "Service interruptions or data loss",
-            "Decisions made based on the information provided by the Service"
-          ]
-        }
-      },
-      "links": {
-        "title": "📄 Read Full Legal Documents",
-        "description": "Important: For complete legal information, please read the full documents:",
-        "termsOfService": "Full Terms of Service",
-        "privacyPolicy": "Full Privacy Policy",
-        "note": "💡 These links will open in a new tab so you can read the full documents while keeping this dialog open."
-      }
-    },
-    "privacy": {
-      "sections": {
-        "information": {
-          "title": "1. Information We Collect",
-          "content": [
-            "Account Information: When you create an account, we collect your name, email address, and authentication information.",
-            "Agricultural Data: We collect data you enter about your agricultural operations, including:"
-          ],
-          "listItems": [
-            "Parcel information (location, size, crop type)",
-            "Treatment applications and timing",
-            "Chemical usage and substance tracking",
-            "Product applications and dosages",
-            "Disease and pest management records"
-          ],
-          "additionalContent": "Usage Data: We collect information about how you use the Service, including access times, features used, and performance data."
-        },
-        "usage": {
-          "title": "2. How We Use Your Information",
-          "content": "We use your information to:",
-          "listItems": [
-            "Provide and maintain the Service",
-            "Generate agricultural reports and analytics",
-            "Calculate substance usage aggregations",
-            "Send you important updates about the Service",
-            "Improve and develop new features",
-            "Ensure compliance with agricultural regulations",
-            "Provide customer support"
-          ]
-        },
-        "sharing": {
-          "title": "3. Data Sharing and Disclosure",
-          "content": [
-            "We do not sell your agricultural data to third parties.",
-            "We may share your information in the following limited circumstances:"
-          ],
-          "listItems": [
-            "Service Providers: With trusted third-party services that help us operate the Service (hosting, analytics, etc.)",
-            "Legal Requirements: When required by law or to protect our rights and safety",
-            "Regulatory Compliance: When necessary to comply with agricultural regulations",
-            "Aggregated Data: We may share anonymized, aggregated data for research or analytics purposes"
-          ]
-        },
-        "security": {
-          "title": "4. Data Security",
-          "content": "We implement appropriate security measures to protect your agricultural data:",
-          "listItems": [
-            "Encryption of data in transit and at rest",
-            "Secure authentication and access controls",
-            "Regular security audits and updates",
-            "Limited access to your data by authorized personnel only",
-            "Backup and disaster recovery procedures"
-          ]
-        },
-        "retention": {
-          "title": "5. Data Retention",
-          "content": [
-            "Agricultural Records: We retain your agricultural data for as long as your account is active, as these records are often required for regulatory compliance and may need to be maintained for several years.",
-            "Account Data: We retain your account information for as long as your account is active, plus a reasonable period for backup and recovery purposes.",
-            "Deletion: You may request deletion of your data, but please note that agricultural records may need to be maintained for regulatory compliance purposes."
-          ]
-        },
-        "rights": {
-          "title": "6. Your Rights",
-          "content": "You have the following rights regarding your data:",
-          "listItems": [
-            "Access: View and download your agricultural data",
-            "Correction: Update or correct inaccurate information",
-            "Export: Export your data in a portable format",
-            "Deletion: Request deletion of your data (subject to regulatory requirements)",
-            "Restriction: Limit how we process your data",
-            "Portability: Transfer your data to another service"
-          ]
-        },
-        "cookies": {
-          "title": "7. Cookies and Tracking",
-          "content": "We use essential cookies to provide the Service functionality. We do not use tracking cookies or third-party analytics that could compromise your privacy."
-        },
-        "children": {
-          "title": "8. Children's Privacy",
-          "content": "Our Service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us."
-        },
-        "international": {
-          "title": "9. International Data Transfers",
-          "content": "Your data may be processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data in accordance with applicable data protection laws."
-        },
-        "changes": {
-          "title": "10. Changes to This Policy",
-          "content": "We may update this Privacy Policy from time to time. We will notify you of significant changes via email or through the Service. Your continued use of the Service after changes constitutes acceptance of the updated policy."
-        },
-        "contact": {
-          "title": "11. Contact Us",
-          "content": "If you have questions about this Privacy Policy or want to exercise your data rights, please contact us through the application or at the email address provided in your account settings."
-        }
-      },
-      "links": {
-        "title": "📄 Read Full Legal Documents",
-        "description": "Important: For complete legal information, please read the full documents:",
-        "privacyPolicy": "Full Privacy Policy",
-        "note": "💡 This link will open in a new tab so you can read the full document while keeping this dialog open."
-      }
-    }
-  },
-  "home": {
-    "welcome": "Welcome to Agraria",
-    "description": "Manage your agricultural parcels and treatments",
-    "getStarted": "Get Started"
-  }
-} 
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"back": "Back",
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"close": "Close",
+		"confirm": "Confirm",
+		"yes": "Yes",
+		"no": "No"
+	},
+	"navigation": {
+		"home": "Home",
+		"parcels": "Parcels",
+		"treatments": "Treatments",
+		"profile": "Profile"
+	},
+	"parcels": {
+		"title": "Parcels",
+		"description": "Manage your wineyard parcels",
+		"addParcel": "Add Parcel",
+		"addNewParcel": "Add New Parcel",
+		"addNewParcelDescription": "Add a new parcel to your wineyard management system",
+		"parcelName": "Parcel Name",
+		"parcelNamePlaceholder": "e.g., North Field",
+		"parcelType": "Parcel Type",
+		"cultureType": "Culture Type",
+		"coordinates": "Coordinates",
+		"width": "Width (meters)",
+		"height": "Height (meters)",
+		"latitude": "Latitude",
+		"longitude": "Longitude",
+		"latitudePlaceholder": "45.0000",
+		"longitudePlaceholder": "7.0000",
+		"widthPlaceholder": "100",
+		"heightPlaceholder": "50",
+		"wineyard": "Wineyard",
+		"peaches": "Peaches",
+		"noParcels": "No parcels found",
+		"deleteParcel": "Delete Parcel",
+		"deleteParcelConfirm": "Are you sure you want to delete this parcel?",
+		"parcelDeleted": "Parcel deleted successfully",
+		"parcelAdded": "Parcel added successfully",
+		"parcelUpdated": "Parcel updated successfully",
+		"enterParcelName": "Enter parcel name",
+		"selectParcelType": "Select parcel type",
+		"enterCoordinates": "Enter coordinates",
+		"enterWidth": "Enter width",
+		"enterHeight": "Enter height",
+		"clickMapToAdd": "Click on the map to add a parcel",
+		"clickMapToAddFirst": "Click on the map to add your first parcel",
+		"zoomInToFindLocation": "Zoom in to find your exact location",
+		"cancel": "Cancel",
+		"adding": "Adding...",
+		"addParcelButton": "Add Parcel",
+		"upcomingTreatments": "Upcoming Treatments",
+		"pastTreatments": "Past Treatments",
+		"noPastTreatments": "No past treatments",
+		"trackSubstanceApplications": "Track your substance applications for this parcel",
+		"productDose": "L/ha",
+		"errors": {
+			"createFailed": "Failed to create parcel"
+		}
+	},
+	"treatments": {
+		"title": "Treatments",
+		"description": "Manage all your wineyard treatments",
+		"addTreatment": "Add Treatment",
+		"addTreatmentDescription": "Add a new treatment for this parcel. Fill in the details below.",
+		"applicationDate": "Application Date",
+		"pickDate": "Pick a date",
+		"parcels": "Parcels",
+		"addParcel": "Add Parcel",
+		"selectParcel": "Select parcel",
+		"diseases": "Diseases",
+		"addDisease": "Add Disease",
+		"selectDisease": "Select disease",
+		"products": "Products",
+		"dosesInGrams": "Doses in grams (g)",
+		"addProduct": "Add Product",
+		"selectProduct": "Select product",
+		"waterDose": "Water Dose (L)",
+		"cancel": "Cancel",
+		"creating": "Creating...",
+		"createTreatment": "Create Treatment",
+		"status": {
+			"todo": "To Do",
+			"done": "Done"
+		},
+		"appliedDate": "Applied Date",
+		"noTreatments": "No treatments found",
+		"deleteTreatment": "Delete Treatment",
+		"deleteTreatmentConfirm": "Are you sure you want to delete this treatment?",
+		"treatmentDeleted": "Treatment deleted successfully",
+		"treatmentAdded": "Treatment added successfully",
+		"treatmentUpdated": "Treatment updated successfully",
+		"selectDiseases": "Select diseases",
+		"selectProducts": "Select products",
+		"enterWaterDose": "Enter water dose",
+		"selectAppliedDate": "Select applied date",
+		"noTreatmentsDescription": "Treatments will appear here once you add parcels and schedule treatments",
+		"upcoming": "Upcoming",
+		"completed": "Completed",
+		"errors": {
+			"applicationDateRequired": "Application date is required",
+			"parcelRequired": "At least one parcel is required",
+			"diseaseRequired": "At least one disease is required",
+			"productRequired": "At least one product with valid dose is required",
+			"waterDoseRequired": "Water dose must be greater than 0",
+			"createFailed": "Failed to create treatment"
+		},
+		"warnings": {
+			"doseAdvice": "It is advised not to go beyond the dosage of"
+		}
+	},
+	"profile": {
+		"it": "Italian",
+		"en": "English",
+		"title": "Profile",
+		"email": "Email",
+		"language": "Language",
+		"signOut": "Sign Out",
+		"languageChanged": "Language changed successfully",
+		"accountSettings": "Account Settings",
+		"accountInformation": "Account Information",
+		"accountDetails": "Your profile details",
+		"languageDescription": "Choose your preferred language",
+		"actions": "Actions",
+		"accountManagement": "Account management options",
+		"aboutAgricolala": "About Agricolala",
+		"aboutDescription": "Agricolala helps you manage your wineyard treatments and track substance usage to ensure compliance with agricultural regulations."
+	},
+	"auth": {
+		"title": "Agricolala",
+		"description": "Manage your wineyard treatments and parcels",
+		"signIn": "Sign In",
+		"signOut": "Sign Out",
+		"email": "Email",
+		"password": "Password",
+		"signInWithGoogle": "Sign in with Google",
+		"unauthorizedMessage": "This app is still a work in progress, so we prefer to know a bit who will use it. Please contact the admin to unlock your account."
+	},
+	"diseases": {
+		"peronospora": "Downy Mildew",
+		"oidium": "Powdery Mildew"
+	},
+	"substances": {
+		"copper": "Copper",
+		"sulfur": "Sulfur",
+		"usageThisYear": "Substance Usage This Year",
+		"trackApplications": "Track your substance applications across all treatments",
+		"trackApplicationsHome": "Track your substance applications across all parcels",
+		"cumulatedDoses": "Cumulated Doses",
+		"grOfProduct": "gr of product",
+		"grOfPureActiveSubstance": "gr of pure active substance",
+		"kgPerHa": "kg/ha of pure active substance",
+		"max": "Max",
+		"noTreatmentData": "No treatment data available for this year"
+	},
+	"deleteTreatment": {
+		"title": "Delete Treatment",
+		"description": "Are you sure you want to delete the treatment \"{name}\"? This action cannot be undone.",
+		"warningTitle": "This will permanently remove:",
+		"warningItems": [
+			"The treatment and all its data",
+			"All product applications for this treatment",
+			"Substance usage calculations will be updated"
+		],
+		"cancel": "Cancel",
+		"delete": "Delete Treatment",
+		"deleting": "Deleting..."
+	},
+	"deleteParcel": {
+		"title": "Delete Parcel",
+		"description": "Are you sure you want to delete \"{name}\"? This action cannot be undone and will permanently remove:",
+		"warningItems": [
+			"The parcel and all its data",
+			"All treatments associated with this parcel",
+			"All product applications for those treatments"
+		],
+		"cancel": "Cancel",
+		"delete": "Delete Parcel",
+		"deleting": "Deleting...",
+		"error": "Failed to delete parcel"
+	},
+	"backButton": {
+		"back": "Back"
+	},
+	"legal": {
+		"title": "Legal",
+		"description": "Terms and privacy information",
+		"privacyPolicy": "Privacy Policy",
+		"termsOfService": "Terms of Service",
+		"acceptTerms": "I accept the terms of service",
+		"acceptPrivacy": "I accept the privacy policy",
+		"acceptedOn": "Terms of Service and Privacy Policy accepted on",
+		"notAccepted": "Terms of Service and Privacy Policy not accepted",
+		"readTerms": "Read the full terms",
+		"howWeHandleData": "How we handle your data",
+		"tos": {
+			"sections": {
+				"acceptance": {
+					"title": "1. Acceptance of Terms",
+					"content": "By accessing and using Agraria PWA (\"the Service\"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service."
+				},
+				"description": {
+					"title": "2. Description of Service",
+					"content": "Agraria PWA is an agricultural management application that allows users to:",
+					"listItems": [
+						"Track agricultural parcels and their characteristics",
+						"Record treatment applications and chemical usage",
+						"Monitor substance usage and compliance",
+						"Generate reports and analytics for agricultural operations"
+					]
+				},
+				"responsibilities": {
+					"title": "3. User Responsibilities",
+					"content": "As a user of this Service, you agree to:",
+					"listItems": [
+						"Provide accurate and complete information about your agricultural operations",
+						"Comply with all applicable local, state, and federal agricultural regulations",
+						"Use the Service only for lawful agricultural purposes",
+						"Maintain the security of your account credentials",
+						"Not share your account with unauthorized users",
+						"Report any suspected security breaches immediately"
+					]
+				},
+				"compliance": {
+					"title": "4. Agricultural Data and Compliance",
+					"content": "Important Disclaimer: This application is designed to assist with agricultural record-keeping and is not a substitute for professional agricultural advice or regulatory compliance.",
+					"listItems": [
+						"Users are responsible for ensuring compliance with all applicable agricultural regulations",
+						"The Service does not guarantee regulatory compliance or agricultural outcomes",
+						"Users must verify all chemical usage data against official product labels and regulations",
+						"Agricultural decisions should be made in consultation with qualified professionals"
+					]
+				},
+				"dataOwnership": {
+					"title": "5. Data Ownership and Usage",
+					"content": [
+						"Your Data: You retain ownership of all agricultural data you enter into the Service.",
+						"Service Usage: We may use aggregated, anonymized data to improve the Service and provide analytics, but we will never sell your individual agricultural data to third parties.",
+						"Data Export: You can export your data at any time through the Service's export features."
+					]
+				},
+				"liability": {
+					"title": "6. Limitation of Liability",
+					"content": "Agricultural Disclaimer: The Service is provided \"as is\" without warranties of any kind. We are not liable for:",
+					"listItems": [
+						"Crop losses or agricultural outcomes based on data entered in the Service",
+						"Regulatory compliance issues or violations",
+						"Incorrect chemical application rates or timing",
+						"Service interruptions or data loss",
+						"Decisions made based on the information provided by the Service"
+					]
+				}
+			},
+			"links": {
+				"title": "📄 Read Full Legal Documents",
+				"description": "Important: For complete legal information, please read the full documents:",
+				"termsOfService": "Full Terms of Service",
+				"privacyPolicy": "Full Privacy Policy",
+				"note": "💡 These links will open in a new tab so you can read the full documents while keeping this dialog open."
+			}
+		},
+		"privacy": {
+			"sections": {
+				"information": {
+					"title": "1. Information We Collect",
+					"content": [
+						"Account Information: When you create an account, we collect your name, email address, and authentication information.",
+						"Agricultural Data: We collect data you enter about your agricultural operations, including:"
+					],
+					"listItems": [
+						"Parcel information (location, size, crop type)",
+						"Treatment applications and timing",
+						"Chemical usage and substance tracking",
+						"Product applications and dosages",
+						"Disease and pest management records"
+					],
+					"additionalContent": "Usage Data: We collect information about how you use the Service, including access times, features used, and performance data."
+				},
+				"usage": {
+					"title": "2. How We Use Your Information",
+					"content": "We use your information to:",
+					"listItems": [
+						"Provide and maintain the Service",
+						"Generate agricultural reports and analytics",
+						"Calculate substance usage aggregations",
+						"Send you important updates about the Service",
+						"Improve and develop new features",
+						"Ensure compliance with agricultural regulations",
+						"Provide customer support"
+					]
+				},
+				"sharing": {
+					"title": "3. Data Sharing and Disclosure",
+					"content": [
+						"We do not sell your agricultural data to third parties.",
+						"We may share your information in the following limited circumstances:"
+					],
+					"listItems": [
+						"Service Providers: With trusted third-party services that help us operate the Service (hosting, analytics, etc.)",
+						"Legal Requirements: When required by law or to protect our rights and safety",
+						"Regulatory Compliance: When necessary to comply with agricultural regulations",
+						"Aggregated Data: We may share anonymized, aggregated data for research or analytics purposes"
+					]
+				},
+				"security": {
+					"title": "4. Data Security",
+					"content": "We implement appropriate security measures to protect your agricultural data:",
+					"listItems": [
+						"Encryption of data in transit and at rest",
+						"Secure authentication and access controls",
+						"Regular security audits and updates",
+						"Limited access to your data by authorized personnel only",
+						"Backup and disaster recovery procedures"
+					]
+				},
+				"retention": {
+					"title": "5. Data Retention",
+					"content": [
+						"Agricultural Records: We retain your agricultural data for as long as your account is active, as these records are often required for regulatory compliance and may need to be maintained for several years.",
+						"Account Data: We retain your account information for as long as your account is active, plus a reasonable period for backup and recovery purposes.",
+						"Deletion: You may request deletion of your data, but please note that agricultural records may need to be maintained for regulatory compliance purposes."
+					]
+				},
+				"rights": {
+					"title": "6. Your Rights",
+					"content": "You have the following rights regarding your data:",
+					"listItems": [
+						"Access: View and download your agricultural data",
+						"Correction: Update or correct inaccurate information",
+						"Export: Export your data in a portable format",
+						"Deletion: Request deletion of your data (subject to regulatory requirements)",
+						"Restriction: Limit how we process your data",
+						"Portability: Transfer your data to another service"
+					]
+				},
+				"cookies": {
+					"title": "7. Cookies and Tracking",
+					"content": "We use essential cookies to provide the Service functionality. We do not use tracking cookies or third-party analytics that could compromise your privacy."
+				},
+				"children": {
+					"title": "8. Children's Privacy",
+					"content": "Our Service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us."
+				},
+				"international": {
+					"title": "9. International Data Transfers",
+					"content": "Your data may be processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data in accordance with applicable data protection laws."
+				},
+				"changes": {
+					"title": "10. Changes to This Policy",
+					"content": "We may update this Privacy Policy from time to time. We will notify you of significant changes via email or through the Service. Your continued use of the Service after changes constitutes acceptance of the updated policy."
+				},
+				"contact": {
+					"title": "11. Contact Us",
+					"content": "If you have questions about this Privacy Policy or want to exercise your data rights, please contact us through the application or at the email address provided in your account settings."
+				}
+			},
+			"links": {
+				"title": "📄 Read Full Legal Documents",
+				"description": "Important: For complete legal information, please read the full documents:",
+				"privacyPolicy": "Full Privacy Policy",
+				"note": "💡 This link will open in a new tab so you can read the full document while keeping this dialog open."
+			}
+		}
+	},
+	"home": {
+		"welcome": "Welcome to Agraria",
+		"description": "Manage your agricultural parcels and treatments",
+		"getStarted": "Get Started"
+	}
+}

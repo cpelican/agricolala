@@ -1,377 +1,379 @@
 {
-  "common": {
-    "save": "Salva",
-    "cancel": "Annulla",
-    "delete": "Elimina",
-    "edit": "Modifica",
-    "add": "Aggiungi",
-    "back": "Indietro",
-    "loading": "Caricamento...",
-    "error": "Errore",
-    "success": "Successo",
-    "close": "Chiudi",
-    "confirm": "Conferma",
-    "yes": "Sì",
-    "no": "No"
-  },
-  "navigation": {
-    "home": "Home",
-    "parcels": "Campi",
-    "treatments": "Trattamenti",
-    "profile": "Profilo"
-  },
-  "parcels": {
-    "title": "Campi",
-    "description": "Gestisci i tuoi vigneti",
-    "addParcel": "Aggiungi Campo",
-    "addNewParcel": "Aggiungi Nuovo Campo",
-    "addNewParcelDescription": "Aggiungi un nuovo campo al tuo sistema di gestione vigneti",
-    "parcelName": "Nome Campo",
-    "parcelNamePlaceholder": "es. Campo Nord",
-    "parcelType": "Tipo Campo",
-    "cultureType": "Tipo di Coltura",
-    "coordinates": "Coordinate",
-    "width": "Larghezza (metri)",
-    "height": "Altezza (metri)",
-    "latitude": "Latitudine",
-    "longitude": "Longitudine",
-    "latitudePlaceholder": "45.0000",
-    "longitudePlaceholder": "7.0000",
-    "widthPlaceholder": "100",
-    "heightPlaceholder": "50",
-    "wineyard": "Vigneto",
-    "peaches": "Pesche",
-    "noParcels": "Nessun campo trovato",
-    "deleteParcel": "Elimina Campo",
-    "deleteParcelConfirm": "Sei sicuro di voler eliminare questo campo?",
-    "parcelDeleted": "Campo eliminato con successo",
-    "parcelAdded": "Campo aggiunto con successo",
-    "parcelUpdated": "Campo aggiornato con successo",
-    "enterParcelName": "Inserisci nome campo",
-    "selectParcelType": "Seleziona tipo campo",
-    "enterCoordinates": "Inserisci coordinate",
-    "enterWidth": "Inserisci larghezza",
-    "enterHeight": "Inserisci altezza",
-    "clickMapToAdd": "Clicca sulla mappa per aggiungere un campo",
-    "clickMapToAddFirst": "Clicca sulla mappa per aggiungere il tuo primo campo",
-    "zoomInToFindLocation": "Zooma per trovare la tua posizione esatta",
-    "cancel": "Annulla",
-    "adding": "Aggiunta...",
-    "addParcelButton": "Aggiungi Campo",
-    "upcomingTreatments": "Trattamenti In Arrivo",
-    "pastTreatments": "Trattamenti Passati",
-    "noPastTreatments": "Nessun trattamento passato",
-    "trackSubstanceApplications": "Monitora le tue applicazioni di sostanze per questo campo",
-    "productDose": "L/ha",
-    "errors": {
-      "createFailed": "Impossibile creare il campo"
-    }
-  },
-  "treatments": {
-    "title": "Trattamenti",
-    "description": "Gestisci tutti i tuoi trattamenti di vigneto",
-    "addTreatment": "Aggiungi Trattamento",
-    "addTreatmentDescription": "Aggiungi un nuovo trattamento per questo campo. Compila i dettagli qui sotto.",
-    "applicationDate": "Data Applicazione",
-    "pickDate": "Scegli una data",
-    "parcels": "Campi",
-    "addParcel": "Aggiungi Campo",
-    "selectParcel": "Seleziona campo",
-    "diseases": "Malattie",
-    "addDisease": "Aggiungi Malattia",
-    "selectDisease": "Seleziona malattia",
-    "products": "Prodotti",
-    "dosesInGrams": "Dosi in grammi (g)",
-    "addProduct": "Aggiungi Prodotto",
-    "selectProduct": "Seleziona prodotto",
-    "waterDose": "Dose Acqua (L)",
-    "cancel": "Annulla",
-    "creating": "Creazione...",
-    "createTreatment": "Crea Trattamento",
-    "status": {
-      "todo": "Da Fare",
-      "done": "Fatto"
-    },
-    "appliedDate": "Data Applicazione",
-    "noTreatments": "Nessun trattamento trovato",
-    "deleteTreatment": "Elimina Trattamento",
-    "deleteTreatmentConfirm": "Sei sicuro di voler eliminare questo trattamento?",
-    "treatmentDeleted": "Trattamento eliminato con successo",
-    "treatmentAdded": "Trattamento aggiunto con successo",
-    "treatmentUpdated": "Trattamento aggiornato con successo",
-    "selectDiseases": "Seleziona malattie",
-    "selectProducts": "Seleziona prodotti",
-    "enterWaterDose": "Inserisci dose acqua",
-    "selectAppliedDate": "Seleziona data applicazione",
-    "noTreatmentsDescription": "I trattamenti appariranno qui una volta aggiunti i campi e creati i trattamenti",
-    "upcoming": "In Arrivo",
-    "completed": "Completati",
-    "errors": {
-      "applicationDateRequired": "La data di applicazione è obbligatoria",
-      "parcelRequired": "Almeno un campo è obbligatorio",
-      "diseaseRequired": "Almeno una malattia è obbligatoria",
-      "productRequired": "Almeno un prodotto con dose valida è obbligatorio",
-      "waterDoseRequired": "La dose d'acqua deve essere maggiore di 0",
-      "createFailed": "Impossibile creare il trattamento"
-    },
-    "warnings": {
-      "doseAdvice": "Si consiglia di non superare la dose di"
-    }
-  },
-  "profile": {
-    "title": "Profilo",
-    "email": "Email",
-    "language": "Lingua",
-    "signOut": "Esci",
-    "languageChanged": "Lingua cambiata con successo",
-    "accountSettings": "Impostazioni Account",
-    "accountInformation": "Informazioni Account",
-    "accountDetails": "I dettagli del tuo profilo",
-    "languageDescription": "Scegli la tua lingua preferita",
-    "actions": "Azioni",
-    "accountManagement": "Opzioni di gestione account",
-    "aboutAgricolala": "Su Agricolala",
-    "aboutDescription": "Agricolala ti aiuta a gestire i trattamenti del tuo vigneto e monitorare l'uso delle sostanze per garantire la conformità alle normative agricole."
-  },
-  "auth": {
-    "signIn": "Accedi",
-    "signOut": "Esci",
-    "email": "Email",
-    "password": "Password",
-    "signInWithGoogle": "Accedi con Google",
-    "unauthorizedMessage": "Questa app è ancora in fase di sviluppo, quindi preferiamo sapere un po' chi la userà. Contatta l'amministratore per sbloccare il tuo account.",
-    "title": "Agricolala",
-    "description": "Gestisci i trattamenti e i campi della tua vigna"
-  },
-  "diseases": {
-    "peronospora": "Peronospora",
-    "oidium": "Oidio"
-  },
-  "substances": {
-    "copper": "Rame",
-    "sulfur": "Zolfo",
-    "usageThisYear": "Uso delle sostanze quest'anno",
-    "trackApplications": "Monitora le tue applicazioni di sostanze in tutti i trattamenti",
-    "trackApplicationsHome": "Monitora le tue applicazioni di sostanze in tutti i campi",
-    "cumulatedDoses": "Dosi Cumulate",
-    "grOfProduct": "gr di prodotto",
-    "grOfPureActiveSubstance": "gr di sostanza attiva pura",
-    "kgPerHa": "kg/ha di sostanza attiva pura",
-    "max": "Max",
-    "noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno"
-  },
-  "deleteTreatment": {
-    "title": "Elimina Trattamento",
-    "description": "Sei sicuro di voler eliminare il trattamento \"{name}\"? Questa azione non può essere annullata.",
-    "warningTitle": "Questo rimuoverà permanentemente:",
-    "warningItems": [
-      "Il trattamento e tutti i suoi dati",
-      "Tutte le applicazioni di prodotto per questo trattamento",
-      "I calcoli dell'uso delle sostanze saranno aggiornati"
-    ],
-    "cancel": "Annulla",
-    "delete": "Elimina Trattamento",
-    "deleting": "Eliminazione..."
-  },
-  "deleteParcel": {
-    "title": "Elimina Campo",
-    "description": "Sei sicuro di voler eliminare \"{name}\"? Questa azione non può essere annullata e rimuoverà permanentemente:",
-    "warningItems": [
-      "Il campo e tutti i suoi dati",
-      "Tutti i trattamenti associati a questo campo",
-      "Tutte le applicazioni di prodotto per quei trattamenti"
-    ],
-    "cancel": "Annulla",
-    "delete": "Elimina Campo",
-    "deleting": "Eliminazione...",
-    "error": "Impossibile eliminare il campo"
-  },
-  "backButton": {
-    "back": "Indietro"
-  },
-  "legal": {
-    "title": "Legale",
-    "description": "Termini e informazioni sulla privacy",
-    "privacyPolicy": "Informativa Privacy",
-    "termsOfService": "Termini di Servizio",
-    "acceptTerms": "Accetto i termini di servizio",
-    "acceptPrivacy": "Accetto l'informativa privacy",
-    "acceptedOn": "Termini di Servizio e Informativa Privacy accettati il",
-    "notAccepted": "Termini di Servizio e Informativa Privacy non accettati",
-    "readTerms": "Leggi i termini completi",
-    "howWeHandleData": "Come gestiamo i tuoi dati",
-    "tos": {
-      "sections": {
-        "acceptance": {
-          "title": "1. Accettazione dei Termini",
-          "content": "Accedendo e utilizzando Agraria PWA (\"il Servizio\"), accetti e accetti di essere vincolato dai termini e dalle disposizioni di questo accordo. Se non accetti di rispettare quanto sopra, non utilizzare questo servizio."
-        },
-        "description": {
-          "title": "2. Descrizione del Servizio",
-          "content": "Agraria PWA è un'applicazione di gestione agricola che consente agli utenti di:",
-          "listItems": [
-            "Tracciare le parcelle agricole e le loro caratteristiche",
-            "Registrare le applicazioni di trattamenti e l'uso di prodotti chimici",
-            "Monitorare l'uso delle sostanze e la conformità",
-            "Generare report e analisi per le operazioni agricole"
-          ]
-        },
-        "responsibilities": {
-          "title": "3. Responsabilità dell'Utente",
-          "content": "Come utente di questo Servizio, accetti di:",
-          "listItems": [
-            "Fornire informazioni accurate e complete sulle tue operazioni agricole",
-            "Rispettare tutte le normative agricole locali, statali e federali applicabili",
-            "Utilizzare il Servizio solo per scopi agricoli legittimi",
-            "Mantenere la sicurezza delle credenziali del tuo account",
-            "Non condividere il tuo account con utenti non autorizzati",
-            "Segnalare immediatamente qualsiasi sospetta violazione della sicurezza"
-          ]
-        },
-        "compliance": {
-          "title": "4. Dati Agricoli e Conformità",
-          "content": "Importante Disclaimer: Questa applicazione è progettata per assistere nella tenuta dei registri agricoli e non è un sostituto per consigli agricoli professionali o conformità normativa.",
-          "listItems": [
-            "Gli utenti sono responsabili di garantire la conformità con tutte le normative agricole applicabili",
-            "Il Servizio non garantisce la conformità normativa o i risultati agricoli",
-            "Gli utenti devono verificare tutti i dati di utilizzo dei prodotti chimici rispetto alle etichette ufficiali dei prodotti e alle normative",
-            "Le decisioni agricole dovrebbero essere prese in consultazione con professionisti qualificati"
-          ]
-        },
-        "dataOwnership": {
-          "title": "5. Proprietà e Utilizzo dei Dati",
-          "content": [
-            "I tuoi Dati: Mantieni la proprietà di tutti i dati agricoli che inserisci nel Servizio.",
-            "Utilizzo del Servizio: Potremmo utilizzare dati aggregati e anonimizzati per migliorare il Servizio e fornire analisi, ma non venderemo mai i tuoi dati agricoli individuali a terzi.",
-            "Esportazione dei Dati: Puoi esportare i tuoi dati in qualsiasi momento attraverso le funzionalità di esportazione del Servizio."
-          ]
-        },
-        "liability": {
-          "title": "6. Limitazione di Responsabilità",
-          "content": "Disclaimer Agricolo: Il Servizio è fornito \"così com'è\" senza garanzie di alcun tipo. Non siamo responsabili per:",
-          "listItems": [
-            "Perdite di raccolto o risultati agricoli basati sui dati inseriti nel Servizio",
-            "Problemi di conformità normativa o violazioni",
-            "Tassi di applicazione chimica o tempistica non corretti",
-            "Interruzioni del servizio o perdita di dati",
-            "Decisioni prese sulla base delle informazioni fornite dal Servizio"
-          ]
-        }
-      },
-      "links": {
-        "title": "📄 Leggi i Documenti Legali Completi",
-        "description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
-        "termsOfService": "Termini di Servizio Completi",
-        "privacyPolicy": "Informativa Privacy Completa",
-        "note": "💡 Questi link si apriranno in una nuova scheda così puoi leggere i documenti completi mantenendo aperta questa finestra."
-      }
-    },
-    "privacy": {
-      "sections": {
-        "information": {
-          "title": "1. Informazioni che Raccogliamo",
-          "content": [
-            "Informazioni Account: Quando crei un account, raccogliamo il tuo nome, indirizzo email e informazioni di autenticazione.",
-            "Dati Agricoli: Raccogliamo i dati che inserisci sulle tue operazioni agricole, inclusi:"
-          ],
-          "listItems": [
-            "Informazioni sulle parcelle (posizione, dimensione, tipo di coltura)",
-            "Applicazioni di trattamenti e tempistica",
-            "Utilizzo di prodotti chimici e monitoraggio delle sostanze",
-            "Applicazioni di prodotti e dosaggi",
-            "Registri di gestione di malattie e parassiti"
-          ],
-          "additionalContent": "Dati di Utilizzo: Raccogliamo informazioni su come utilizzi il Servizio, inclusi orari di accesso, funzionalità utilizzate e dati sulle prestazioni."
-        },
-        "usage": {
-          "title": "2. Come Utilizziamo le Tue Informazioni",
-          "content": "Utilizziamo le tue informazioni per:",
-          "listItems": [
-            "Fornire e mantenere il Servizio",
-            "Generare report agricoli e analisi",
-            "Calcolare aggregazioni di utilizzo delle sostanze",
-            "Inviarti aggiornamenti importanti sul Servizio",
-            "Migliorare e sviluppare nuove funzionalità",
-            "Garantire la conformità alle normative agricole",
-            "Fornire supporto clienti"
-          ]
-        },
-        "sharing": {
-          "title": "3. Condivisione e Divulgazione dei Dati",
-          "content": [
-            "Non vendiamo i tuoi dati agricoli a terzi.",
-            "Potremmo condividere le tue informazioni nelle seguenti circostanze limitate:"
-          ],
-          "listItems": [
-            "Fornitori di Servizi: Con servizi di terze parti fidati che ci aiutano a operare il Servizio (hosting, analisi, ecc.)",
-            "Requisiti Legali: Quando richiesto dalla legge o per proteggere i nostri diritti e la sicurezza",
-            "Conformità Normativa: Quando necessario per rispettare le normative agricole",
-            "Dati Aggregati: Potremmo condividere dati anonimizzati e aggregati per scopi di ricerca o analisi"
-          ]
-        },
-        "security": {
-          "title": "4. Sicurezza dei Dati",
-          "content": "Implementiamo misure di sicurezza appropriate per proteggere i tuoi dati agricoli:",
-          "listItems": [
-            "Crittografia dei dati in transito e a riposo",
-            "Autenticazione sicura e controlli di accesso",
-            "Audit di sicurezza regolari e aggiornamenti",
-            "Accesso limitato ai tuoi dati solo da parte di personale autorizzato",
-            "Procedure di backup e ripristino di emergenza"
-          ]
-        },
-        "retention": {
-          "title": "5. Conservazione dei Dati",
-          "content": [
-            "Registri Agricoli: Conserviamo i tuoi dati agricoli per tutto il tempo in cui il tuo account è attivo, poiché questi registri sono spesso richiesti per la conformità normativa e potrebbero dover essere mantenuti per diversi anni.",
-            "Dati Account: Conserviamo le informazioni del tuo account per tutto il tempo in cui il tuo account è attivo, più un periodo ragionevole per scopi di backup e ripristino.",
-            "Eliminazione: Puoi richiedere l'eliminazione dei tuoi dati, ma nota che i registri agricoli potrebbero dover essere mantenuti per scopi di conformità normativa."
-          ]
-        },
-        "rights": {
-          "title": "6. I Tuoi Diritti",
-          "content": "Hai i seguenti diritti riguardo ai tuoi dati:",
-          "listItems": [
-            "Accesso: Visualizzare e scaricare i tuoi dati agricoli",
-            "Correzione: Aggiornare o correggere informazioni inaccurate",
-            "Esportazione: Esportare i tuoi dati in un formato portabile",
-            "Eliminazione: Richiedere l'eliminazione dei tuoi dati (soggetto ai requisiti normativi)",
-            "Limitazione: Limitare come elaboriamo i tuoi dati",
-            "Portabilità: Trasferire i tuoi dati a un altro servizio"
-          ]
-        },
-        "cookies": {
-          "title": "7. Cookie e Tracciamento",
-          "content": "Utilizziamo cookie essenziali per fornire la funzionalità del Servizio. Non utilizziamo cookie di tracciamento o analisi di terze parti che potrebbero compromettere la tua privacy."
-        },
-        "children": {
-          "title": "8. Privacy dei Minori",
-          "content": "Il nostro Servizio non è destinato a minori di 13 anni. Non raccogliamo consapevolmente informazioni personali da minori di 13 anni. Se sei un genitore o tutore e ritieni che tuo figlio ci abbia fornito informazioni personali, contattaci."
-        },
-        "international": {
-          "title": "9. Trasferimenti Internazionali di Dati",
-          "content": "I tuoi dati potrebbero essere elaborati in paesi diversi dal tuo. Assicuriamo che siano in atto garanzie appropriate per proteggere i tuoi dati in conformità con le leggi sulla protezione dei dati applicabili."
-        },
-        "changes": {
-          "title": "10. Modifiche a Questa Politica",
-          "content": "Potremmo aggiornare questa Informativa Privacy di tanto in tanto. Ti notificheremo modifiche significative via email o attraverso il Servizio. Il tuo uso continuato del Servizio dopo le modifiche costituisce accettazione della politica aggiornata."
-        },
-        "contact": {
-          "title": "11. Contattaci",
-          "content": "Se hai domande su questa Informativa Privacy o vuoi esercitare i tuoi diritti sui dati, contattaci attraverso l'applicazione o all'indirizzo email fornito nelle impostazioni del tuo account."
-        }
-      },
-      "links": {
-        "title": "📄 Leggi i Documenti Legali Completi",
-        "description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
-        "privacyPolicy": "Informativa Privacy Completa",
-        "note": "💡 Questo link si aprirà in una nuova scheda così puoi leggere il documento completo mantenendo aperta questa finestra."
-      }
-    }
-  },
-  "home": {
-    "welcome": "Benvenuto in Agraria",
-    "description": "Gestisci le tue parcelle agricole e trattamenti",
-    "getStarted": "Inizia"
-  }
-} 
+	"common": {
+		"save": "Salva",
+		"cancel": "Annulla",
+		"delete": "Elimina",
+		"edit": "Modifica",
+		"add": "Aggiungi",
+		"back": "Indietro",
+		"loading": "Caricamento...",
+		"error": "Errore",
+		"success": "Successo",
+		"close": "Chiudi",
+		"confirm": "Conferma",
+		"yes": "Sì",
+		"no": "No"
+	},
+	"navigation": {
+		"home": "Home",
+		"parcels": "Campi",
+		"treatments": "Trattamenti",
+		"profile": "Profilo"
+	},
+	"parcels": {
+		"title": "Campi",
+		"description": "Gestisci i tuoi vigneti",
+		"addParcel": "Aggiungi Campo",
+		"addNewParcel": "Aggiungi Nuovo Campo",
+		"addNewParcelDescription": "Aggiungi un nuovo campo al tuo sistema di gestione vigneti",
+		"parcelName": "Nome Campo",
+		"parcelNamePlaceholder": "es. Campo Nord",
+		"parcelType": "Tipo Campo",
+		"cultureType": "Tipo di Coltura",
+		"coordinates": "Coordinate",
+		"width": "Larghezza (metri)",
+		"height": "Altezza (metri)",
+		"latitude": "Latitudine",
+		"longitude": "Longitudine",
+		"latitudePlaceholder": "45.0000",
+		"longitudePlaceholder": "7.0000",
+		"widthPlaceholder": "100",
+		"heightPlaceholder": "50",
+		"wineyard": "Vigneto",
+		"peaches": "Pesche",
+		"noParcels": "Nessun campo trovato",
+		"deleteParcel": "Elimina Campo",
+		"deleteParcelConfirm": "Sei sicuro di voler eliminare questo campo?",
+		"parcelDeleted": "Campo eliminato con successo",
+		"parcelAdded": "Campo aggiunto con successo",
+		"parcelUpdated": "Campo aggiornato con successo",
+		"enterParcelName": "Inserisci nome campo",
+		"selectParcelType": "Seleziona tipo campo",
+		"enterCoordinates": "Inserisci coordinate",
+		"enterWidth": "Inserisci larghezza",
+		"enterHeight": "Inserisci altezza",
+		"clickMapToAdd": "Clicca sulla mappa per aggiungere un campo",
+		"clickMapToAddFirst": "Clicca sulla mappa per aggiungere il tuo primo campo",
+		"zoomInToFindLocation": "Zooma per trovare la tua posizione esatta",
+		"cancel": "Annulla",
+		"adding": "Aggiunta...",
+		"addParcelButton": "Aggiungi Campo",
+		"upcomingTreatments": "Trattamenti In Arrivo",
+		"pastTreatments": "Trattamenti Passati",
+		"noPastTreatments": "Nessun trattamento passato",
+		"trackSubstanceApplications": "Monitora le tue applicazioni di sostanze per questo campo",
+		"productDose": "L/ha",
+		"errors": {
+			"createFailed": "Impossibile creare il campo"
+		}
+	},
+	"treatments": {
+		"title": "Trattamenti",
+		"description": "Gestisci tutti i tuoi trattamenti di vigneto",
+		"addTreatment": "Aggiungi Trattamento",
+		"addTreatmentDescription": "Aggiungi un nuovo trattamento per questo campo. Compila i dettagli qui sotto.",
+		"applicationDate": "Data Applicazione",
+		"pickDate": "Scegli una data",
+		"parcels": "Campi",
+		"addParcel": "Aggiungi Campo",
+		"selectParcel": "Seleziona campo",
+		"diseases": "Malattie",
+		"addDisease": "Aggiungi Malattia",
+		"selectDisease": "Seleziona malattia",
+		"products": "Prodotti",
+		"dosesInGrams": "Dosi in grammi (g)",
+		"addProduct": "Aggiungi Prodotto",
+		"selectProduct": "Seleziona prodotto",
+		"waterDose": "Dose Acqua (L)",
+		"cancel": "Annulla",
+		"creating": "Creazione...",
+		"createTreatment": "Crea Trattamento",
+		"status": {
+			"todo": "Da Fare",
+			"done": "Fatto"
+		},
+		"appliedDate": "Data Applicazione",
+		"noTreatments": "Nessun trattamento trovato",
+		"deleteTreatment": "Elimina Trattamento",
+		"deleteTreatmentConfirm": "Sei sicuro di voler eliminare questo trattamento?",
+		"treatmentDeleted": "Trattamento eliminato con successo",
+		"treatmentAdded": "Trattamento aggiunto con successo",
+		"treatmentUpdated": "Trattamento aggiornato con successo",
+		"selectDiseases": "Seleziona malattie",
+		"selectProducts": "Seleziona prodotti",
+		"enterWaterDose": "Inserisci dose acqua",
+		"selectAppliedDate": "Seleziona data applicazione",
+		"noTreatmentsDescription": "I trattamenti appariranno qui una volta aggiunti i campi e creati i trattamenti",
+		"upcoming": "In Arrivo",
+		"completed": "Completati",
+		"errors": {
+			"applicationDateRequired": "La data di applicazione è obbligatoria",
+			"parcelRequired": "Almeno un campo è obbligatorio",
+			"diseaseRequired": "Almeno una malattia è obbligatoria",
+			"productRequired": "Almeno un prodotto con dose valida è obbligatorio",
+			"waterDoseRequired": "La dose d'acqua deve essere maggiore di 0",
+			"createFailed": "Impossibile creare il trattamento"
+		},
+		"warnings": {
+			"doseAdvice": "Si consiglia di non superare la dose di"
+		}
+	},
+	"profile": {
+		"it": "Italiano",
+		"en": "Inglese",
+		"title": "Profilo",
+		"email": "Email",
+		"language": "Lingua",
+		"signOut": "Esci",
+		"languageChanged": "Lingua cambiata con successo",
+		"accountSettings": "Impostazioni Account",
+		"accountInformation": "Informazioni Account",
+		"accountDetails": "I dettagli del tuo profilo",
+		"languageDescription": "Scegli la tua lingua preferita",
+		"actions": "Azioni",
+		"accountManagement": "Opzioni di gestione account",
+		"aboutAgricolala": "Su Agricolala",
+		"aboutDescription": "Agricolala ti aiuta a gestire i trattamenti del tuo vigneto e monitorare l'uso delle sostanze per garantire la conformità alle normative agricole."
+	},
+	"auth": {
+		"signIn": "Accedi",
+		"signOut": "Esci",
+		"email": "Email",
+		"password": "Password",
+		"signInWithGoogle": "Accedi con Google",
+		"unauthorizedMessage": "Questa app è ancora in fase di sviluppo, quindi preferiamo sapere un po' chi la userà. Contatta l'amministratore per sbloccare il tuo account.",
+		"title": "Agricolala",
+		"description": "Gestisci i trattamenti e i campi della tua vigna"
+	},
+	"diseases": {
+		"peronospora": "Peronospora",
+		"oidium": "Oidio"
+	},
+	"substances": {
+		"copper": "Rame",
+		"sulfur": "Zolfo",
+		"usageThisYear": "Uso delle sostanze quest'anno",
+		"trackApplications": "Monitora le tue applicazioni di sostanze in tutti i trattamenti",
+		"trackApplicationsHome": "Monitora le tue applicazioni di sostanze in tutti i campi",
+		"cumulatedDoses": "Dosi Cumulate",
+		"grOfProduct": "gr di prodotto",
+		"grOfPureActiveSubstance": "gr di sostanza attiva pura",
+		"kgPerHa": "kg/ha di sostanza attiva pura",
+		"max": "Max",
+		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno"
+	},
+	"deleteTreatment": {
+		"title": "Elimina Trattamento",
+		"description": "Sei sicuro di voler eliminare il trattamento \"{name}\"? Questa azione non può essere annullata.",
+		"warningTitle": "Questo rimuoverà permanentemente:",
+		"warningItems": [
+			"Il trattamento e tutti i suoi dati",
+			"Tutte le applicazioni di prodotto per questo trattamento",
+			"I calcoli dell'uso delle sostanze saranno aggiornati"
+		],
+		"cancel": "Annulla",
+		"delete": "Elimina Trattamento",
+		"deleting": "Eliminazione..."
+	},
+	"deleteParcel": {
+		"title": "Elimina Campo",
+		"description": "Sei sicuro di voler eliminare \"{name}\"? Questa azione non può essere annullata e rimuoverà permanentemente:",
+		"warningItems": [
+			"Il campo e tutti i suoi dati",
+			"Tutti i trattamenti associati a questo campo",
+			"Tutte le applicazioni di prodotto per quei trattamenti"
+		],
+		"cancel": "Annulla",
+		"delete": "Elimina Campo",
+		"deleting": "Eliminazione...",
+		"error": "Impossibile eliminare il campo"
+	},
+	"backButton": {
+		"back": "Indietro"
+	},
+	"legal": {
+		"title": "Legale",
+		"description": "Termini e informazioni sulla privacy",
+		"privacyPolicy": "Informativa Privacy",
+		"termsOfService": "Termini di Servizio",
+		"acceptTerms": "Accetto i termini di servizio",
+		"acceptPrivacy": "Accetto l'informativa privacy",
+		"acceptedOn": "Termini di Servizio e Informativa Privacy accettati il",
+		"notAccepted": "Termini di Servizio e Informativa Privacy non accettati",
+		"readTerms": "Leggi i termini completi",
+		"howWeHandleData": "Come gestiamo i tuoi dati",
+		"tos": {
+			"sections": {
+				"acceptance": {
+					"title": "1. Accettazione dei Termini",
+					"content": "Accedendo e utilizzando Agraria PWA (\"il Servizio\"), accetti e accetti di essere vincolato dai termini e dalle disposizioni di questo accordo. Se non accetti di rispettare quanto sopra, non utilizzare questo servizio."
+				},
+				"description": {
+					"title": "2. Descrizione del Servizio",
+					"content": "Agraria PWA è un'applicazione di gestione agricola che consente agli utenti di:",
+					"listItems": [
+						"Tracciare le parcelle agricole e le loro caratteristiche",
+						"Registrare le applicazioni di trattamenti e l'uso di prodotti chimici",
+						"Monitorare l'uso delle sostanze e la conformità",
+						"Generare report e analisi per le operazioni agricole"
+					]
+				},
+				"responsibilities": {
+					"title": "3. Responsabilità dell'Utente",
+					"content": "Come utente di questo Servizio, accetti di:",
+					"listItems": [
+						"Fornire informazioni accurate e complete sulle tue operazioni agricole",
+						"Rispettare tutte le normative agricole locali, statali e federali applicabili",
+						"Utilizzare il Servizio solo per scopi agricoli legittimi",
+						"Mantenere la sicurezza delle credenziali del tuo account",
+						"Non condividere il tuo account con utenti non autorizzati",
+						"Segnalare immediatamente qualsiasi sospetta violazione della sicurezza"
+					]
+				},
+				"compliance": {
+					"title": "4. Dati Agricoli e Conformità",
+					"content": "Importante Disclaimer: Questa applicazione è progettata per assistere nella tenuta dei registri agricoli e non è un sostituto per consigli agricoli professionali o conformità normativa.",
+					"listItems": [
+						"Gli utenti sono responsabili di garantire la conformità con tutte le normative agricole applicabili",
+						"Il Servizio non garantisce la conformità normativa o i risultati agricoli",
+						"Gli utenti devono verificare tutti i dati di utilizzo dei prodotti chimici rispetto alle etichette ufficiali dei prodotti e alle normative",
+						"Le decisioni agricole dovrebbero essere prese in consultazione con professionisti qualificati"
+					]
+				},
+				"dataOwnership": {
+					"title": "5. Proprietà e Utilizzo dei Dati",
+					"content": [
+						"I tuoi Dati: Mantieni la proprietà di tutti i dati agricoli che inserisci nel Servizio.",
+						"Utilizzo del Servizio: Potremmo utilizzare dati aggregati e anonimizzati per migliorare il Servizio e fornire analisi, ma non venderemo mai i tuoi dati agricoli individuali a terzi.",
+						"Esportazione dei Dati: Puoi esportare i tuoi dati in qualsiasi momento attraverso le funzionalità di esportazione del Servizio."
+					]
+				},
+				"liability": {
+					"title": "6. Limitazione di Responsabilità",
+					"content": "Disclaimer Agricolo: Il Servizio è fornito \"così com'è\" senza garanzie di alcun tipo. Non siamo responsabili per:",
+					"listItems": [
+						"Perdite di raccolto o risultati agricoli basati sui dati inseriti nel Servizio",
+						"Problemi di conformità normativa o violazioni",
+						"Tassi di applicazione chimica o tempistica non corretti",
+						"Interruzioni del servizio o perdita di dati",
+						"Decisioni prese sulla base delle informazioni fornite dal Servizio"
+					]
+				}
+			},
+			"links": {
+				"title": "📄 Leggi i Documenti Legali Completi",
+				"description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
+				"termsOfService": "Termini di Servizio Completi",
+				"privacyPolicy": "Informativa Privacy Completa",
+				"note": "💡 Questi link si apriranno in una nuova scheda così puoi leggere i documenti completi mantenendo aperta questa finestra."
+			}
+		},
+		"privacy": {
+			"sections": {
+				"information": {
+					"title": "1. Informazioni che Raccogliamo",
+					"content": [
+						"Informazioni Account: Quando crei un account, raccogliamo il tuo nome, indirizzo email e informazioni di autenticazione.",
+						"Dati Agricoli: Raccogliamo i dati che inserisci sulle tue operazioni agricole, inclusi:"
+					],
+					"listItems": [
+						"Informazioni sulle parcelle (posizione, dimensione, tipo di coltura)",
+						"Applicazioni di trattamenti e tempistica",
+						"Utilizzo di prodotti chimici e monitoraggio delle sostanze",
+						"Applicazioni di prodotti e dosaggi",
+						"Registri di gestione di malattie e parassiti"
+					],
+					"additionalContent": "Dati di Utilizzo: Raccogliamo informazioni su come utilizzi il Servizio, inclusi orari di accesso, funzionalità utilizzate e dati sulle prestazioni."
+				},
+				"usage": {
+					"title": "2. Come Utilizziamo le Tue Informazioni",
+					"content": "Utilizziamo le tue informazioni per:",
+					"listItems": [
+						"Fornire e mantenere il Servizio",
+						"Generare report agricoli e analisi",
+						"Calcolare aggregazioni di utilizzo delle sostanze",
+						"Inviarti aggiornamenti importanti sul Servizio",
+						"Migliorare e sviluppare nuove funzionalità",
+						"Garantire la conformità alle normative agricole",
+						"Fornire supporto clienti"
+					]
+				},
+				"sharing": {
+					"title": "3. Condivisione e Divulgazione dei Dati",
+					"content": [
+						"Non vendiamo i tuoi dati agricoli a terzi.",
+						"Potremmo condividere le tue informazioni nelle seguenti circostanze limitate:"
+					],
+					"listItems": [
+						"Fornitori di Servizi: Con servizi di terze parti fidati che ci aiutano a operare il Servizio (hosting, analisi, ecc.)",
+						"Requisiti Legali: Quando richiesto dalla legge o per proteggere i nostri diritti e la sicurezza",
+						"Conformità Normativa: Quando necessario per rispettare le normative agricole",
+						"Dati Aggregati: Potremmo condividere dati anonimizzati e aggregati per scopi di ricerca o analisi"
+					]
+				},
+				"security": {
+					"title": "4. Sicurezza dei Dati",
+					"content": "Implementiamo misure di sicurezza appropriate per proteggere i tuoi dati agricoli:",
+					"listItems": [
+						"Crittografia dei dati in transito e a riposo",
+						"Autenticazione sicura e controlli di accesso",
+						"Audit di sicurezza regolari e aggiornamenti",
+						"Accesso limitato ai tuoi dati solo da parte di personale autorizzato",
+						"Procedure di backup e ripristino di emergenza"
+					]
+				},
+				"retention": {
+					"title": "5. Conservazione dei Dati",
+					"content": [
+						"Registri Agricoli: Conserviamo i tuoi dati agricoli per tutto il tempo in cui il tuo account è attivo, poiché questi registri sono spesso richiesti per la conformità normativa e potrebbero dover essere mantenuti per diversi anni.",
+						"Dati Account: Conserviamo le informazioni del tuo account per tutto il tempo in cui il tuo account è attivo, più un periodo ragionevole per scopi di backup e ripristino.",
+						"Eliminazione: Puoi richiedere l'eliminazione dei tuoi dati, ma nota che i registri agricoli potrebbero dover essere mantenuti per scopi di conformità normativa."
+					]
+				},
+				"rights": {
+					"title": "6. I Tuoi Diritti",
+					"content": "Hai i seguenti diritti riguardo ai tuoi dati:",
+					"listItems": [
+						"Accesso: Visualizzare e scaricare i tuoi dati agricoli",
+						"Correzione: Aggiornare o correggere informazioni inaccurate",
+						"Esportazione: Esportare i tuoi dati in un formato portabile",
+						"Eliminazione: Richiedere l'eliminazione dei tuoi dati (soggetto ai requisiti normativi)",
+						"Limitazione: Limitare come elaboriamo i tuoi dati",
+						"Portabilità: Trasferire i tuoi dati a un altro servizio"
+					]
+				},
+				"cookies": {
+					"title": "7. Cookie e Tracciamento",
+					"content": "Utilizziamo cookie essenziali per fornire la funzionalità del Servizio. Non utilizziamo cookie di tracciamento o analisi di terze parti che potrebbero compromettere la tua privacy."
+				},
+				"children": {
+					"title": "8. Privacy dei Minori",
+					"content": "Il nostro Servizio non è destinato a minori di 13 anni. Non raccogliamo consapevolmente informazioni personali da minori di 13 anni. Se sei un genitore o tutore e ritieni che tuo figlio ci abbia fornito informazioni personali, contattaci."
+				},
+				"international": {
+					"title": "9. Trasferimenti Internazionali di Dati",
+					"content": "I tuoi dati potrebbero essere elaborati in paesi diversi dal tuo. Assicuriamo che siano in atto garanzie appropriate per proteggere i tuoi dati in conformità con le leggi sulla protezione dei dati applicabili."
+				},
+				"changes": {
+					"title": "10. Modifiche a Questa Politica",
+					"content": "Potremmo aggiornare questa Informativa Privacy di tanto in tanto. Ti notificheremo modifiche significative via email o attraverso il Servizio. Il tuo uso continuato del Servizio dopo le modifiche costituisce accettazione della politica aggiornata."
+				},
+				"contact": {
+					"title": "11. Contattaci",
+					"content": "Se hai domande su questa Informativa Privacy o vuoi esercitare i tuoi diritti sui dati, contattaci attraverso l'applicazione o all'indirizzo email fornito nelle impostazioni del tuo account."
+				}
+			},
+			"links": {
+				"title": "📄 Leggi i Documenti Legali Completi",
+				"description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
+				"privacyPolicy": "Informativa Privacy Completa",
+				"note": "💡 Questo link si aprirà in una nuova scheda così puoi leggere il documento completo mantenendo aperta questa finestra."
+			}
+		}
+	},
+	"home": {
+		"welcome": "Benvenuto in Agraria",
+		"description": "Gestisci le tue parcelle agricole e trattamenti",
+		"getStarted": "Inizia"
+	}
+}
