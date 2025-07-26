@@ -111,6 +111,14 @@
       color: black !important;
     }
   }
+
+  .bg-sidebar {
+    background-color: hsl(var(--sidebar-background));
+  }
+  
+  .border-sidebar-border {
+    border-color: hsl(var(--sidebar-border));
+  }
 }
 
 @layer base {

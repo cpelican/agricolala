@@ -11,7 +11,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface HomeContentUIProps {
 	parcels: ParcelWithTreatments[];

@@ -4,7 +4,7 @@ import type { Disease, Product, Substance } from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,

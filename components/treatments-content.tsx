@@ -10,7 +10,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { TreatmentCard } from "./treatment-card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 import { useDiseases } from "@/contexts/cached-data-context";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface TreatmentsContentProps {
 	treatments: TreatmentType[];

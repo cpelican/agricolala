@@ -15,7 +15,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteTreatment } from "@/lib/actions";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface DeleteTreatmentDialogProps {
 	treatmentId: string;

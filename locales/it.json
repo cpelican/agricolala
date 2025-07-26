@@ -69,7 +69,7 @@
 	},
 	"treatments": {
 		"title": "Trattamenti",
-		"description": "Gestisci tutti i tuoi trattamenti di vigneto",
+		"description": "Gestisci i trattamenti di vigneto",
 		"addTreatment": "Aggiungi Trattamento",
 		"addTreatmentDescription": "Aggiungi un nuovo trattamento per questo campo. Compila i dettagli qui sotto.",
 		"applicationDate": "Data Applicazione",
@@ -206,11 +206,11 @@
 			"sections": {
 				"acceptance": {
 					"title": "1. Accettazione dei Termini",
-					"content": "Accedendo e utilizzando Agraria PWA (\"il Servizio\"), accetti e accetti di essere vincolato dai termini e dalle disposizioni di questo accordo. Se non accetti di rispettare quanto sopra, non utilizzare questo servizio."
+					"content": "Accedendo e utilizzando Agricolala (\"il Servizio\"), accetti e accetti di essere vincolato dai termini e dalle disposizioni di questo accordo. Se non accetti di rispettare quanto sopra, non utilizzare questo servizio."
 				},
 				"description": {
 					"title": "2. Descrizione del Servizio",
-					"content": "Agraria PWA è un'applicazione di gestione agricola che consente agli utenti di:",
+					"content": "Agricolala è un'applicazione di gestione agricola che consente agli utenti di:",
 					"listItems": [
 						"Tracciare le parcelle agricole e le loro caratteristiche",
 						"Registrare le applicazioni di trattamenti e l'uso di prodotti chimici",
@@ -372,7 +372,7 @@
 		}
 	},
 	"home": {
-		"welcome": "Benvenuto in Agraria",
+		"welcome": "Benvenuto",
 		"description": "Gestisci le tue parcelle agricole e trattamenti",
 		"getStarted": "Inizia"
 	}

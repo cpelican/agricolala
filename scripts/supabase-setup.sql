@@ -1,4 +1,4 @@
--- Supabase Setup Script for Agraria PWA
+-- Supabase Setup Script for Agricolala
 -- Run this in Supabase SQL Editor after creating your project
 
 -- Enable Row Level Security on all tables

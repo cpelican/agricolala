@@ -41,7 +41,7 @@ export function TosAcceptanceDialog({
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<FileText className="h-5 w-5" />
-						Welcome to Agraria PWA
+						Welcome to Agricolala
 					</DialogTitle>
 					<DialogDescription>
 						Please read and accept our Terms of Service and Privacy Policy to

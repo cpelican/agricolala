@@ -3,7 +3,6 @@ import { AuthGuard } from "@/components/auth-guard";
 
 import { LayoutWithHeader } from "@/components/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { getTosStatus } from "../../actions/get-tos-status";
 import { ProfileContent } from "@/components/profile-content";
 import { tServer } from "@/lib/translations-server-only";
@@ -34,7 +33,6 @@ export default async function ProfilePage({
 					}}
 					tosStatus={tosStatus}
 				/>
-				<BottomNavigation />
 			</LayoutWithHeader>
 		</AuthGuard>
 	);

@@ -21,7 +21,7 @@ import { SignOutButton } from "@/components/signout-button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ChevronRight } from "lucide-react";
 import { LocaleLink } from "./locale-link";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 import { type getTosStatus } from "@/app/actions/get-tos-status";
 
 interface LegalAcceptanceStatusProps {

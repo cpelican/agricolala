@@ -4,7 +4,7 @@ import { defaultLocale, type Locale } from "./translations-helpers";
 import enDict from "../locales/en.json";
 import itDict from "../locales/it.json";
 
-const dictionaries = {
+export const dictionaries = {
 	en: enDict,
 	it: itDict,
 };

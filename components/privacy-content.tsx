@@ -1,7 +1,7 @@
 "use client";
 import { Shield, ExternalLink } from "lucide-react";
 import { LocaleLink } from "./locale-link";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface PrivacyContentProps {
 	showLinks?: boolean;

@@ -1,4 +1,4 @@
--- Seed data for Agraria PWA
+-- Seed data for Agricolala
 -- Run this in Supabase SQL Editor after setting up RLS
 
 -- Delete existing data (in reverse dependency order)

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface ParcelsContentProps {
 	parcels: ParcelWithTreatments[];

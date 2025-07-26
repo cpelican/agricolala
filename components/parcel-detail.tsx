@@ -9,7 +9,7 @@ import { TreatmentCard } from "./treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
 import { AddTreatmentButton } from "./add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
-import { useTranslations } from "@/hooks/use-translations";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface ParcelDetailProps {
 	parcel: Pick<
