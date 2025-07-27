@@ -1,10 +1,10 @@
 import { User } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
-import { LayoutWithHeader } from "@/components/layout-with-header";
+import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
 import { Suspense } from "react";
-import { ProfileContentAsync } from "@/components/profile-content-async";
+import { ProfileContentAsync } from "@/components/async/profile-content-async";
 import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
 
 export default async function ProfilePage({

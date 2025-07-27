@@ -1,6 +1,6 @@
 import { getTosStatus } from "@/app/actions/get-tos-status";
 import { requireAuth } from "@/lib/auth-utils";
-import { ProfileContent } from "./profile-content";
+import { ProfileContent } from "../profile-content";
 
 export async function ProfileContentAsync() {
 	const session = await requireAuth();

@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { AuthGuard } from "@/components/auth-guard";
-import { TreatmentsContentAsync } from "@/components/treatments-content-async";
-import { AddTreatmentButtonAsync } from "@/components/add-treatment-button-async";
+import { TreatmentsContentAsync } from "@/components/async/treatments-content-async";
+import { AddTreatmentButtonAsync } from "@/components/async/add-treatment-button-async";
 import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
-import { LayoutWithHeader } from "@/components/layout-with-header";
+import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels, getTreatments } from "@/lib/data-fetcher";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";

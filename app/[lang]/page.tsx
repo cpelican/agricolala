@@ -1,8 +1,8 @@
 import { StrictMode, Suspense } from "react";
 import { AuthGuard } from "@/components/auth-guard";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
-import { HomeContent } from "@/components/home-content";
-import { LayoutWithHeader } from "@/components/layout-with-header";
+import { HomeContentAsync } from "@/components/async/home-content-async";
+import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { Grape } from "lucide-react";
 import { tServer } from "@/lib/translations-server-only";
@@ -29,7 +29,7 @@ export default async function Home({
 						icon={<Grape className="w-8 h-8" />}
 					>
 						<Suspense fallback={<HomeSkeleton />}>
-							<HomeContent
+							<HomeContentAsync
 								parcelsPromise={getParcels(session.user.id)}
 								locale={lang}
 							/>

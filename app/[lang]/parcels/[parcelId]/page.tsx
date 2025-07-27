@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Map } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
-import { LayoutWithHeader } from "@/components/layout-with-header";
+import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcel-map-wrapper";
 import {

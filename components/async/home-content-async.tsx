@@ -1,4 +1,4 @@
-import { SubstanceUsageSection } from "./substance-usage-section";
+import { SubstanceUsageSection } from "../substance-usage-section";
 import {
 	getCachedSubstanceAggregations,
 	getCachedSubstances,
@@ -14,7 +14,7 @@ interface HomeContentProps {
 	locale: Locale;
 }
 
-export async function HomeContent({
+export async function HomeContentAsync({
 	parcelsPromise,
 	locale,
 }: HomeContentProps) {

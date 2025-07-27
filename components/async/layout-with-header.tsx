@@ -1,9 +1,9 @@
 import type React from "react";
 import { requireAuth } from "@/lib/auth-utils";
 import { taintUtils } from "@/lib/taint-utils";
-import { BottomNavigation } from "./bottom-navigation";
-import { UnauthorizedMessage } from "./unauthorized-message";
-import { SidebarNavigation } from "./sidebar-navigation";
+import { BottomNavigation } from "../bottom-navigation";
+import { UnauthorizedMessage } from "../unauthorized-message";
+import { SidebarNavigation } from "../sidebar-navigation";
 
 interface LayoutWithHeaderProps {
 	children: React.ReactNode;

@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
-import { LayoutWithHeader } from "@/components/layout-with-header";
+import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { TosContent } from "@/components/tos-content";
 import { BackButton } from "@/components/back-button";
 import { tServer } from "@/lib/translations-server-only";
