@@ -1,13 +1,11 @@
-import { Suspense } from "react";
 import { User } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { LayoutWithHeader } from "@/components/layout-with-header";
-import { requireAuth } from "@/lib/auth-utils";
-import { getTosStatus } from "../../actions/get-tos-status";
-import { ProfileContent } from "@/components/profile-content";
-import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
+import { Suspense } from "react";
+import { ProfileContentAsync } from "@/components/profile-content-async";
+import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
 
 export default async function ProfilePage({
 	params,
@@ -16,8 +14,6 @@ export default async function ProfilePage({
 }) {
 	const { lang } = await params;
 	const dict = tServer(lang);
-	const session = await requireAuth();
-	const tosStatus = await getTosStatus();
 
 	return (
 		<AuthGuard>
@@ -27,14 +23,7 @@ export default async function ProfilePage({
 				icon={<User />}
 			>
 				<Suspense fallback={<ProfileSkeleton />}>
-					<ProfileContent
-						user={{
-							name: session.user?.name || "",
-							email: session.user?.email || "",
-							image: session.user?.image || "",
-						}}
-						tosStatus={tosStatus}
-					/>
+					<ProfileContentAsync />
 				</Suspense>
 			</LayoutWithHeader>
 		</AuthGuard>
