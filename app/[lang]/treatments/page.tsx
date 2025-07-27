@@ -1,16 +1,13 @@
 import { Suspense } from "react";
-import { AuthGuard } from "@/components/auth/auth-guard";
 import { TreatmentsContentAsync } from "@/components/async/treatments-content-async";
 import { AddTreatmentButtonAsync } from "@/components/async/add-treatment-button-async";
 import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
-import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels, getTreatments } from "@/lib/data-fetcher";
-import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
-import { Calendar } from "lucide-react";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
+import { Header } from "@/components/misc/header";
 
 export default async function TreatmentsPage({
 	params,
@@ -22,28 +19,20 @@ export default async function TreatmentsPage({
 	const session = await requireAuth();
 
 	return (
-		<AuthGuard>
-			<CachedDataWrapper>
-				<LayoutWithHeader
-					title={dict.treatments.title}
-					subtitle={
-						dict.treatments.description || "Manage all your wineyard treatments"
-					}
-					icon={<Calendar />}
-				>
-					<ExcelExportDialog className="absolute top-6 right-8" />
-					<Suspense fallback={<TreatmentsSkeleton />}>
-						<TreatmentsContentAsync
-							treatmentsPromise={getTreatments(session.user.id)}
-						/>
-					</Suspense>
-					<Suspense fallback={null}>
-						<AddTreatmentButtonAsync
-							parcelsPromise={getParcels(session.user.id)}
-						/>
-					</Suspense>
-				</LayoutWithHeader>
-			</CachedDataWrapper>
-		</AuthGuard>
+		<>
+			<Header
+				title={dict.treatments.title}
+				subtitle={dict.treatments.description}
+			/>
+			<ExcelExportDialog className="absolute top-3 right-8" />
+			<Suspense fallback={<TreatmentsSkeleton />}>
+				<TreatmentsContentAsync
+					treatmentsPromise={getTreatments(session.user.id)}
+				/>
+			</Suspense>
+			<Suspense fallback={null}>
+				<AddTreatmentButtonAsync parcelsPromise={getParcels(session.user.id)} />
+			</Suspense>
+		</>
 	);
 }

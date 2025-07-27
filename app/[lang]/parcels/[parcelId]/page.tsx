@@ -1,8 +1,5 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { Map } from "lucide-react";
-import { AuthGuard } from "@/components/auth/auth-guard";
-import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { ParcelMapWrapper } from "@/components/parcels/parcel-map-wrapper";
 import {
@@ -13,8 +10,8 @@ import {
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
-import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { type Locale } from "@/lib/translations-helpers";
+import { Header } from "@/components/misc/header";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -65,32 +62,28 @@ export default async function ParcelPage({
 	});
 
 	return (
-		<AuthGuard>
-			<CachedDataWrapper>
-				<LayoutWithHeader
-					title={`${parcel.name}`}
-					subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
-					icon={<Map />}
-				>
-					<Suspense fallback={<ParcelDetailSkeleton />}>
-						<div className="space-y-6">
-							<ParcelDetail
-								parcel={parcel}
-								upcomingTreatments={upcomingTreatments}
-								pastTreatments={pastTreatments}
-								substanceData={enrichedSubstanceData}
-							/>
+		<>
+			<Header
+				title={`${parcel.name}`}
+				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+			/>
+			<Suspense fallback={<ParcelDetailSkeleton />}>
+				<div className="space-y-6">
+					<ParcelDetail
+						parcel={parcel}
+						upcomingTreatments={upcomingTreatments}
+						pastTreatments={pastTreatments}
+						substanceData={enrichedSubstanceData}
+					/>
 
-							<div className="h-64">
-								<ParcelMapWrapper
-									parcels={[parcel]}
-									highlightParcelId={parcel.id}
-								/>
-							</div>
-						</div>
-					</Suspense>
-				</LayoutWithHeader>
-			</CachedDataWrapper>
-		</AuthGuard>
+					<div className="h-64">
+						<ParcelMapWrapper
+							parcels={[parcel]}
+							highlightParcelId={parcel.id}
+						/>
+					</div>
+				</div>
+			</Suspense>
+		</>
 	);
 }

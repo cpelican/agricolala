@@ -9,14 +9,12 @@ interface LayoutWithHeaderProps {
 	children: React.ReactNode;
 	icon: React.ReactNode;
 	title: string;
-	subtitle: string;
 }
 
 export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 	children,
 	icon,
 	title,
-	subtitle,
 }) => {
 	const session = await requireAuth();
 
@@ -35,7 +33,6 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 					{icon}
 					<div>
 						<h1 className="text-2xl font-semibold">{title}</h1>
-						<p className="font-light">{subtitle}</p>
 					</div>
 				</div>
 
@@ -48,7 +45,6 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 						{icon}
 						<div>
 							<h1 className="text-2xl font-semibold">{title}</h1>
-							<p className="font-light truncate max-w-[15rem]">{subtitle}</p>
 						</div>
 					</div>
 					<div className="p-4">

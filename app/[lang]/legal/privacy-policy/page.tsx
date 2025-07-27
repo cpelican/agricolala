@@ -1,10 +1,8 @@
-import { Shield } from "lucide-react";
-import { AuthGuard } from "@/components/auth/auth-guard";
-import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { PrivacyContent } from "@/components/legal/privacy-content";
 import { BackButton } from "@/components/routing/back-button";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
+import { Header } from "@/components/misc/header";
 
 export default async function PrivacyPolicyPage({
 	params,
@@ -15,17 +13,13 @@ export default async function PrivacyPolicyPage({
 	const dict = tServer(lang);
 
 	return (
-		<AuthGuard>
-			<LayoutWithHeader
+		<div className="p-4 flex flex-col gap-2">
+			<Header
 				title={dict.legal.privacyPolicy}
 				subtitle={dict.legal.howWeHandleData}
-				icon={<Shield />}
-			>
-				<div className="p-4 flex flex-col gap-2">
-					<BackButton />
-					<PrivacyContent showLinks={false} />
-				</div>
-			</LayoutWithHeader>
-		</AuthGuard>
+			/>
+			<BackButton />
+			<PrivacyContent showLinks={false} />
+		</div>
 	);
 }

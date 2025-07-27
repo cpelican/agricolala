@@ -1,11 +1,9 @@
-import { User } from "lucide-react";
-import { AuthGuard } from "@/components/auth/auth-guard";
-import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
 import { Suspense } from "react";
 import { ProfileContentAsync } from "@/components/async/profile-content-async";
 import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
+import { Header } from "@/components/misc/header";
 
 export default async function ProfilePage({
 	params,
@@ -16,16 +14,14 @@ export default async function ProfilePage({
 	const dict = tServer(lang);
 
 	return (
-		<AuthGuard>
-			<LayoutWithHeader
+		<>
+			<Header
 				title={dict.profile.title}
 				subtitle={dict.profile.accountSettings}
-				icon={<User />}
-			>
-				<Suspense fallback={<ProfileSkeleton />}>
-					<ProfileContentAsync />
-				</Suspense>
-			</LayoutWithHeader>
-		</AuthGuard>
+			/>
+			<Suspense fallback={<ProfileSkeleton />}>
+				<ProfileContentAsync />
+			</Suspense>
+		</>
 	);
 }
