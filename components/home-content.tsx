@@ -10,14 +10,18 @@ import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
 interface HomeContentProps {
-	parcels: ParcelWithTreatments[];
+	parcelsPromise: Promise<ParcelWithTreatments[]>;
 	locale: Locale;
 }
 
-export async function HomeContent({ parcels, locale }: HomeContentProps) {
+export async function HomeContent({
+	parcelsPromise,
+	locale,
+}: HomeContentProps) {
+	const parcels = await parcelsPromise;
 	const session = await requireAuth();
 	if (parcels.length === 0) {
-		return <HomeContentUI parcels={parcels} />;
+		return <HomeContentUI />;
 	}
 
 	const substanceData = await getCachedSubstanceAggregations(
@@ -34,7 +38,7 @@ export async function HomeContent({ parcels, locale }: HomeContentProps) {
 			color: substanceMeta?.color || "rgb(182, 182, 182)",
 		};
 	});
-	const dict = await tServer(locale);
+	const dict = tServer(locale);
 
 	return (
 		<div className="p-4 space-y-4">

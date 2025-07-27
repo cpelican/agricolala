@@ -12,7 +12,7 @@ export default async function PrivacyPolicyPage({
 	params: Promise<{ lang: Locale }>;
 }) {
 	const { lang } = await params;
-	const dict = await tServer(lang);
+	const dict = tServer(lang);
 
 	return (
 		<AuthGuard>

@@ -12,6 +12,7 @@ import {
 	type ParcelDetailType,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcel-detail";
+import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
 import { CachedDataWrapper } from "@/components/cached-data-wrapper";
 import { type Locale } from "@/lib/translations-helpers";
 
@@ -71,33 +72,23 @@ export default async function ParcelPage({
 					subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
 					icon={<Map />}
 				>
-					<div className="space-y-6">
-						<Suspense
-							fallback={
-								<div className="animate-pulse h-32 bg-gray-200 rounded"></div>
-							}
-						>
+					<Suspense fallback={<ParcelDetailSkeleton />}>
+						<div className="space-y-6">
 							<ParcelDetail
 								parcel={parcel}
 								upcomingTreatments={upcomingTreatments}
 								pastTreatments={pastTreatments}
 								substanceData={enrichedSubstanceData}
 							/>
-						</Suspense>
 
-						<div className="h-64">
-							<Suspense
-								fallback={
-									<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
-								}
-							>
+							<div className="h-64">
 								<ParcelMapWrapper
 									parcels={[parcel]}
 									highlightParcelId={parcel.id}
 								/>
-							</Suspense>
+							</div>
 						</div>
-					</div>
+					</Suspense>
 				</LayoutWithHeader>
 			</CachedDataWrapper>
 		</AuthGuard>
