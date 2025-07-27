@@ -51,7 +51,6 @@ export function ParcelMap({
 	};
 
 	useEffect(() => {
-		// Get user's current location
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
@@ -67,7 +66,6 @@ export function ParcelMap({
 				},
 			);
 		} else {
-			// Fallback to default location if geolocation is not supported
 			setUserLocation([defaultLocation.lat, defaultLocation.lng]);
 			setIsLoading(false);
 		}
@@ -77,7 +75,6 @@ export function ParcelMap({
 		if (typeof window === "undefined" || !mapRef.current || !userLocation)
 			return;
 
-		// Initialize map
 		if (!mapInstanceRef.current) {
 			mapInstanceRef.current = L.map(mapRef.current, {
 				zoomControl: true,
@@ -91,14 +88,12 @@ export function ParcelMap({
 					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 			}).addTo(mapInstanceRef.current);
 
-			// Add click handler for new parcels
 			mapInstanceRef.current.on("click", (e: L.LeafletMouseEvent) => {
 				if (onMapClick) {
 					onMapClick(e.latlng.lat, e.latlng.lng);
 				}
 			});
 
-			// Add user location marker only if there are no parcels
 			if (parcels.length === 0) {
 				const userIcon = L.divIcon({
 					className: "user-location-marker",
@@ -111,11 +106,9 @@ export function ParcelMap({
 			}
 		}
 
-		// Clear existing markers
 		markersRef.current.forEach((marker) => marker.remove());
 		markersRef.current = [];
 
-		// Add markers for existing parcels
 		parcels.forEach((parcel) => {
 			const isHighlighted = highlightParcelId === parcel.id;
 			const marker = L.marker([parcel.latitude, parcel.longitude], {
