@@ -27,7 +27,7 @@ export function ParcelDetail({
 	pastTreatments,
 	substanceData,
 }: ParcelDetailProps) {
-	const { t } = useTranslations();
+	const { t, locale } = useTranslations();
 	const diseases = useDiseases();
 	const compositions = useCompositions();
 
@@ -37,7 +37,7 @@ export function ParcelDetail({
 				<DeleteParcelButton
 					parcelId={parcel.id}
 					parcelName={parcel.name}
-					redirectTo="/parcels"
+					redirectTo={`/${locale}/parcels`}
 					className="absolute top-6"
 					iconSize="md"
 				/>

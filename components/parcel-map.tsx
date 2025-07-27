@@ -45,6 +45,10 @@ export function ParcelMap({
 		null,
 	);
 	const [isLoading, setIsLoading] = useState(true);
+	const defaultLocation = markersRef.current?.[0]?.getLatLng() ?? {
+		lat: 45.0,
+		lon: 7.0,
+	};
 
 	useEffect(() => {
 		// Get user's current location
@@ -58,13 +62,13 @@ export function ParcelMap({
 				(error) => {
 					console.warn("Error getting location:", error);
 					// Fallback to default location (45.0, 7.0)
-					setUserLocation([45.0, 7.0]);
+					setUserLocation([defaultLocation.lat, defaultLocation.lng]);
 					setIsLoading(false);
 				},
 			);
 		} else {
 			// Fallback to default location if geolocation is not supported
-			setUserLocation([45.0, 7.0]);
+			setUserLocation([defaultLocation.lat, defaultLocation.lng]);
 			setIsLoading(false);
 		}
 	}, []);
@@ -94,15 +98,17 @@ export function ParcelMap({
 				}
 			});
 
-			// Add user location marker with a custom icon
-			const userIcon = L.divIcon({
-				className: "user-location-marker",
-				html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
-			});
+			// Add user location marker only if there are no parcels
+			if (parcels.length === 0) {
+				const userIcon = L.divIcon({
+					className: "user-location-marker",
+					html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
+				});
 
-			L.marker(userLocation, { icon: userIcon })
-				.bindPopup("Your location")
-				.addTo(mapInstanceRef.current);
+				L.marker(userLocation, { icon: userIcon })
+					.bindPopup("Your location")
+					.addTo(mapInstanceRef.current);
+			}
 		}
 
 		// Clear existing markers
@@ -116,11 +122,11 @@ export function ParcelMap({
 				icon: isHighlighted ? highlightedIcon : defaultIcon,
 			})
 				.bindPopup(`
-          <div class="p-2">
-            <h3 class="font-medium">${parcel.name}</h3>
-            <p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p>
-          </div>
-        `)
+					<div class="p-2">
+						<h3 class="font-medium">${parcel.name}</h3>
+						<p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p>
+					</div>
+				`)
 				.addTo(mapInstanceRef.current!);
 
 			markersRef.current.push(marker);
@@ -136,11 +142,16 @@ export function ParcelMap({
 		});
 
 		// Fit bounds to show all markers if there are any and no specific parcel is highlighted
-		if (parcels.length > 0 && userLocation && !highlightParcelId) {
-			const coordinates: L.LatLngExpression[] = [
-				userLocation,
-				...parcels.map((p) => [p.latitude, p.longitude] as [number, number]),
-			];
+		if (parcels.length > 0 && !highlightParcelId) {
+			const coordinates: L.LatLngExpression[] = parcels.map(
+				(p) => [p.latitude, p.longitude] as [number, number],
+			);
+
+			// Include user location in bounds only if we're showing it (no parcels)
+			if (parcels.length === 0 && userLocation) {
+				coordinates.push(userLocation);
+			}
+
 			const bounds = L.latLngBounds(coordinates);
 			mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
 		}
