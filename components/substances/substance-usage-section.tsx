@@ -8,7 +8,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
-import { type SubstanceData } from "./types";
+import { type SubstanceData } from "../types";
 import { SubstanceCircle } from "./substance-circle";
 import { useTranslations } from "@/contexts/translations-context";
 

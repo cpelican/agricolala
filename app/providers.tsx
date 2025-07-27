@@ -1,7 +1,7 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { TosCheck } from "@/components/tos-check";
+import { TosCheck } from "@/components/legal/tos-check";
 import type React from "react";
 import { TranslationsProvider } from "@/contexts/translations-context";
 

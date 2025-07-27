@@ -1,6 +1,6 @@
 "use client";
 
-import { SignOutButton } from "@/components/signout-button";
+import { SignOutButton } from "@/components/auth/signout-button";
 import {
 	Card,
 	CardDescription,

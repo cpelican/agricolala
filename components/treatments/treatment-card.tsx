@@ -1,9 +1,9 @@
 import { type Disease, TreatmentStatus } from "@prisma/client";
 import { MapPin, Calendar, Droplets } from "lucide-react";
 import { format } from "date-fns";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent } from "../ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
-import { SubstanceCircle } from "./substance-circle";
+import { SubstanceCircle } from "../substances/substance-circle";
 import { useCompositions } from "@/contexts/cached-data-context";
 import { DeleteTreatmentButton } from "./delete-treatment-button";
 

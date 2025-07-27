@@ -1,5 +1,5 @@
 import { User } from "lucide-react";
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";

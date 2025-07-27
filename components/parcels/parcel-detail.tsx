@@ -3,11 +3,11 @@
 import { type Parcel } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteParcelButton } from "./delete-parcel-button";
-import { SubstanceUsageSection } from "./substance-usage-section";
-import { type SubstanceData } from "./types";
-import { TreatmentCard } from "./treatment-card";
+import { SubstanceUsageSection } from "../substances/substance-usage-section";
+import { type SubstanceData } from "../types";
+import { TreatmentCard } from "../treatments/treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
-import { AddTreatmentButton } from "./add-treatment-button";
+import { AddTreatmentButton } from "../treatments/add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
 

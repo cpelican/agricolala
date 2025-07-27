@@ -1,6 +1,6 @@
 import { StrictMode, Suspense } from "react";
-import { AuthGuard } from "@/components/auth-guard";
-import { CachedDataWrapper } from "@/components/cached-data-wrapper";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { HomeContentAsync } from "@/components/async/home-content-async";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";

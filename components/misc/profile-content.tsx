@@ -17,10 +17,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { SignOutButton } from "@/components/signout-button";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { SignOutButton } from "@/components/auth/signout-button";
+import { LanguageSwitcher } from "@/components/locale/language-switcher";
 import { ChevronRight } from "lucide-react";
-import { LocaleLink } from "./locale-link";
+import { LocaleLink } from "../locale/locale-link";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getTosStatus } from "@/app/actions/get-tos-status";
 

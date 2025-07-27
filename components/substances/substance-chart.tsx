@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useSubstances } from "@/contexts/cached-data-context";
-import type { SubstanceData } from "./types";
+import type { SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
 
 ChartJS.register(

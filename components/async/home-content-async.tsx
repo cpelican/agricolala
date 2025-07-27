@@ -1,11 +1,11 @@
-import { SubstanceUsageSection } from "../substance-usage-section";
+import { SubstanceUsageSection } from "../substances/substance-usage-section";
 import {
 	getCachedSubstanceAggregations,
 	getCachedSubstances,
 	type ParcelWithTreatments,
 } from "@/lib/data-fetcher";
 import { requireAuth } from "@/lib/auth-utils";
-import { HomeContentUI } from "@/components/home-content-ui";
+import { HomeContentUI } from "@/components/misc/home-content-ui";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 

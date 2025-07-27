@@ -1,12 +1,12 @@
 "use client";
 
-import type { ParcelMapProps } from "@/components/parcel-map";
+import type { ParcelMapProps } from "@/components/parcels/parcel-map";
 import dynamic from "next/dynamic";
 
 // Dynamic import for the map component to improve performance
 const ParcelMap = dynamic(
 	() =>
-		import("@/components/parcel-map").then((mod) => ({
+		import("@/components/parcels/parcel-map").then((mod) => ({
 			default: mod.ParcelMap,
 		})),
 	{

@@ -1,5 +1,5 @@
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
-import { ParcelsContent } from "../parcels-content";
+import { ParcelsContent } from "../parcels/parcels-content";
 
 interface ParcelsContentAsyncProps {
 	parcelsPromise: Promise<ParcelWithTreatments[]>;

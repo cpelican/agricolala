@@ -1,13 +1,13 @@
 import { Suspense } from "react";
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import { TreatmentsContentAsync } from "@/components/async/treatments-content-async";
 import { AddTreatmentButtonAsync } from "@/components/async/add-treatment-button-async";
 import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { requireAuth } from "@/lib/auth-utils";
 import { getParcels, getTreatments } from "@/lib/data-fetcher";
-import { CachedDataWrapper } from "@/components/cached-data-wrapper";
-import { ExcelExportDialog } from "@/components/excel-export-dialog";
+import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
+import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
 import { Calendar } from "lucide-react";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";

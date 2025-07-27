@@ -1,6 +1,6 @@
 "use client";
 
-import { LocaleLink } from "./locale-link";
+import { LocaleLink } from "../locale/locale-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { localeRegex } from "@/lib/translations-helpers";

@@ -7,12 +7,12 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { type TranslationType } from "@/lib/translations-server-only";
 import { getLocaleFromBrowser } from "@/contexts/translations-context";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 const signInWithGoogle = () => {
 	signIn("google", { callbackUrl: "/" });

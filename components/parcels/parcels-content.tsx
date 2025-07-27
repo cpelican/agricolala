@@ -1,7 +1,7 @@
 "use client";
 
 import { MapPin, X, ChevronRight } from "lucide-react";
-import { LocaleLink } from "./locale-link";
+import { LocaleLink } from "../locale/locale-link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

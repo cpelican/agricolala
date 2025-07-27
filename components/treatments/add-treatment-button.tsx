@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useState } from "react";
 import { AddTreatmentDialog } from "./add-treatment-dialog";
 import {

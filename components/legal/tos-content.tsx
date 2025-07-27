@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText, Shield, ExternalLink } from "lucide-react";
-import { LocaleLink } from "./locale-link";
+import { LocaleLink } from "../locale/locale-link";
 import { useTranslations } from "@/contexts/translations-context";
 
 interface TosContentProps {

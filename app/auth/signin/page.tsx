@@ -1,5 +1,5 @@
 import { dictionaries } from "@/lib/translations-server-only";
-import { SignInContent } from "@/components/signin-content";
+import { SignInContent } from "@/components/auth/signin-content";
 
 const authEnDicts = dictionaries.en.auth;
 const authItDicts = dictionaries.it.auth;

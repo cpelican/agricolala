@@ -1,8 +1,8 @@
 import { Shield } from "lucide-react";
-import { AuthGuard } from "@/components/auth-guard";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
-import { PrivacyContent } from "@/components/privacy-content";
-import { BackButton } from "@/components/back-button";
+import { PrivacyContent } from "@/components/legal/privacy-content";
+import { BackButton } from "@/components/routing/back-button";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
 

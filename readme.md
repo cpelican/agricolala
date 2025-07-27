@@ -57,7 +57,7 @@ npm run tsc
 - [ ] When the user does a treatment, we want to find out what the weather was before and after
 - [x] excel export
 - [x] improve security
-- [ ] fix map
+- [x] fix map
 - [ ] make the 3x10 rule
 - [ ] let the user know if they are using less product compared to last year, give them a bit more data about how good they are at not using too much product
 - [ ] interesting: Look at https://api.open-meteo.com/v1/forecast?latitude=44.0998&longitude=9.7387&hourly=temperature_2m,precipitation_probability,precipitation,apparent_temperature,temperature_80m&past_days=7

@@ -1,4 +1,4 @@
-import { AddTreatmentButton } from "../add-treatment-button";
+import { AddTreatmentButton } from "../treatments/add-treatment-button";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 
 interface AddTreatmentButtonAsyncProps {

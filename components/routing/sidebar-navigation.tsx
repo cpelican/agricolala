@@ -1,7 +1,7 @@
 "use client";
 
 import { navigation } from "@/app/const";
-import { LocaleLink } from "./locale-link";
+import { LocaleLink } from "../locale/locale-link";
 import { usePathname } from "next/navigation";
 import { localeRegex } from "@/lib/translations-helpers";
 import { cn } from "@/lib/utils";
