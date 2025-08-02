@@ -20,11 +20,12 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 	const [selectedLocation, setSelectedLocation] = useState<{
 		lat: number;
 		lng: number;
+		altitude?: number;
 	} | null>(null);
 	const { t } = useTranslations();
 
-	const handleMapClick = (lat: number, lng: number) => {
-		setSelectedLocation({ lat, lng });
+	const handleMapClick = (lat: number, lng: number, alt?: number) => {
+		setSelectedLocation({ lat, lng, altitude: alt });
 		setShowAddDialog(true);
 	};
 

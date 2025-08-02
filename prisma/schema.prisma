@@ -75,6 +75,7 @@ model Parcel {
   name       String
   latitude   Float
   longitude  Float
+  altitude   Float?
   width      Float
   height     Float
   type       CultureType @default(VINEYARD)

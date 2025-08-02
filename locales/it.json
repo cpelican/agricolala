@@ -37,6 +37,8 @@
 		"longitude": "Longitudine",
 		"latitudePlaceholder": "45.0000",
 		"longitudePlaceholder": "7.0000",
+		"altitude": "Altitudine",
+		"altitudePlaceholder": "50",
 		"widthPlaceholder": "100",
 		"heightPlaceholder": "50",
 		"wineyard": "Vigneto",

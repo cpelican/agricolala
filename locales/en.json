@@ -37,6 +37,8 @@
 		"longitude": "Longitude",
 		"latitudePlaceholder": "45.0000",
 		"longitudePlaceholder": "7.0000",
+		"altitude": "Altitude",
+		"altitudePlaceholder": "50",
 		"widthPlaceholder": "100",
 		"heightPlaceholder": "50",
 		"wineyard": "Wineyard",

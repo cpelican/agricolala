@@ -2,7 +2,6 @@
 
 import { type Parcel } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DeleteParcelButton } from "./delete-parcel-button";
 import { SubstanceUsageSection } from "../substances/substance-usage-section";
 import { type SubstanceData } from "../types";
 import { TreatmentCard } from "../treatments/treatment-card";
@@ -27,22 +26,12 @@ export function ParcelDetail({
 	pastTreatments,
 	substanceData,
 }: ParcelDetailProps) {
-	const { t, locale } = useTranslations();
+	const { t } = useTranslations();
 	const diseases = useDiseases();
 	const compositions = useCompositions();
 
 	return (
 		<div className="p-4 space-y-4">
-			<div className="flex justify-end items-center">
-				<DeleteParcelButton
-					parcelId={parcel.id}
-					parcelName={parcel.name}
-					redirectTo={`/${locale}/parcels`}
-					className="absolute top-6"
-					iconSize="md"
-				/>
-			</div>
-
 			<div className="grid gap-4">
 				<AddTreatmentButton parcelId={parcel.id} parcels={[]} />
 				{upcomingTreatments.length === 0 ? null : (

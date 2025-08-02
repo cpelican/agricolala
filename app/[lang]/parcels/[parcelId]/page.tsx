@@ -12,6 +12,7 @@ import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
 import { type Locale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
+import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -21,7 +22,7 @@ export type PageProps<T extends Record<string, string>> = {
 export default async function ParcelPage({
 	params,
 }: PageProps<{ lang: Locale; parcelId: string }>) {
-	const { parcelId } = await params;
+	const { parcelId, lang } = await params;
 	const session = await requireAuth();
 	let parcel: ParcelDetailType;
 	try {
@@ -66,7 +67,13 @@ export default async function ParcelPage({
 			<Header
 				title={`${parcel.name}`}
 				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
-			/>
+			>
+				<DeleteParcelButton
+					parcelId={parcel.id}
+					parcelName={parcel.name}
+					redirectTo={`/${lang}/parcels`}
+				/>
+			</Header>
 			<Suspense fallback={<ParcelDetailSkeleton />}>
 				<div className="space-y-6">
 					<ParcelDetail

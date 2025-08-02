@@ -27,7 +27,7 @@ import { CultureType } from "@prisma/client";
 interface AddParcelDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	selectedLocation?: { lat: number; lng: number } | null;
+	selectedLocation?: { lat: number; lng: number; altitude?: number } | null;
 }
 
 export function AddParcelDialog({
@@ -45,6 +45,7 @@ export function AddParcelDialog({
 		type: CultureType;
 		latitude: string;
 		longitude: string;
+		altitude?: string;
 	}>({
 		name: "",
 		width: "",
@@ -52,6 +53,7 @@ export function AddParcelDialog({
 		type: CultureType.VINEYARD,
 		latitude: "",
 		longitude: "",
+		altitude: "",
 	});
 	const router = useRouter();
 
@@ -61,6 +63,7 @@ export function AddParcelDialog({
 				...prev,
 				latitude: selectedLocation.lat.toString(),
 				longitude: selectedLocation.lng.toString(),
+				altitude: selectedLocation?.altitude?.toString(),
 			}));
 		}
 	}, [selectedLocation]);
@@ -77,6 +80,9 @@ export function AddParcelDialog({
 			formDataParam.append("type", formData.type);
 			formDataParam.append("latitude", formData.latitude);
 			formDataParam.append("longitude", formData.longitude);
+			if (formData.altitude) {
+				formDataParam.append("altitude", formData.altitude);
+			}
 
 			await createParcel(formDataParam);
 
@@ -88,6 +94,7 @@ export function AddParcelDialog({
 				type: CultureType.VINEYARD,
 				latitude: "",
 				longitude: "",
+				altitude: "",
 			});
 			router.refresh();
 		} catch (error) {
@@ -215,6 +222,21 @@ export function AddParcelDialog({
 									setFormData({ ...formData, longitude: e.target.value })
 								}
 								placeholder={t("parcels.longitudePlaceholder")}
+								required
+							/>
+						</div>
+						<div>
+							<Label htmlFor="altitude">{t("parcels.altitude")}</Label>
+							<Input
+								id="altitude"
+								name="altitude"
+								type="number"
+								step="any"
+								value={formData.altitude}
+								onChange={(e) =>
+									setFormData({ ...formData, altitude: e.target.value })
+								}
+								placeholder={t("parcels.altitudePlaceholder")}
 								required
 							/>
 						</div>

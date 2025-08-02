@@ -29,7 +29,7 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 export interface ParcelMapProps {
 	parcels: Pick<Parcel, "id" | "name" | "latitude" | "longitude">[];
-	onMapClick?: (lat: number, lng: number) => void;
+	onMapClick?: (lat: number, lng: number, alt?: number) => void;
 	highlightParcelId?: string;
 }
 
@@ -90,7 +90,7 @@ export function ParcelMap({
 
 			mapInstanceRef.current.on("click", (e: L.LeafletMouseEvent) => {
 				if (onMapClick) {
-					onMapClick(e.latlng.lat, e.latlng.lng);
+					onMapClick(e.latlng.lat, e.latlng.lng, e.latlng.alt);
 				}
 			});
 

@@ -29,7 +29,7 @@ export function DeleteParcelButton({
 			trigger={
 				<button
 					className={cn(
-						"p-2 text-white hover:gray-50 transition-colors",
+						"p-2 hover:bg-primary/10 transition-colors rounded-full",
 						className,
 					)}
 				>
