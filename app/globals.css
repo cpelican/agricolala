@@ -75,12 +75,27 @@
   background: linear-gradient(
     45deg,
     var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
+    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)/ 70%) 100%
   );
 }
 
-@utility bg-secondary-gradient {
+@utility bg-hsl {
+  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
+}
+
+@utility gradient-main-title {
   background: linear-gradient(
+    45deg,
+    var(--color-primary-700) 0%,
+    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility bg-secondary-gradient {
+  background-color: linear-gradient(
     45deg,
     var(--color-primary-400) 0%,
     hsl(calc(var(--primary-hue) - 60) calc(var(--primary-saturation) * 0.6) calc(var(--primary-lightness) + 60%)) 100%
@@ -103,6 +118,12 @@
   animation: grape-color 3s ease-in-out infinite alternate;
 }
 
+@utility blob-background {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
+  display: inline-block;
+}
+
 @layer utilities {
   body {
     font-family: Arial, Helvetica, sans-serif;
@@ -115,7 +136,7 @@
   .bg-sidebar {
     background-color: hsl(var(--sidebar-background));
   }
-  
+
   .border-sidebar-border {
     border-color: hsl(var(--sidebar-border));
   }
@@ -132,7 +153,7 @@
 		--primary: 136, 100%, 21%;
 		--primary-hue: 136;
 		--primary-saturation: 100%;
-		--primary-lightness: 21%;
+		--primary-lightness: 41%;
 		--primary-foreground: 0 0% 98%;
 		--secondary: 0 0% 96.1%;
 		--secondary-foreground: 0 0% 9%;
@@ -169,4 +190,8 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+
+  button {
+    cursor: pointer;
+  }
 }

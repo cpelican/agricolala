@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type React from "react";
+import Image from "next/image";
 import "../globals.css";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { AuthGuard } from "@/components/auth/auth-guard";
-import { Grape } from "lucide-react";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 
 export const metadata: Metadata = {
@@ -24,7 +24,9 @@ export default async function Layout({
 				<CachedDataWrapper>
 					<LayoutWithHeader
 						title="Agricolala"
-						icon={<Grape className="w-8 h-8" />}
+						icon={
+							<Image src="/1.png" alt="Agricolala" width={32} height={32} />
+						}
 					>
 						{children}
 					</LayoutWithHeader>

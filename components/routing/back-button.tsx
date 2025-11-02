@@ -26,7 +26,7 @@ export function BackButton({ fallbackPath = "/", className }: BackButtonProps) {
 		<Button
 			variant="ghost"
 			size="sm"
-			className={`gap-2 bg-primary-50 hover:bg-primary-100 focus:bg-primary-100 max-w-fit ${className || ""}`}
+			className={`gap-2 bg-hsl hover:bg-primary-100 focus:bg-primary-100 max-w-fit ${className || ""}`}
 			onClick={handleGoBack}
 		>
 			<ChevronLeft className="h-4 w-4" />

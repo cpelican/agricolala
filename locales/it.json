@@ -246,7 +246,7 @@
 					"title": "5. Proprietà e Utilizzo dei Dati",
 					"content": [
 						"I tuoi Dati: Mantieni la proprietà di tutti i dati agricoli che inserisci nel Servizio.",
-						"Utilizzo del Servizio: Potremmo utilizzare dati aggregati e anonimizzati per migliorare il Servizio e fornire analisi, ma non venderemo mai i tuoi dati agricoli individuali a terzi.",
+						"Utilizzo del Servizio: Potremmo utilizzare dati aggregati e anonimizzati per migliorare il Servizio, fornire analisi e addestrare modelli di machine learning in modo anonimizzato.",
 						"Esportazione dei Dati: Puoi esportare i tuoi dati in qualsiasi momento attraverso le funzionalità di esportazione del Servizio."
 					]
 				},
@@ -296,6 +296,7 @@
 						"Calcolare aggregazioni di utilizzo delle sostanze",
 						"Inviarti aggiornamenti importanti sul Servizio",
 						"Migliorare e sviluppare nuove funzionalità",
+						"Addestrare modelli di machine learning utilizzando dati anonimizzati per migliorare approfondimenti e previsioni agricole",
 						"Garantire la conformità alle normative agricole",
 						"Fornire supporto clienti"
 					]
@@ -310,7 +311,7 @@
 						"Fornitori di Servizi: Con servizi di terze parti fidati che ci aiutano a operare il Servizio (hosting, analisi, ecc.)",
 						"Requisiti Legali: Quando richiesto dalla legge o per proteggere i nostri diritti e la sicurezza",
 						"Conformità Normativa: Quando necessario per rispettare le normative agricole",
-						"Dati Aggregati: Potremmo condividere dati anonimizzati e aggregati per scopi di ricerca o analisi"
+						"Dati Aggregati: Potremmo condividere dati anonimizzati e aggregati per scopi di ricerca, analisi o addestramento di modelli di machine learning"
 					]
 				},
 				"security": {

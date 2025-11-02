@@ -22,7 +22,7 @@ export function HomeContentUI() {
 					<CardDescription>{t("home.description")}</CardDescription>
 				</CardHeader>
 				<CardContent className="text-center">
-					<Button asChild className="bg-primary-600 hover:bg-primary-700">
+					<Button asChild className="bg-main-gradient hover:bg-primary-700">
 						<LocaleLink href="/parcels">
 							<Plus className="h-4 w-4 mr-2" />
 							{t("parcels.addParcel")}

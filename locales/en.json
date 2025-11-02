@@ -246,7 +246,7 @@
 					"title": "5. Data Ownership and Usage",
 					"content": [
 						"Your Data: You retain ownership of all agricultural data you enter into the Service.",
-						"Service Usage: We may use aggregated, anonymized data to improve the Service and provide analytics, but we will never sell your individual agricultural data to third parties.",
+						"Service Usage: We may use aggregated, anonymized data to improve the Service, provide analytics, and train machine learning models in an anonymized way.",
 						"Data Export: You can export your data at any time through the Service's export features."
 					]
 				},
@@ -296,6 +296,7 @@
 						"Calculate substance usage aggregations",
 						"Send you important updates about the Service",
 						"Improve and develop new features",
+						"Train machine learning models using anonymized data to enhance agricultural insights and predictions",
 						"Ensure compliance with agricultural regulations",
 						"Provide customer support"
 					]
@@ -310,7 +311,7 @@
 						"Service Providers: With trusted third-party services that help us operate the Service (hosting, analytics, etc.)",
 						"Legal Requirements: When required by law or to protect our rights and safety",
 						"Regulatory Compliance: When necessary to comply with agricultural regulations",
-						"Aggregated Data: We may share anonymized, aggregated data for research or analytics purposes"
+						"Aggregated Data: We may share anonymized, aggregated data for research, analytics, or machine learning model training purposes"
 					]
 				},
 				"security": {

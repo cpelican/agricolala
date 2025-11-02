@@ -27,7 +27,7 @@ npx prisma migrate dev
 npm run seed
 
 npm run dev
-npx run prisma studio
+npm run studio
 ```
 
 ## Deploy Agricolala
@@ -63,4 +63,3 @@ npm run tsc
 - [ ] interesting: Look at https://api.open-meteo.com/v1/forecast?latitude=44.0998&longitude=9.7387&hourly=temperature_2m,precipitation_probability,precipitation,apparent_temperature,temperature_80m&past_days=7
 
 - [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
-

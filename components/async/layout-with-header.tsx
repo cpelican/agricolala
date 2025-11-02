@@ -29,10 +29,12 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 	return (
 		<>
 			<div className="sm:hidden min-h-screen bg-primary-10 pb-20">
-				<div className="text-white/90 p-4 flex items-center gap-x-4 bg-main-gradient">
+				<div className="p-4 flex items-center gap-x-4 bg-main border-solid border-b-1 border-gray-200">
 					{icon}
 					<div>
-						<h1 className="text-2xl font-semibold">{title}</h1>
+						<h1 className="text-2xl font-semibold gradient-main-title">
+							{title}
+						</h1>
 					</div>
 				</div>
 
@@ -41,10 +43,12 @@ export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 			</div>
 			<div className="hidden sm:grid sm:grid-cols-[20rem_1fr] sm:h-screen">
 				<nav className="bg-sidebar  border-r border-sidebar-border">
-					<div className="text-white/90 p-4 flex items-center gap-x-4 bg-main-gradient">
+					<div className="p-4 flex items-center gap-x-4">
 						{icon}
 						<div>
-							<h1 className="text-2xl font-semibold">{title}</h1>
+							<h1 className="text-2xl font-semibold gradient-main-title">
+								{title}
+							</h1>
 						</div>
 					</div>
 					<div className="p-4">
