@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "../ui/card";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type TranslationType } from "@/lib/translations-server-only";
 import { getLocaleFromBrowser } from "@/contexts/translations-context";
 import { Button } from "../ui/button";
@@ -25,14 +25,22 @@ export const SignInContent = ({
 }) => {
 	const router = useRouter();
 	const lang = getLocaleFromBrowser();
+	const [hasCheckedSession, setHasCheckedSession] = useState(false);
 
 	useEffect(() => {
-		getSession().then((session) => {
+		async function checkSession() {
+			const session = await getSession();
 			if (session) {
 				router.push(`/${session.user.locale}`);
 			}
-		});
+			setHasCheckedSession(true);
+		}
+		checkSession();
 	}, [router]);
+
+	if (!hasCheckedSession) {
+		return null;
+	}
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-primary-10 px-4">

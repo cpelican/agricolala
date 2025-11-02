@@ -36,7 +36,6 @@ export function TranslationsProvider({ children }: { children: ReactNode }) {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		console.log("Loading translations for locale:", locale);
 		setIsLoading(true);
 
 		import(`@/locales/${locale}.json`)

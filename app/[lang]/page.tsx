@@ -19,7 +19,7 @@ export default async function Home({
 	return (
 		<StrictMode>
 			<Header
-				title={`${dict?.home?.welcome}, ${session?.user?.name ?? session?.user?.email}`}
+				title={`${dict?.home?.welcome} ${session?.user?.name ?? session?.user?.email}!`}
 			/>
 			<Suspense fallback={<HomeSkeleton />}>
 				<HomeContentAsync
