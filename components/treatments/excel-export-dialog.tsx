@@ -94,7 +94,7 @@ export function ExcelExportDialog({
 				{trigger || (
 					<button
 						className={cn(
-							"p-2 text-white hover:gray-50 transition-colors",
+							"p-2 bg-hsl rounded-full text-primary-700",
 							className,
 						)}
 					>

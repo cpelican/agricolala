@@ -23,8 +23,9 @@ export default async function TreatmentsPage({
 			<Header
 				title={dict.treatments.title}
 				subtitle={dict.treatments.description}
-			/>
-			<ExcelExportDialog className="absolute top-3 right-8" />
+			>
+				<ExcelExportDialog className="top-3 right-8" />
+			</Header>
 			<Suspense fallback={<TreatmentsSkeleton />}>
 				<TreatmentsContentAsync
 					treatmentsPromise={getTreatments(session.user.id)}
