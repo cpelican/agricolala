@@ -86,6 +86,7 @@ model Parcel {
   treatments Treatment[]
   weatherHistories WeatherHistory[] @relation("WeatherHistoryParcels")
   @@index([userId], map: "idx_parcel_user_id")
+  weatherHistoryTasks WeatherHistoryTask[] @relation("WeatherHistoryTasksParcels")
 }
 
 model Treatment {
@@ -218,6 +219,7 @@ model WeatherHistoryTask {
   longitude Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  parcels Parcel[] @relation("WeatherHistoryTasksParcels")
 }
 
 model WeatherHistory {

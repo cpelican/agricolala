@@ -201,6 +201,21 @@ export async function GET(request: NextRequest) {
 
 		for (const task of tasks) {
 			try {
+				// Fetch parcels associated with this task
+				const parcels = await prisma.parcel.findMany({
+					where: {
+						weatherHistoryTasks: {
+							some: {
+								id: task.id,
+							},
+						},
+					},
+					select: {
+						id: true,
+					},
+				});
+				const parcelIds = parcels.map((parcel) => parcel.id);
+
 				const weatherData = await fetchWeatherData(
 					task.latitude,
 					task.longitude,
@@ -221,7 +236,18 @@ export async function GET(request: NextRequest) {
 							temperature2mMax: daily.temperature2mMax,
 							temperature80mMin: daily.temperature80mMin,
 							temperature80mMax: daily.temperature80mMax,
+							relative_humidity_2mMin: daily.relative_humidity_2mMin,
+							relative_humidity_2mMax: daily.relative_humidity_2mMax,
+							wind_speed_10mMin: daily.wind_speed_10mMin,
+							wind_speed_10mMax: daily.wind_speed_10mMax,
+							wind_speed_180mMin: daily.wind_speed_180mMin,
+							wind_speed_180mMax: daily.wind_speed_180mMax,
 							cumulativePrecipitation: daily.cumulativePrecipitation,
+							...(parcelIds.length > 0 && {
+								parcels: {
+									set: parcelIds.map((id) => ({ id })),
+								},
+							}),
 						},
 						create: {
 							cityName: task.cityName,
@@ -232,7 +258,18 @@ export async function GET(request: NextRequest) {
 							temperature2mMax: daily.temperature2mMax,
 							temperature80mMin: daily.temperature80mMin,
 							temperature80mMax: daily.temperature80mMax,
+							relative_humidity_2mMin: daily.relative_humidity_2mMin,
+							relative_humidity_2mMax: daily.relative_humidity_2mMax,
+							wind_speed_10mMin: daily.wind_speed_10mMin,
+							wind_speed_10mMax: daily.wind_speed_10mMax,
+							wind_speed_180mMin: daily.wind_speed_180mMin,
+							wind_speed_180mMax: daily.wind_speed_180mMax,
 							cumulativePrecipitation: daily.cumulativePrecipitation,
+							...(parcelIds.length > 0 && {
+								parcels: {
+									connect: parcelIds.map((id) => ({ id })),
+								},
+							}),
 						},
 					});
 

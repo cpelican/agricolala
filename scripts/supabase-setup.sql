@@ -11,6 +11,7 @@ ALTER TABLE IF EXISTS "Parcel" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "WeatherHistoryTask" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "WeatherHistory" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryParcels" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "_WeatherHistoryTasksParcels" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Treatment" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Product" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "ProductApplication" ENABLE ROW LEVEL SECURITY;
@@ -213,6 +214,55 @@ CREATE POLICY "Authenticated users, admins, and cron jobs can delete weather his
     FOR DELETE USING (
         auth.role() = 'service_role' OR
         auth.uid() IS NOT NULL
+    );
+
+-- RLS Policies for _WeatherHistoryTasksParcels junction table
+DROP POLICY IF EXISTS "Users can view weather history task-parcel relationships for their parcels or admins/cron can view all" ON "_WeatherHistoryTasksParcels";
+CREATE POLICY "Users can view weather history task-parcel relationships for their parcels or admins/cron can view all" ON "_WeatherHistoryTasksParcels"
+    FOR SELECT USING (
+        auth.role() = 'service_role' OR
+        is_admin(auth.uid()::text) OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "A"
+            AND p."userId" = auth.uid()::text
+        )
+    );
+
+DROP POLICY IF EXISTS "Users can insert weather history task-parcel relationships for their parcels or admins/cron can insert" ON "_WeatherHistoryTasksParcels";
+CREATE POLICY "Users can insert weather history task-parcel relationships for their parcels or admins/cron can insert" ON "_WeatherHistoryTasksParcels"
+    FOR INSERT WITH CHECK (
+        auth.role() = 'service_role' OR
+        is_admin(auth.uid()::text) OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "A"
+            AND p."userId" = auth.uid()::text
+        )
+    );
+
+DROP POLICY IF EXISTS "Users can update weather history task-parcel relationships for their parcels or admins/cron can update all" ON "_WeatherHistoryTasksParcels";
+CREATE POLICY "Users can update weather history task-parcel relationships for their parcels or admins/cron can update all" ON "_WeatherHistoryTasksParcels"
+    FOR UPDATE USING (
+        auth.role() = 'service_role' OR
+        is_admin(auth.uid()::text) OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "A"
+            AND p."userId" = auth.uid()::text
+        )
+    );
+
+DROP POLICY IF EXISTS "Users can delete weather history task-parcel relationships for their parcels or admins/cron can delete all" ON "_WeatherHistoryTasksParcels";
+CREATE POLICY "Users can delete weather history task-parcel relationships for their parcels or admins/cron can delete all" ON "_WeatherHistoryTasksParcels"
+    FOR DELETE USING (
+        auth.role() = 'service_role' OR
+        is_admin(auth.uid()::text) OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "A"
+            AND p."userId" = auth.uid()::text
+        )
     );
 
 -- RLS policies for _SubstanceDiseases junction table
