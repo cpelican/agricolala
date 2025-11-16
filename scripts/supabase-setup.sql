@@ -1,27 +1,31 @@
 -- Supabase Setup Script for Agricolala
 -- Run this in Supabase SQL Editor after creating your project
+-- This script is idempotent and can be run multiple times safely
 
--- Enable Row Level Security on all tables
-ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Account" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Session" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "VerificationToken" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Parcel" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Treatment" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Product" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "ProductApplication" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Substance" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "SubstanceDose" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Disease" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "AdminUser" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
+-- Enable Row Level Security on all tables (idempotent - safe to run multiple times)
+ALTER TABLE IF EXISTS "User" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Account" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Session" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "VerificationToken" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Parcel" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "WeatherHistoryTask" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "WeatherHistory" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "_WeatherHistoryParcels" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Treatment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Product" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "ProductApplication" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Substance" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "SubstanceDose" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "Disease" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "AdminUser" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
 
--- Helper function to check if user is admin
+-- Helper function to check if user is admin (idempotent with CREATE OR REPLACE)
 CREATE OR REPLACE FUNCTION is_admin(user_id text)
 RETURNS boolean AS $$
 BEGIN
     RETURN EXISTS (
-        SELECT 1 FROM "AdminUser" 
+        SELECT 1 FROM "AdminUser"
         WHERE email = (
             SELECT email FROM "User" WHERE id = user_id
         )
@@ -30,150 +34,236 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create RLS policies for User table
+DROP POLICY IF EXISTS "Users can view their own profile or admins can view all" ON "User";
 CREATE POLICY "Users can view their own profile or admins can view all" ON "User"
     FOR SELECT USING (
         auth.uid()::text = id OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can update their own profile or admins can update all" ON "User";
 CREATE POLICY "Users can update their own profile or admins can update all" ON "User"
     FOR UPDATE USING (
         auth.uid()::text = id OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can insert their own profile or admins can insert" ON "User";
 CREATE POLICY "Users can insert their own profile or admins can insert" ON "User"
     FOR INSERT WITH CHECK (
         auth.uid()::text = id OR is_admin(auth.uid()::text)
     );
 
 -- Create RLS policies for Account table
+DROP POLICY IF EXISTS "Users can manage their own accounts or admins can manage all" ON "Account";
 CREATE POLICY "Users can manage their own accounts or admins can manage all" ON "Account"
     FOR ALL USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
 -- Create RLS policies for Session table
+DROP POLICY IF EXISTS "Users can manage their own sessions or admins can manage all" ON "Session";
 CREATE POLICY "Users can manage their own sessions or admins can manage all" ON "Session"
     FOR ALL USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
 -- Create RLS policies for Parcel table
+DROP POLICY IF EXISTS "Users can view their own parcels or admins can view all" ON "Parcel";
 CREATE POLICY "Users can view their own parcels or admins can view all" ON "Parcel"
     FOR SELECT USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can insert their own parcels or admins can insert" ON "Parcel";
 CREATE POLICY "Users can insert their own parcels or admins can insert" ON "Parcel"
     FOR INSERT WITH CHECK (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can update their own parcels or admins can update all" ON "Parcel";
 CREATE POLICY "Users can update their own parcels or admins can update all" ON "Parcel"
     FOR UPDATE USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can delete their own parcels or admins can delete all" ON "Parcel";
 CREATE POLICY "Users can delete their own parcels or admins can delete all" ON "Parcel"
     FOR DELETE USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
 -- Create RLS policies for Treatment table
+DROP POLICY IF EXISTS "Users can view their own treatments or admins can view all" ON "Treatment";
 CREATE POLICY "Users can view their own treatments or admins can view all" ON "Treatment"
     FOR SELECT USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can insert their own treatments or admins can insert" ON "Treatment";
 CREATE POLICY "Users can insert their own treatments or admins can insert" ON "Treatment"
     FOR INSERT WITH CHECK (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can update their own treatments or admins can update all" ON "Treatment";
 CREATE POLICY "Users can update their own treatments or admins can update all" ON "Treatment"
     FOR UPDATE USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
+DROP POLICY IF EXISTS "Users can delete their own treatments or admins can delete all" ON "Treatment";
 CREATE POLICY "Users can delete their own treatments or admins can delete all" ON "Treatment"
     FOR DELETE USING (
         auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
     );
 
 -- Create RLS policies for ProductApplication table
+DROP POLICY IF EXISTS "Users can view their own product applications or admins can view all" ON "ProductApplication";
 CREATE POLICY "Users can view their own product applications or admins can view all" ON "ProductApplication"
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM "Treatment" t 
-            WHERE t.id = "ProductApplication"."treatmentId" 
+            SELECT 1 FROM "Treatment" t
+            WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert their own product applications or admins can insert" ON "ProductApplication";
 CREATE POLICY "Users can insert their own product applications or admins can insert" ON "ProductApplication"
     FOR INSERT WITH CHECK (
         EXISTS (
-            SELECT 1 FROM "Treatment" t 
-            WHERE t.id = "ProductApplication"."treatmentId" 
+            SELECT 1 FROM "Treatment" t
+            WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
         )
     );
 
+DROP POLICY IF EXISTS "Users can update their own product applications or admins can update all" ON "ProductApplication";
 CREATE POLICY "Users can update their own product applications or admins can update all" ON "ProductApplication"
     FOR UPDATE USING (
         EXISTS (
-            SELECT 1 FROM "Treatment" t 
-            WHERE t.id = "ProductApplication"."treatmentId" 
+            SELECT 1 FROM "Treatment" t
+            WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete their own product applications or admins can delete all" ON "ProductApplication";
 CREATE POLICY "Users can delete their own product applications or admins can delete all" ON "ProductApplication"
     FOR DELETE USING (
         EXISTS (
-            SELECT 1 FROM "Treatment" t 
-            WHERE t.id = "ProductApplication"."treatmentId" 
+            SELECT 1 FROM "Treatment" t
+            WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
         )
     );
 
+-- RLS Policies for WeatherHistoryTask
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can view weather history tasks" ON "WeatherHistoryTask";
+CREATE POLICY "Authenticated users, admins, and cron jobs can view weather history tasks" ON "WeatherHistoryTask"
+    FOR SELECT USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can insert weather history tasks" ON "WeatherHistoryTask";
+CREATE POLICY "Authenticated users, admins, and cron jobs can insert weather history tasks" ON "WeatherHistoryTask"
+    FOR INSERT WITH CHECK (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can update weather history tasks" ON "WeatherHistoryTask";
+CREATE POLICY "Authenticated users, admins, and cron jobs can update weather history tasks" ON "WeatherHistoryTask"
+    FOR UPDATE USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can delete weather history tasks" ON "WeatherHistoryTask";
+CREATE POLICY "Authenticated users, admins, and cron jobs can delete weather history tasks" ON "WeatherHistoryTask"
+    FOR DELETE USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+-- RLS Policies for WeatherHistory
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can view weather history" ON "WeatherHistory";
+CREATE POLICY "Authenticated users, admins, and cron jobs can view weather history" ON "WeatherHistory"
+    FOR SELECT USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can insert weather history" ON "WeatherHistory";
+CREATE POLICY "Authenticated users, admins, and cron jobs can insert weather history" ON "WeatherHistory"
+    FOR INSERT WITH CHECK (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can update weather history" ON "WeatherHistory";
+CREATE POLICY "Authenticated users, admins, and cron jobs can update weather history" ON "WeatherHistory"
+    FOR UPDATE USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
+DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can delete weather history" ON "WeatherHistory";
+CREATE POLICY "Authenticated users, admins, and cron jobs can delete weather history" ON "WeatherHistory"
+    FOR DELETE USING (
+        auth.role() = 'service_role' OR
+        auth.uid() IS NOT NULL
+    );
+
 -- RLS policies for _SubstanceDiseases junction table
+DROP POLICY IF EXISTS "Anyone can view substance-disease relationships" ON "_SubstanceDiseases";
 CREATE POLICY "Anyone can view substance-disease relationships" ON "_SubstanceDiseases"
     FOR SELECT USING (true);
 
 -- Public read access for reference tables (Product, Substance, Disease)
+DROP POLICY IF EXISTS "Anyone can view products" ON "Product";
 CREATE POLICY "Anyone can view products" ON "Product"
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Anyone can view substances" ON "Substance";
 CREATE POLICY "Anyone can view substances" ON "Substance"
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Anyone can view diseases" ON "Disease";
 CREATE POLICY "Anyone can view diseases" ON "Disease"
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Anyone can view substance doses" ON "SubstanceDose";
 CREATE POLICY "Anyone can view substance doses" ON "SubstanceDose"
     FOR SELECT USING (true);
 
 -- Admin policies for reference tables (only admins can modify)
+DROP POLICY IF EXISTS "Only admins can modify products" ON "Product";
 CREATE POLICY "Only admins can modify products" ON "Product"
     FOR ALL USING (is_admin(auth.uid()::text));
 
+DROP POLICY IF EXISTS "Only admins can modify substances" ON "Substance";
 CREATE POLICY "Only admins can modify substances" ON "Substance"
     FOR ALL USING (is_admin(auth.uid()::text));
 
+DROP POLICY IF EXISTS "Only admins can modify diseases" ON "Disease";
 CREATE POLICY "Only admins can modify diseases" ON "Disease"
     FOR ALL USING (is_admin(auth.uid()::text));
 
+DROP POLICY IF EXISTS "Only admins can modify substance doses" ON "SubstanceDose";
 CREATE POLICY "Only admins can modify substance doses" ON "SubstanceDose"
     FOR ALL USING (is_admin(auth.uid()::text));
 
 -- Admin policies for AdminUser table
+DROP POLICY IF EXISTS "Admins can manage admin users" ON "AdminUser";
 CREATE POLICY "Admins can manage admin users" ON "AdminUser"
     FOR ALL USING (is_admin(auth.uid()::text));
 
+DROP POLICY IF EXISTS "Only admins can modify substance-disease relationships" ON "_SubstanceDiseases";
 CREATE POLICY "Only admins can modify substance-disease relationships" ON "_SubstanceDiseases"
     FOR ALL USING (is_admin(auth.uid()::text));
 
--- Create indexes for better performance
+-- Create indexes for better performance (already using IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_parcel_user_id ON "Parcel"("userId");
 CREATE INDEX IF NOT EXISTS idx_treatment_user_id ON "Treatment"("userId");
 CREATE INDEX IF NOT EXISTS idx_treatment_parcel_id ON "Treatment"("parcelId");
