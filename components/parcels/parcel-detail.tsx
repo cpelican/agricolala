@@ -18,6 +18,7 @@ interface ParcelDetailProps {
 	upcomingTreatments: ParcelDetailType["treatments"];
 	pastTreatments: ParcelDetailType["treatments"];
 	substanceData: SubstanceData[];
+	children: React.ReactNode;
 }
 
 export function ParcelDetail({
@@ -25,6 +26,7 @@ export function ParcelDetail({
 	upcomingTreatments,
 	pastTreatments,
 	substanceData,
+	children,
 }: ParcelDetailProps) {
 	const { t } = useTranslations();
 	const diseases = useDiseases();
@@ -34,6 +36,7 @@ export function ParcelDetail({
 		<div className="p-4 space-y-4">
 			<div className="grid gap-4">
 				<AddTreatmentButton parcelId={parcel.id} parcels={[]} />
+				{children}
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>
 						<CardHeader>

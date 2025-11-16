@@ -3,9 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { Errors } from "@/app/const";
 import { OpenMeteoClient } from "@/lib/openMeteoClient";
 
-
-
-
 export async function GET(request: NextRequest) {
 	const authHeader = request.headers.get("authorization");
 	if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -40,8 +37,10 @@ export async function GET(request: NextRequest) {
 				});
 				const parcelIds = parcels.map((parcel) => parcel.id);
 
-				const dailyData = await OpenMeteoClient.getHistoryWeatherData(task.latitude,
-					task.longitude,);
+				const dailyData = await OpenMeteoClient.getHistoryWeatherData(
+					task.latitude,
+					task.longitude,
+				);
 
 				for (const daily of dailyData) {
 					await prisma.weatherHistory.upsert({

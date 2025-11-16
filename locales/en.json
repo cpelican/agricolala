@@ -118,6 +118,15 @@
 		},
 		"warnings": {
 			"doseAdvice": "It is advised not to go beyond the dosage of"
+		},
+		"applicability": {
+			"title": "Next 3 Days Treatment Applicability",
+			"applicable": "Applicable",
+			"notApplicable": "Not Applicable",
+			"rain": "Rain",
+			"avgWind": "Avg Wind",
+			"mm": "mm",
+			"kmh": "km/h"
 		}
 	},
 	"profile": {

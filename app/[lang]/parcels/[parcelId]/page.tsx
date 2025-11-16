@@ -13,6 +13,7 @@ import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skele
 import { type Locale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
+import Applicability from "@/components/treatments/applicability";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -81,8 +82,9 @@ export default async function ParcelPage({
 						upcomingTreatments={upcomingTreatments}
 						pastTreatments={pastTreatments}
 						substanceData={enrichedSubstanceData}
-					/>
-
+					>
+						<Applicability parcelId={parcel.id} locale={lang} />
+					</ParcelDetail>
 					<div className="h-64">
 						<ParcelMapWrapper
 							parcels={[parcel]}

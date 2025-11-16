@@ -118,6 +118,15 @@
 		},
 		"warnings": {
 			"doseAdvice": "Si consiglia di non superare la dose di"
+		},
+		"applicability": {
+			"title": "Applicabilità Trattamenti Prossimi 3 Giorni",
+			"applicable": "Applicabile",
+			"notApplicable": "Non Applicabile",
+			"rain": "Pioggia",
+			"avgWind": "Vento Medio",
+			"mm": "mm",
+			"kmh": "km/h"
 		}
 	},
 	"profile": {
