@@ -193,7 +193,11 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		const tasks = await prisma.weatherHistoryTask.findMany();
+		const tasks = await prisma.weatherHistoryTask.findMany({
+			where: {
+				enabled: true,
+			},
+		});
 
 		let totalEntriesCreated = 0;
 		let tasksProcessed = 0;

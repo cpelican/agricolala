@@ -220,6 +220,7 @@ model WeatherHistoryTask {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   parcels Parcel[] @relation("WeatherHistoryTasksParcels")
+  enabled Boolean @default(true)
 }
 
 model WeatherHistory {
