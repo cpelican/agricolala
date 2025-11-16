@@ -84,7 +84,7 @@ model Parcel {
   updatedAt  DateTime    @updatedAt
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   treatments Treatment[]
-
+  weatherHistories WeatherHistory[] @relation("WeatherHistoryParcels")
   @@index([userId], map: "idx_parcel_user_id")
 }
 
@@ -208,4 +208,31 @@ enum CultureType {
 enum TreatmentStatus {
   TODO
   DONE
+}
+
+
+model WeatherHistoryTask {
+  id        String   @id @default(cuid())
+  cityName  String
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WeatherHistory {
+  id                        Int      @id @default(autoincrement())
+  cityName                  String
+  latitude                  Float?
+  longitude                 Float?
+  dateTime                  DateTime @unique
+  parcels                   Parcel[] @relation("WeatherHistoryParcels")
+  temperature2mMin            Float?
+  temperature2mMax            Float?
+  relative_humidity_2mMin     Float?
+  relative_humidity_2mMax     Float?
+  wind_speed_median           Float?
+  temperature80mMin            Float?
+  temperature80mMax            Float?
+  cumulativePrecipitation             Float?
 }
