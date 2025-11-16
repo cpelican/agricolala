@@ -231,7 +231,10 @@ model WeatherHistory {
   temperature2mMax            Float?
   relative_humidity_2mMin     Float?
   relative_humidity_2mMax     Float?
-  wind_speed_median           Float?
+  wind_speed_10mMin          Float?
+  wind_speed_10mMax          Float?
+  wind_speed_180mMin          Float?
+  wind_speed_180mMax          Float?
   temperature80mMin            Float?
   temperature80mMax            Float?
   cumulativePrecipitation             Float?
