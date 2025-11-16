@@ -39,6 +39,8 @@ npx prisma migrate deploy
 
 The repository is connected to a Vercel deployment. If you push to main, this will trigger a new deploy.
 
+if you need to update some rls policies for some new tables, make sure you update supabase-setup.sql
+
 ## Linting & Formatting
 
 ```bash
