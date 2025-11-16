@@ -171,7 +171,12 @@
 		"grOfPureActiveSubstance": "gr of pure active substance",
 		"kgPerHa": "kg/ha of pure active substance",
 		"max": "Max",
-		"noTreatmentData": "No treatment data available for this year"
+		"noTreatmentData": "No treatment data available for this year",
+		"lastYear": "last year",
+		"yearlyComparison": "Yearly Substance Usage Comparison",
+		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
+		"yearlyUsageTitle": "Cumulated Substance Usage by Year (kg/ha)",
+		"year": "Year"
 	},
 	"deleteTreatment": {
 		"title": "Delete Treatment",

@@ -93,5 +93,9 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		);
 	}
 
-	return <Line data={chartData} options={options} />;
+	return (
+		<div className="max-h-[400px] flex justify-center items-center">
+			<Line data={chartData} options={options} />
+		</div>
+	);
 }

@@ -171,7 +171,12 @@
 		"grOfPureActiveSubstance": "gr di sostanza attiva pura",
 		"kgPerHa": "kg/ha di sostanza attiva pura",
 		"max": "Max",
-		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno"
+		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno",
+		"lastYear": "anno scorso",
+		"yearlyComparison": "Confronto Uso Sostanze Annuale",
+		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
+		"yearlyUsageTitle": "Uso Cumulato Sostanze per Anno (kg/ha)",
+		"year": "Anno"
 	},
 	"deleteTreatment": {
 		"title": "Elimina Trattamento",

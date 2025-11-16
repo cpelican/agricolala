@@ -1,4 +1,4 @@
-import { TreatmentStatus } from "@prisma/client";
+import { TreatmentStatus, type UserSubstanceAggregation } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
 import { Errors } from "@/app/const";
@@ -238,6 +238,44 @@ export const getCachedSubstanceAggregations = cache(
 			monthlyData: agg.monthlyData,
 			applicationCount: agg.applicationCount,
 		}));
+	},
+);
+
+export const getAllYearsSubstanceAggregations = cache(
+	async (userId: string) => {
+		const aggregations = await prisma.userSubstanceAggregation.findMany({
+			where: { userId },
+			orderBy: [{ year: "asc" }, { substanceName: "asc" }],
+		});
+
+		const yearData: Record<
+			number,
+			Record<
+				string,
+				Pick<
+					UserSubstanceAggregation,
+					| "totalDoseOfProduct"
+					| "totalUsedOfPureActiveSubstance"
+					| "totalUsedOfPureActiveSubstancePerHa"
+					| "year"
+				>
+			>
+		> = {};
+
+		for (const agg of aggregations) {
+			if (!yearData[agg.year]) {
+				yearData[agg.year] = {};
+			}
+			yearData[agg.year][agg.substanceName] = {
+				totalDoseOfProduct: agg.totalDoseOfProduct,
+				totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
+				totalUsedOfPureActiveSubstancePerHa:
+					agg.totalUsedOfPureActiveSubstancePerHa,
+				year: agg.year,
+			};
+		}
+
+		return yearData;
 	},
 );
 
