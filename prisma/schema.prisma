@@ -130,6 +130,9 @@ model ProductApplication {
   updatedAt   DateTime  @updatedAt
   product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   treatment   Treatment @relation(fields: [treatmentId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([treatmentId])
 }
 
 model Substance {
@@ -151,6 +154,9 @@ model SubstanceDose {
   updatedAt   DateTime  @updatedAt
   product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   substance   Substance @relation(fields: [substanceId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([substanceId])
 }
 
 model Disease {
