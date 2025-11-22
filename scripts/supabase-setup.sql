@@ -329,8 +329,9 @@ CREATE POLICY "Users can delete weather history-parcel relationships for their p
     );
 
 -- RLS policies for _SubstanceDiseases junction table
--- Drop old "Anyone can view" policy if it exists
+-- Drop old policies if they exist (from previous versions)
 DROP POLICY IF EXISTS "Anyone can view substance-disease relationships" ON "_SubstanceDiseases";
+DROP POLICY IF EXISTS "Allow select for authenticated users" ON "_SubstanceDiseases";
 
 DROP POLICY IF EXISTS "Authenticated users can view substance-disease relationships" ON "_SubstanceDiseases";
 CREATE POLICY "Authenticated users can view substance-disease relationships" ON "_SubstanceDiseases"
