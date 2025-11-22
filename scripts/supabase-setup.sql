@@ -38,83 +38,83 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP POLICY IF EXISTS "Users can view their own profile or admins can view all" ON "User";
 CREATE POLICY "Users can view their own profile or admins can view all" ON "User"
     FOR SELECT USING (
-        auth.uid()::text = id OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = id OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can update their own profile or admins can update all" ON "User";
 CREATE POLICY "Users can update their own profile or admins can update all" ON "User"
     FOR UPDATE USING (
-        auth.uid()::text = id OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = id OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can insert their own profile or admins can insert" ON "User";
 CREATE POLICY "Users can insert their own profile or admins can insert" ON "User"
     FOR INSERT WITH CHECK (
-        auth.uid()::text = id OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = id OR is_admin((select auth.uid())::text)
     );
 
 -- Create RLS policies for Account table
 DROP POLICY IF EXISTS "Users can manage their own accounts or admins can manage all" ON "Account";
 CREATE POLICY "Users can manage their own accounts or admins can manage all" ON "Account"
     FOR ALL USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 -- Create RLS policies for Session table
 DROP POLICY IF EXISTS "Users can manage their own sessions or admins can manage all" ON "Session";
 CREATE POLICY "Users can manage their own sessions or admins can manage all" ON "Session"
     FOR ALL USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 -- Create RLS policies for Parcel table
 DROP POLICY IF EXISTS "Users can view their own parcels or admins can view all" ON "Parcel";
 CREATE POLICY "Users can view their own parcels or admins can view all" ON "Parcel"
     FOR SELECT USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can insert their own parcels or admins can insert" ON "Parcel";
 CREATE POLICY "Users can insert their own parcels or admins can insert" ON "Parcel"
     FOR INSERT WITH CHECK (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can update their own parcels or admins can update all" ON "Parcel";
 CREATE POLICY "Users can update their own parcels or admins can update all" ON "Parcel"
     FOR UPDATE USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can delete their own parcels or admins can delete all" ON "Parcel";
 CREATE POLICY "Users can delete their own parcels or admins can delete all" ON "Parcel"
     FOR DELETE USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 -- Create RLS policies for Treatment table
 DROP POLICY IF EXISTS "Users can view their own treatments or admins can view all" ON "Treatment";
 CREATE POLICY "Users can view their own treatments or admins can view all" ON "Treatment"
     FOR SELECT USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can insert their own treatments or admins can insert" ON "Treatment";
 CREATE POLICY "Users can insert their own treatments or admins can insert" ON "Treatment"
     FOR INSERT WITH CHECK (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can update their own treatments or admins can update all" ON "Treatment";
 CREATE POLICY "Users can update their own treatments or admins can update all" ON "Treatment"
     FOR UPDATE USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 DROP POLICY IF EXISTS "Users can delete their own treatments or admins can delete all" ON "Treatment";
 CREATE POLICY "Users can delete their own treatments or admins can delete all" ON "Treatment"
     FOR DELETE USING (
-        auth.uid()::text = "userId" OR is_admin(auth.uid()::text)
+        (select auth.uid())::text = "userId" OR is_admin((select auth.uid())::text)
     );
 
 -- Create RLS policies for ProductApplication table
@@ -124,7 +124,7 @@ CREATE POLICY "Users can view their own product applications or admins can view 
         EXISTS (
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
-            AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
+            AND (t."userId" = (select auth.uid())::text OR is_admin((select auth.uid())::text))
         )
     );
 
@@ -134,7 +134,7 @@ CREATE POLICY "Users can insert their own product applications or admins can ins
         EXISTS (
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
-            AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
+            AND (t."userId" = (select auth.uid())::text OR is_admin((select auth.uid())::text))
         )
     );
 
@@ -144,7 +144,7 @@ CREATE POLICY "Users can update their own product applications or admins can upd
         EXISTS (
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
-            AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
+            AND (t."userId" = (select auth.uid())::text OR is_admin((select auth.uid())::text))
         )
     );
 
@@ -154,7 +154,7 @@ CREATE POLICY "Users can delete their own product applications or admins can del
         EXISTS (
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
-            AND (t."userId" = auth.uid()::text OR is_admin(auth.uid()::text))
+            AND (t."userId" = (select auth.uid())::text OR is_admin((select auth.uid())::text))
         )
     );
 
@@ -162,106 +162,106 @@ CREATE POLICY "Users can delete their own product applications or admins can del
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can view weather history tasks" ON "WeatherHistoryTask";
 CREATE POLICY "Authenticated users, admins, and cron jobs can view weather history tasks" ON "WeatherHistoryTask"
     FOR SELECT USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can insert weather history tasks" ON "WeatherHistoryTask";
 CREATE POLICY "Authenticated users, admins, and cron jobs can insert weather history tasks" ON "WeatherHistoryTask"
     FOR INSERT WITH CHECK (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can update weather history tasks" ON "WeatherHistoryTask";
 CREATE POLICY "Authenticated users, admins, and cron jobs can update weather history tasks" ON "WeatherHistoryTask"
     FOR UPDATE USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can delete weather history tasks" ON "WeatherHistoryTask";
 CREATE POLICY "Authenticated users, admins, and cron jobs can delete weather history tasks" ON "WeatherHistoryTask"
     FOR DELETE USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 -- RLS Policies for WeatherHistory
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can view weather history" ON "WeatherHistory";
 CREATE POLICY "Authenticated users, admins, and cron jobs can view weather history" ON "WeatherHistory"
     FOR SELECT USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can insert weather history" ON "WeatherHistory";
 CREATE POLICY "Authenticated users, admins, and cron jobs can insert weather history" ON "WeatherHistory"
     FOR INSERT WITH CHECK (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can update weather history" ON "WeatherHistory";
 CREATE POLICY "Authenticated users, admins, and cron jobs can update weather history" ON "WeatherHistory"
     FOR UPDATE USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 DROP POLICY IF EXISTS "Authenticated users, admins, and cron jobs can delete weather history" ON "WeatherHistory";
 CREATE POLICY "Authenticated users, admins, and cron jobs can delete weather history" ON "WeatherHistory"
     FOR DELETE USING (
-        auth.role() = 'service_role' OR
-        auth.uid() IS NOT NULL
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
     );
 
 -- RLS Policies for _WeatherHistoryTasksParcels junction table
 DROP POLICY IF EXISTS "Users can view weather history task-parcel relationships for their parcels or admins/cron can view all" ON "_WeatherHistoryTasksParcels";
 CREATE POLICY "Users can view weather history task-parcel relationships for their parcels or admins/cron can view all" ON "_WeatherHistoryTasksParcels"
     FOR SELECT USING (
-        auth.role() = 'service_role' OR
-        is_admin(auth.uid()::text) OR
+        (select auth.role()) = 'service_role' OR
+        is_admin((select auth.uid())::text) OR
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "A"
-            AND p."userId" = auth.uid()::text
+            AND p."userId" = (select auth.uid())::text
         )
     );
 
 DROP POLICY IF EXISTS "Users can insert weather history task-parcel relationships for their parcels or admins/cron can insert" ON "_WeatherHistoryTasksParcels";
 CREATE POLICY "Users can insert weather history task-parcel relationships for their parcels or admins/cron can insert" ON "_WeatherHistoryTasksParcels"
     FOR INSERT WITH CHECK (
-        auth.role() = 'service_role' OR
-        is_admin(auth.uid()::text) OR
+        (select auth.role()) = 'service_role' OR
+        is_admin((select auth.uid())::text) OR
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "A"
-            AND p."userId" = auth.uid()::text
+            AND p."userId" = (select auth.uid())::text
         )
     );
 
 DROP POLICY IF EXISTS "Users can update weather history task-parcel relationships for their parcels or admins/cron can update all" ON "_WeatherHistoryTasksParcels";
 CREATE POLICY "Users can update weather history task-parcel relationships for their parcels or admins/cron can update all" ON "_WeatherHistoryTasksParcels"
     FOR UPDATE USING (
-        auth.role() = 'service_role' OR
-        is_admin(auth.uid()::text) OR
+        (select auth.role()) = 'service_role' OR
+        is_admin((select auth.uid())::text) OR
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "A"
-            AND p."userId" = auth.uid()::text
+            AND p."userId" = (select auth.uid())::text
         )
     );
 
 DROP POLICY IF EXISTS "Users can delete weather history task-parcel relationships for their parcels or admins/cron can delete all" ON "_WeatherHistoryTasksParcels";
 CREATE POLICY "Users can delete weather history task-parcel relationships for their parcels or admins/cron can delete all" ON "_WeatherHistoryTasksParcels"
     FOR DELETE USING (
-        auth.role() = 'service_role' OR
-        is_admin(auth.uid()::text) OR
+        (select auth.role()) = 'service_role' OR
+        is_admin((select auth.uid())::text) OR
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "A"
-            AND p."userId" = auth.uid()::text
+            AND p."userId" = (select auth.uid())::text
         )
     );
 
@@ -290,28 +290,28 @@ CREATE POLICY "Anyone can view substance doses" ON "SubstanceDose"
 -- Admin policies for reference tables (only admins can modify)
 DROP POLICY IF EXISTS "Only admins can modify products" ON "Product";
 CREATE POLICY "Only admins can modify products" ON "Product"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 DROP POLICY IF EXISTS "Only admins can modify substances" ON "Substance";
 CREATE POLICY "Only admins can modify substances" ON "Substance"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 DROP POLICY IF EXISTS "Only admins can modify diseases" ON "Disease";
 CREATE POLICY "Only admins can modify diseases" ON "Disease"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 DROP POLICY IF EXISTS "Only admins can modify substance doses" ON "SubstanceDose";
 CREATE POLICY "Only admins can modify substance doses" ON "SubstanceDose"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 -- Admin policies for AdminUser table
 DROP POLICY IF EXISTS "Admins can manage admin users" ON "AdminUser";
 CREATE POLICY "Admins can manage admin users" ON "AdminUser"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 DROP POLICY IF EXISTS "Only admins can modify substance-disease relationships" ON "_SubstanceDiseases";
 CREATE POLICY "Only admins can modify substance-disease relationships" ON "_SubstanceDiseases"
-    FOR ALL USING (is_admin(auth.uid()::text));
+    FOR ALL USING (is_admin((select auth.uid())::text));
 
 -- Create indexes for better performance (already using IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_parcel_user_id ON "Parcel"("userId");
