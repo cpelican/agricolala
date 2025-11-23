@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type React from "react";
 import Image from "next/image";
-import "../globals.css";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";

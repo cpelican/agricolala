@@ -10,6 +10,10 @@ const nextConfig = {
 	images: {
 		domains: ["lh3.googleusercontent.com"],
 	},
+	compress: true,
+	poweredByHeader: false,
+	// Enable CSS optimization
+	swcMinify: true,
 };
 
 export default nextConfig;
