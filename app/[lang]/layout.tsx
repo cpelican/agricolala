@@ -4,8 +4,10 @@ import Image from "next/image";
 import "../globals.css";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
-import { AuthGuard } from "@/components/auth/auth-guard";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
+import { requireAuth } from "@/lib/auth-utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",
@@ -18,20 +20,19 @@ export default async function Layout({
 }: {
 	children: React.ReactNode;
 }) {
+	const session = await requireAuth();
+
 	return (
-		<Providers>
-			<AuthGuard>
-				<CachedDataWrapper>
-					<LayoutWithHeader
-						title="Agricolala"
-						icon={
-							<Image src="/1.png" alt="Agricolala" width={32} height={32} />
-						}
-					>
-						{children}
-					</LayoutWithHeader>
-				</CachedDataWrapper>
-			</AuthGuard>
+		<Providers userEmail={session.user.email}>
+			<CachedDataWrapper>
+				<LayoutWithHeader
+					title="Agricolala"
+					icon={<Image src="/1.png" alt="Agricolala" width={32} height={32} />}
+					isAuthorized={session.user.isAuthorized}
+				>
+					{children}
+				</LayoutWithHeader>
+			</CachedDataWrapper>
 		</Providers>
 	);
 }

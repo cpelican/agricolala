@@ -1,6 +1,4 @@
 import type React from "react";
-import { requireAuth } from "@/lib/auth-utils";
-import { taintUtils } from "@/lib/taint-utils";
 import { BottomNavigation } from "../routing/bottom-navigation";
 import { UnauthorizedMessage } from "../misc/unauthorized-message";
 import { SidebarNavigation } from "../routing/sidebar-navigation";
@@ -9,21 +7,16 @@ interface LayoutWithHeaderProps {
 	children: React.ReactNode;
 	icon: React.ReactNode;
 	title: string;
+	isAuthorized: boolean;
 }
 
 export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
 	children,
 	icon,
 	title,
+	isAuthorized,
 }) => {
-	const session = await requireAuth();
-
-	taintUtils.taintObject(
-		"Do not pass user session data to the client. Instead, pick off specific properties you need.",
-		session,
-	);
-
-	if (!session.user.isAuthorized) {
+	if (!isAuthorized) {
 		return <UnauthorizedMessage />;
 	}
 	return (

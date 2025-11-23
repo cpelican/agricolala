@@ -7,6 +7,9 @@ import { getParcels } from "@/lib/data-fetcher";
 import { HomeSkeleton } from "@/components/skeletons/home-skeleton";
 import { Header } from "@/components/misc/header";
 
+// routes being rendered for each user at request time. This option is equivalent to no caching.
+export const dynamic = "force-dynamic";
+
 export default async function Home({
 	params,
 }: {
@@ -15,6 +18,7 @@ export default async function Home({
 	const { lang } = await params;
 	const dict = tServer(lang);
 	const session = await requireAuth();
+	const userId = session.user.id;
 
 	return (
 		<StrictMode>
@@ -23,8 +27,9 @@ export default async function Home({
 			/>
 			<Suspense fallback={<HomeSkeleton />}>
 				<HomeContentAsync
-					parcelsPromise={getParcels(session.user.id)}
+					parcelsPromise={getParcels(userId)}
 					locale={lang}
+					userId={userId}
 				/>
 			</Suspense>
 		</StrictMode>

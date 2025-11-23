@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { TosAcceptanceDialog } from "./tos-acceptance-dialog";
 import { acceptTos } from "@/app/actions/accept-tos";
 import { getTosStatus } from "@/app/actions/get-tos-status";
@@ -9,24 +8,17 @@ import { useRouter } from "next/navigation";
 
 interface TosCheckProps {
 	children: React.ReactNode;
+	userEmail?: string | null;
 }
 
-export function TosCheck({ children }: TosCheckProps) {
-	const { data: session, status } = useSession();
+export function TosCheck({ children, userEmail }: TosCheckProps) {
 	const [showTosDialog, setShowTosDialog] = useState(false);
 	const [isChecking, setIsChecking] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
 		const checkTosAcceptance = async () => {
-			if (status === "loading") return;
-
-			if (status === "unauthenticated") {
-				setIsChecking(false);
-				return;
-			}
-
-			if (session?.user?.email) {
+			if (userEmail) {
 				try {
 					const result = await getTosStatus();
 
@@ -42,7 +34,7 @@ export function TosCheck({ children }: TosCheckProps) {
 		};
 
 		checkTosAcceptance();
-	}, [session, status]);
+	}, [userEmail]);
 
 	const handleAcceptTos = async () => {
 		try {

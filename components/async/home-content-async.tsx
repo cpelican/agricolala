@@ -5,7 +5,6 @@ import {
 	getCachedSubstances,
 	type ParcelWithTreatments,
 } from "@/lib/data-fetcher";
-import { requireAuth } from "@/lib/auth-utils";
 import { HomeContentUI } from "@/components/misc/home-content-ui";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
@@ -13,14 +12,15 @@ import { tServer } from "@/lib/translations-server-only";
 interface HomeContentProps {
 	parcelsPromise: Promise<ParcelWithTreatments[]>;
 	locale: Locale;
+	userId: string;
 }
 
 export async function HomeContentAsync({
 	parcelsPromise,
 	locale,
+	userId,
 }: HomeContentProps) {
 	const parcels = await parcelsPromise;
-	const session = await requireAuth();
 	if (parcels.length === 0) {
 		return <HomeContentUI />;
 	}
@@ -28,8 +28,8 @@ export async function HomeContentAsync({
 	const currentYear = new Date().getFullYear();
 
 	const [currentYearData, allYearsData] = await Promise.all([
-		getCachedSubstanceAggregations(session.user.id, currentYear),
-		getAllYearsSubstanceAggregations(session.user.id),
+		getCachedSubstanceAggregations(userId, currentYear),
+		getAllYearsSubstanceAggregations(userId),
 	]);
 
 	const substances = await getCachedSubstances();

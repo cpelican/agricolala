@@ -7,14 +7,10 @@ declare module "next-auth" {
 			id: string;
 			name?: string | null;
 			email?: string | null;
-			image?: string | null;
 			isAuthorized: boolean;
 			locale: Locale;
 		};
 	}
 
-	interface User {
-		isAuthorized: boolean;
-		locale: Locale;
-	}
+	type User = Pick<Session["user"], "isAuthorized" | "locale">;
 }

@@ -59,3 +59,10 @@ npm run tsc
 - [x] fix map
 
 - [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
+
+
+
+Things made to improve performance:
+- [x] add subquery for the user when creating rls policies to avoid querying on each row the user
+- [x] avoid doppione for the rls policy creation since for all was iterating on all queries, and then we were defining again the policy for select. This was an issue for the tables Product, Substance, Disease, SubstanceDose
+- [x] page load - improve fcp: cache the session, and make the session handling less complicated. use it server side
