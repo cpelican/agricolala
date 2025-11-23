@@ -4,7 +4,12 @@ import type React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"], preload: true });
+const inter = Inter({
+	subsets: ["latin"],
+	display: "swap",
+	preload: true,
+	adjustFontFallback: true,
+});
 
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",

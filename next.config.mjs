@@ -14,6 +14,7 @@ const nextConfig = {
 				},
 			},
 		},
+		webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'TTFB', 'INP'],
 	},
 	serverExternalPackages: ["@prisma/client"],
 	images: {
