@@ -116,5 +116,11 @@ export function SubstanceYearlyChart({
 		},
 	};
 
-	return <ChartWrapper data={chartData} options={options} />;
+	return (
+		<ChartWrapper
+			data={chartData}
+			options={options}
+			emptyMessage={t("substances.noTreatmentData")}
+		/>
+	);
 }
