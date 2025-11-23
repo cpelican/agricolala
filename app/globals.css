@@ -194,4 +194,8 @@
   button {
     cursor: pointer;
   }
+
+  meter {
+    border: revert;
+  }
 }
