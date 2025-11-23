@@ -1,28 +1,19 @@
 "use client";
 
-import {
-	CategoryScale,
-	Chart as ChartJS,
-	Legend,
-	LinearScale,
-	LineElement,
-	PointElement,
-	Title,
-	Tooltip,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
+import dynamic from "next/dynamic";
 import { useSubstances } from "@/contexts/cached-data-context";
 import type { SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
+import type { ChartData, ChartOptions } from "chart.js";
+import { ChartSkeleton } from "./chart-wrapper";
 
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Title,
-	Tooltip,
-	Legend,
+const ChartWrapper = dynamic(
+	() =>
+		import("./chart-wrapper").then((mod) => ({ default: mod.ChartWrapper })),
+	{
+		ssr: false,
+		loading: () => <ChartSkeleton />,
+	},
 );
 
 interface SubstanceChartProps {
@@ -55,7 +46,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		{} as Record<string, string>,
 	);
 
-	const chartData = {
+	const chartData: ChartData<"line"> = {
 		labels: months,
 		datasets: data.map((substance) => ({
 			label: substance.name,
@@ -66,7 +57,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		})),
 	};
 
-	const options = {
+	const options: ChartOptions<"line"> = {
 		responsive: true,
 		aspectRatio: 1.2,
 		plugins: {
@@ -85,17 +76,11 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		},
 	};
 
-	if (data.length === 0) {
-		return (
-			<div className="text-center py-8 text-gray-500">
-				{t("substances.noTreatmentData")}
-			</div>
-		);
-	}
-
 	return (
-		<div className="max-h-[400px] flex justify-center items-center">
-			<Line data={chartData} options={options} />
-		</div>
+		<ChartWrapper
+			data={chartData}
+			options={options}
+			emptyMessage={t("substances.noTreatmentData")}
+		/>
 	);
 }

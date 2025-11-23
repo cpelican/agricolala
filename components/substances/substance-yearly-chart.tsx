@@ -1,27 +1,18 @@
 "use client";
 
-import {
-	CategoryScale,
-	Chart as ChartJS,
-	Legend,
-	LinearScale,
-	LineElement,
-	PointElement,
-	Title,
-	Tooltip,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
+import dynamic from "next/dynamic";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
+import type { ChartData, ChartOptions } from "chart.js";
+import { ChartSkeleton } from "./chart-wrapper";
 
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Title,
-	Tooltip,
-	Legend,
+const ChartWrapper = dynamic(
+	() =>
+		import("./chart-wrapper").then((mod) => ({ default: mod.ChartWrapper })),
+	{
+		ssr: false,
+		loading: () => <ChartSkeleton />,
+	},
 );
 
 interface SubstanceYearlyChartProps {
@@ -91,12 +82,12 @@ export function SubstanceYearlyChart({
 			(dataset): dataset is NonNullable<typeof dataset> => dataset !== null,
 		);
 
-	const chartData = {
+	const chartData: ChartData<"line"> = {
 		labels: years.map((year) => year.toString()),
 		datasets,
 	};
 
-	const options = {
+	const options: ChartOptions<"line"> = {
 		responsive: true,
 		aspectRatio: 1.2,
 		plugins: {
@@ -125,9 +116,5 @@ export function SubstanceYearlyChart({
 		},
 	};
 
-	return (
-		<div className="max-h-[400px] flex justify-center items-center">
-			<Line data={chartData} options={options} />
-		</div>
-	);
+	return <ChartWrapper data={chartData} options={options} />;
 }
