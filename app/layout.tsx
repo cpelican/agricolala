@@ -4,12 +4,11 @@ import type React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], preload: true });
 
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",
 	description: "Manage your wineyard treatments and parcels",
-	manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
