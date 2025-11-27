@@ -1,5 +1,4 @@
 import { requireAuth } from "@/lib/auth-utils";
-import { getParcels } from "@/lib/data-fetcher";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
 import { ParcelsContentAsync } from "@/components/async/parcels-content-async";
@@ -20,7 +19,7 @@ export default async function ParcelsPage({
 		<>
 			<Header title={dict.parcels.title} subtitle={dict.parcels.description} />
 			<Suspense fallback={<ParcelsSkeleton />}>
-				<ParcelsContentAsync parcelsPromise={getParcels(session.user.id)} />
+				<ParcelsContentAsync userId={session.user.id} />
 			</Suspense>
 		</>
 	);

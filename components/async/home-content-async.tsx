@@ -3,24 +3,19 @@ import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
 	getCachedSubstances,
-	type ParcelWithTreatments,
+	getParcels,
 } from "@/lib/data-fetcher";
 import { HomeContentUI } from "@/components/misc/home-content-ui";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
 interface HomeContentProps {
-	parcelsPromise: Promise<ParcelWithTreatments[]>;
 	locale: Locale;
 	userId: string;
 }
 
-export async function HomeContentAsync({
-	parcelsPromise,
-	locale,
-	userId,
-}: HomeContentProps) {
-	const parcels = await parcelsPromise;
+export async function HomeContentAsync({ locale, userId }: HomeContentProps) {
+	const parcels = await getParcels(userId);
 	if (parcels.length === 0) {
 		return <HomeContentUI />;
 	}

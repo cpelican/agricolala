@@ -6,8 +6,6 @@ import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { requireAuth } from "@/lib/auth-utils";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",
 	description: "Manage your wineyard treatments and parcels",

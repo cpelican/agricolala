@@ -1,13 +1,13 @@
 import { AddTreatmentButton } from "../treatments/add-treatment-button";
-import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import { getParcels } from "@/lib/data-fetcher";
 
 interface AddTreatmentButtonAsyncProps {
-	parcelsPromise: Promise<ParcelWithTreatments[]>;
+	userId: string;
 }
 
 export async function AddTreatmentButtonAsync({
-	parcelsPromise,
+	userId,
 }: AddTreatmentButtonAsyncProps) {
-	const parcels = await parcelsPromise;
+	const parcels = await getParcels(userId);
 	return <AddTreatmentButton parcels={parcels} />;
 }

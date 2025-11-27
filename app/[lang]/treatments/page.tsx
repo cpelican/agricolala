@@ -3,7 +3,7 @@ import { TreatmentsContentAsync } from "@/components/async/treatments-content-as
 import { AddTreatmentButtonAsync } from "@/components/async/add-treatment-button-async";
 import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
-import { getParcels, getTreatments } from "@/lib/data-fetcher";
+import { getTreatments } from "@/lib/data-fetcher";
 import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
 import { tServer } from "@/lib/translations-server-only";
 import { type Locale } from "@/lib/translations-helpers";
@@ -32,7 +32,7 @@ export default async function TreatmentsPage({
 				/>
 			</Suspense>
 			<Suspense fallback={null}>
-				<AddTreatmentButtonAsync parcelsPromise={getParcels(session.user.id)} />
+				<AddTreatmentButtonAsync userId={session.user.id} />
 			</Suspense>
 		</>
 	);

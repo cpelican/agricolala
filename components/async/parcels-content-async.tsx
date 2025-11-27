@@ -1,13 +1,13 @@
-import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import { getParcels } from "@/lib/data-fetcher";
 import { ParcelsContent } from "../parcels/parcels-content";
 
 interface ParcelsContentAsyncProps {
-	parcelsPromise: Promise<ParcelWithTreatments[]>;
+	userId: string;
 }
 
 export async function ParcelsContentAsync({
-	parcelsPromise,
+	userId,
 }: ParcelsContentAsyncProps) {
-	const parcels = await parcelsPromise;
+	const parcels = await getParcels(userId);
 	return <ParcelsContent parcels={parcels} />;
 }
