@@ -56,18 +56,16 @@ export function TosCheck({ children, userEmail }: TosCheckProps) {
 		router.push("/api/auth/signout");
 	};
 
-	if (isChecking) {
-		return null; // or a loading spinner
-	}
-
 	return (
 		<>
 			{children}
-			<TosAcceptanceDialog
-				open={showTosDialog}
-				onAccept={handleAcceptTos}
-				onDecline={handleDeclineTos}
-			/>
+			{!isChecking && (
+				<TosAcceptanceDialog
+					open={showTosDialog}
+					onAccept={handleAcceptTos}
+					onDecline={handleDeclineTos}
+				/>
+			)}
 		</>
 	);
 }

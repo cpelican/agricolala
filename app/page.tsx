@@ -1,8 +1,4 @@
-import { defaultLocale } from "@/lib/translations-helpers";
-import { redirect } from "next/navigation";
-import { requireAuth } from "@/lib/auth-utils";
-
-export default async function RootPage() {
-	const session = await requireAuth();
-	redirect(`/${session.user.locale || defaultLocale}`);
+// This page should never be reached - middleware redirects all requests
+export default function RootPage() {
+	throw new Error("Not implemented");
 }
