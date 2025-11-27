@@ -1,4 +1,4 @@
-import { Locale } from "@/lib/translations-helpers";
+import { type Locale } from "@/lib/translations-helpers";
 import "next-auth";
 
 declare module "next-auth" {

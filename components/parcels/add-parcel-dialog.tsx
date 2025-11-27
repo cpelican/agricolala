@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type React from "react";
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/contexts/translations-context";
 import { Button } from "@/components/ui/button";

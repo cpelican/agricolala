@@ -45,12 +45,15 @@ export function ParcelMap({
 		null,
 	);
 	const [isLoading, setIsLoading] = useState(true);
-	const defaultLocation = markersRef.current?.[0]?.getLatLng() ?? {
-		lat: 45.0,
-		lon: 7.0,
-	};
+
+	const FALLBACK_LOCATION: [number, number] = [45.0, 7.0];
 
 	useEffect(() => {
+		const defaultLocation: [number, number] =
+			parcels.length > 0
+				? [parcels[0].latitude, parcels[0].longitude]
+				: FALLBACK_LOCATION;
+
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
@@ -60,15 +63,15 @@ export function ParcelMap({
 				},
 				(error) => {
 					console.warn("Error getting location:", error);
-					// Fallback to default location (45.0, 7.0)
-					setUserLocation([defaultLocation.lat, defaultLocation.lng]);
+					setUserLocation(defaultLocation);
 					setIsLoading(false);
 				},
 			);
 		} else {
-			setUserLocation([defaultLocation.lat, defaultLocation.lng]);
+			setUserLocation(defaultLocation);
 			setIsLoading(false);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
