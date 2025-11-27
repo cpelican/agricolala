@@ -5,7 +5,7 @@ export function ParcelsSkeleton() {
 		<div className="p-4 space-y-4">
 			<div className="space-y-2">
 				<Skeleton className="h-4 w-32 ml-auto" />
-				<Skeleton className="h-90 w-full rounded-lg" />
+				<Skeleton className="h-100 w-full rounded-lg" />
 			</div>
 
 			<div className="grid gap-4">

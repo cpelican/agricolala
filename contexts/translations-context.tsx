@@ -5,7 +5,7 @@ import {
 	useContext,
 	useState,
 	useEffect,
-	type ReactNode,
+	ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -13,7 +13,7 @@ import {
 	defaultLocale,
 	getLanguageAsLocale,
 	appLanguages,
-	type Locale,
+	Locale,
 } from "@/lib/translations-helpers";
 import type { TranslationType } from "@/lib/translations-server-only";
 

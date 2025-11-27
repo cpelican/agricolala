@@ -17,12 +17,7 @@ const nextConfig = {
 	},
 	serverExternalPackages: ["@prisma/client"],
 	images: {
-		remotePatterns: [
-			{
-				protocol: "https",
-				hostname: "lh3.googleusercontent.com",
-			},
-		],
+		domains: ["lh3.googleusercontent.com"],
 	},
 };
 
