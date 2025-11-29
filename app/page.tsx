@@ -1,4 +1,5 @@
 // This page should never be reached - middleware redirects all requests
-export default function RootPage() {
-	throw new Error("Not implemented");
+export default async function RootPage() {
+	console.error("RootPage should never be reached");
+	return null;
 }
