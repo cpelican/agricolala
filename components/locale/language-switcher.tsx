@@ -25,9 +25,8 @@ export function LanguageSwitcher() {
 		try {
 			await updateUserLocale(newLocale);
 			redirectToLocale(newLocale);
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (_error) {
-			console.error("Error updating locale");
+		} catch (error) {
+			console.error("Error updating locale", error);
 			// Still navigate even if database update fails
 			redirectToLocale(newLocale);
 		}

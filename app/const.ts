@@ -8,6 +8,7 @@ export const Errors = {
 	INTERNAL_SERVER: "Internal server error",
 };
 
+export const INVALID_SESSION_ID = "";
 export const navigation = [
 	{ name: "navigation.home", href: "/", icon: Home },
 	{ name: "navigation.parcels", href: "/parcels", icon: Map },

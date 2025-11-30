@@ -28,7 +28,6 @@ interface SubstanceUsageExportData {
 }
 
 export async function generateTreatmentsExcel(userId: string, year: number) {
-	// Fetch all treatments for the user in the specified year
 	const treatments = await prisma.treatment.findMany({
 		where: {
 			userId,
@@ -43,18 +42,14 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		},
 	});
 
-	// Get cached data for calculations
 	const substances = await getCachedSubstances();
 	const compositions = await getCachedCompositions();
 	const parcels = await getParcels(userId);
 
-	// Prepare data for Excel sheets
 	const productApplicationsData: ProductApplicationExportData[] = [];
 	const substanceUsageData: SubstanceUsageExportData[] = [];
 
-	// Process treatments
 	treatments.forEach((treatment) => {
-		// Process product applications
 		treatment.productApplications.forEach((application) => {
 			const substances = application.product.composition
 				.map((comp) => {
@@ -78,7 +73,6 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		});
 	});
 
-	// Calculate substance usage
 	const substanceData = calculateSubstanceData(
 		treatments.map((t) => ({
 			id: t.id,
@@ -102,7 +96,6 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		compositions,
 	);
 
-	// Process substance usage data
 	substanceData.forEach((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
 		const maxDosage = substanceMeta?.maxDosage || 0;

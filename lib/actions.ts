@@ -31,13 +31,12 @@ export async function downloadTreatmentsExcel(year: number) {
 			data: base64Data,
 			filename: `treatments-${year}-${session.user.email}.xlsx`,
 		};
-	} catch {
-		console.error("Error generating Excel file");
+	} catch (error) {
+		console.error("Error generating Excel file", error);
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
 
-// Treatment Actions
 export async function createTreatment(formData: FormData) {
 	const session = await getServerSession(authOptions);
 	if (!session?.user?.id || !session.user.isAuthorized) {
@@ -47,7 +46,6 @@ export async function createTreatment(formData: FormData) {
 	taintUtils.taintUserSession(session.user);
 
 	try {
-		// Parse form data
 		const appliedDate = String(formData.get("appliedDate"));
 		const parcelIds = formData.getAll("parcelIds").map(String);
 		const diseases = JSON.parse(String(formData.get("diseases")));
@@ -56,7 +54,6 @@ export async function createTreatment(formData: FormData) {
 		);
 		const waterDose = parseFloat(String(formData.get("waterDose")));
 
-		// Validate with Zod
 		const validatedData = createTreatmentSchema.parse({
 			appliedDate: appliedDate ? new Date(appliedDate) : new Date(),
 			parcelIds,
@@ -65,7 +62,6 @@ export async function createTreatment(formData: FormData) {
 			waterDose,
 		});
 
-		// Verify parcels belong to user
 		const parcels = await prisma.parcel.findMany({
 			where: {
 				id: { in: validatedData.parcelIds },
@@ -83,7 +79,6 @@ export async function createTreatment(formData: FormData) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
-		// Calculate total area
 		const totalArea = parcels.reduce(
 			(sum, parcel) => sum + parcel.width * parcel.height,
 			0,
@@ -97,7 +92,6 @@ export async function createTreatment(formData: FormData) {
 			return result;
 		};
 
-		// Create treatments
 		const createdTreatments = await Promise.all(
 			parcels.map(async (parcel) => {
 				const treatment = await prisma.treatment.create({
@@ -138,11 +132,9 @@ export async function createTreatment(formData: FormData) {
 			}),
 		);
 
-		// Update aggregations
 		const currentYear = new Date().getFullYear();
 		await updateSubstanceAggregations(session.user.id, currentYear);
 
-		// Revalidate pages
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
 		revalidatePath("/");
@@ -153,10 +145,8 @@ export async function createTreatment(formData: FormData) {
 			message: `Created ${createdTreatments.length} treatments across ${parcels.length} parcels`,
 		};
 	} catch (error) {
-		console.error("Error creating treatment");
-		throw new Error(
-			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
-		);
+		console.error("Error creating treatment", error);
+		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
 
@@ -169,7 +159,6 @@ export async function deleteTreatment(treatmentId: string) {
 	taintUtils.taintUserSession(session.user);
 
 	try {
-		// Verify treatment exists and belongs to user
 		const treatment = await prisma.treatment.findFirst({
 			where: {
 				id: treatmentId,
@@ -181,18 +170,15 @@ export async function deleteTreatment(treatmentId: string) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
-		// Delete treatment (cascades to product applications)
 		await prisma.treatment.delete({
 			where: {
 				id: treatmentId,
 			},
 		});
 
-		// Update aggregations
 		const currentYear = new Date().getFullYear();
 		await updateSubstanceAggregations(session.user.id, currentYear);
 
-		// Revalidate pages
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
 		revalidatePath("/");
@@ -202,14 +188,11 @@ export async function deleteTreatment(treatmentId: string) {
 			message: "Treatment deleted successfully",
 		};
 	} catch (error) {
-		console.error("Error deleting treatment");
-		throw new Error(
-			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
-		);
+		console.error("Error deleting treatment", error);
+		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
 
-// Parcel Actions
 export async function createParcel(formData: FormData) {
 	const session = await getServerSession(authOptions);
 	if (!session?.user?.id || !session.user.isAuthorized) {
@@ -226,7 +209,6 @@ export async function createParcel(formData: FormData) {
 		const latitude = parseFloat(String(formData.get("latitude")));
 		const longitude = parseFloat(String(formData.get("longitude")));
 
-		// Validate with Zod
 		const validatedData = createParcelSchema.parse({
 			name,
 			width,
@@ -236,7 +218,6 @@ export async function createParcel(formData: FormData) {
 			longitude,
 		});
 
-		// Create parcel
 		const parcel = await prisma.parcel.create({
 			data: {
 				...validatedData,
@@ -244,7 +225,6 @@ export async function createParcel(formData: FormData) {
 			},
 		});
 
-		// Revalidate pages
 		revalidatePath("/parcels");
 		revalidatePath("/");
 
@@ -253,10 +233,8 @@ export async function createParcel(formData: FormData) {
 			parcel,
 		};
 	} catch (error) {
-		console.error("Error creating parcel");
-		throw new Error(
-			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
-		);
+		console.error("Error creating parcel", error);
+		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
 
@@ -269,7 +247,6 @@ export async function deleteParcel(parcelId: string) {
 	taintUtils.taintUserSession(session.user);
 
 	try {
-		// Verify parcel exists and belongs to user
 		const parcel = await prisma.parcel.findFirst({
 			where: {
 				id: parcelId,
@@ -281,18 +258,15 @@ export async function deleteParcel(parcelId: string) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
-		// Delete parcel (cascades to treatments)
 		await prisma.parcel.delete({
 			where: {
 				id: parcelId,
 			},
 		});
 
-		// Update aggregations
 		const currentYear = new Date().getFullYear();
 		await updateSubstanceAggregations(session.user.id, currentYear);
 
-		// Revalidate pages
 		revalidatePath("/parcels");
 		revalidatePath("/");
 
@@ -301,14 +275,11 @@ export async function deleteParcel(parcelId: string) {
 			message: "Parcel deleted successfully",
 		};
 	} catch (error) {
-		console.error("Error deleting parcel");
-		throw new Error(
-			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
-		);
+		console.error("Error deleting parcel", error);
+		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
 
-// User Locale Actions
 export async function updateUserLocale(locale: Locale) {
 	const session = await getServerSession(authOptions);
 	if (!session?.user?.id || !session.user.isAuthorized) {
@@ -327,7 +298,6 @@ export async function updateUserLocale(locale: Locale) {
 			},
 		});
 
-		// Revalidate pages
 		revalidatePath("/");
 		revalidatePath("/profile");
 
@@ -336,9 +306,7 @@ export async function updateUserLocale(locale: Locale) {
 			message: "Locale updated successfully",
 		};
 	} catch (error) {
-		console.error("Error updating user locale");
-		throw new Error(
-			error instanceof Error ? error.message : Errors.INTERNAL_SERVER,
-		);
+		console.error("Error updating user locale", error);
+		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }

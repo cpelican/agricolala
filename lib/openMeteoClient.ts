@@ -1,3 +1,4 @@
+import { Errors } from "@/app/const";
 import { type WeatherHistory } from "@prisma/client";
 
 export interface OpenMeteoResponse {
@@ -46,7 +47,8 @@ export class OpenMeteoClient {
 
 		const response = await fetch(url.toString());
 		if (!response.ok) {
-			throw new Error(`Failed to fetch weather data: ${response.statusText}`);
+			console.error(`Failed to fetch weather data: ${response.statusText}`);
+			throw new Error(Errors.ACCESS_DENIED);
 		}
 
 		return response.json();
@@ -66,9 +68,8 @@ export class OpenMeteoClient {
 		url.searchParams.set("forecast_days", "3");
 		const response = await fetch(url.toString());
 		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch weather forecast: ${response.statusText}`,
-			);
+			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
+			throw new Error(Errors.ACCESS_DENIED);
 		}
 		return response.json();
 	};

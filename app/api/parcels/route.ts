@@ -41,9 +41,8 @@ export async function GET() {
 		});
 
 		return NextResponse.json(parcels);
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	} catch (_error) {
-		console.error("Error fetching parcels");
+	} catch (error) {
+		console.error("Error fetching parcels", error);
 		return NextResponse.json(
 			{ error: Errors.INTERNAL_SERVER },
 			{ status: 500 },

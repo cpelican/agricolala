@@ -52,16 +52,15 @@ export async function updateSubstanceAggregations(
 	});
 
 	// Group treatments by parcel for parcel-level aggregations
-	const treatmentsByParcel = treatments.reduce(
-		(acc, treatment) => {
-			if (!acc[treatment.parcelId]) {
-				acc[treatment.parcelId] = [];
-			}
-			acc[treatment.parcelId].push(treatment);
-			return acc;
-		},
-		{} as Record<string, typeof treatments>,
-	);
+	const treatmentsByParcel = treatments.reduce<
+		Record<string, typeof treatments>
+	>((acc, treatment) => {
+		if (!acc[treatment.parcelId]) {
+			acc[treatment.parcelId] = [];
+		}
+		acc[treatment.parcelId].push(treatment);
+		return acc;
+	}, {});
 
 	// Calculate user-level aggregations (all treatments combined)
 	const allTransformedTreatments = treatments.map((treatment) => ({
@@ -95,10 +94,8 @@ export async function updateSubstanceAggregations(
 		where: { userId, year },
 	});
 
-	// Update user-level aggregations
 	await updateUserAggregations(userSubstanceData, userId, year);
 
-	// Update parcel-level aggregations
 	for (const [parcelId, parcelTreatments] of Object.entries(
 		treatmentsByParcel,
 	)) {
@@ -127,7 +124,6 @@ export async function updateSubstanceAggregations(
 			compositions,
 		);
 
-		// Clear existing parcel-level aggregations for this year
 		await prisma.parcelSubstanceAggregation.deleteMany({
 			where: { parcelId, year },
 		});
