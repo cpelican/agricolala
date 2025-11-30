@@ -38,13 +38,10 @@ const months = [
 export function SubstanceChart({ data }: SubstanceChartProps) {
 	const { t } = useTranslations();
 	const substances = useSubstances();
-	const colors = substances.reduce(
-		(acc, substance) => {
-			acc[substance.name] = substance.color;
-			return acc;
-		},
-		{} as Record<string, string>,
-	);
+	const colors = substances.reduce<Record<string, string>>((acc, substance) => {
+		acc[substance.name] = substance.color;
+		return acc;
+	}, {});
 
 	const chartData: ChartData<"line"> = {
 		labels: months,

@@ -26,9 +26,8 @@ export async function getTosStatus() {
 			tosAccepted: !!user?.tosAcceptedAt,
 			tosAcceptedAt: user?.tosAcceptedAt,
 		};
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	} catch (_error) {
-		console.error("Error getting ToS status");
+	} catch (error) {
+		console.error("Error getting ToS status", error);
 
 		return { success: false, error: Errors.INTERNAL_SERVER };
 	}

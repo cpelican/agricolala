@@ -1,3 +1,4 @@
+import { Errors } from "@/app/const";
 import { OpenMeteoClient } from "./openMeteoClient";
 import { prisma } from "./prisma";
 
@@ -16,7 +17,7 @@ const getNext3DaysRain = async (parcelId: string) => {
 		},
 	});
 	if (!parcel?.latitude || !parcel?.longitude) {
-		throw new Error("Parcel not found");
+		throw new Error(Errors.RESOURCE_NOT_FOUND);
 	}
 	return await OpenMeteoClient.getForecastWeatherData(
 		parcel.latitude,

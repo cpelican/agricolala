@@ -1,15 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import type React from "react";
 import "./globals.css";
-import { Providers } from "./providers";
-
-const inter = Inter({
-	subsets: ["latin"],
-	display: "swap",
-	preload: true,
-	adjustFontFallback: true,
-});
+import { defaultLocale, LOCALE_HEADER } from "@/lib/translations-helpers";
+import { inter } from "./const";
 
 export const metadata: Metadata = {
 	title: "Agricolala - Wineyard Management",
@@ -21,16 +15,17 @@ export const viewport: Viewport = {
 	initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const headersList = await headers();
+	const lang = headersList.get(LOCALE_HEADER) ?? defaultLocale;
+
 	return (
-		<html lang="en" className="agricolala">
-			<body className={inter.className}>
-				<Providers>{children}</Providers>
-			</body>
+		<html lang={lang} className="agricolala">
+			<body className={inter.className}>{children}</body>
 		</html>
 	);
 }

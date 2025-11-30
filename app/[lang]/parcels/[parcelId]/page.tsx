@@ -28,8 +28,8 @@ export default async function ParcelPage({
 	let parcel: ParcelDetailType;
 	try {
 		parcel = await getParcelDetail(parcelId, session.user.id);
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	} catch (e) {
+	} catch (error) {
+		console.error("Error fetching parcel detail", error);
 		notFound();
 	}
 

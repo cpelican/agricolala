@@ -136,9 +136,10 @@ export function ParcelMap({
 
 		// Fit bounds to show all markers if there are any and no specific parcel is highlighted
 		if (parcels.length > 0 && !highlightParcelId) {
-			const coordinates: L.LatLngExpression[] = parcels.map(
-				(p) => [p.latitude, p.longitude] as [number, number],
-			);
+			const coordinates: L.LatLngExpression[] = parcels.map((p) => [
+				p.latitude,
+				p.longitude,
+			]);
 
 			// Include user location in bounds only if we're showing it (no parcels)
 			if (parcels.length === 0 && userLocation) {

@@ -1,3 +1,4 @@
+import { Errors } from "@/app/const";
 import { type WeatherHistory } from "@prisma/client";
 
 export interface OpenMeteoResponse {
@@ -46,7 +47,8 @@ export class OpenMeteoClient {
 
 		const response = await fetch(url.toString());
 		if (!response.ok) {
-			throw new Error(`Failed to fetch weather data: ${response.statusText}`);
+			console.error(`Failed to fetch weather data: ${response.statusText}`);
+			throw new Error(Errors.ACCESS_DENIED);
 		}
 
 		return response.json();
@@ -66,9 +68,8 @@ export class OpenMeteoClient {
 		url.searchParams.set("forecast_days", "3");
 		const response = await fetch(url.toString());
 		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch weather forecast: ${response.statusText}`,
-			);
+			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
+			throw new Error(Errors.ACCESS_DENIED);
 		}
 		return response.json();
 	};
@@ -172,13 +173,13 @@ export class OpenMeteoClient {
 			if (wind_speed_10m !== null) {
 				if (
 					daily.wind_speed_10mMin === null ||
-					wind_speed_10m < (daily.wind_speed_10mMin as number)
+					wind_speed_10m < daily.wind_speed_10mMin
 				) {
 					daily.wind_speed_10mMin = wind_speed_10m;
 				}
 				if (
 					daily.wind_speed_10mMax === null ||
-					wind_speed_10m > (daily.wind_speed_10mMax as number)
+					wind_speed_10m > daily.wind_speed_10mMax
 				) {
 					daily.wind_speed_10mMax = wind_speed_10m;
 				}

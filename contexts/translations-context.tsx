@@ -79,7 +79,7 @@ export function TranslationsProvider({ children }: { children: ReactNode }) {
 				isLoading,
 			}}
 		>
-			{children}
+			{isLoading ? null : children}
 		</TranslationsContext.Provider>
 	);
 }

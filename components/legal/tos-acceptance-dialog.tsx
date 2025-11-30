@@ -67,7 +67,12 @@ export function TosAcceptanceDialog({
 					<Checkbox
 						id="tos-accept"
 						checked={accepted}
-						onCheckedChange={(checked) => setAccepted(checked as boolean)}
+						onCheckedChange={(checked) => {
+							if (checked === "indeterminate") {
+								return;
+							}
+							setAccepted(checked);
+						}}
 					/>
 					<Label htmlFor="tos-accept" className="text-sm">
 						I have read and agree to the Terms of Service and Privacy Policy

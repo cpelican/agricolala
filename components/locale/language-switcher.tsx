@@ -2,6 +2,7 @@
 
 import {
 	appLanguages,
+	getLanguageAsLocale,
 	getLocaleFromPathname,
 	type Locale,
 	localeRegex,
@@ -25,9 +26,8 @@ export function LanguageSwitcher() {
 		try {
 			await updateUserLocale(newLocale);
 			redirectToLocale(newLocale);
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (_error) {
-			console.error("Error updating locale");
+		} catch (error) {
+			console.error("Error updating locale", error);
 			// Still navigate even if database update fails
 			redirectToLocale(newLocale);
 		}
@@ -36,7 +36,7 @@ export function LanguageSwitcher() {
 	return (
 		<select
 			value={currentLocale}
-			onChange={(e) => changeLanguage(e.target.value as Locale)}
+			onChange={(e) => changeLanguage(getLanguageAsLocale(e.target.value))}
 			className="px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
 		>
 			{Object.values(appLanguages).map((locale) => (

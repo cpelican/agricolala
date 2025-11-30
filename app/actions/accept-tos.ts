@@ -12,7 +12,6 @@ export async function acceptTos() {
 			return { success: false, error: Errors.UNAUTHORIZED };
 		}
 
-		// Update the user's ToS acceptance
 		await prisma.user.update({
 			where: { email: session.user.email },
 			data: {
@@ -21,9 +20,8 @@ export async function acceptTos() {
 		});
 
 		return { success: true };
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	} catch (_error) {
-		console.error("Error accepting ToS");
+	} catch (error) {
+		console.error("Error accepting ToS", error);
 		return { success: false, error: Errors.INTERNAL_SERVER };
 	}
 }
