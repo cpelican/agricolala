@@ -20,7 +20,6 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	// Get the locale from the header set by middleware
 	const headersList = await headers();
 	const lang = headersList.get(LOCALE_HEADER) ?? defaultLocale;
 

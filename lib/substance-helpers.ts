@@ -32,7 +32,7 @@ export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
 ): SubstanceData[] {
-	const substanceDataMap = treatments.reduce(
+	const substanceDataMap = treatments.reduce<Record<string, SubstanceData>>(
 		(acc, treatment) => {
 			treatment.productApplications.forEach((application) => {
 				application.product.composition.forEach((composition) => {
@@ -75,7 +75,7 @@ export function calculateSubstanceData(
 			});
 			return acc;
 		},
-		{} as Record<string, SubstanceData>,
+		{},
 	);
 
 	return Object.values(substanceDataMap);

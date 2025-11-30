@@ -173,13 +173,13 @@ export class OpenMeteoClient {
 			if (wind_speed_10m !== null) {
 				if (
 					daily.wind_speed_10mMin === null ||
-					wind_speed_10m < (daily.wind_speed_10mMin as number)
+					wind_speed_10m < daily.wind_speed_10mMin
 				) {
 					daily.wind_speed_10mMin = wind_speed_10m;
 				}
 				if (
 					daily.wind_speed_10mMax === null ||
-					wind_speed_10m > (daily.wind_speed_10mMax as number)
+					wind_speed_10m > daily.wind_speed_10mMax
 				) {
 					daily.wind_speed_10mMax = wind_speed_10m;
 				}
