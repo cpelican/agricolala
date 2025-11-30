@@ -1,21 +1,19 @@
-import type { Metadata } from "next";
 import type React from "react";
 import Image from "next/image";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { requireAuth } from "@/lib/auth-utils";
-
-export const metadata: Metadata = {
-	title: "Agricolala - Wineyard Management",
-	description: "Manage your wineyard treatments and parcels",
-};
+import { type Locale } from "@/lib/translations-helpers";
 
 export default async function Layout({
 	children,
-}: {
+	params,
+}: Readonly<{
 	children: React.ReactNode;
-}) {
+	params: Promise<{ lang: Locale }>;
+}>) {
+	await params;
 	const session = await requireAuth();
 
 	return (

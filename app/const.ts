@@ -1,4 +1,5 @@
 import { Calendar, Home, User, Map } from "lucide-react";
+import { Inter } from "next/font/google";
 
 export const Errors = {
 	RESOURCE_NOT_FOUND: "Resource not found",
@@ -13,3 +14,10 @@ export const navigation = [
 	{ name: "navigation.treatments", href: "/treatments", icon: Calendar },
 	{ name: "navigation.profile", href: "/profile", icon: User },
 ] as const;
+
+export const inter = Inter({
+	subsets: ["latin"],
+	display: "swap",
+	preload: true,
+	adjustFontFallback: true,
+});

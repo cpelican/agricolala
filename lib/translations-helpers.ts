@@ -3,6 +3,8 @@ export const appLanguages = {
 	it: "it",
 } as const;
 
+export const LOCALE_HEADER = "x-locale";
+
 export type Locale = (typeof appLanguages)[keyof typeof appLanguages];
 
 export const defaultLocale = appLanguages.en;
@@ -10,7 +12,9 @@ export const defaultLocale = appLanguages.en;
 const localePattern = Object.values(appLanguages).join("|");
 export const localeRegex = new RegExp(`^/(${localePattern})`);
 
-const languageIsLocale = (language: string | undefined): language is Locale => {
+export const languageIsLocale = (
+	language: string | undefined,
+): language is Locale => {
 	if (!language) return false;
 	return language in appLanguages;
 };
