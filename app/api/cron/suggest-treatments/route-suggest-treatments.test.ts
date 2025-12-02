@@ -93,7 +93,7 @@ describe("[Integration] Suggest Treatments", () => {
 			currentDate.getDate() - COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
 		);
 
-		testPrisma.treatment.update({
+		await testPrisma.treatment.update({
 			where: { id: pastTreatment.id },
 			data: {
 				appliedDate: lastTreatmentDate,

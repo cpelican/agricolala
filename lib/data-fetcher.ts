@@ -1,7 +1,7 @@
 import { TreatmentStatus, type UserSubstanceAggregation } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 
 const productApplicationsSelect = {
 	dose: true,

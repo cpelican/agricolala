@@ -10,7 +10,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
 import { taintUtils } from "@/lib/taint-utils";
 import { generateTreatmentsExcel } from "./excel-export";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 
 export async function downloadTreatmentsExcel(year: number) {
 	const session = await getServerSession(authOptions);

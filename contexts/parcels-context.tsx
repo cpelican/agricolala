@@ -1,6 +1,6 @@
 "use client";
 
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 import { createContext, useContext, type ReactNode, useState } from "react";
 

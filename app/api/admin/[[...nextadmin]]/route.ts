@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "../../../../lib/prisma";
 import { taintUtils } from "@/lib/taint-utils";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 
 const { run } = createHandler({
 	apiBasePath: "/api/admin",

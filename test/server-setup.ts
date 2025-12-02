@@ -23,9 +23,10 @@ export default async function globalSetup() {
 		}
 	});
 
+	const port = process.env.PORT ? Number(process.env.PORT) : 3001;
 	await new Promise<void>((resolve) => {
-		server.listen(process.env.PORT, () => {
-			console.info(`> Ready on http://localhost:${process.env.PORT}`);
+		server.listen(port, () => {
+			console.info(`> Ready on http://localhost:${port}`);
 			resolve();
 		});
 	});

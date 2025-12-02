@@ -16,9 +16,7 @@ docker-compose -f docker-compose.test.yml up -d
 echo "Waiting for PostgreSQL to be ready..."
 $DIR/wait-until.sh "pg_isready -h localhost -p 5433 -U agraria -d agraria" 60
 
-npx prisma migrate dev --name init
+# Apply existing migrations to test database
+npx prisma migrate deploy
 
 npx prisma generate
-
-
-
