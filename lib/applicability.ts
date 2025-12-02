@@ -1,4 +1,4 @@
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 import { OpenMeteoClient } from "./openMeteoClient";
 import { prisma } from "./prisma";
 

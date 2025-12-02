@@ -1,4 +1,4 @@
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 import { type WeatherHistory } from "@prisma/client";
 
 export interface OpenMeteoResponse {

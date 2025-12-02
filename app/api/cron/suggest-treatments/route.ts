@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { TreatmentStatus } from "@prisma/client";
 
 import { getCachedCompositions, getCurrentDiseases } from "@/lib/data-fetcher";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 
 const getAuthorizedUsersWithLastTreatmentsData = async () => {
 	return prisma.user.findMany({

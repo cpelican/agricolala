@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { taintUtils } from "@/lib/taint-utils";
 import { cache } from "react";
-import { Errors, INVALID_SESSION_ID } from "@/app/const";
+import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
 
 const getSession = cache(async () => {
 	return await getServerSession(authOptions);

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-utils";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 
 export async function getTosStatus() {
 	try {

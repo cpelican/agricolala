@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
 import { taintUtils } from "@/lib/taint-utils";
 import { defaultLocale, getLanguageAsLocale } from "@/lib/translations-helpers";
-import { Errors, INVALID_SESSION_ID } from "@/app/const";
+import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
 
 taintUtils.taintOAuthSecrets();
 

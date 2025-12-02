@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Errors } from "@/app/const";
+import { Errors } from "@/lib/constants";
 import { OpenMeteoClient } from "@/lib/openMeteoClient";
 
 export async function GET(request: NextRequest) {
