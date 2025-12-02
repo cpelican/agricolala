@@ -30,6 +30,22 @@ npm run dev
 npm run studio
 ```
 
+## Run tests
+In you env, you should have the following variables
+```
+# tests
+POSTGRES_PASSWORD=agraria
+DATABASE_URL=postgresql://agraria:agraria@localhost:5433/agraria?schema=public
+DIRECT_URL=postgresql://agraria:agraria@localhost:5433/agraria?schema=public
+```
+
+Then run
+`npm run test:db:start`
+`npx vitest run`
+`npm run test:db:stop`
+
+
+
 ## Deploy Agricolala
 
 ```bash
