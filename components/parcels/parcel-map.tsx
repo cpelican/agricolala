@@ -27,6 +27,8 @@ const highlightedIcon = L.divIcon({
 
 L.Marker.prototype.options.icon = defaultIcon;
 
+const DEFAULT_LOCATION = { lat: 45.0, lng: 7.0 } as const;
+
 export interface ParcelMapProps {
 	parcels: Pick<Parcel, "id" | "name" | "latitude" | "longitude">[];
 	onMapClick?: (lat: number, lng: number, alt?: number) => void;
@@ -45,28 +47,27 @@ export function ParcelMap({
 		null,
 	);
 	const [isLoading, setIsLoading] = useState(true);
-	const defaultLocation = markersRef.current?.[0]?.getLatLng() ?? {
-		lat: 45.0,
-		lon: 7.0,
-	};
 
 	useEffect(() => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					const { latitude, longitude } = position.coords;
-					setUserLocation([latitude, longitude]);
+					setUserLocation([
+						latitude ?? DEFAULT_LOCATION.lat,
+						longitude ?? DEFAULT_LOCATION.lng,
+					]);
 					setIsLoading(false);
 				},
 				(error) => {
 					console.warn("Error getting location:", error);
 					// Fallback to default location (45.0, 7.0)
-					setUserLocation([defaultLocation.lat, defaultLocation.lng]);
+					setUserLocation([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]);
 					setIsLoading(false);
 				},
 			);
 		} else {
-			setUserLocation([defaultLocation.lat, defaultLocation.lng]);
+			setUserLocation([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]);
 			setIsLoading(false);
 		}
 	}, []);
