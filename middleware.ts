@@ -14,7 +14,7 @@ import {
 
 const locales: Locale[] = Object.values(appLanguages);
 
-const ROUTES_WITHOUT_LOCALE = ["/admin", "/api"];
+const ROUTES_WITHOUT_LOCALE = ["/api"];
 const PUBLIC_ROUTES = ["/auth", "/api/auth", "/api/health", "/api/cron"];
 
 function getLocaleFromHeaders(request: Request): Locale {
@@ -37,7 +37,7 @@ export default withAuth(
 		const token = req.nextauth.token;
 
 		// [cp] Route doesn't need locale prefix
-		// Example: /admin, /api/health, /api/auth/callback
+		// Example: /api/health, /api/auth/callback
 		// Action: Use default locale (these routes don't use i18n)
 		const needsLocalePrefix = !ROUTES_WITHOUT_LOCALE.some((route) =>
 			pathname.startsWith(route),

@@ -1,16 +1,17 @@
 import { TosContent } from "@/components/legal/tos-content";
 import { BackButton } from "@/components/routing/back-button";
 import { tServer } from "@/lib/translations-server-only";
-import { type Locale } from "@/lib/translations-helpers";
+import { getLanguageAsLocale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
 
 export default async function TermsOfServicePage({
 	params,
 }: {
-	params: Promise<{ lang: Locale }>;
+	params: Promise<{ lang: string }>;
 }) {
 	const { lang } = await params;
-	const dict = tServer(lang);
+	const locale = getLanguageAsLocale(lang);
+	const dict = tServer(locale);
 
 	return (
 		<div className="p-4 flex flex-col gap-2">

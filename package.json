@@ -26,7 +26,6 @@
 	"dependencies": {
 		"@formatjs/intl-localematcher": "^0.6.2",
 		"@next-auth/prisma-adapter": "latest",
-		"@premieroctet/next-admin": "^8.2.1",
 		"@prisma/client": "latest",
 		"@radix-ui/react-accordion": "1.2.2",
 		"@radix-ui/react-alert-dialog": "1.1.4",
@@ -79,7 +78,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.0.0",
 		"@dotenvx/dotenvx": "^1.48.3",
-		"@premieroctet/next-admin-generator-prisma": "^1.0.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.3.0",
