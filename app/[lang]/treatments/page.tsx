@@ -6,16 +6,17 @@ import { requireAuth } from "@/lib/auth-utils";
 import { getTreatments } from "@/lib/data-fetcher";
 import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
 import { tServer } from "@/lib/translations-server-only";
-import { type Locale } from "@/lib/translations-helpers";
+import { getLanguageAsLocale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
 
 export default async function TreatmentsPage({
 	params,
 }: {
-	params: Promise<{ lang: Locale }>;
+	params: Promise<{ lang: string }>;
 }) {
 	const { lang } = await params;
-	const dict = tServer(lang);
+	const locale = getLanguageAsLocale(lang);
+	const dict = tServer(locale);
 	const session = await requireAuth();
 
 	return (

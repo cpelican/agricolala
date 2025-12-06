@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth-utils";
 import { tServer } from "@/lib/translations-server-only";
-import { type Locale } from "@/lib/translations-helpers";
+import { getLanguageAsLocale } from "@/lib/translations-helpers";
 import { ParcelsContentAsync } from "@/components/async/parcels-content-async";
 import { Suspense } from "react";
 import { ParcelsSkeleton } from "@/components/skeletons/parcels-skeleton";
@@ -9,10 +9,11 @@ import { Header } from "@/components/misc/header";
 export default async function ParcelsPage({
 	params,
 }: {
-	params: Promise<{ lang: Locale }>;
+	params: Promise<{ lang: string }>;
 }) {
 	const { lang } = await params;
-	const dict = tServer(lang);
+	const locale = getLanguageAsLocale(lang);
+	const dict = tServer(locale);
 	const session = await requireAuth();
 
 	return (
