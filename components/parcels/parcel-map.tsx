@@ -47,7 +47,7 @@ export function ParcelMap({
 	const [isLoading, setIsLoading] = useState(true);
 	const defaultLocation = markersRef.current?.[0]?.getLatLng() ?? {
 		lat: 45.0,
-		lon: 7.0,
+		lng: 7.0,
 	};
 
 	useEffect(() => {
@@ -55,7 +55,10 @@ export function ParcelMap({
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					const { latitude, longitude } = position.coords;
-					setUserLocation([latitude, longitude]);
+					setUserLocation([
+						latitude ?? defaultLocation.lat,
+						longitude ?? defaultLocation.lng,
+					]);
 					setIsLoading(false);
 				},
 				(error) => {
