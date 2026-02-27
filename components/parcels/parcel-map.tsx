@@ -43,33 +43,31 @@ export function ParcelMap({
 	const mapRef = useRef<HTMLDivElement>(null);
 	const mapInstanceRef = useRef<L.Map | null>(null);
 	const markersRef = useRef<L.Marker[]>([]);
-	const [userLocation, setUserLocation] = useState<[number, number] | null>(
-		null,
+	const [userLocation, setUserLocation] = useState<[number, number]>([
+		DEFAULT_LOCATION.lat,
+		DEFAULT_LOCATION.lng,
+	]);
+	const [isLoading, setIsLoading] = useState(
+		typeof navigator !== "undefined" && !!navigator.geolocation,
 	);
-	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					const { latitude, longitude } = position.coords;
-					setUserLocation([
-						latitude ?? DEFAULT_LOCATION.lat,
-						longitude ?? DEFAULT_LOCATION.lng,
-					]);
-					setIsLoading(false);
-				},
-				(error) => {
-					console.warn("Error getting location:", error);
-					// Fallback to default location (45.0, 7.0)
-					setUserLocation([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]);
-					setIsLoading(false);
-				},
-			);
-		} else {
-			setUserLocation([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]);
-			setIsLoading(false);
-		}
+		if (!navigator.geolocation) return;
+
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				setUserLocation([
+					latitude ?? DEFAULT_LOCATION.lat,
+					longitude ?? DEFAULT_LOCATION.lng,
+				]);
+				setIsLoading(false);
+			},
+			(error) => {
+				console.warn("Error getting location:", error);
+				setIsLoading(false);
+			},
+		);
 	}, []);
 
 	useEffect(() => {
