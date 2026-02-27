@@ -146,9 +146,21 @@ describe("[Integration] Suggest Treatments", () => {
 		});
 		expect(createdTreatments.length).toBe(1);
 		const createdTreatment = createdTreatments[0];
-		expect(createdTreatment.dateMin?.getDate()).toBe(currentDate.getDate());
-		expect(createdTreatment.dateMax?.getDate()).toBe(
-			currentDate.getDate() + COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+
+		const expectedDateMin = new Date(currentDate);
+		expectedDateMin.setHours(0, 0, 0, 0);
+
+		const expectedDateMax = new Date(currentDate);
+		expectedDateMax.setDate(
+			expectedDateMax.getDate() + COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		);
+		expectedDateMax.setHours(0, 0, 0, 0);
+
+		expect(createdTreatment.dateMin?.toISOString().slice(0, 10)).toBe(
+			expectedDateMin.toISOString().slice(0, 10),
+		);
+		expect(createdTreatment.dateMax?.toISOString().slice(0, 10)).toBe(
+			expectedDateMax.toISOString().slice(0, 10),
 		);
 	});
 
