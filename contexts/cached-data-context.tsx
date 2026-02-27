@@ -1,10 +1,10 @@
 "use client";
 
 import {
-	getCachedSubstances,
-	getCachedDiseases,
-	getCachedProducts,
-	getCachedCompositions,
+	type getCachedSubstances,
+	type getCachedDiseases,
+	type getCachedProducts,
+	type getCachedCompositions,
 } from "@/lib/data-fetcher";
 import { createContext, useContext, type ReactNode } from "react";
 
