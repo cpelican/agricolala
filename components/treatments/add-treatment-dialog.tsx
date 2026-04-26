@@ -1,6 +1,11 @@
 "use client";
 
-import type { Disease, Product, Substance } from "@prisma/client";
+import {
+	ProductDoseUnit,
+	type Disease,
+	type Product,
+	type Substance,
+} from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -46,7 +51,7 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications">[];
+	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
 	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
@@ -58,6 +63,8 @@ const defaultErrors: Record<string, string[]> = {
 	productApplications: [],
 	waterDose: [],
 } as const;
+
+const doseUnit = Object.values(ProductDoseUnit);
 
 export function AddTreatmentDialog({
 	open,
@@ -77,7 +84,9 @@ export function AddTreatmentDialog({
 	const [formData, setFormData] = useState({
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
-		productApplications: [{ productId: "", dose: 0 }],
+		productApplications: [
+			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+		],
 		waterDose: 10,
 		parcelIds: parcelId ? [parcelId] : [""],
 	});
@@ -131,7 +140,7 @@ export function AddTreatmentDialog({
 			...prev,
 			productApplications: [
 				...prev.productApplications,
-				{ productId: "", dose: 0 },
+				{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
 			],
 		}));
 	};
@@ -156,8 +165,8 @@ export function AddTreatmentDialog({
 
 	const updateProduct = (
 		index: number,
-		field: "productId" | "dose",
-		value: string | number,
+		field: "productId" | "dose" | "doseUnit",
+		value: string | number | ProductDoseUnit,
 	) => {
 		setFormData((prev) => ({
 			...prev,
@@ -238,7 +247,9 @@ export function AddTreatmentDialog({
 			setFormData({
 				appliedDate: new Date(),
 				diseases: [{ diseaseId: "" }],
-				productApplications: [{ productId: "", dose: 0 }],
+				productApplications: [
+					{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+				],
 				waterDose: 10,
 				parcelIds: [],
 			});
@@ -428,7 +439,7 @@ export function AddTreatmentDialog({
 							<div>
 								<Label>{t("treatments.products")}</Label>
 								<p className="text-sm text-muted-foreground">
-									{t("treatments.dosesInGrams")}
+									{t("treatments.productDosesByUnit")}
 								</p>
 							</div>
 							<Button
@@ -474,6 +485,20 @@ export function AddTreatmentDialog({
 										}
 										className="w-24"
 									/>
+									<Select
+										value={product.doseUnit}
+										onValueChange={(value) =>
+											updateProduct(index, "doseUnit", value)
+										}
+									>
+										<SelectContent>
+											{doseUnit.map((p, i) => (
+												<SelectItem key={p + i} value={p}>
+													{t(`unit.${p}`) ?? p}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
 									{index > 0 && (
 										<Button
 											type="button"

@@ -224,7 +224,6 @@ enum TreatmentStatus {
 enum ProductDoseUnit {
   GRAM
   MILLILITER
-  LITER
 }
 
 enum SubstanceLimitUnit {

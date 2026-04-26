@@ -82,6 +82,29 @@ async function main() {
 			},
 		},
 	});
+
+	await prisma.product.create({
+		data: {
+			name: "OxyFlow",
+			brand: "OxyFlow",
+			doseUnit: ProductDoseUnit.MILLILITER,
+			maxApplications: MAX_APPLICATIONS,
+			composition: {
+				create: [
+					{
+						substanceId: copper.id,
+						dose: 10.0,
+						productLiterToKiloGramConversionRate: 1,
+					},
+					{
+						substanceId: sulfur.id,
+						dose: 30.0,
+						productLiterToKiloGramConversionRate: 1,
+					},
+				],
+			},
+		},
+	});
 	const MAX_APPLICATIONS_SULFUR = 10;
 	await prisma.product.create({
 		data: {
@@ -107,7 +130,7 @@ async function main() {
 					{
 						substanceId: orangeOil.id,
 						dose: 100.0,
-						productLiterToKiloGramConversionRate: 900,
+						productLiterToKiloGramConversionRate: 0.9,
 					},
 				],
 			},

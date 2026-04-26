@@ -1,3 +1,4 @@
+import { ProductDoseUnit, SubstanceLimitUnit } from "@prisma/client";
 import { calculateSubstanceData } from "./substance-helpers";
 import { describe, test, expect } from "vitest";
 
@@ -12,6 +13,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -32,6 +34,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -52,6 +55,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -72,6 +76,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -92,6 +97,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -112,6 +118,7 @@ const treatments = [
 				dose: 30,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -132,6 +139,7 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -152,6 +160,7 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -172,6 +181,7 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -192,6 +202,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -212,6 +223,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -232,6 +244,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -252,6 +265,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -272,6 +286,7 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
+					doseUnit: ProductDoseUnit.MILLILITER,
 					composition: [
 						{
 							dose: 25,
@@ -288,10 +303,18 @@ const compositions = {
 	"1": {
 		product1: {
 			id: "1",
-			substance: { name: "rame", maxDosage: 4 },
+			product: {
+				doseUnit: ProductDoseUnit.GRAM,
+			},
+			substance: {
+				name: "rame",
+				maxDosage: 4,
+				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+			},
 			dose: 25,
 			substanceId: "1",
 			productId: "product1",
+			productLiterToKiloGramConversionRate: 1,
 		},
 	},
 };

@@ -1,5 +1,5 @@
 import { type SubstanceData } from "@/components/types";
-import { type Product, type Substance } from "@prisma/client";
+import { ProductDoseUnit, type Product, type Substance } from "@prisma/client";
 import {
 	type getCachedCompositions,
 	type ParcelWithTreatments,
@@ -20,6 +20,7 @@ interface TreatmentWithProducts {
 		dose: number;
 		product: {
 			id: string;
+			doseUnit: ProductDoseUnit;
 			composition: Array<{
 				dose: number;
 				substanceId: string;
@@ -28,6 +29,20 @@ interface TreatmentWithProducts {
 	}>;
 }
 
+const convertDose = (
+	unit: ProductDoseUnit,
+	convertionRate: number | null,
+	dose: number,
+) => {
+	if (unit === ProductDoseUnit.GRAM) {
+		return dose;
+	}
+	if (!convertionRate) {
+		return dose;
+	}
+	return dose * convertionRate;
+};
+
 export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
@@ -35,15 +50,22 @@ export function calculateSubstanceData(
 	const substanceDataMap = treatments.reduce<Record<string, SubstanceData>>(
 		(acc, treatment) => {
 			treatment.productApplications.forEach((application) => {
+				const unit = application.product.doseUnit;
 				application.product.composition.forEach((composition) => {
-					const substance =
-						compositions[composition.substanceId][application.product.id]
-							?.substance;
+					const productWithSubstance =
+						compositions[composition.substanceId][application.product.id];
+					const substance = productWithSubstance?.substance;
+
 					const substanceName = substance.name;
+					const applicationDoseInGrams = convertDose(
+						unit,
+						productWithSubstance?.productLiterToKiloGramConversionRate,
+						application.dose,
+					);
 					// application dose (gr of product applied during the treatment)
 					// composition dose (% of active substance present in the product used in the treatemnt)
 					const doseOfPureActiveSubstance =
-						application.dose * (composition.dose / 100); // in grams
+						applicationDoseInGrams * (composition.dose / 100); // in grams
 					const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
 					const doseOfPureActiveSubstancePerHa =
 						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in kg per hectare
