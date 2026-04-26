@@ -10,10 +10,12 @@ const productApplicationsSelect = {
 			id: true,
 			name: true,
 			brand: true,
+			doseUnit: true,
 			composition: {
 				select: {
 					dose: true,
 					substanceId: true,
+					productLiterToKiloGramConversionRate: true,
 				},
 			},
 		},
@@ -157,7 +159,7 @@ export const getCachedDiseases = cache(async () => {
 
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
-		select: { id: true, name: true, maxApplications: true },
+		select: { id: true, name: true, maxApplications: true, doseUnit: true },
 		orderBy: { name: "asc" },
 	});
 });
@@ -172,12 +174,19 @@ export const getCachedCompositions = cache(async () => {
 		select: {
 			id: true,
 			dose: true,
+			productLiterToKiloGramConversionRate: true,
 			productId: true,
 			substanceId: true,
+			product: {
+				select: {
+					doseUnit: true,
+				},
+			},
 			substance: {
 				select: {
 					name: true,
 					maxDosage: true,
+					maxDosageUnitPerAreaUnit: true,
 				},
 			},
 		},
@@ -205,7 +214,12 @@ export const getCachedCompositions = cache(async () => {
 
 export const getCachedSubstances = cache(async () => {
 	const substances = await prisma.substance.findMany({
-		select: { id: true, name: true, maxDosage: true },
+		select: {
+			id: true,
+			name: true,
+			maxDosage: true,
+			maxDosageUnitPerAreaUnit: true,
+		},
 		orderBy: { name: "asc" },
 	});
 
@@ -231,6 +245,7 @@ export const getCachedSubstanceAggregations = cache(
 		return aggregations.map((agg) => ({
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
+			productDoseUnit: agg.productDoseUnit,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 			totalUsedOfPureActiveSubstancePerHa:
 				agg.totalUsedOfPureActiveSubstancePerHa,
@@ -255,6 +270,7 @@ export const getAllYearsSubstanceAggregations = cache(
 				Pick<
 					UserSubstanceAggregation,
 					| "totalDoseOfProduct"
+					| "productDoseUnit"
 					| "totalUsedOfPureActiveSubstance"
 					| "totalUsedOfPureActiveSubstancePerHa"
 					| "year"
@@ -268,6 +284,7 @@ export const getAllYearsSubstanceAggregations = cache(
 			}
 			yearData[agg.year][agg.substanceName] = {
 				totalDoseOfProduct: agg.totalDoseOfProduct,
+				productDoseUnit: agg.productDoseUnit,
 				totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 				totalUsedOfPureActiveSubstancePerHa:
 					agg.totalUsedOfPureActiveSubstancePerHa,
@@ -289,6 +306,7 @@ export const getCachedParcelSubstanceAggregations = cache(
 		return aggregations.map((agg) => ({
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
+			productDoseUnit: agg.productDoseUnit,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 			totalUsedOfPureActiveSubstancePerHa:
 				agg.totalUsedOfPureActiveSubstancePerHa,

@@ -31,10 +31,12 @@ export async function updateSubstanceAggregations(
 					product: {
 						select: {
 							id: true,
+							doseUnit: true,
 							composition: {
 								select: {
 									dose: true,
 									substanceId: true,
+									productLiterToKiloGramConversionRate: true,
 								},
 							},
 						},
@@ -75,9 +77,12 @@ export async function updateSubstanceAggregations(
 			dose: app.dose,
 			product: {
 				id: app.product.id,
+				doseUnit: app.product.doseUnit,
 				composition: app.product.composition.map((comp) => ({
 					dose: comp.dose,
 					substanceId: comp.substanceId,
+					productLiterToKiloGramConversionRate:
+						comp.productLiterToKiloGramConversionRate,
 				})),
 			},
 		})),
@@ -111,9 +116,12 @@ export async function updateSubstanceAggregations(
 				dose: app.dose,
 				product: {
 					id: app.product.id,
+					doseUnit: app.product.doseUnit,
 					composition: app.product.composition.map((comp) => ({
 						dose: comp.dose,
 						substanceId: comp.substanceId,
+						productLiterToKiloGramConversionRate:
+							comp.productLiterToKiloGramConversionRate,
 					})),
 				},
 			})),

@@ -109,6 +109,7 @@ model Product {
   id                   String               @id @default(cuid())
   brand                String
   name                 String
+  doseUnit             ProductDoseUnit      @default(GRAM)
   maxApplications      Int?
   daysBetweenApplications Int?
   createdAt            DateTime             @default(now())
@@ -134,7 +135,8 @@ model ProductApplication {
 model Substance {
   id             String          @id @default(cuid())
   name           String          @unique
-  maxDosage      Float           // in kg / ha
+  maxDosage      Float
+  maxDosageUnitPerAreaUnit    SubstanceLimitUnit @default(KG_PER_HA)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   substanceDoses SubstanceDose[]
@@ -143,7 +145,11 @@ model Substance {
 
 model SubstanceDose {
   id          String    @id @default(cuid())
-  dose        Float     // in percent of active substance dose
+  /** Percent of active substance dose in the product */
+  dose                  Float
+  /** KiloGrams of product per liter of product (g/L); required when product is dosed in ml or L */
+  /** For instance one liter of Product A weights 1.1 Kg */
+  productLiterToKiloGramConversionRate  Float?
   substanceId String
   productId   String
   createdAt   DateTime  @default(now())
@@ -174,6 +180,7 @@ model UserSubstanceAggregation {
   substanceName                   String
   year                           Int
   totalDoseOfProduct             Float    @default(0)
+  productDoseUnit                 ProductDoseUnit?
   totalUsedOfPureActiveSubstance Float    @default(0)
   totalUsedOfPureActiveSubstancePerHa Float @default(0)
   monthlyData                    Float[]  @default([])
@@ -192,6 +199,7 @@ model ParcelSubstanceAggregation {
   substanceName                   String
   year                           Int
   totalDoseOfProduct             Float    @default(0)
+  productDoseUnit                 ProductDoseUnit?
   totalUsedOfPureActiveSubstance Float    @default(0)
   totalUsedOfPureActiveSubstancePerHa Float @default(0)
   monthlyData                    Float[]  @default([])
@@ -213,6 +221,15 @@ enum TreatmentStatus {
   DONE
 }
 
+enum ProductDoseUnit {
+  GRAM
+  MILLILITER
+  LITER
+}
+
+enum SubstanceLimitUnit {
+  KG_PER_HA
+}
 
 model WeatherHistoryTask {
   id        String   @id @default(cuid())
