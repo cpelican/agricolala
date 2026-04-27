@@ -88,18 +88,17 @@ async function main() {
 			name: "OxyFlow",
 			brand: "OxyFlow",
 			doseUnit: ProductDoseUnit.MILLILITER,
+			productLiterToKiloGramConversionRate: 1,
 			maxApplications: MAX_APPLICATIONS,
 			composition: {
 				create: [
 					{
 						substanceId: copper.id,
 						dose: 10.0,
-						productLiterToKiloGramConversionRate: 1,
 					},
 					{
 						substanceId: sulfur.id,
 						dose: 30.0,
-						productLiterToKiloGramConversionRate: 1,
 					},
 				],
 			},
@@ -124,13 +123,13 @@ async function main() {
 			name: "Olio essenziale di arancio dolce",
 			brand: "Olio essenziale di arancio dolce",
 			doseUnit: ProductDoseUnit.MILLILITER,
+			productLiterToKiloGramConversionRate: 0.9,
 			maxApplications: MAX_APPS_ORANGE,
 			composition: {
 				create: [
 					{
 						substanceId: orangeOil.id,
 						dose: 100.0,
-						productLiterToKiloGramConversionRate: 0.9,
 					},
 				],
 			},

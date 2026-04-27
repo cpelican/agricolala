@@ -13,7 +13,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -34,7 +33,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -55,7 +53,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -76,7 +73,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -97,7 +93,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -118,7 +113,6 @@ const treatments = [
 				dose: 30,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -139,7 +133,6 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -160,7 +153,6 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -181,7 +173,6 @@ const treatments = [
 				dose: 15,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -202,7 +193,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -223,7 +213,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -244,7 +233,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -265,7 +253,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.GRAM,
 					composition: [
 						{
 							dose: 25,
@@ -286,7 +273,6 @@ const treatments = [
 				dose: 20,
 				product: {
 					id: "product1",
-					doseUnit: ProductDoseUnit.MILLILITER,
 					composition: [
 						{
 							dose: 25,
@@ -305,6 +291,7 @@ const compositions = {
 			id: "1",
 			product: {
 				doseUnit: ProductDoseUnit.GRAM,
+				productLiterToKiloGramConversionRate: null,
 			},
 			substance: {
 				name: "rame",
@@ -314,7 +301,6 @@ const compositions = {
 			dose: 25,
 			substanceId: "1",
 			productId: "product1",
-			productLiterToKiloGramConversionRate: 1,
 		},
 	},
 };

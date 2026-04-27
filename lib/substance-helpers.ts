@@ -1,5 +1,5 @@
 import { type SubstanceData } from "@/components/types";
-import { ProductDoseUnit, type Product, type Substance } from "@prisma/client";
+import { type Product, type Substance } from "@prisma/client";
 import {
 	type getCachedCompositions,
 	type ParcelWithTreatments,
@@ -20,7 +20,6 @@ interface TreatmentWithProducts {
 		dose: number;
 		product: {
 			id: string;
-			doseUnit: ProductDoseUnit;
 			composition: Array<{
 				dose: number;
 				substanceId: string;
@@ -29,20 +28,6 @@ interface TreatmentWithProducts {
 	}>;
 }
 
-const convertDose = (
-	unit: ProductDoseUnit,
-	convertionRate: number | null,
-	dose: number,
-) => {
-	if (unit === ProductDoseUnit.GRAM) {
-		return dose;
-	}
-	if (!convertionRate) {
-		return dose;
-	}
-	return dose * convertionRate;
-};
-
 export function calculateSubstanceData(
 	treatments: TreatmentWithProducts[],
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
@@ -50,18 +35,14 @@ export function calculateSubstanceData(
 	const substanceDataMap = treatments.reduce<Record<string, SubstanceData>>(
 		(acc, treatment) => {
 			treatment.productApplications.forEach((application) => {
-				const unit = application.product.doseUnit;
 				application.product.composition.forEach((composition) => {
 					const productWithSubstance =
 						compositions[composition.substanceId][application.product.id];
 					const substance = productWithSubstance?.substance;
 
 					const substanceName = substance.name;
-					const applicationDoseInGrams = convertDose(
-						unit,
-						productWithSubstance?.productLiterToKiloGramConversionRate,
-						application.dose,
-					);
+					// application.dose is stored in grams (see createTreatment + productDoseEntryToGrams)
+					const applicationDoseInGrams = application.dose;
 					// application dose (gr of product applied during the treatment)
 					// composition dose (% of active substance present in the product used in the treatemnt)
 					const doseOfPureActiveSubstance =
@@ -84,7 +65,7 @@ export function calculateSubstanceData(
 					}
 
 					if (treatment.appliedDate) {
-						acc[substanceName].totalDoseOfProduct += application.dose;
+						acc[substanceName].totalDoseOfProduct += applicationDoseInGrams;
 						acc[substanceName].totalUsedOfPureActiveSubstance +=
 							doseOfPureActiveSubstance;
 						acc[substanceName].totalUsedOfPureActiveSubstancePerHa +=

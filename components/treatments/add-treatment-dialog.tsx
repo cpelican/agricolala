@@ -43,6 +43,7 @@ import {
 } from "@/lib/data-fetcher";
 import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
 import { createTreatment } from "@/lib/actions";
+import { type CreateTreatmentFormValues } from "@/lib/actions-schemas";
 import React from "react";
 
 interface AddTreatmentDialogProps {
@@ -81,7 +82,7 @@ export function AddTreatmentDialog({
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
 	const [serverError, setServerError] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<CreateTreatmentFormValues>({
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
 		productApplications: [
@@ -457,9 +458,22 @@ export function AddTreatmentDialog({
 								<div className="flex gap-2 items-start mb-1">
 									<Select
 										value={product.productId}
-										onValueChange={(value) =>
-											updateProduct(index, "productId", value)
-										}
+										onValueChange={(value) => {
+											const p = products.find((x) => x.id === value);
+											setFormData((prev) => ({
+												...prev,
+												productApplications: prev.productApplications.map(
+													(row, i) =>
+														i === index
+															? {
+																	...row,
+																	productId: value,
+																	doseUnit: p?.doseUnit ?? ProductDoseUnit.GRAM,
+																}
+															: row,
+												),
+											}));
+										}}
 									>
 										<SelectTrigger className="flex-1">
 											<SelectValue
@@ -476,7 +490,7 @@ export function AddTreatmentDialog({
 									</Select>
 									<Input
 										type="number"
-										placeholder="gr"
+										placeholder="20"
 										step="0.1"
 										min="0.1"
 										value={product.dose || ""}
@@ -491,10 +505,15 @@ export function AddTreatmentDialog({
 											updateProduct(index, "doseUnit", value)
 										}
 									>
+										<SelectTrigger className="flex-1">
+											<SelectValue
+												placeholder={t("treatments.doseUnitPlaceholder")}
+											/>
+										</SelectTrigger>
 										<SelectContent>
 											{doseUnit.map((p, i) => (
 												<SelectItem key={p + i} value={p}>
-													{t(`unit.${p}`) ?? p}
+													{t(`substances.units.${p}`) ?? p}
 												</SelectItem>
 											))}
 										</SelectContent>

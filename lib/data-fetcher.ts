@@ -11,11 +11,11 @@ const productApplicationsSelect = {
 			name: true,
 			brand: true,
 			doseUnit: true,
+			productLiterToKiloGramConversionRate: true,
 			composition: {
 				select: {
 					dose: true,
 					substanceId: true,
-					productLiterToKiloGramConversionRate: true,
 				},
 			},
 		},
@@ -174,12 +174,12 @@ export const getCachedCompositions = cache(async () => {
 		select: {
 			id: true,
 			dose: true,
-			productLiterToKiloGramConversionRate: true,
 			productId: true,
 			substanceId: true,
 			product: {
 				select: {
 					doseUnit: true,
+					productLiterToKiloGramConversionRate: true,
 				},
 			},
 			substance: {
@@ -245,7 +245,6 @@ export const getCachedSubstanceAggregations = cache(
 		return aggregations.map((agg) => ({
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
-			productDoseUnit: agg.productDoseUnit,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 			totalUsedOfPureActiveSubstancePerHa:
 				agg.totalUsedOfPureActiveSubstancePerHa,
@@ -270,7 +269,6 @@ export const getAllYearsSubstanceAggregations = cache(
 				Pick<
 					UserSubstanceAggregation,
 					| "totalDoseOfProduct"
-					| "productDoseUnit"
 					| "totalUsedOfPureActiveSubstance"
 					| "totalUsedOfPureActiveSubstancePerHa"
 					| "year"
@@ -284,7 +282,6 @@ export const getAllYearsSubstanceAggregations = cache(
 			}
 			yearData[agg.year][agg.substanceName] = {
 				totalDoseOfProduct: agg.totalDoseOfProduct,
-				productDoseUnit: agg.productDoseUnit,
 				totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 				totalUsedOfPureActiveSubstancePerHa:
 					agg.totalUsedOfPureActiveSubstancePerHa,
@@ -306,7 +303,6 @@ export const getCachedParcelSubstanceAggregations = cache(
 		return aggregations.map((agg) => ({
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
-			productDoseUnit: agg.productDoseUnit,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
 			totalUsedOfPureActiveSubstancePerHa:
 				agg.totalUsedOfPureActiveSubstancePerHa,

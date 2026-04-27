@@ -86,6 +86,7 @@
 		"productDosesByUnit": "Inserisci ogni dose nella sua unità (g, ml o L).",
 		"addProduct": "Aggiungi Prodotto",
 		"selectProduct": "Seleziona prodotto",
+		"doseUnitPlaceholder": "gr/ml",
 		"selectDoseUnit": "Seleziona unità",
 		"waterDose": "Dose Acqua (L)",
 		"cancel": "Annulla",
