@@ -1,4 +1,4 @@
-import { CultureType } from "@prisma/client";
+import { CultureType, ProductDoseUnit } from "@prisma/client";
 import z from "zod";
 
 export const createParcelSchema = z
@@ -18,6 +18,20 @@ export const createParcelSchema = z
 	})
 	.strict();
 
+export const createTreatmentDiseaseRowSchema = z
+	.object({
+		diseaseId: z.string().min(1, "Disease is required"),
+	})
+	.strict();
+
+export const createTreatmentProductApplicationSchema = z
+	.object({
+		productId: z.string().min(1, "Product is required"),
+		dose: z.number().min(0.1, "Dose must be at least 0.1"),
+		doseUnit: z.nativeEnum(ProductDoseUnit),
+	})
+	.strict();
+
 export const createTreatmentSchema = z
 	.object({
 		appliedDate: z
@@ -27,23 +41,14 @@ export const createTreatmentSchema = z
 			.array(z.string().min(1, "Parcel ID is required"))
 			.min(1, "At least one parcel is required"),
 		diseases: z
-			.array(
-				z.object({
-					diseaseId: z.string().min(1, "Disease is required"),
-				}),
-			)
+			.array(createTreatmentDiseaseRowSchema)
 			.min(1, "At least one disease is required"),
 		waterDose: z
 			.number()
 			.min(0.1, "Water dose must be at least 0.1L")
 			.default(10),
 		productApplications: z
-			.array(
-				z.object({
-					productId: z.string().min(1, "Product is required"),
-					dose: z.number().min(0.1, "Dose must be at least 0.1g"),
-				}),
-			)
+			.array(createTreatmentProductApplicationSchema)
 			.min(1, "At least one product is required")
 			.refine(
 				(applications) =>
@@ -54,3 +59,5 @@ export const createTreatmentSchema = z
 			),
 	})
 	.strict();
+
+export type CreateTreatmentFormValues = z.infer<typeof createTreatmentSchema>;

@@ -22,12 +22,15 @@ npm i
 
 docker compose up
 
+# first time you run the app: this will run ALL the migrations
+npx prisma migrate deploy
+
 npx prisma migrate dev
 
 npm run seed
 
 npm run dev
-npm run studio
+npm run studio # from there you can set isAuthorized to true for your local user
 ```
 
 ## Run tests
