@@ -14,6 +14,7 @@ import { SubstanceCircle } from "./substance-circle";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import { PercentageInfo } from "./substance-percentage";
 
 interface SubstanceUsageSectionProps {
@@ -59,6 +60,9 @@ export function SubstanceUsageSection({
 							const translatedName = getSubstanceTranslation(substance.name);
 							const lastYear = new Date().getFullYear() - 1;
 							const lastYearData = allYearsData?.[lastYear]?.[substance.name];
+							const substanceInKgPerHa =
+								substance.totalUsedOfPureActiveSubstancePerHa /
+								GRAMS_PER_KILOGRAM;
 
 							return (
 								<Card key={substance.name}>
@@ -100,15 +104,15 @@ export function SubstanceUsageSection({
 														)}
 													</p>
 													<p className="text-sm text-muted-foreground">
-														{Math.round(
-															substance.totalUsedOfPureActiveSubstancePerHa,
-														)}{" "}
+														{Math.round(substanceInKgPerHa)}{" "}
 														{t("substances.kgPerHa")}
 														{lastYearData && (
 															<span className="ml-2 text-xs">
 																(
 																{Math.round(
-																	lastYearData.totalUsedOfPureActiveSubstancePerHa,
+																	// value in grams per hectare
+																	lastYearData.totalUsedOfPureActiveSubstancePerHa /
+																		GRAMS_PER_KILOGRAM,
 																)}{" "}
 																{t("substances.lastYear")})
 															</span>
@@ -121,7 +125,7 @@ export function SubstanceUsageSection({
 													{t("substances.max")}: {substance.maxDosage} kg/ha
 												</p>
 												<meter
-													value={substance.totalUsedOfPureActiveSubstancePerHa}
+													value={substanceInKgPerHa}
 													max={substance.maxDosage}
 													high={substance.maxDosage * 0.8}
 													optimum={substance.maxDosage * 0.4}

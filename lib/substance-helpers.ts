@@ -4,9 +4,9 @@ import {
 	type getCachedCompositions,
 	type ParcelWithTreatments,
 } from "./data-fetcher";
+import { GRAMS_PER_KILOGRAM } from "./constants";
 
 const HECTARE_IN_METERS = 10_000;
-const KG_IN_GR = 1_000;
 
 interface TreatmentWithProducts {
 	id: string;
@@ -46,7 +46,7 @@ export function calculateSubstanceData(
 						application.dose * (composition.dose / 100); // in grams
 					const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
 					const doseOfPureActiveSubstancePerHa =
-						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in kg per hectare
+						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in grams per hectare
 
 					if (!acc[substanceName]) {
 						acc[substanceName] = {
@@ -151,7 +151,7 @@ export function calculateAdvisedDosePerProduct(
 		}
 
 		const advisedDoseForProductInGr =
-			(s.maxDosage / s.maxApplications) * totalAreaHa * KG_IN_GR;
+			(s.maxDosage / s.maxApplications) * totalAreaHa * GRAMS_PER_KILOGRAM;
 
 		if (advisedDoseForProductInGr > 0) {
 			acc[s.productId] = advisedDoseForProductInGr;
