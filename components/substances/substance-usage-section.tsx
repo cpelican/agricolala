@@ -110,7 +110,6 @@ export function SubstanceUsageSection({
 															<span className="ml-2 text-xs">
 																(
 																{Math.round(
-																	// value in grams per hectare
 																	lastYearData.totalUsedOfPureActiveSubstancePerHa /
 																		GRAMS_PER_KILOGRAM,
 																)}{" "}
