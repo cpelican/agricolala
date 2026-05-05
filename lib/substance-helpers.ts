@@ -36,14 +36,17 @@ export function calculateSubstanceData(
 		(acc, treatment) => {
 			treatment.productApplications.forEach((application) => {
 				application.product.composition.forEach((composition) => {
-					const substance =
-						compositions[composition.substanceId][application.product.id]
-							?.substance;
+					const productWithSubstance =
+						compositions[composition.substanceId][application.product.id];
+					const substance = productWithSubstance?.substance;
+
 					const substanceName = substance.name;
+					// application.dose is stored in grams (see createTreatment + productDoseEntryToGrams)
+					const applicationDoseInGrams = application.dose;
 					// application dose (gr of product applied during the treatment)
 					// composition dose (% of active substance present in the product used in the treatemnt)
 					const doseOfPureActiveSubstance =
-						application.dose * (composition.dose / 100); // in grams
+						applicationDoseInGrams * (composition.dose / 100); // in grams
 					const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
 					const doseOfPureActiveSubstancePerHa =
 						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in kg per hectare
@@ -62,7 +65,7 @@ export function calculateSubstanceData(
 					}
 
 					if (treatment.appliedDate) {
-						acc[substanceName].totalDoseOfProduct += application.dose;
+						acc[substanceName].totalDoseOfProduct += applicationDoseInGrams;
 						acc[substanceName].totalUsedOfPureActiveSubstance +=
 							doseOfPureActiveSubstance;
 						acc[substanceName].totalUsedOfPureActiveSubstancePerHa +=

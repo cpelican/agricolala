@@ -109,6 +109,9 @@ model Product {
   id                   String               @id @default(cuid())
   brand                String
   name                 String
+  doseUnit             ProductDoseUnit      @default(GRAM)
+  /** Kg of product per liter; used when doseUnit is MILLILITER (ml × rate → g). */
+  productLiterToKiloGramConversionRate  Float?
   maxApplications      Int?
   daysBetweenApplications Int?
   createdAt            DateTime             @default(now())
@@ -119,6 +122,7 @@ model Product {
 
 model ProductApplication {
   id          String    @id @default(cuid())
+  /** Total product amount applied on this parcel row, always stored in grams (ml/L converted at create time). */
   dose        Float
   treatmentId String
   productId   String
@@ -134,7 +138,8 @@ model ProductApplication {
 model Substance {
   id             String          @id @default(cuid())
   name           String          @unique
-  maxDosage      Float           // in kg / ha
+  maxDosage      Float
+  maxDosageUnitPerAreaUnit    SubstanceLimitUnit @default(KG_PER_HA)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   substanceDoses SubstanceDose[]
@@ -143,7 +148,8 @@ model Substance {
 
 model SubstanceDose {
   id          String    @id @default(cuid())
-  dose        Float     // in percent of active substance dose
+  /** Percent of active substance dose in the product */
+  dose                  Float
   substanceId String
   productId   String
   createdAt   DateTime  @default(now())
@@ -213,6 +219,14 @@ enum TreatmentStatus {
   DONE
 }
 
+enum ProductDoseUnit {
+  GRAM
+  MILLILITER
+}
+
+enum SubstanceLimitUnit {
+  KG_PER_HA
+}
 
 model WeatherHistoryTask {
   id        String   @id @default(cuid())
