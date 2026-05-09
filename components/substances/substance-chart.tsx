@@ -63,7 +63,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 			},
 			title: {
 				display: true,
-				text: "Monthly Substance Usage (kg/ha)",
+				text: t("substances.monthlyChartTitle"),
 			},
 		},
 		scales: {

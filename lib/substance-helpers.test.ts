@@ -1,3 +1,4 @@
+import { ProductDoseUnit, SubstanceLimitUnit } from "@prisma/client";
 import { calculateSubstanceData } from "./substance-helpers";
 import { describe, test, expect } from "vitest";
 
@@ -288,7 +289,15 @@ const compositions = {
 	"1": {
 		product1: {
 			id: "1",
-			substance: { name: "rame", maxDosage: 4 },
+			product: {
+				doseUnit: ProductDoseUnit.GRAM,
+				productLiterToKiloGramConversionRate: null,
+			},
+			substance: {
+				name: "rame",
+				maxDosage: 4,
+				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+			},
 			dose: 25,
 			substanceId: "1",
 			productId: "product1",

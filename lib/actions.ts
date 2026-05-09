@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { type Locale } from "./translations-helpers";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
+import { productDoseEntryToGrams } from "./product-dose-to-grams";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
 import { taintUtils } from "@/lib/taint-utils";
 import { generateTreatmentsExcel } from "./excel-export";
@@ -79,6 +80,28 @@ export async function createTreatment(formData: FormData) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
+		const productIds = [
+			...new Set(validatedData.productApplications.map((p) => p.productId)),
+		];
+		const products = await prisma.product.findMany({
+			where: { id: { in: productIds } },
+			select: {
+				id: true,
+				doseUnit: true,
+				productLiterToKiloGramConversionRate: true,
+			},
+		});
+		const productById = new Map(products.map((p) => [p.id, p]));
+		if (productById.size !== productIds.length) {
+			throw new Error(Errors.RESOURCE_NOT_FOUND);
+		}
+		for (const app of validatedData.productApplications) {
+			const productRow = productById.get(app.productId);
+			if (!productRow || productRow.doseUnit !== app.doseUnit) {
+				throw new Error(Errors.RESOURCE_NOT_FOUND);
+			}
+		}
+
 		const totalArea = parcels.reduce(
 			(sum, parcel) => sum + parcel.width * parcel.height,
 			0,
@@ -110,8 +133,16 @@ export async function createTreatment(formData: FormData) {
 				const productApplications = await Promise.all(
 					validatedData.productApplications.map(async (product) => {
 						const parcelArea = parcel.width * parcel.height;
-						const calculatedDose = calculateDosePerParcel(
+						const productRow = productById.get(product.productId);
+						if (!productRow) {
+							throw new Error(Errors.RESOURCE_NOT_FOUND);
+						}
+						const doseInGrams = productDoseEntryToGrams(
 							product.dose,
+							productRow,
+						);
+						const calculatedDose = calculateDosePerParcel(
+							doseInGrams,
 							parcelArea,
 						);
 

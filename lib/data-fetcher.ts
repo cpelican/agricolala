@@ -10,6 +10,8 @@ const productApplicationsSelect = {
 			id: true,
 			name: true,
 			brand: true,
+			doseUnit: true,
+			productLiterToKiloGramConversionRate: true,
 			composition: {
 				select: {
 					dose: true,
@@ -157,7 +159,7 @@ export const getCachedDiseases = cache(async () => {
 
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
-		select: { id: true, name: true, maxApplications: true },
+		select: { id: true, name: true, maxApplications: true, doseUnit: true },
 		orderBy: { name: "asc" },
 	});
 });
@@ -174,10 +176,17 @@ export const getCachedCompositions = cache(async () => {
 			dose: true,
 			productId: true,
 			substanceId: true,
+			product: {
+				select: {
+					doseUnit: true,
+					productLiterToKiloGramConversionRate: true,
+				},
+			},
 			substance: {
 				select: {
 					name: true,
 					maxDosage: true,
+					maxDosageUnitPerAreaUnit: true,
 				},
 			},
 		},
@@ -205,7 +214,12 @@ export const getCachedCompositions = cache(async () => {
 
 export const getCachedSubstances = cache(async () => {
 	const substances = await prisma.substance.findMany({
-		select: { id: true, name: true, maxDosage: true },
+		select: {
+			id: true,
+			name: true,
+			maxDosage: true,
+			maxDosageUnitPerAreaUnit: true,
+		},
 		orderBy: { name: "asc" },
 	});
 

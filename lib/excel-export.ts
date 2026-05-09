@@ -86,6 +86,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 				dose: app.dose,
 				product: {
 					id: app.product.id,
+					doseUnit: app.product.doseUnit,
 					composition: app.product.composition.map((comp) => ({
 						dose: comp.dose,
 						substanceId: comp.substanceId,

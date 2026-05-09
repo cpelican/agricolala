@@ -1,6 +1,11 @@
 "use client";
 
-import type { Disease, Product, Substance } from "@prisma/client";
+import {
+	ProductDoseUnit,
+	type Disease,
+	type Product,
+	type Substance,
+} from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -38,6 +43,7 @@ import {
 } from "@/lib/data-fetcher";
 import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
 import { createTreatment } from "@/lib/actions";
+import { type CreateTreatmentFormValues } from "@/lib/actions-schemas";
 import React from "react";
 
 interface AddTreatmentDialogProps {
@@ -46,7 +52,7 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications">[];
+	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
 	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
@@ -58,6 +64,8 @@ const defaultErrors: Record<string, string[]> = {
 	productApplications: [],
 	waterDose: [],
 } as const;
+
+const doseUnit = Object.values(ProductDoseUnit);
 
 export function AddTreatmentDialog({
 	open,
@@ -74,10 +82,12 @@ export function AddTreatmentDialog({
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
 	const [serverError, setServerError] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<CreateTreatmentFormValues>({
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
-		productApplications: [{ productId: "", dose: 0 }],
+		productApplications: [
+			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+		],
 		waterDose: 10,
 		parcelIds: parcelId ? [parcelId] : [""],
 	});
@@ -131,7 +141,7 @@ export function AddTreatmentDialog({
 			...prev,
 			productApplications: [
 				...prev.productApplications,
-				{ productId: "", dose: 0 },
+				{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
 			],
 		}));
 	};
@@ -156,8 +166,8 @@ export function AddTreatmentDialog({
 
 	const updateProduct = (
 		index: number,
-		field: "productId" | "dose",
-		value: string | number,
+		field: "productId" | "dose" | "doseUnit",
+		value: string | number | ProductDoseUnit,
 	) => {
 		setFormData((prev) => ({
 			...prev,
@@ -238,7 +248,9 @@ export function AddTreatmentDialog({
 			setFormData({
 				appliedDate: new Date(),
 				diseases: [{ diseaseId: "" }],
-				productApplications: [{ productId: "", dose: 0 }],
+				productApplications: [
+					{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+				],
 				waterDose: 10,
 				parcelIds: [],
 			});
@@ -428,7 +440,7 @@ export function AddTreatmentDialog({
 							<div>
 								<Label>{t("treatments.products")}</Label>
 								<p className="text-sm text-muted-foreground">
-									{t("treatments.dosesInGrams")}
+									{t("treatments.productDosesByUnit")}
 								</p>
 							</div>
 							<Button
@@ -446,9 +458,22 @@ export function AddTreatmentDialog({
 								<div className="flex gap-2 items-start mb-1">
 									<Select
 										value={product.productId}
-										onValueChange={(value) =>
-											updateProduct(index, "productId", value)
-										}
+										onValueChange={(value) => {
+											const p = products.find((x) => x.id === value);
+											setFormData((prev) => ({
+												...prev,
+												productApplications: prev.productApplications.map(
+													(row, i) =>
+														i === index
+															? {
+																	...row,
+																	productId: value,
+																	doseUnit: p?.doseUnit ?? ProductDoseUnit.GRAM,
+																}
+															: row,
+												),
+											}));
+										}}
 									>
 										<SelectTrigger className="flex-1">
 											<SelectValue
@@ -465,7 +490,7 @@ export function AddTreatmentDialog({
 									</Select>
 									<Input
 										type="number"
-										placeholder="gr"
+										placeholder="20"
 										step="0.1"
 										min="0.1"
 										value={product.dose || ""}
@@ -474,6 +499,25 @@ export function AddTreatmentDialog({
 										}
 										className="w-24"
 									/>
+									<Select
+										value={product.doseUnit}
+										onValueChange={(value) =>
+											updateProduct(index, "doseUnit", value)
+										}
+									>
+										<SelectTrigger className="flex-1">
+											<SelectValue
+												placeholder={t("treatments.doseUnitPlaceholder")}
+											/>
+										</SelectTrigger>
+										<SelectContent>
+											{doseUnit.map((p, i) => (
+												<SelectItem key={p + i} value={p}>
+													{t(`substances.units.${p}`) ?? p}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
 									{index > 0 && (
 										<Button
 											type="button"
