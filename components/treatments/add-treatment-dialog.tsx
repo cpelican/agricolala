@@ -273,7 +273,10 @@ export function AddTreatmentDialog({
 					</div>
 				)}
 
-				<form action={handleSubmit} className="space-y-4">
+				<form
+					action={handleSubmit}
+					className="space-y-4 -mx-6 max-h-[80vh] overflow-y-scroll p-6"
+				>
 					<div>
 						<Label>{t("treatments.applicationDate")}</Label>
 						<Popover>
