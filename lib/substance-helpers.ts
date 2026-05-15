@@ -34,6 +34,8 @@ export function calculateSubstanceData(
 ): SubstanceData[] {
 	const substanceDataMap = treatments.reduce<Record<string, SubstanceData>>(
 		(acc, treatment) => {
+			const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
+
 			treatment.productApplications.forEach((application) => {
 				application.product.composition.forEach((composition) => {
 					const substance =
@@ -44,7 +46,6 @@ export function calculateSubstanceData(
 					// composition dose (% of active substance present in the product used in the treatemnt)
 					const doseOfPureActiveSubstance =
 						application.dose * (composition.dose / 100); // in grams
-					const parcelSize = treatment.parcel.width * treatment.parcel.height; // in square meters
 					const doseOfPureActiveSubstancePerHa =
 						(doseOfPureActiveSubstance * HECTARE_IN_METERS) / parcelSize; // in grams per hectare
 

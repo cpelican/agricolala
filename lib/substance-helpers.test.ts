@@ -289,7 +289,7 @@ const compositions = {
 		product1: {
 			id: "1",
 			substance: { name: "rame", maxDosage: 4 },
-			dose: 25,
+			dose: 25, // percentage
 			substanceId: "1",
 			productId: "product1",
 		},
@@ -299,8 +299,8 @@ const compositions = {
 const expected = [
 	{
 		name: "rame",
-		totalDoseOfProduct: 275,
-		totalUsedOfPureActiveSubstance: 68.75,
+		totalDoseOfProduct: 275, // correct value in grams
+		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * 25 / 100 = 43.75
 		totalUsedOfPureActiveSubstancePerHa: 6875,
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
@@ -308,7 +308,77 @@ const expected = [
 	},
 ];
 
+const HECTARE_IN_METERS = 10_000;
+
 describe("calculateSubstanceData", () => {
+	test("should calculate substance correctly with only one treatment", () => {
+		const firstTreatment = treatments[0];
+		const substanceData = calculateSubstanceData(
+			[firstTreatment],
+			compositions,
+		);
+		const pureActiveSubstanceDoseInGr =
+			(firstTreatment.productApplications[0].dose *
+				compositions["1"].product1.dose) /
+			100;
+		const parcelSizeInM2 =
+			firstTreatment.parcel.width * firstTreatment.parcel.height;
+
+		expect(substanceData).toEqual([
+			{
+				name: "rame",
+				totalDoseOfProduct: firstTreatment.productApplications[0].dose,
+				totalUsedOfPureActiveSubstance: pureActiveSubstanceDoseInGr,
+				totalUsedOfPureActiveSubstancePerHa:
+					(pureActiveSubstanceDoseInGr * HECTARE_IN_METERS) / parcelSizeInM2,
+				applicationCount: 1,
+				monthlyData: [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+				maxDosage: 4,
+			},
+		]);
+	});
+
+	test("should calculate substance data correctly with 2 treatments on one parcel	", () => {
+		const twoTreatments = treatments.slice(0, 2);
+		const substanceData = calculateSubstanceData(twoTreatments, compositions);
+		const parcelSizeInM2 =
+			twoTreatments[0].parcel.width * twoTreatments[0].parcel.height;
+		expect(parcelSizeInM2).toEqual(100);
+
+		const substanceDataSnapshot = substanceData[0];
+		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40);
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10);
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHa).toEqual(
+			1000,
+		);
+		expect(substanceDataSnapshot.applicationCount).toEqual(2);
+	});
+
+	test("should calculate substance data correctly with 2 treatments on 2 parcels", () => {
+		const twoTreatments = [
+			treatments[0],
+			{
+				...treatments[1],
+				parcelName: "Parcel 2",
+				parcel: { width: 20, height: 20 },
+			},
+		];
+		const substanceData = calculateSubstanceData(twoTreatments, compositions);
+		const parcelSizeInM2 =
+			twoTreatments[0].parcel.width * twoTreatments[0].parcel.height +
+			twoTreatments[1].parcel.width * twoTreatments[1].parcel.height;
+
+		expect(parcelSizeInM2).toEqual(500);
+
+		const substanceDataSnapshot = substanceData[0];
+		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40);
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10);
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHa).toEqual(
+			200,
+		);
+		expect(substanceDataSnapshot.applicationCount).toEqual(2);
+	});
+
 	test("should calculate substance data correctly", () => {
 		const substanceData = calculateSubstanceData(treatments, compositions);
 		expect(substanceData).toEqual(expected);
