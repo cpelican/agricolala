@@ -125,7 +125,10 @@ export function AddParcelDialog({
 					</div>
 				)}
 
-				<form action={handleSubmit} className="space-y-4">
+				<form
+					action={handleSubmit}
+					className="space-y-4 -mx-6 max-h-[80vh] overflow-y-scroll p-6"
+				>
 					<div>
 						<Label htmlFor="name">{t("parcels.parcelName")}</Label>
 						<Input
