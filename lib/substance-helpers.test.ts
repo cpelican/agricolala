@@ -300,7 +300,7 @@ const expected = [
 	{
 		name: "rame",
 		totalDoseOfProduct: 275, // correct value in grams
-		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * 25 / 100 = 43.75
+		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * (25 / 100 (product dose of substance))
 		totalUsedOfPureActiveSubstancePerHa: 6875,
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
