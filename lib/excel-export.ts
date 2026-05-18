@@ -6,6 +6,7 @@ import {
 	treatmentSelect,
 	getParcels,
 } from "./data-fetcher";
+import { GRAMS_PER_KILOGRAM } from "./constants";
 import { calculateSubstanceData } from "./substance-helpers";
 
 interface ProductApplicationExportData {
@@ -100,10 +101,10 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 	substanceData.forEach((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
 		const maxDosage = substanceMeta?.maxDosage || 0;
+		const totalUsedPerHaKg =
+			substance.totalUsedOfPureActiveSubstancePerHa / GRAMS_PER_KILOGRAM;
 		const complianceStatus =
-			substance.totalUsedOfPureActiveSubstancePerHa <= maxDosage
-				? "Compliant"
-				: "Exceeds limit";
+			totalUsedPerHaKg <= maxDosage ? "Compliant" : "Exceeds limit";
 
 		const monthlyUsage = substance.monthlyData
 			.map((usage, month) => {
@@ -117,7 +118,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		substanceUsageData.push({
 			substanceName: substance.name,
 			totalUsed: substance.totalUsedOfPureActiveSubstance,
-			totalUsedPerHa: substance.totalUsedOfPureActiveSubstancePerHa,
+			totalUsedPerHa: totalUsedPerHaKg,
 			maxDosage,
 			complianceStatus,
 			monthlyUsage,

@@ -352,7 +352,7 @@ describe("calculateSubstanceData", () => {
 		]);
 	});
 
-	test("should calculate substance data correctly with 2 treatments on one parcel	", () => {
+	test("should calculate substance data correctly with 2 treatments on one parcel", () => {
 		const twoTreatments = treatments.slice(0, 2);
 		const substanceData = calculateSubstanceData(twoTreatments, compositions);
 		const parcelSizeInM2 =
