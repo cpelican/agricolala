@@ -5,6 +5,7 @@ const treatments = [
 	{
 		id: "1",
 		appliedDate: new Date("2025-04-10"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -25,6 +26,7 @@ const treatments = [
 	{
 		id: "2",
 		appliedDate: new Date("2025-04-18"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -45,6 +47,7 @@ const treatments = [
 	{
 		id: "3",
 		appliedDate: new Date("2025-04-18"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -65,6 +68,7 @@ const treatments = [
 	{
 		id: "4",
 		appliedDate: new Date("2025-04-24"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -85,6 +89,7 @@ const treatments = [
 	{
 		id: "5",
 		appliedDate: new Date("2025-04-29"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -105,6 +110,7 @@ const treatments = [
 	{
 		id: "6",
 		appliedDate: new Date("2025-05-08"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -125,6 +131,7 @@ const treatments = [
 	{
 		id: "7",
 		appliedDate: new Date("2025-05-20"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -145,6 +152,7 @@ const treatments = [
 	{
 		id: "8",
 		appliedDate: new Date("2025-05-23"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -165,6 +173,7 @@ const treatments = [
 	{
 		id: "9",
 		appliedDate: new Date("2025-05-25"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -185,6 +194,7 @@ const treatments = [
 	{
 		id: "10",
 		appliedDate: new Date("2025-05-27"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -205,6 +215,7 @@ const treatments = [
 	{
 		id: "11",
 		appliedDate: new Date("2025-06-07"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -225,6 +236,7 @@ const treatments = [
 	{
 		id: "12",
 		appliedDate: new Date("2025-06-15"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -245,6 +257,7 @@ const treatments = [
 	{
 		id: "13",
 		appliedDate: new Date("2025-06-22"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -264,6 +277,7 @@ const treatments = [
 	},
 	{
 		id: "14",
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		appliedDate: new Date("2025-06-07"),
 		parcel: { width: 10, height: 10 },
@@ -301,7 +315,7 @@ const expected = [
 		name: "rame",
 		totalDoseOfProduct: 275, // correct value in grams
 		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * (25 / 100 (product dose of substance))
-		totalUsedOfPureActiveSubstancePerHa: 6875,
+		totalUsedOfPureActiveSubstancePerHa: 6875, // this should be calculated based on the parcel size
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
 		applicationCount: 14,
@@ -355,10 +369,12 @@ describe("calculateSubstanceData", () => {
 	});
 
 	test("should calculate substance data correctly with 2 treatments on 2 parcels", () => {
+		// Add total product on the total parcel size
 		const twoTreatments = [
 			treatments[0],
 			{
 				...treatments[1],
+				parcelId: "parcel-2",
 				parcelName: "Parcel 2",
 				parcel: { width: 20, height: 20 },
 			},
@@ -371,12 +387,27 @@ describe("calculateSubstanceData", () => {
 		expect(parcelSizeInM2).toEqual(500);
 
 		const substanceDataSnapshot = substanceData[0];
-		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40);
-		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10);
+		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40); // 20 + 20
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10); // 40 * (25 / 100)
 		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHa).toEqual(
-			200,
+			200, // (10 * 10_000) / 500
 		);
 		expect(substanceDataSnapshot.applicationCount).toEqual(2);
+	});
+
+	test("should not multiply parcel area when multiple treatments share the same parcel", () => {
+		const threeTreatments = treatments.slice(0, 3);
+		const substanceData = calculateSubstanceData(threeTreatments, compositions);
+		const parcelSizeInM2 =
+			threeTreatments[0].parcel.width * threeTreatments[0].parcel.height;
+		const totalPureActiveSubstance = 15; // 3 × 20g product × 25%
+
+		expect(substanceData[0].totalUsedOfPureActiveSubstance).toEqual(
+			totalPureActiveSubstance,
+		);
+		expect(substanceData[0].totalUsedOfPureActiveSubstancePerHa).toEqual(
+			(totalPureActiveSubstance * HECTARE_IN_METERS) / parcelSizeInM2,
+		);
 	});
 
 	test("should calculate substance data correctly", () => {

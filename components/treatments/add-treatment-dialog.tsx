@@ -3,7 +3,7 @@
 import type { Disease, Product, Substance } from "@prisma/client";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "@/contexts/translations-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +71,7 @@ export function AddTreatmentDialog({
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const { t } = useTranslations();
+	const isSubmittingRef = useRef(false);
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
 	const [serverError, setServerError] = useState<string | null>(null);
@@ -205,11 +206,16 @@ export function AddTreatmentDialog({
 	};
 
 	const handleSubmit = async (formDataParam: FormData) => {
+		if (isSubmittingRef.current) {
+			return;
+		}
+		isSubmittingRef.current = true;
 		setLoading(true);
 		setServerError(null);
 
 		// Client-side validation
 		if (!validateForm()) {
+			isSubmittingRef.current = false;
 			setLoading(false);
 			return;
 		}
@@ -251,6 +257,7 @@ export function AddTreatmentDialog({
 					: t("treatments.errors.createFailed"),
 			);
 		} finally {
+			isSubmittingRef.current = false;
 			setLoading(false);
 		}
 	};

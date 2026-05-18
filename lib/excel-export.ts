@@ -77,6 +77,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		treatments.map((t) => ({
 			id: t.id,
 			appliedDate: t.appliedDate,
+			parcelId: t.parcel.id,
 			parcelName: t.parcel.name,
 			parcel: {
 				width: parcels.find((p) => p.id === t.parcel.id)?.width || 0,
