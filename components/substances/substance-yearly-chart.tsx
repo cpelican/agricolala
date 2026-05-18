@@ -24,7 +24,7 @@ interface SubstanceYearlyChartProps {
 			{
 				totalDoseOfProduct: number;
 				totalUsedOfPureActiveSubstance: number;
-				totalUsedOfPureActiveSubstancePerHa: number;
+				totalUsedOfPureActiveSubstancePerHaGrams: number;
 				year: number;
 			}
 		>
@@ -61,7 +61,7 @@ export function SubstanceYearlyChart({
 				const yearData = allYearsData[year];
 				const substanceData = yearData?.[substanceName];
 				return substanceData
-					? substanceData.totalUsedOfPureActiveSubstancePerHa /
+					? substanceData.totalUsedOfPureActiveSubstancePerHaGrams /
 							GRAMS_PER_KILOGRAM
 					: 0;
 			});

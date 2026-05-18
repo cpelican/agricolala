@@ -315,7 +315,7 @@ const expected = [
 		name: "rame",
 		totalDoseOfProduct: 275, // correct value in grams
 		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * (25 / 100 (product dose of substance))
-		totalUsedOfPureActiveSubstancePerHa: 6875, // (grams per hectare) this should be calculated based on the parcel size
+		totalUsedOfPureActiveSubstancePerHaGrams: 6875, // (grams per hectare) this should be calculated based on the parcel size
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
 		applicationCount: 14,
@@ -343,7 +343,7 @@ describe("calculateSubstanceData", () => {
 				name: "rame",
 				totalDoseOfProduct: firstTreatment.productApplications[0].dose,
 				totalUsedOfPureActiveSubstance: pureActiveSubstanceDoseInGr,
-				totalUsedOfPureActiveSubstancePerHa:
+				totalUsedOfPureActiveSubstancePerHaGrams:
 					(pureActiveSubstanceDoseInGr * HECTARE_IN_METERS) / parcelSizeInM2,
 				applicationCount: 1,
 				monthlyData: [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -362,9 +362,9 @@ describe("calculateSubstanceData", () => {
 		const substanceDataSnapshot = substanceData[0];
 		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40);
 		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10);
-		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHa).toEqual(
-			1000,
-		);
+		expect(
+			substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHaGrams,
+		).toEqual(1000);
 		expect(substanceDataSnapshot.applicationCount).toEqual(2);
 	});
 
@@ -389,7 +389,9 @@ describe("calculateSubstanceData", () => {
 		const substanceDataSnapshot = substanceData[0];
 		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40); // 20 + 20
 		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10); // 40 * (25 / 100)
-		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHa).toEqual(
+		expect(
+			substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHaGrams,
+		).toEqual(
 			200, // (10 * 10_000) / 500
 		);
 		expect(substanceDataSnapshot.applicationCount).toEqual(2);
@@ -405,7 +407,7 @@ describe("calculateSubstanceData", () => {
 		expect(substanceData[0].totalUsedOfPureActiveSubstance).toEqual(
 			totalPureActiveSubstance,
 		);
-		expect(substanceData[0].totalUsedOfPureActiveSubstancePerHa).toEqual(
+		expect(substanceData[0].totalUsedOfPureActiveSubstancePerHaGrams).toEqual(
 			(totalPureActiveSubstance * HECTARE_IN_METERS) / parcelSizeInM2,
 		);
 	});

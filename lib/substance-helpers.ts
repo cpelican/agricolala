@@ -50,7 +50,7 @@ interface SubstanceAccumulator {
  * it was used**. This function computes:
  *
  * ```
- * totalUsedOfPureActiveSubstancePerHa =
+ * totalUsedOfPureActiveSubstancePerHaGrams =
  *   (totalPureActiveSubstanceGr × 10_000) / sum(uniqueParcelAreasM2)
  * ```
  *
@@ -81,8 +81,8 @@ interface SubstanceAccumulator {
  * ## Units
  *
  * - `totalUsedOfPureActiveSubstance`: grams (year total)
- * - `totalUsedOfPureActiveSubstancePerHa`: **grams per hectare** (divide by 1_000
- *   for kg/ha when comparing to `maxDosage`)
+ * - `totalUsedOfPureActiveSubstancePerHaGrams`: **grams per hectare** (divide by
+ *   1_000 for kg/ha when comparing to `maxDosage`)
  * - `monthlyData`: grams of pure active substance per calendar month
  *
  * @param treatments - Applied treatments for the scope (one parcel or whole farm).
@@ -144,7 +144,7 @@ export function calculateSubstanceData(
 			(sum, area) => sum + area,
 			0,
 		);
-		const totalUsedOfPureActiveSubstancePerHa =
+		const totalUsedOfPureActiveSubstancePerHaGrams =
 			totalAreaM2 > 0
 				? (entry.totalUsedOfPureActiveSubstance * HECTARE_IN_METERS) /
 					totalAreaM2
@@ -155,7 +155,7 @@ export function calculateSubstanceData(
 			applicationCount: entry.applicationCount,
 			totalDoseOfProduct: entry.totalDoseOfProduct,
 			totalUsedOfPureActiveSubstance: entry.totalUsedOfPureActiveSubstance,
-			totalUsedOfPureActiveSubstancePerHa,
+			totalUsedOfPureActiveSubstancePerHaGrams,
 			maxDosage: entry.maxDosage,
 			monthlyData: entry.monthlyData,
 		};

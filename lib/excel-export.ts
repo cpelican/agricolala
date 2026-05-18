@@ -102,7 +102,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
 		const maxDosage = substanceMeta?.maxDosage || 0;
 		const totalUsedPerHaKg =
-			substance.totalUsedOfPureActiveSubstancePerHa / GRAMS_PER_KILOGRAM;
+			substance.totalUsedOfPureActiveSubstancePerHaGrams / GRAMS_PER_KILOGRAM;
 		const complianceStatus =
 			totalUsedPerHaKg <= maxDosage ? "Compliant" : "Exceeds limit";
 
