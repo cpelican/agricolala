@@ -315,7 +315,7 @@ const expected = [
 		name: "rame",
 		totalDoseOfProduct: 275, // correct value in grams
 		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * (25 / 100 (product dose of substance))
-		totalUsedOfPureActiveSubstancePerHa: 6875, // this should be calculated based on the parcel size
+		totalUsedOfPureActiveSubstancePerHa: 6875, // (grams per hectare) this should be calculated based on the parcel size
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
 		applicationCount: 14,
