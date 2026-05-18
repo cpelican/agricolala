@@ -12,9 +12,16 @@ export default defineConfig(() => {
     test: {
       environment: 'jsdom',
       env,
+      fileParallelism: false,
+      maxWorkers: 1,
+      minWorkers: 1,
+      sequence: {
+        concurrent: false,
+      },
       poolOptions: {
         threads: {
           maxThreads: 1,
+          minThreads: 1,
         },
       },
       setupFiles: ['./test/setup.ts'],
