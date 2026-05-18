@@ -232,7 +232,7 @@ export const getCachedSubstanceAggregations = cache(
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
-			totalUsedOfPureActiveSubstancePerHa:
+			totalUsedOfPureActiveSubstancePerHaGrams:
 				agg.totalUsedOfPureActiveSubstancePerHa,
 			maxDosage: -1, // Will be filled from substances data
 			monthlyData: agg.monthlyData,
@@ -254,11 +254,10 @@ export const getAllYearsSubstanceAggregations = cache(
 				string,
 				Pick<
 					UserSubstanceAggregation,
-					| "totalDoseOfProduct"
-					| "totalUsedOfPureActiveSubstance"
-					| "totalUsedOfPureActiveSubstancePerHa"
-					| "year"
-				>
+					"totalDoseOfProduct" | "totalUsedOfPureActiveSubstance" | "year"
+				> & {
+					totalUsedOfPureActiveSubstancePerHaGrams: number;
+				}
 			>
 		> = {};
 
@@ -269,7 +268,7 @@ export const getAllYearsSubstanceAggregations = cache(
 			yearData[agg.year][agg.substanceName] = {
 				totalDoseOfProduct: agg.totalDoseOfProduct,
 				totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
-				totalUsedOfPureActiveSubstancePerHa:
+				totalUsedOfPureActiveSubstancePerHaGrams:
 					agg.totalUsedOfPureActiveSubstancePerHa,
 				year: agg.year,
 			};
@@ -290,7 +289,7 @@ export const getCachedParcelSubstanceAggregations = cache(
 			name: agg.substanceName,
 			totalDoseOfProduct: agg.totalDoseOfProduct,
 			totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
-			totalUsedOfPureActiveSubstancePerHa:
+			totalUsedOfPureActiveSubstancePerHaGrams:
 				agg.totalUsedOfPureActiveSubstancePerHa,
 			maxDosage: -1, // Will be filled from substances data
 			monthlyData: agg.monthlyData,

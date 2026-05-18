@@ -66,6 +66,7 @@ export async function updateSubstanceAggregations(
 	const allTransformedTreatments = treatments.map((treatment) => ({
 		id: treatment.id,
 		appliedDate: treatment.appliedDate,
+		parcelId: treatment.parcelId,
 		parcelName: treatment.parcel.name,
 		parcel: {
 			width: treatment.parcel.width,
@@ -102,6 +103,7 @@ export async function updateSubstanceAggregations(
 		const parcelTransformedTreatments = parcelTreatments.map((treatment) => ({
 			id: treatment.id,
 			appliedDate: treatment.appliedDate,
+			parcelId: treatment.parcelId,
 			parcelName: treatment.parcel.name,
 			parcel: {
 				width: treatment.parcel.width,

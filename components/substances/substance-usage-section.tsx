@@ -61,7 +61,7 @@ export function SubstanceUsageSection({
 							const lastYear = new Date().getFullYear() - 1;
 							const lastYearData = allYearsData?.[lastYear]?.[substance.name];
 							const substanceInKgPerHa =
-								substance.totalUsedOfPureActiveSubstancePerHa /
+								substance.totalUsedOfPureActiveSubstancePerHaGrams /
 								GRAMS_PER_KILOGRAM;
 
 							return (
@@ -110,7 +110,7 @@ export function SubstanceUsageSection({
 															<span className="ml-2 text-xs">
 																(
 																{Math.round(
-																	lastYearData.totalUsedOfPureActiveSubstancePerHa /
+																	lastYearData.totalUsedOfPureActiveSubstancePerHaGrams /
 																		GRAMS_PER_KILOGRAM,
 																)}{" "}
 																{t("substances.lastYear")})

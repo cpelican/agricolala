@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
+import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import type { ChartData, ChartOptions } from "chart.js";
 import { ChartSkeleton } from "./chart-wrapper";
 
@@ -23,7 +24,7 @@ interface SubstanceYearlyChartProps {
 			{
 				totalDoseOfProduct: number;
 				totalUsedOfPureActiveSubstance: number;
-				totalUsedOfPureActiveSubstancePerHa: number;
+				totalUsedOfPureActiveSubstancePerHaGrams: number;
 				year: number;
 			}
 		>
@@ -59,7 +60,10 @@ export function SubstanceYearlyChart({
 			const data = years.map((year) => {
 				const yearData = allYearsData[year];
 				const substanceData = yearData?.[substanceName];
-				return substanceData?.totalUsedOfPureActiveSubstancePerHa ?? 0;
+				return substanceData
+					? substanceData.totalUsedOfPureActiveSubstancePerHaGrams /
+							GRAMS_PER_KILOGRAM
+					: 0;
 			});
 
 			// Count non-zero data points

@@ -1,29 +1,26 @@
 import { useTranslations } from "@/contexts/translations-context";
 import { cn } from "@/lib/utils";
-import { type UserSubstanceAggregation } from "@prisma/client";
 import {
 	TooltipTrigger,
 	TooltipContent,
 	Tooltip,
 } from "@radix-ui/react-tooltip";
 
+interface SubstancePerHaGrams {
+	totalUsedOfPureActiveSubstancePerHaGrams: number;
+}
+
 const getPercentageChange = (
-	currentYearData: Pick<
-		UserSubstanceAggregation,
-		"totalUsedOfPureActiveSubstancePerHa"
-	>,
-	lastYearData?: Pick<
-		UserSubstanceAggregation,
-		"totalUsedOfPureActiveSubstancePerHa"
-	>,
+	currentYearData: SubstancePerHaGrams,
+	lastYearData?: SubstancePerHaGrams,
 ) => {
 	const percentageChange =
 		lastYearData &&
 		currentYearData &&
-		lastYearData.totalUsedOfPureActiveSubstancePerHa > 0
-			? ((currentYearData.totalUsedOfPureActiveSubstancePerHa -
-					lastYearData.totalUsedOfPureActiveSubstancePerHa) /
-					lastYearData.totalUsedOfPureActiveSubstancePerHa) *
+		lastYearData.totalUsedOfPureActiveSubstancePerHaGrams > 0
+			? ((currentYearData.totalUsedOfPureActiveSubstancePerHaGrams -
+					lastYearData.totalUsedOfPureActiveSubstancePerHaGrams) /
+					lastYearData.totalUsedOfPureActiveSubstancePerHaGrams) *
 				100
 			: null;
 
@@ -40,14 +37,8 @@ export const PercentageInfo = ({
 	currentYearData,
 	lastYearData,
 }: {
-	currentYearData: Pick<
-		UserSubstanceAggregation,
-		"totalUsedOfPureActiveSubstancePerHa"
-	>;
-	lastYearData?: Pick<
-		UserSubstanceAggregation,
-		"totalUsedOfPureActiveSubstancePerHa"
-	>;
+	currentYearData: SubstancePerHaGrams;
+	lastYearData?: SubstancePerHaGrams;
 }) => {
 	const { percentageChange, hasIncreased, hasDecreased } = getPercentageChange(
 		currentYearData,

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useSubstances } from "@/contexts/cached-data-context";
 import type { SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
+import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import type { ChartData, ChartOptions } from "chart.js";
 import { ChartSkeleton } from "./chart-wrapper";
 
@@ -47,7 +48,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		labels: months,
 		datasets: data.map((substance) => ({
 			label: substance.name,
-			data: substance.monthlyData,
+			data: substance.monthlyData.map((grams) => grams / GRAMS_PER_KILOGRAM),
 			borderColor: colors[substance.name],
 			backgroundColor: colors[substance.name],
 			tension: 0.1,
@@ -63,7 +64,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 			},
 			title: {
 				display: true,
-				text: "Monthly Substance Usage (kg/ha)",
+				text: t("substances.monthlyPureActiveSubstanceKg"),
 			},
 		},
 		scales: {
