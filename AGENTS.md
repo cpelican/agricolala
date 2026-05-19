@@ -22,7 +22,22 @@ sudo pg_ctlcluster 16 main start
 
 The `.env` file uses `localhost:5432` (native PostgreSQL) instead of the Docker port `5435` documented in the README. The `.env.test` file also uses port `5432`.
 
-### Running the Application
+### Starting the Dev Environment (full sequence)
+
+```bash
+# 1. Start PostgreSQL
+sudo pg_ctlcluster 16 main start
+
+# 2. Apply any new migrations
+npx prisma migrate dev
+
+# 3. Start the dev server
+npm run dev
+```
+
+The dev server runs on `http://localhost:3000`. Login at `/auth/signin` with the credentials from `.env` (see Authentication section below).
+
+### Common Commands
 
 Standard commands from `package.json`:
 - `npm run dev` — starts Next.js dev server on port 3000
@@ -48,6 +63,28 @@ The `.husky/pre-commit` hook runs `npm run precommit` which executes:
 - `npm run lint` (ESLint)
 - `npx biome check .` (Biome formatting/linting)
 
-### Authentication
+### Authentication (Dev/Test Credentials Login)
 
-Google OAuth is required for user login. Without valid `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, users cannot authenticate through the UI. The app still starts and serves pages; the sign-in button simply won't work. For testing authenticated flows, create users directly in the database.
+A `CredentialsProvider` is enabled in non-production environments when `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are set in `.env`. This allows agents and developers to log in without Google OAuth.
+
+**Required secrets** (must be set in `.env`):
+```
+TEST_USER_EMAIL=test@agricolala.dev
+TEST_USER_PASSWORD=test-password-dev
+NEXTAUTH_SECRET=dev-secret-key-for-local-development-only
+```
+
+`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be left empty in dev — the app will start without the Google provider button.
+
+**How login works:**
+
+1. Start the dev server: `npm run dev`
+2. Navigate to `http://localhost:3000/auth/signin`
+3. The sign-in page shows an email/password form (credentials provider)
+4. Enter `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` values and submit
+5. On first login, a `User` record is auto-created with `isAuthorized: true`
+6. After login you're redirected to the main app at `/{locale}`
+
+**First-time login note:** After the first credentials login, the app shows a Terms of Service dialog. Accept it to proceed to the full app UI.
+
+**Google OAuth (production):** In production or when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set, Google OAuth is also available as a sign-in option.
