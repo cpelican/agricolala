@@ -9,7 +9,9 @@ import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
 taintUtils.taintOAuthSecrets();
 
 const isTestEnv =
-	!!process.env.TEST_USER_EMAIL && !!process.env.TEST_USER_PASSWORD;
+	!!process.env.TEST_USER_EMAIL &&
+	!!process.env.TEST_USER_PASSWORD &&
+	process.env.VERCEL_ENV !== "production";
 
 if (!process.env.GOOGLE_CLIENT_ID && !isTestEnv) {
 	throw new Error("GOOGLE_CLIENT_ID environment variable is required");
