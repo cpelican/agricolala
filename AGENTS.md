@@ -65,16 +65,16 @@ The `.husky/pre-commit` hook runs `npm run precommit` which executes:
 
 ### Authentication (Dev/Test Credentials Login)
 
-A `CredentialsProvider` is enabled in non-production environments when `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are set in `.env`. This allows agents and developers to log in without Google OAuth.
+A `CredentialsProvider` is enabled when `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are set in `.env`. This allows agents and developers to log in without Google OAuth. The credentials provider works during both `npm run dev` and `npm run build` (since `next build` sets `NODE_ENV=production` internally).
 
-**Required secrets** (must be set in `.env`):
+**Required env vars for auth** (must be set in `.env`):
 ```
 TEST_USER_EMAIL=test@agricolala.dev
 TEST_USER_PASSWORD=test-password-dev
 NEXTAUTH_SECRET=dev-secret-key-for-local-development-only
 ```
 
-`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be left empty in dev — the app will start without the Google provider button.
+`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be left empty when `TEST_USER_EMAIL`/`TEST_USER_PASSWORD` are set — the app will start and build without the Google provider.
 
 **How login works:**
 
@@ -87,4 +87,4 @@ NEXTAUTH_SECRET=dev-secret-key-for-local-development-only
 
 **First-time login note:** After the first credentials login, the app shows a Terms of Service dialog. Accept it to proceed to the full app UI.
 
-**Google OAuth (production):** In production or when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set, Google OAuth is also available as a sign-in option.
+**Google OAuth:** When `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are also set, Google OAuth appears as an additional sign-in option alongside credentials.

@@ -10,9 +10,7 @@ const signinDicts = {
 
 export default async function SignIn() {
 	const hasCredentialsProvider =
-		process.env.NODE_ENV !== "production" &&
-		!!process.env.TEST_USER_EMAIL &&
-		!!process.env.TEST_USER_PASSWORD;
+		!!process.env.TEST_USER_EMAIL && !!process.env.TEST_USER_PASSWORD;
 	const hasGoogleProvider =
 		!!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
 

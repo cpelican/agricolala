@@ -1,4 +1,4 @@
-import type { NextAuthOptions, Provider } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
@@ -8,25 +8,22 @@ import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
 
 taintUtils.taintOAuthSecrets();
 
-const isProduction = process.env.NODE_ENV === "production";
+const isTestEnv =
+	!!process.env.TEST_USER_EMAIL && !!process.env.TEST_USER_PASSWORD;
 
-if (!process.env.GOOGLE_CLIENT_ID) {
-	if (isProduction) {
-		throw new Error("GOOGLE_CLIENT_ID environment variable is required");
-	}
+if (!process.env.GOOGLE_CLIENT_ID && !isTestEnv) {
+	throw new Error("GOOGLE_CLIENT_ID environment variable is required");
 }
 
-if (!process.env.GOOGLE_CLIENT_SECRET) {
-	if (isProduction) {
-		throw new Error("GOOGLE_CLIENT_SECRET environment variable is required");
-	}
+if (!process.env.GOOGLE_CLIENT_SECRET && !isTestEnv) {
+	throw new Error("GOOGLE_CLIENT_SECRET environment variable is required");
 }
 
 if (!process.env.NEXTAUTH_SECRET) {
 	throw new Error("NEXTAUTH_SECRET environment variable is required");
 }
 
-const providers: Provider[] = [];
+const providers: NextAuthOptions["providers"] = [];
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 	providers.push(
@@ -37,11 +34,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 	);
 }
 
-if (
-	!isProduction &&
-	process.env.TEST_USER_EMAIL &&
-	process.env.TEST_USER_PASSWORD
-) {
+if (isTestEnv) {
 	providers.push(
 		CredentialsProvider({
 			name: "Test Credentials",
@@ -68,7 +61,13 @@ if (
 							locale: defaultLocale,
 						},
 					});
-					return { id: user.id, email: user.email, name: user.name };
+					return {
+						id: user.id,
+						email: user.email,
+						name: user.name,
+						isAuthorized: user.isAuthorized,
+						locale: user.locale as "en" | "it",
+					};
 				}
 				return null;
 			},
