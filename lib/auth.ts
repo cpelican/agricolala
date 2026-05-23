@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { taintUtils } from "@/lib/taint-utils";
 import { defaultLocale, getLanguageAsLocale } from "@/lib/translations-helpers";
@@ -7,11 +8,16 @@ import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
 
 taintUtils.taintOAuthSecrets();
 
-if (!process.env.GOOGLE_CLIENT_ID) {
+const isTestEnv =
+	!!process.env.TEST_USER_EMAIL &&
+	!!process.env.TEST_USER_PASSWORD &&
+	process.env.VERCEL_ENV !== "production";
+
+if (!process.env.GOOGLE_CLIENT_ID && !isTestEnv) {
 	throw new Error("GOOGLE_CLIENT_ID environment variable is required");
 }
 
-if (!process.env.GOOGLE_CLIENT_SECRET) {
+if (!process.env.GOOGLE_CLIENT_SECRET && !isTestEnv) {
 	throw new Error("GOOGLE_CLIENT_SECRET environment variable is required");
 }
 
@@ -19,16 +25,63 @@ if (!process.env.NEXTAUTH_SECRET) {
 	throw new Error("NEXTAUTH_SECRET environment variable is required");
 }
 
-export const authOptions: NextAuthOptions = {
-	session: {
-		strategy: "jwt",
-	},
-	providers: [
+const providers: NextAuthOptions["providers"] = [];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+	providers.push(
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 		}),
-	],
+	);
+}
+
+if (isTestEnv) {
+	providers.push(
+		CredentialsProvider({
+			name: "Test Credentials",
+			credentials: {
+				email: { label: "Email", type: "email" },
+				password: { label: "Password", type: "password" },
+			},
+			async authorize(credentials) {
+				if (!credentials?.email || !credentials?.password) {
+					return null;
+				}
+				if (
+					credentials.email === process.env.TEST_USER_EMAIL &&
+					credentials.password === process.env.TEST_USER_PASSWORD
+				) {
+					const user = await prisma.user.upsert({
+						where: { email: credentials.email },
+						update: { emailVerified: new Date() },
+						create: {
+							email: credentials.email,
+							name: "Test User",
+							emailVerified: new Date(),
+							isAuthorized: true,
+							locale: defaultLocale,
+						},
+					});
+					return {
+						id: user.id,
+						email: user.email,
+						name: user.name,
+						isAuthorized: user.isAuthorized,
+						locale: user.locale as "en" | "it",
+					};
+				}
+				return null;
+			},
+		}),
+	);
+}
+
+export const authOptions: NextAuthOptions = {
+	session: {
+		strategy: "jwt",
+	},
+	providers,
 	callbacks: {
 		/**
 		 * [cp] Called right after the provider (Google) authenticates

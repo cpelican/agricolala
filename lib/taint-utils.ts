@@ -52,6 +52,34 @@ export const taintUtils = {
 					process.env.NEXTAUTH_SECRET,
 				);
 			}
+			if (process.env.TEST_USER_EMAIL) {
+				experimental_taintUniqueValue(
+					"Do not pass test variables to the client.",
+					process,
+					process.env.TEST_USER_EMAIL,
+				);
+			}
+			if (process.env.TEST_USER_PASSWORD) {
+				experimental_taintUniqueValue(
+					"Do not pass test variables to the client.",
+					process,
+					process.env.TEST_USER_PASSWORD,
+				);
+			}
+			if (process.env.VERCEL_ENV) {
+				experimental_taintUniqueValue(
+					"Do not pass test variables to the client.",
+					process,
+					process.env.VERCEL_ENV,
+				);
+			}
+			if (process.env.GOOGLE_CLIENT_ID) {
+				experimental_taintUniqueValue(
+					"Do not pass test variables to the client.",
+					process,
+					process.env.GOOGLE_CLIENT_ID,
+				);
+			}
 		}
 	},
 	taintBusinessLogic: <Type extends Reference>(obj: Type) => {
