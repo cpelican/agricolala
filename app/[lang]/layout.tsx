@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type React from "react";
 import Image from "next/image";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
@@ -14,14 +14,14 @@ export default async function Layout({
 	children,
 	params,
 }: {
-	children: ReactNode;
+	children: React.ReactNode;
 	params: Promise<{ lang: string }>;
 }) {
 	await params;
 	const session = await requireAuth();
 
 	return (
-		<Providers userEmail={session.user.email}>
+		<Providers>
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title="Agricolala"

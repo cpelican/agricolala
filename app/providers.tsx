@@ -4,16 +4,10 @@ import { TosCheck } from "@/components/legal/tos-check";
 import type { ReactNode } from "react";
 import { TranslationsProvider } from "@/contexts/translations-context";
 
-export function Providers({
-	children,
-	userEmail,
-}: {
-	children: ReactNode;
-	userEmail?: string | null;
-}) {
+export function Providers({ children }: { children: ReactNode }) {
 	return (
 		<TranslationsProvider>
-			<TosCheck userEmail={userEmail}>{children}</TosCheck>
+			<TosCheck>{children}</TosCheck>
 		</TranslationsProvider>
 	);
 }
