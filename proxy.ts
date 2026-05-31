@@ -31,8 +31,8 @@ function getLocaleFromHeaders(request: Request): Locale {
 	return matchedLocale;
 }
 
-export default withAuth(
-	function middleware(req) {
+export const proxy = withAuth(
+	function proxy(req) {
 		const { pathname } = req.nextUrl;
 		const token = req.nextauth.token;
 
