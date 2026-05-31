@@ -1,4 +1,4 @@
-import type React from "react";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { Providers } from "../providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
@@ -14,7 +14,7 @@ export default async function Layout({
 	children,
 	params,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	params: Promise<{ lang: string }>;
 }) {
 	await params;

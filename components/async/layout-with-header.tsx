@@ -1,21 +1,21 @@
-import type React from "react";
+import type { ReactNode } from "react";
 import { BottomNavigation } from "../routing/bottom-navigation";
 import { UnauthorizedMessage } from "../misc/unauthorized-message";
 import { SidebarNavigation } from "../routing/sidebar-navigation";
 
 interface LayoutWithHeaderProps {
-	children: React.ReactNode;
-	icon: React.ReactNode;
+	children: ReactNode;
+	icon: ReactNode;
 	title: string;
 	isAuthorized: boolean;
 }
 
-export const LayoutWithHeader: React.FC<LayoutWithHeaderProps> = async ({
+export const LayoutWithHeader = async ({
 	children,
 	icon,
 	title,
 	isAuthorized,
-}) => {
+}: LayoutWithHeaderProps) => {
 	if (!isAuthorized) {
 		return <UnauthorizedMessage />;
 	}

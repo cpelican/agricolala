@@ -1,14 +1,14 @@
 "use client";
 
 import { TosCheck } from "@/components/legal/tos-check";
-import type React from "react";
+import type { ReactNode } from "react";
 import { TranslationsProvider } from "@/contexts/translations-context";
 
 export function Providers({
 	children,
 	userEmail,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	userEmail?: string | null;
 }) {
 	return (
