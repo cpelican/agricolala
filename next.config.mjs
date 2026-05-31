@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	experimental: {
-		taint: process.env.NODE_ENV !== "production",
+		taint: true,
 		serverActions: {
 			allowedOrigins: ["agricolala-eta.vercel.app", "*.agricolala-eta.vercel.app"],
 		},
@@ -17,7 +17,12 @@ const nextConfig = {
 	},
 	serverExternalPackages: ["@prisma/client"],
 	images: {
-		domains: ["lh3.googleusercontent.com"],
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "lh3.googleusercontent.com",
+			},
+		],
 	},
 };
 
