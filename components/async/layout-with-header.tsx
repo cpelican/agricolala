@@ -31,7 +31,7 @@ export const LayoutWithHeader = async ({
 					</div>
 				</div>
 
-				{children}
+				<main>{children}</main>
 				<BottomNavigation />
 			</div>
 			<div className="hidden sm:grid sm:grid-cols-[20rem_1fr] sm:h-screen">

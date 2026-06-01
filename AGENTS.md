@@ -58,6 +58,38 @@ npm run test:e2e:db:stop   # optional cleanup
 
 Report which commands you ran and whether they passed.
 
+## User flow improvements (demo → e2e)
+
+### Phase 1 — Flow change + demo video (default when UX changes)
+
+When a user asks you to **improve a user flow**, finish with a **short mobile screen recording**, not only code and text.
+
+1. Implement the UI change.
+2. Add or update a **shared flow** in [`e2e/flows/`](e2e/flows/) (steps only, no assertions). Reuse [`e2e/support/`](e2e/support/) helpers (`navigation`, forms, etc.).
+3. Add or update a **demo** [`e2e/demos/<name>.demo.ts`](e2e/demos/) that calls the flow with `{ stepDelayMs: 600 }`, exports `demoSlug`, and uses `ensureE2eAuthState` + `saveDemoVideo` (see [`e2e/demos/README.md`](e2e/demos/README.md) and the existing `dashboard-nav-treatment` demo).
+4. Record (e2e DB on **3002**; see [Running Playwright e2e tests](#running-playwright-e2e-tests)):
+
+```bash
+npm run test:e2e:db:start   # local; skip in Cursor Cloud per environment table
+npm run test:e2e:demo       # all demos, or: npm run test:e2e:demo -- e2e/demos/foo.demo.ts
+```
+
+5. Share the stable path: `test-results/demo-videos/<demoSlug>.webm` (gitignored). **Use the absolute path** in your final message.
+
+**Playwright:** mobile viewport only (`Pixel 5`, [`e2e/support/playwright-mobile.ts`](e2e/support/playwright-mobile.ts)). English UI (`/en`). Credentials only ([Authentication](#authentication-credentials-only)). Under ~60s, no secrets on screen.
+
+### Phase 2 — Promote to e2e (only when the developer asks)
+
+Do **not** replace the demo. Add or extend a **`e2e/*.spec.ts`** test that calls the **same flow** and adds assertions (roles, chart data, copy, no loading skeleton). Run `npm run test:e2e`. Demos stay for the next UX iteration.
+
+| Layer | File pattern | CI | Video |
+|-------|----------------|-----|-------|
+| Flow steps | `e2e/flows/*.ts` | — | — |
+| Demo recording | `e2e/demos/*.demo.ts` | no (`--project=demo`) | yes |
+| Regression test | `e2e/*.spec.ts` | yes (`--project=mobile-chromium`) | no |
+
+Skip Phase 1 for backend-only or non-UI work unless a demo was requested.
+
 ## Overview
 
 Agricolala is a Next.js 16 + React 19 web app for managing vineyard treatments and tracking substance usage for organic EU compliance. Uses Prisma ORM with PostgreSQL, NextAuth, and is deployed on Vercel.
@@ -115,6 +147,8 @@ Uses `.env.test` and `vitest.config.mts`. Global setup serves Next on **3001**.
 ## Running Playwright e2e tests
 
 Final check for UI, auth, parcels, treatments, dashboard charts.
+
+**Viewport:** All Playwright tests and demos use **mobile only** (`Pixel 5` — `e2e/support/playwright-mobile.ts`). Do not use desktop browser profiles.
 
 **Shared:**
 

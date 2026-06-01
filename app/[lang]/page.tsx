@@ -22,7 +22,7 @@ export default async function Home({
 			<Header
 				title={`${dict?.home?.welcome} ${session?.user?.name ?? session?.user?.email}!`}
 			/>
-			<Suspense fallback={<HomeSkeleton />}>
+			<Suspense fallback={<HomeSkeleton ariaLabel={dict.home.loading} />}>
 				<HomeContentAsync locale={locale} userId={userId} />
 			</Suspense>
 		</StrictMode>
