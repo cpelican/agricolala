@@ -57,6 +57,19 @@ Tests use `.env.test` (loaded by vitest config). The global setup starts a Next.
 
 One integration test (`should create a TODO treatment when all products used in last treatment are no longer considered active`) has a pre-existing date-sensitivity issue that may fail depending on the current month.
 
+### Running Playwright e2e Tests
+
+Use Playwright as the final agent check when UI flows, auth, parcel creation, treatment creation, or dashboard chart behavior changes.
+
+```bash
+npm run test:e2e:install
+npm run test:e2e:db:start
+npm run test:e2e
+npm run test:e2e:db:stop
+```
+
+The e2e setup uses `docker-compose.e2e.yml` on `localhost:5434`. The Playwright `beforeAll` resets that e2e database, seeds an authorized test user, one Cinque Terre parcel in Liguria, and four April treatments for the dashboard chart, then logs in through the credentials form. Do not point these tests at a development or production database unless you intentionally set `ALLOW_E2E_DB_RESET=true`.
+
 ### Pre-commit Hook
 
 The `.husky/pre-commit` hook runs `npm run precommit` which executes:

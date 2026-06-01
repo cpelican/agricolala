@@ -14,6 +14,10 @@
 		"test": "vitest run",
 		"test:db:start": "scripts/run-test-integration.sh",
 		"test:db:stop": "docker-compose -f docker-compose.test.yml down",
+		"test:e2e": "playwright test",
+		"test:e2e:db:start": "scripts/setup-e2e-db.sh",
+		"test:e2e:db:stop": "docker compose -f docker-compose.e2e.yml down",
+		"test:e2e:install": "playwright install chromium",
 		"prettify": "npx @biomejs/biome format --write --fix .",
 		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
 		"prepare": "husky",
@@ -79,6 +83,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.0.0",
 		"@dotenvx/dotenvx": "^1.48.3",
+		"@playwright/test": "^1.60.0",
 		"@tailwindcss/postcss": "^4.1.11",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.3.0",

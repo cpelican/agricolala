@@ -44,6 +44,19 @@ Then run
 `npx vitest run`
 `npm run test:db:stop`
 
+## Run Playwright e2e tests
+
+The Playwright tests run the app against a dedicated Docker PostgreSQL database on `localhost:5434`. The suite seeds its own authorized test user, one Cinque Terre parcel, and dashboard treatments in `beforeAll`.
+
+```bash
+npm run test:e2e:install
+npm run test:e2e:db:start
+npm run test:e2e
+npm run test:e2e:db:stop
+```
+
+`npm run test:e2e:db:start` starts `docker-compose.e2e.yml`, waits for PostgreSQL, applies Prisma migrations, and generates the Prisma client. The Playwright config provides local non-production defaults for `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TEST_USER_EMAIL`, and `TEST_USER_PASSWORD`; override them in your shell only when you intentionally want a different e2e database.
+
 
 
 ## Deploy Agricolala

@@ -1,0 +1,196 @@
+import { PrismaClient, CultureType, TreatmentStatus } from "@prisma/client";
+import { dirname, join } from "node:path";
+import { mkdir } from "node:fs/promises";
+
+const prisma = new PrismaClient();
+
+export const authStatePath = join(process.cwd(), "e2e", ".auth", "user.json");
+
+export const e2eUser = {
+	email: process.env.TEST_USER_EMAIL ?? "playwright@agricolala.test",
+	password: process.env.TEST_USER_PASSWORD ?? "playwright-local-password",
+} as const;
+
+export const cinqueTerreParcel = {
+	name: "Cinque Terre Vineyard",
+	latitude: 44.1461,
+	longitude: 9.6543,
+	altitude: 120,
+	width: 100,
+	height: 100,
+} as const;
+
+export const expectedCopperChartKg = [
+	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+] as const;
+
+export async function ensureAuthStateDirectory() {
+	await mkdir(dirname(authStatePath), { recursive: true });
+}
+
+function assertSafeE2eDatabase() {
+	const databaseUrl = process.env.DATABASE_URL ?? "";
+	const isDefaultE2eDatabase =
+		databaseUrl.includes("localhost:5434") ||
+		databaseUrl.includes("127.0.0.1:5434");
+
+	if (!isDefaultE2eDatabase && process.env.ALLOW_E2E_DB_RESET !== "true") {
+		throw new Error(
+			"Refusing to reset a non-e2e database. Use the Docker e2e database on port 5434 or set ALLOW_E2E_DB_RESET=true.",
+		);
+	}
+}
+
+export async function seedE2eData() {
+	assertSafeE2eDatabase();
+
+	const year = new Date().getFullYear();
+	const monthlyCopperGrams = [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 0] as const;
+
+	await prisma.$transaction(async (tx) => {
+		await tx.productApplication.deleteMany();
+		await tx.treatment.deleteMany();
+		await tx.parcelSubstanceAggregation.deleteMany();
+		await tx.userSubstanceAggregation.deleteMany();
+		await tx.parcel.deleteMany();
+		await tx.session.deleteMany();
+		await tx.account.deleteMany();
+		await tx.user.deleteMany();
+		await tx.substanceDose.deleteMany();
+		await tx.product.deleteMany();
+		await tx.disease.deleteMany();
+		await tx.substance.deleteMany();
+
+		const user = await tx.user.create({
+			data: {
+				email: e2eUser.email,
+				emailVerified: new Date(),
+				isAuthorized: true,
+				locale: "en",
+				name: "Playwright User",
+				tosAcceptedAt: new Date(),
+			},
+		});
+
+		const peronospora = await tx.disease.create({
+			data: {
+				name: "Peronospora",
+				description: "Downy mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: 3,
+				sensitivityMonthMax: 7,
+			},
+		});
+
+		const oidium = await tx.disease.create({
+			data: {
+				name: "Oidium",
+				description: "Powdery mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: 4,
+				sensitivityMonthMax: 8,
+			},
+		});
+
+		const copper = await tx.substance.create({
+			data: {
+				name: "Copper",
+				maxDosage: 4,
+				diseases: {
+					connect: [{ id: peronospora.id }],
+				},
+			},
+		});
+
+		const sulfur = await tx.substance.create({
+			data: {
+				name: "Sulfur",
+				maxDosage: 10,
+				diseases: {
+					connect: [{ id: oidium.id }],
+				},
+			},
+		});
+
+		const copperProduct = await tx.product.create({
+			data: {
+				name: "Pasta cafaro",
+				brand: "Pasta cafaro",
+				maxApplications: 6,
+				composition: {
+					create: [{ substanceId: copper.id, dose: 25 }],
+				},
+			},
+		});
+
+		await tx.product.create({
+			data: {
+				name: "Zolfo tiovit",
+				brand: "Zolfo tiovit",
+				maxApplications: 10,
+				composition: {
+					create: [{ substanceId: sulfur.id, dose: 80 }],
+				},
+			},
+		});
+
+		const parcel = await tx.parcel.create({
+			data: {
+				...cinqueTerreParcel,
+				type: CultureType.VINEYARD,
+				userId: user.id,
+			},
+		});
+
+		for (const day of [2, 9, 16, 23]) {
+			const treatment = await tx.treatment.create({
+				data: {
+					appliedDate: new Date(Date.UTC(year, 3, day, 12)),
+					diseaseIds: [peronospora.id],
+					parcelId: parcel.id,
+					status: TreatmentStatus.DONE,
+					userId: user.id,
+					waterDose: 10,
+				},
+			});
+
+			await tx.productApplication.create({
+				data: {
+					dose: 1000,
+					productId: copperProduct.id,
+					treatmentId: treatment.id,
+				},
+			});
+		}
+
+		await tx.userSubstanceAggregation.create({
+			data: {
+				applicationCount: 4,
+				monthlyData: [...monthlyCopperGrams],
+				substanceId: copper.id,
+				substanceName: copper.name,
+				totalDoseOfProduct: 4000,
+				totalUsedOfPureActiveSubstance: 1000,
+				totalUsedOfPureActiveSubstancePerHa: 1000,
+				userId: user.id,
+				year,
+			},
+		});
+
+		await tx.parcelSubstanceAggregation.create({
+			data: {
+				applicationCount: 4,
+				monthlyData: [...monthlyCopperGrams],
+				parcelId: parcel.id,
+				substanceId: copper.id,
+				substanceName: copper.name,
+				totalDoseOfProduct: 4000,
+				totalUsedOfPureActiveSubstance: 1000,
+				totalUsedOfPureActiveSubstancePerHa: 1000,
+				year,
+			},
+		});
+	});
+}
+
+export async function disconnectE2ePrisma() {
+	await prisma.$disconnect();
+}

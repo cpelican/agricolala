@@ -27,6 +27,7 @@ export const AddTreatmentButton = ({
 	return (
 		<>
 			<Button
+				aria-label="Add treatment"
 				onClick={() => setIsAddTreatmentOpen(true)}
 				style={{ bottom: 100 }}
 				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-main-gradient hover:bg-primary-700"

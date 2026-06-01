@@ -17,6 +17,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+e2e/.auth/
+test-results/
+playwright-report/
 
 # env files
 *.env*

@@ -28,6 +28,19 @@ interface ChartWrapperProps {
 	data: ChartData<"line">;
 	options: ChartOptions<"line">;
 	emptyMessage?: string;
+	testId?: string;
+}
+
+function getChartSummary(data: ChartData<"line">) {
+	return {
+		labels: data.labels?.map((label) => String(label)) ?? [],
+		datasets: data.datasets.map((dataset) => ({
+			label: String(dataset.label ?? ""),
+			data: dataset.data.map((value) =>
+				typeof value === "number" ? value : Number(value),
+			),
+		})),
+	};
 }
 
 export function ChartSkeleton() {
@@ -45,6 +58,7 @@ export function ChartWrapper({
 	data,
 	options,
 	emptyMessage,
+	testId,
 }: ChartWrapperProps) {
 	const hasData = data.datasets.some(
 		(dataset) =>
@@ -57,7 +71,11 @@ export function ChartWrapper({
 	}
 
 	return (
-		<div className="max-h-[400px] flex justify-center items-center">
+		<div
+			className="max-h-[400px] flex justify-center items-center"
+			data-chart-summary={JSON.stringify(getChartSummary(data))}
+			data-testid={testId}
+		>
 			<Line data={data} options={options} />
 		</div>
 	);

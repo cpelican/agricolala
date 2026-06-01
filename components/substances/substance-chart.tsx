@@ -79,6 +79,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 			data={chartData}
 			options={options}
 			emptyMessage={t("substances.noTreatmentData")}
+			testId="substance-line-chart"
 		/>
 	);
 }
