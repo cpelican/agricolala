@@ -112,8 +112,6 @@ Uses `.env.test` and `vitest.config.mts`. Global setup serves Next on **3001**.
 - **Cloud:** `agraria_test` on `5432`; no `test:db:start`
 - **Local:** `npm run test:db:start` before, `test:db:stop` after
 
-Flaky integration test (date-sensitive): `should create a TODO treatment when all products used in last treatment are no longer considered active (daysBetweenApplications reached)`.
-
 ## Running Playwright e2e tests
 
 Final check for UI, auth, parcels, treatments, dashboard charts.

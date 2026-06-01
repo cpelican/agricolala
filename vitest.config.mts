@@ -11,7 +11,10 @@ export default defineConfig(() => {
     mode: 'test',
     test: {
       environment: 'jsdom',
-      env,
+      env: {
+        ...env,
+        CRON_ALLOW_AS_OF: 'true',
+      },
       fileParallelism: false,
       maxWorkers: 1,
       minWorkers: 1,

@@ -6,6 +6,12 @@
 			"sourceType": "github",
 			"skillPath": "skills/caveman/SKILL.md",
 			"computedHash": "dfbf85749fd474feeb0bbe60c779795ecd5dbec0083299b56e68916bc3ddd8c9"
+		},
+		"security-best-practices": {
+			"source": "openai/skills",
+			"sourceType": "github",
+			"skillPath": "skills/.curated/security-best-practices/SKILL.md",
+			"computedHash": "c27616fb4e27999605b90b261dc729784420c8d77bd1a98748384ffaa5b35704"
 		}
 	}
 }

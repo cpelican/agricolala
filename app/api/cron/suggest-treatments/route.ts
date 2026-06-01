@@ -5,7 +5,35 @@ import { TreatmentStatus } from "@prisma/client";
 import { getCachedCompositions, getCurrentDiseases } from "@/lib/data-fetcher";
 import { Errors } from "@/lib/constants";
 
-const getAuthorizedUsersWithLastTreatmentsData = async () => {
+/** Vitest/CI only: x-cron-as-of when CRON_ALLOW_AS_OF=true and not Vercel production. */
+function isCronAsOfOverrideAllowed(): boolean {
+	return (
+		process.env.CRON_ALLOW_AS_OF === "true" &&
+		process.env.VERCEL_ENV !== "production"
+	);
+}
+
+function resolveCronReferenceDate(request: NextRequest): {
+	referenceDate: Date;
+	isExplicitAsOf: boolean;
+} {
+	const now = new Date();
+	if (isCronAsOfOverrideAllowed()) {
+		const asOf = request.headers.get("x-cron-as-of");
+		if (asOf) {
+			const parsed = new Date(asOf);
+			if (!Number.isNaN(parsed.getTime())) {
+				return { referenceDate: parsed, isExplicitAsOf: true };
+			}
+		}
+	}
+	return { referenceDate: now, isExplicitAsOf: false };
+}
+
+const getAuthorizedUsersWithLastTreatmentsData = async (
+	referenceDate: Date,
+) => {
+	const year = referenceDate.getFullYear();
 	return prisma.user.findMany({
 		where: {
 			isAuthorized: true,
@@ -20,8 +48,8 @@ const getAuthorizedUsersWithLastTreatmentsData = async () => {
 							status: TreatmentStatus.DONE,
 							appliedDate: {
 								not: null,
-								gte: new Date(new Date().getFullYear(), 0, 1), // Start of current year
-								lt: new Date(new Date().getFullYear() + 1, 0, 1), // Start of next year
+								gte: new Date(year, 0, 1),
+								lt: new Date(year + 1, 0, 1),
 							},
 						},
 						orderBy: {
@@ -60,7 +88,8 @@ export async function GET(request: NextRequest) {
 
 	try {
 		let suggestedTreatments = 0;
-		const currentDate = new Date();
+		const { referenceDate: currentDate, isExplicitAsOf } =
+			resolveCronReferenceDate(request);
 
 		// Delete all TODO treatments
 		// We want a one to one type relationship for todo treatment with the parcel
@@ -71,7 +100,7 @@ export async function GET(request: NextRequest) {
 			},
 		});
 
-		const users = await getAuthorizedUsersWithLastTreatmentsData();
+		const users = await getAuthorizedUsersWithLastTreatmentsData(currentDate);
 		const compositions = await getCachedCompositions();
 
 		for (const user of users) {
@@ -87,7 +116,9 @@ export async function GET(request: NextRequest) {
 						(1000 * 60 * 60 * 24),
 				);
 				// Filter diseaseIds to only include currently active diseases
-				const currentDiseases = await getCurrentDiseases();
+				const currentDiseases = await getCurrentDiseases(
+					isExplicitAsOf ? currentDate : undefined,
+				);
 				const { currentDiseaseIds, substancesByDiseaseId } =
 					currentDiseases.reduce<{
 						currentDiseaseIds: Set<string>;
