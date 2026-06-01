@@ -1,17 +1,44 @@
 import { Errors } from "@/lib/constants";
 import { type WeatherHistory } from "@prisma/client";
+import { z } from "zod";
 
-export interface OpenMeteoResponse {
-	hourly: {
-		time: string[];
-		temperature_2m: (number | null)[];
-		temperature_80m: (number | null)[];
-		precipitation: (number | null)[];
-		relative_humidity_2m: (number | null)[];
-		wind_speed_10m: (number | null)[];
-		wind_speed_180m: (number | null)[];
-	};
-}
+const nullableNumberArraySchema = z.array(z.number().nullable());
+
+const openMeteoResponseSchema = z.object({
+	hourly: z
+		.object({
+			time: z.array(z.string()),
+			temperature_2m: nullableNumberArraySchema,
+			temperature_80m: nullableNumberArraySchema,
+			precipitation: nullableNumberArraySchema,
+			relative_humidity_2m: nullableNumberArraySchema,
+			wind_speed_10m: nullableNumberArraySchema,
+			wind_speed_180m: nullableNumberArraySchema,
+		})
+		.superRefine((hourly, context) => {
+			const expectedLength = hourly.time.length;
+			const hourlySeries = [
+				"temperature_2m",
+				"temperature_80m",
+				"precipitation",
+				"relative_humidity_2m",
+				"wind_speed_10m",
+				"wind_speed_180m",
+			] as const;
+
+			for (const seriesName of hourlySeries) {
+				if (hourly[seriesName].length !== expectedLength) {
+					context.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `${seriesName} length must match time length`,
+						path: [seriesName],
+					});
+				}
+			}
+		}),
+});
+
+export type OpenMeteoResponse = z.infer<typeof openMeteoResponseSchema>;
 
 interface DailyWeatherData
 	extends Pick<
@@ -46,6 +73,23 @@ const subtractUtcDays = (date: Date, days: number) => {
 	return result;
 };
 
+const parseOpenMeteoResponse = async (
+	response: Response,
+): Promise<OpenMeteoResponse> => {
+	const payload: unknown = await response.json();
+	const parsedResponse = openMeteoResponseSchema.safeParse(payload);
+
+	if (!parsedResponse.success) {
+		console.error(
+			"Open-Meteo response did not match expected schema",
+			parsedResponse.error.issues,
+		);
+		throw new Error(Errors.INTERNAL_SERVER);
+	}
+
+	return parsedResponse.data;
+};
+
 export class OpenMeteoClient {
 	private static fetchWeatherData = async (
 		latitude: number,
@@ -67,7 +111,7 @@ export class OpenMeteoClient {
 			throw new Error(Errors.ACCESS_DENIED);
 		}
 
-		return response.json();
+		return parseOpenMeteoResponse(response);
 	};
 
 	private static fetchWeatherForecast = async (
@@ -87,7 +131,7 @@ export class OpenMeteoClient {
 			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
 		}
-		return response.json();
+		return parseOpenMeteoResponse(response);
 	};
 
 	public static computeDailyWeatherData = (

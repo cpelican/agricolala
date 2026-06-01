@@ -3,6 +3,7 @@ import {
 	OpenMeteoClient,
 	type OpenMeteoResponse,
 } from "@/lib/open-meteo-client";
+import { Errors } from "@/lib/constants";
 
 const createHourlyRange = (startIsoHour: string, hours: number) => {
 	const start = new Date(`${startIsoHour}:00Z`);
@@ -26,7 +27,7 @@ const createOpenMeteoResponse = (timestamps: string[]): OpenMeteoResponse => ({
 	},
 });
 
-const mockOpenMeteoFetch = (response: OpenMeteoResponse) => {
+const mockOpenMeteoFetch = (response: unknown) => {
 	const requestedUrls: string[] = [];
 	const fetchMock = vi.fn(async (url: string | URL | Request) => {
 		requestedUrls.push(url.toString());
@@ -45,6 +46,7 @@ describe("OpenMeteoClient", () => {
 	afterEach(() => {
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
 	});
 
 	test("stores only seven complete past days for history", async () => {
@@ -112,5 +114,23 @@ describe("OpenMeteoClient", () => {
 			["2026-06-01", "2026-06-02"],
 		);
 		expect(dailyData.map((day) => day.cumulativePrecipitation)).toEqual([1, 1]);
+	});
+
+	test("rejects malformed Open-Meteo payloads before aggregation", async () => {
+		vi.spyOn(console, "error").mockImplementation(() => undefined);
+		mockOpenMeteoFetch({
+			hourly: {
+				time: ["2026-05-31T00:00"],
+				temperature_80m: [12],
+				precipitation: [1],
+				relative_humidity_2m: [80],
+				wind_speed_10m: [10],
+				wind_speed_180m: [12],
+			},
+		});
+
+		await expect(
+			OpenMeteoClient.getHistoryWeatherData(44.0998, 9.7387),
+		).rejects.toThrow(Errors.INTERNAL_SERVER);
 	});
 });
