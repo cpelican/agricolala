@@ -63,12 +63,10 @@ Use Playwright as the final agent check when UI flows, auth, parcel creation, tr
 
 ```bash
 npm run test:e2e:install
-npm run test:e2e:db:start
-npm run test:e2e
-npm run test:e2e:db:stop
+npm run test:e2e:agent
 ```
 
-The e2e setup uses `docker-compose.e2e.yml` on `localhost:5434`. The Playwright `beforeAll` resets that e2e database, seeds an authorized test user, one Cinque Terre parcel in Liguria, and four April treatments for the dashboard chart, then logs in through the credentials form. The reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
+Agents should use native PostgreSQL via `npm run test:e2e:agent`; do not use Docker Compose in Cursor Cloud. For local human runs, `npm run test:e2e:db:start`, `npm run test:e2e`, and `npm run test:e2e:db:stop` use `docker-compose.e2e.yml` on `localhost:5434`. The Playwright `beforeAll` resets the e2e database, seeds an authorized test user, one parcel, and four April treatments for the dashboard chart, then logs in through the credentials form. The reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
 
 When writing Playwright tests, prefer accessible selectors in this order: `getByRole` with a name, `getByLabel`, `getByPlaceholder`, and visible text. Avoid `getByTestId` unless there is no practical accessible surface; if a test needs one, first consider improving the component semantics with labels, roles, or accessible names.
 
