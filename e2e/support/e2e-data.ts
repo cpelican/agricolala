@@ -17,12 +17,34 @@ export const cinqueTerreParcel = {
 	latitude: 44.1461,
 	longitude: 9.6543,
 	altitude: 120,
-	width: 100,
-	height: 100,
+	width: 20,
+	height: 20,
 } as const;
 
+const APRIL_TREATMENT_DAYS = [2, 9, 16, 23] as const;
+const COPPER_PRODUCT_DOSE_GRAMS = 80;
+const COPPER_PRODUCT_COPPER_FRACTION = 0.25;
+const totalCopperProductDoseGrams =
+	APRIL_TREATMENT_DAYS.length * COPPER_PRODUCT_DOSE_GRAMS;
+const totalCopperGrams =
+	totalCopperProductDoseGrams * COPPER_PRODUCT_COPPER_FRACTION;
+const totalCopperPerHaGrams =
+	(totalCopperGrams * 10_000) /
+	(cinqueTerreParcel.width * cinqueTerreParcel.height);
+
 export const expectedCopperChartKg = [
-	0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+	0,
+	0,
+	0,
+	totalCopperGrams / 1_000,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
 ] as const;
 
 export async function ensureAuthStateDirectory() {
@@ -74,7 +96,20 @@ export async function seedE2eData() {
 	assertSafeE2eDatabase();
 
 	const year = new Date().getFullYear();
-	const monthlyCopperGrams = [0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 0] as const;
+	const monthlyCopperGrams = [
+		0,
+		0,
+		0,
+		totalCopperGrams,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+	] as const;
 
 	await prisma.$transaction(async (tx) => {
 		await tx.productApplication.deleteMany();
@@ -111,7 +146,7 @@ export async function seedE2eData() {
 			},
 		});
 
-		for (const day of [2, 9, 16, 23]) {
+		for (const day of APRIL_TREATMENT_DAYS) {
 			const treatment = await tx.treatment.create({
 				data: {
 					appliedDate: new Date(Date.UTC(year, 3, day, 12)),
@@ -125,7 +160,7 @@ export async function seedE2eData() {
 
 			await tx.productApplication.create({
 				data: {
-					dose: 1000,
+					dose: COPPER_PRODUCT_DOSE_GRAMS,
 					productId: copperProduct.id,
 					treatmentId: treatment.id,
 				},
@@ -138,9 +173,9 @@ export async function seedE2eData() {
 				monthlyData: [...monthlyCopperGrams],
 				substanceId: copper.id,
 				substanceName: copper.name,
-				totalDoseOfProduct: 4000,
-				totalUsedOfPureActiveSubstance: 1000,
-				totalUsedOfPureActiveSubstancePerHa: 1000,
+				totalDoseOfProduct: totalCopperProductDoseGrams,
+				totalUsedOfPureActiveSubstance: totalCopperGrams,
+				totalUsedOfPureActiveSubstancePerHa: totalCopperPerHaGrams,
 				userId: user.id,
 				year,
 			},
@@ -153,9 +188,9 @@ export async function seedE2eData() {
 				parcelId: parcel.id,
 				substanceId: copper.id,
 				substanceName: copper.name,
-				totalDoseOfProduct: 4000,
-				totalUsedOfPureActiveSubstance: 1000,
-				totalUsedOfPureActiveSubstancePerHa: 1000,
+				totalDoseOfProduct: totalCopperProductDoseGrams,
+				totalUsedOfPureActiveSubstance: totalCopperGrams,
+				totalUsedOfPureActiveSubstancePerHa: totalCopperPerHaGrams,
 				year,
 			},
 		});

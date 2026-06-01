@@ -81,12 +81,10 @@ test("dashboard shows April treatment data in the line chart", async ({
 		(dataset) => dataset.label === "Copper",
 	);
 	expect(copperDataset?.data).toEqual([...expectedCopperChartKg]);
-	await expect(main.getByText("4000.00 gr of product")).toBeVisible();
+	await expect(main.getByText("320.00 gr of product")).toBeVisible();
+	await expect(main.getByText("80 gr of pure active substance")).toBeVisible();
 	await expect(
-		main.getByText("1000 gr of pure active substance"),
-	).toBeVisible();
-	await expect(
-		main.getByText("1 kg/ha of pure active substance"),
+		main.getByText("2 kg/ha of pure active substance"),
 	).toBeVisible();
 	await expectNoVisibleErrors(page);
 });
