@@ -31,6 +31,21 @@ interface DailyWeatherData
 	date: Date;
 }
 
+const WEATHER_HISTORY_DAYS = 7;
+const WEATHER_FORECAST_DAYS = 3;
+
+const getStartOfUtcDay = (date: Date) => {
+	return new Date(
+		Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+	);
+};
+
+const subtractUtcDays = (date: Date, days: number) => {
+	const result = new Date(date);
+	result.setUTCDate(result.getUTCDate() - days);
+	return result;
+};
+
 export class OpenMeteoClient {
 	private static fetchWeatherData = async (
 		latitude: number,
@@ -43,7 +58,8 @@ export class OpenMeteoClient {
 			"hourly",
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
-		url.searchParams.set("past_days", "7");
+		url.searchParams.set("past_days", WEATHER_HISTORY_DAYS.toString());
+		url.searchParams.set("forecast_days", "0");
 
 		const response = await fetch(url.toString());
 		if (!response.ok) {
@@ -65,7 +81,7 @@ export class OpenMeteoClient {
 			"hourly",
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
-		url.searchParams.set("forecast_days", "3");
+		url.searchParams.set("forecast_days", WEATHER_FORECAST_DAYS.toString());
 		const response = await fetch(url.toString());
 		if (!response.ok) {
 			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
@@ -215,13 +231,12 @@ export class OpenMeteoClient {
 		);
 		const hourlyData = weatherDataResponse.hourly;
 
-		const now = new Date();
-		const sevenDaysAgo = new Date(now);
-		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+		const todayStart = getStartOfUtcDay(new Date());
+		const historyStart = subtractUtcDays(todayStart, WEATHER_HISTORY_DAYS);
 
 		const dailyData = OpenMeteoClient.computeDailyWeatherData(
 			hourlyData,
-			(dateTime) => dateTime < sevenDaysAgo || dateTime >= now,
+			(dateTime) => dateTime < historyStart || dateTime >= todayStart,
 		);
 
 		return Array.from(dailyData.values());
