@@ -1,4 +1,8 @@
-import { calculateSubstanceData } from "./substance-helpers";
+import {
+	calculateSubstanceData,
+	dedupeDiseaseEntries,
+	getDiseaseIdsForProducts,
+} from "./substance-helpers";
 import { describe, test, expect } from "vitest";
 
 const treatments = [
@@ -415,5 +419,94 @@ describe("calculateSubstanceData", () => {
 	test("should calculate substance data correctly", () => {
 		const substanceData = calculateSubstanceData(treatments, compositions);
 		expect(substanceData).toEqual(expected);
+	});
+});
+
+describe("dedupeDiseaseEntries", () => {
+	test("removes duplicate disease ids keeping first occurrence", () => {
+		expect(
+			dedupeDiseaseEntries([
+				{ diseaseId: "peronospora" },
+				{ diseaseId: "peronospora" },
+				{ diseaseId: "oidium" },
+			]),
+		).toEqual([{ diseaseId: "peronospora" }, { diseaseId: "oidium" }]);
+	});
+
+	test("collapses multiple empty rows to one", () => {
+		expect(
+			dedupeDiseaseEntries([{ diseaseId: "" }, { diseaseId: "" }]),
+		).toEqual([{ diseaseId: "" }]);
+	});
+
+	test("returns single empty row when input is empty", () => {
+		expect(dedupeDiseaseEntries([])).toEqual([{ diseaseId: "" }]);
+	});
+});
+
+describe("getDiseaseIdsForProducts", () => {
+	const productCompositions = {
+		copperProduct: {
+			copper: {
+				id: "dose1",
+				dose: 25,
+				substanceId: "copper",
+				productId: "copperProduct",
+				substance: { name: "Copper", maxDosage: 4 },
+			},
+		},
+		sulfurProduct: {
+			sulfur: {
+				id: "dose2",
+				dose: 80,
+				substanceId: "sulfur",
+				productId: "sulfurProduct",
+				substance: { name: "Sulfur", maxDosage: 10 },
+			},
+		},
+	};
+
+	const substances = [
+		{ id: "copper", diseaseIds: ["peronospora"] },
+		{ id: "sulfur", diseaseIds: ["oidium"] },
+	];
+
+	test("returns empty row when no products selected", () => {
+		expect(
+			getDiseaseIdsForProducts([], productCompositions, substances),
+		).toEqual([{ diseaseId: "" }]);
+	});
+
+	test("maps copper product to peronospora", () => {
+		expect(
+			getDiseaseIdsForProducts(
+				["copperProduct"],
+				productCompositions,
+				substances,
+			),
+		).toEqual([{ diseaseId: "peronospora" }]);
+	});
+
+	test("maps sulfur product to oidium", () => {
+		expect(
+			getDiseaseIdsForProducts(
+				["sulfurProduct"],
+				productCompositions,
+				substances,
+			),
+		).toEqual([{ diseaseId: "oidium" }]);
+	});
+
+	test("unions diseases from multiple products", () => {
+		const result = getDiseaseIdsForProducts(
+			["copperProduct", "sulfurProduct"],
+			productCompositions,
+			substances,
+		);
+		expect(result).toHaveLength(2);
+		expect(result.map((d) => d.diseaseId).sort()).toEqual([
+			"oidium",
+			"peronospora",
+		]);
 	});
 });

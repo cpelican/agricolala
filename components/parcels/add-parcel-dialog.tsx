@@ -110,7 +110,7 @@ export function AddParcelDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
+			<DialogContent className="max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>{t("parcels.addNewParcel")}</DialogTitle>
 					<DialogDescription>
@@ -124,127 +124,126 @@ export function AddParcelDialog({
 					</div>
 				)}
 
-				<form
-					action={handleSubmit}
-					className="space-y-4 -mx-6 max-h-[80vh] overflow-y-scroll p-6"
-				>
-					<div>
-						<Label htmlFor="name">{t("parcels.parcelName")}</Label>
-						<Input
-							id="name"
-							name="name"
-							value={formData.name}
-							onChange={(e) =>
-								setFormData({ ...formData, name: e.target.value })
-							}
-							placeholder={t("parcels.parcelNamePlaceholder")}
-							required
-						/>
+				<form action={handleSubmit} className="flex flex-col flex-1 min-h-0">
+					<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
+						<div>
+							<Label htmlFor="name">{t("parcels.parcelName")}</Label>
+							<Input
+								id="name"
+								name="name"
+								value={formData.name}
+								onChange={(e) =>
+									setFormData({ ...formData, name: e.target.value })
+								}
+								placeholder={t("parcels.parcelNamePlaceholder")}
+								required
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="width">{t("parcels.width")}</Label>
+								<Input
+									id="width"
+									name="width"
+									type="number"
+									value={formData.width}
+									onChange={(e) =>
+										setFormData({ ...formData, width: e.target.value })
+									}
+									placeholder={t("parcels.widthPlaceholder")}
+									required
+								/>
+							</div>
+							<div>
+								<Label htmlFor="height">{t("parcels.height")}</Label>
+								<Input
+									id="height"
+									name="height"
+									type="number"
+									value={formData.height}
+									onChange={(e) =>
+										setFormData({ ...formData, height: e.target.value })
+									}
+									placeholder={t("parcels.heightPlaceholder")}
+									required
+								/>
+							</div>
+						</div>
+
+						<div>
+							<Label htmlFor="type">{t("parcels.cultureType")}</Label>
+							<Select
+								value={formData.type}
+								onValueChange={(value: CultureType) =>
+									setFormData({ ...formData, type: value })
+								}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value={CultureType.VINEYARD}>
+										{t("parcels.wineyard")}
+									</SelectItem>
+									<SelectItem value={CultureType.PEACHES}>
+										{t("parcels.peaches")}
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<input type="hidden" name="type" value={formData.type} />
+						</div>
+
+						<div className="grid grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="latitude">{t("parcels.latitude")}</Label>
+								<Input
+									id="latitude"
+									name="latitude"
+									type="number"
+									step="any"
+									value={formData.latitude}
+									onChange={(e) =>
+										setFormData({ ...formData, latitude: e.target.value })
+									}
+									placeholder={t("parcels.latitudePlaceholder")}
+									required
+								/>
+							</div>
+							<div>
+								<Label htmlFor="longitude">{t("parcels.longitude")}</Label>
+								<Input
+									id="longitude"
+									name="longitude"
+									type="number"
+									step="any"
+									value={formData.longitude}
+									onChange={(e) =>
+										setFormData({ ...formData, longitude: e.target.value })
+									}
+									placeholder={t("parcels.longitudePlaceholder")}
+									required
+								/>
+							</div>
+							<div>
+								<Label htmlFor="altitude">{t("parcels.altitude")}</Label>
+								<Input
+									id="altitude"
+									name="altitude"
+									type="number"
+									step="any"
+									value={formData.altitude}
+									onChange={(e) =>
+										setFormData({ ...formData, altitude: e.target.value })
+									}
+									placeholder={t("parcels.altitudePlaceholder")}
+									required
+								/>
+							</div>
+						</div>
 					</div>
 
-					<div className="grid grid-cols-2 gap-4">
-						<div>
-							<Label htmlFor="width">{t("parcels.width")}</Label>
-							<Input
-								id="width"
-								name="width"
-								type="number"
-								value={formData.width}
-								onChange={(e) =>
-									setFormData({ ...formData, width: e.target.value })
-								}
-								placeholder={t("parcels.widthPlaceholder")}
-								required
-							/>
-						</div>
-						<div>
-							<Label htmlFor="height">{t("parcels.height")}</Label>
-							<Input
-								id="height"
-								name="height"
-								type="number"
-								value={formData.height}
-								onChange={(e) =>
-									setFormData({ ...formData, height: e.target.value })
-								}
-								placeholder={t("parcels.heightPlaceholder")}
-								required
-							/>
-						</div>
-					</div>
-
-					<div>
-						<Label htmlFor="type">{t("parcels.cultureType")}</Label>
-						<Select
-							value={formData.type}
-							onValueChange={(value: CultureType) =>
-								setFormData({ ...formData, type: value })
-							}
-						>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={CultureType.VINEYARD}>
-									{t("parcels.wineyard")}
-								</SelectItem>
-								<SelectItem value={CultureType.PEACHES}>
-									{t("parcels.peaches")}
-								</SelectItem>
-							</SelectContent>
-						</Select>
-						<input type="hidden" name="type" value={formData.type} />
-					</div>
-
-					<div className="grid grid-cols-2 gap-4">
-						<div>
-							<Label htmlFor="latitude">{t("parcels.latitude")}</Label>
-							<Input
-								id="latitude"
-								name="latitude"
-								type="number"
-								step="any"
-								value={formData.latitude}
-								onChange={(e) =>
-									setFormData({ ...formData, latitude: e.target.value })
-								}
-								placeholder={t("parcels.latitudePlaceholder")}
-								required
-							/>
-						</div>
-						<div>
-							<Label htmlFor="longitude">{t("parcels.longitude")}</Label>
-							<Input
-								id="longitude"
-								name="longitude"
-								type="number"
-								step="any"
-								value={formData.longitude}
-								onChange={(e) =>
-									setFormData({ ...formData, longitude: e.target.value })
-								}
-								placeholder={t("parcels.longitudePlaceholder")}
-								required
-							/>
-						</div>
-						<div>
-							<Label htmlFor="altitude">{t("parcels.altitude")}</Label>
-							<Input
-								id="altitude"
-								name="altitude"
-								type="number"
-								step="any"
-								value={formData.altitude}
-								onChange={(e) =>
-									setFormData({ ...formData, altitude: e.target.value })
-								}
-								placeholder={t("parcels.altitudePlaceholder")}
-								required
-							/>
-						</div>
-					</div>
-
-					<div className="flex justify-end space-x-2">
+					<div className="flex justify-end space-x-2 pt-4">
 						<Button
 							type="button"
 							variant="outline"

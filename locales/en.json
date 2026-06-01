@@ -84,6 +84,7 @@
 		"diseases": "Diseases",
 		"addDisease": "Add Disease",
 		"selectDisease": "Select disease",
+		"diseasesFromProductsHint": "Filled from selected products; you can adjust.",
 		"products": "Products",
 		"dosesInGrams": "Doses in grams (g)",
 		"addProduct": "Add Product",
