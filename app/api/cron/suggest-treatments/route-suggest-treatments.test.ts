@@ -10,6 +10,67 @@ import {
 import { getTestPrisma } from "@/test/test-prisma-client";
 import { getCurrentDiseases } from "@/lib/data-fetcher";
 
+// HTTP tests hit Next on :3001 (separate process). The cron uses its own new Date();
+// Vitest cannot freeze that clock. We shape DB dates/months so server "now" matches intent.
+
+/** Calendar month 1–12, matching getCurrentDiseases and seed data. */
+function getCalendarMonth(date: Date): number {
+	return date.getMonth() + 1;
+}
+
+function diseaseSensitivityForCalendarMonth(date: Date): {
+	sensitivityMonthMin: number;
+	sensitivityMonthMax: number;
+} {
+	const month = getCalendarMonth(date);
+	return {
+		sensitivityMonthMin: Math.max(1, month - 2),
+		sensitivityMonthMax: Math.min(12, month + 2),
+	};
+}
+
+/** Local midnight N calendar days before `from` (stable vs cron Math.floor day count). */
+function localMidnightDaysAgo(from: Date, days: number): Date {
+	return new Date(from.getFullYear(), from.getMonth(), from.getDate() - days);
+}
+
+function expectedSuggestedDateRange(
+	lastTreatmentDate: Date,
+	daysBetweenApplications: number,
+): { dateMin: Date; dateMax: Date } {
+	const dateMin = new Date(lastTreatmentDate);
+	dateMin.setDate(dateMin.getDate() + daysBetweenApplications);
+	dateMin.setHours(0, 0, 0, 0);
+
+	const dateMax = new Date(dateMin);
+	dateMax.setDate(dateMax.getDate() + daysBetweenApplications);
+	dateMax.setHours(0, 0, 0, 0);
+
+	return { dateMin, dateMax };
+}
+
+async function setDiseasesActiveForCurrentMonth(
+	testPrisma: PrismaClient,
+	testData: Awaited<ReturnType<typeof seedTestData>>,
+	currentDate: Date,
+) {
+	const sensitivity = diseaseSensitivityForCalendarMonth(currentDate);
+
+	await testPrisma.disease.update({
+		where: { id: testData.oidium.id },
+		data: {
+			name: "Oidium",
+			description: "Powdery mildew, a fungal disease affecting grapevines",
+			...sensitivity,
+		},
+	});
+
+	await testPrisma.disease.update({
+		where: { id: testData.peronospora.id },
+		data: sensitivity,
+	});
+}
+
 describe("[Integration] Suggest Treatments", () => {
 	let testPrisma: PrismaClient;
 	let testData: Awaited<ReturnType<typeof seedTestData>>;
@@ -22,17 +83,9 @@ describe("[Integration] Suggest Treatments", () => {
 	// This is because otherwise the logic becomes too complicated:
 	// we would need to look for all previous user treatments and for now we dont want this
 	test("should not create a TODO treatment if one of the product used in last treatment is considered still active (daysBetweenApplications not reached)", async () => {
-		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
-			testData;
-		// we cannot mock the date since the server is inside another node process
-		// and it uses new Date as well to know which diseases are currently active
+		const { pastTreatment } = testData;
 		const currentDate = new Date();
-		const lastTreatmentDate = new Date(
-			currentDate.getFullYear(),
-			currentDate.getMonth(),
-			currentDate.getDate() -
-				(COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS - 2),
-		);
+		const lastTreatmentDate = localMidnightDaysAgo(currentDate, 3);
 
 		await testPrisma.treatment.update({
 			where: { id: pastTreatment.id },
@@ -42,23 +95,7 @@ describe("[Integration] Suggest Treatments", () => {
 			},
 		});
 
-		await testPrisma.disease.update({
-			where: { id: testData.oidium.id },
-			data: {
-				name: "Oidium",
-				description: "Powdery mildew, a fungal disease affecting grapevines",
-				sensitivityMonthMin: currentDate.getMonth() - 2,
-				sensitivityMonthMax: currentDate.getMonth() + 3,
-			},
-		});
-
-		await testPrisma.disease.update({
-			where: { id: testData.peronospora.id },
-			data: {
-				sensitivityMonthMin: currentDate.getMonth() - 2,
-				sensitivityMonthMax: currentDate.getMonth() + 3,
-			},
-		});
+		await setDiseasesActiveForCurrentMonth(testPrisma, testData, currentDate);
 		const previousTreatmentsCount = await testPrisma.treatment.count();
 
 		// Simulate the cron job query logic by calling its endpoint
@@ -84,13 +121,10 @@ describe("[Integration] Suggest Treatments", () => {
 	test("should create a TODO treatment when all products used in last treatment are no longer considered active (daysBetweenApplications reached)", async () => {
 		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
 			testData;
-		// we cannot mock the date since the server is inside another node process
-		// and it uses new Date as well to know which diseases are currently active
 		const currentDate = new Date();
-		const lastTreatmentDate = new Date(
-			currentDate.getFullYear(),
-			currentDate.getMonth(),
-			currentDate.getDate() - COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		const lastTreatmentDate = localMidnightDaysAgo(
+			currentDate,
+			COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS + 2,
 		);
 
 		await testPrisma.treatment.update({
@@ -101,23 +135,7 @@ describe("[Integration] Suggest Treatments", () => {
 			},
 		});
 
-		await testPrisma.disease.update({
-			where: { id: testData.oidium.id },
-			data: {
-				name: "Oidium",
-				description: "Powdery mildew, a fungal disease affecting grapevines",
-				sensitivityMonthMin: currentDate.getMonth() - 2,
-				sensitivityMonthMax: currentDate.getMonth() + 3,
-			},
-		});
-
-		await testPrisma.disease.update({
-			where: { id: testData.peronospora.id },
-			data: {
-				sensitivityMonthMin: currentDate.getMonth() - 2,
-				sensitivityMonthMax: currentDate.getMonth() + 3,
-			},
-		});
+		await setDiseasesActiveForCurrentMonth(testPrisma, testData, currentDate);
 
 		const previousTreatmentsCount = await testPrisma.treatment.count();
 
@@ -147,14 +165,11 @@ describe("[Integration] Suggest Treatments", () => {
 		expect(createdTreatments.length).toBe(1);
 		const createdTreatment = createdTreatments[0];
 
-		const expectedDateMin = new Date(currentDate);
-		expectedDateMin.setHours(0, 0, 0, 0);
-
-		const expectedDateMax = new Date(currentDate);
-		expectedDateMax.setDate(
-			expectedDateMax.getDate() + COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
-		);
-		expectedDateMax.setHours(0, 0, 0, 0);
+		const { dateMin: expectedDateMin, dateMax: expectedDateMax } =
+			expectedSuggestedDateRange(
+				lastTreatmentDate,
+				COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+			);
 
 		expect(createdTreatment.dateMin?.toISOString().slice(0, 10)).toBe(
 			expectedDateMin.toISOString().slice(0, 10),
