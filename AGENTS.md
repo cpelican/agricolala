@@ -68,7 +68,7 @@ npm run test:e2e
 npm run test:e2e:db:stop
 ```
 
-The e2e setup uses `docker-compose.e2e.yml` on `localhost:5434`. The Playwright `beforeAll` resets that e2e database, seeds an authorized test user, one Cinque Terre parcel in Liguria, and four April treatments for the dashboard chart, then logs in through the credentials form. Do not point these tests at a development or production database unless you intentionally set `ALLOW_E2E_DB_RESET=true`.
+The e2e setup uses `docker-compose.e2e.yml` on `localhost:5434`. The Playwright `beforeAll` resets that e2e database, seeds an authorized test user, one Cinque Terre parcel in Liguria, and four April treatments for the dashboard chart, then logs in through the credentials form. The reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
 
 When writing Playwright tests, prefer accessible selectors in this order: `getByRole` with a name, `getByLabel`, `getByPlaceholder`, and visible text. Avoid `getByTestId` unless there is no practical accessible surface; if a test needs one, first consider improving the component semantics with labels, roles, or accessible names.
 

@@ -30,14 +30,42 @@ export async function ensureAuthStateDirectory() {
 
 function assertSafeE2eDatabase() {
 	const databaseUrl = process.env.DATABASE_URL ?? "";
-	const isDefaultE2eDatabase =
-		databaseUrl.includes("localhost:5434") ||
-		databaseUrl.includes("127.0.0.1:5434");
+	const { databaseName, hostname, isSafe } =
+		parseE2eDatabaseSafety(databaseUrl);
 
-	if (!isDefaultE2eDatabase && process.env.ALLOW_E2E_DB_RESET !== "true") {
+	if (!isSafe) {
 		throw new Error(
-			"Refusing to reset a non-e2e database. Use the Docker e2e database on port 5434 or set ALLOW_E2E_DB_RESET=true.",
+			`Refusing to reset database host "${hostname}" and database "${databaseName}". Playwright e2e resets are limited to localhost/127.0.0.1 on port 5434, local database names containing "e2e", or the "postgres-e2e" Docker host.`,
 		);
+	}
+}
+
+function parseE2eDatabaseSafety(databaseUrl: string) {
+	try {
+		const url = new URL(databaseUrl);
+		const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+		const databaseName = decodeURIComponent(url.pathname.replace(/^\//, ""));
+		const protocol = url.protocol.replace(":", "");
+		const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+		const dockerE2eHosts = new Set(["postgres-e2e"]);
+		const isPostgres = protocol === "postgresql" || protocol === "postgres";
+		const isLocalE2ePort = localHosts.has(hostname) && url.port === "5434";
+		const isLocalE2eDatabase =
+			localHosts.has(hostname) && databaseName.toLowerCase().includes("e2e");
+		const isDockerE2eHost = dockerE2eHosts.has(hostname);
+
+		return {
+			databaseName,
+			hostname,
+			isSafe:
+				isPostgres && (isLocalE2ePort || isLocalE2eDatabase || isDockerE2eHost),
+		};
+	} catch {
+		return {
+			databaseName: "unknown",
+			hostname: "invalid-url",
+			isSafe: false,
+		};
 	}
 }
 

@@ -55,7 +55,7 @@ npm run test:e2e
 npm run test:e2e:db:stop
 ```
 
-`npm run test:e2e:db:start` starts `docker-compose.e2e.yml`, waits for PostgreSQL, applies Prisma migrations, and generates the Prisma client. The Playwright config provides local non-production defaults for `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TEST_USER_EMAIL`, and `TEST_USER_PASSWORD`; override them in your shell only when you intentionally want a different e2e database.
+`npm run test:e2e:db:start` starts `docker-compose.e2e.yml`, waits for PostgreSQL, applies Prisma migrations, and generates the Prisma client. The Playwright config provides local non-production defaults for `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TEST_USER_EMAIL`, and `TEST_USER_PASSWORD`. The e2e reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
 
 
 
