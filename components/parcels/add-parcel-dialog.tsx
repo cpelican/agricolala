@@ -62,7 +62,7 @@ export function AddParcelDialog({
 				...prev,
 				latitude: selectedLocation.lat.toString(),
 				longitude: selectedLocation.lng.toString(),
-				altitude: selectedLocation?.altitude?.toString(),
+				altitude: selectedLocation.altitude?.toString() ?? "",
 			}));
 		}
 	}, [selectedLocation]);

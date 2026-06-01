@@ -29,7 +29,10 @@ test.beforeAll(async ({ browser }) => {
 	await seedE2eData();
 	await ensureAuthStateDirectory();
 
-	const page = await browser.newPage();
+	const context = await browser.newContext({
+		storageState: { cookies: [], origins: [] },
+	});
+	const page = await context.newPage();
 	await page.goto("/auth/signin");
 	await page.getByPlaceholder("Email").fill(e2eUser.email);
 	await page.getByPlaceholder("Password").fill(e2eUser.password);
@@ -37,8 +40,8 @@ test.beforeAll(async ({ browser }) => {
 	await page.waitForURL(/\/en(?:$|[/?#])/);
 	await expect(page.getByRole("heading", { name: /Welcome/i })).toBeVisible();
 	await expectNoVisibleErrors(page);
-	await page.context().storageState({ path: authStatePath });
-	await page.close();
+	await context.storageState({ path: authStatePath });
+	await context.close();
 });
 
 test.afterAll(async () => {
@@ -52,7 +55,8 @@ test("dashboard shows April treatment data in the line chart", async ({
 	await expect(page.getByRole("heading", { name: /Welcome/i })).toBeVisible();
 	await expectNoVisibleErrors(page);
 
-	const chart = page.getByTestId("substance-line-chart");
+	const main = page.getByRole("main");
+	const chart = main.getByTestId("substance-line-chart");
 	await expect(chart).toBeVisible();
 
 	const summary = await getChartSummary(chart);
@@ -75,12 +79,12 @@ test("dashboard shows April treatment data in the line chart", async ({
 		(dataset) => dataset.label === "Copper",
 	);
 	expect(copperDataset?.data).toEqual([...expectedCopperChartKg]);
-	await expect(page.getByText("4000.00 gr of product")).toBeVisible();
+	await expect(main.getByText("4000.00 gr of product")).toBeVisible();
 	await expect(
-		page.getByText("1000 gr of pure active substance"),
+		main.getByText("1000 gr of pure active substance"),
 	).toBeVisible();
 	await expect(
-		page.getByText("1 kg/ha of pure active substance"),
+		main.getByText("1 kg/ha of pure active substance"),
 	).toBeVisible();
 	await expectNoVisibleErrors(page);
 });
@@ -91,7 +95,9 @@ test("adds a parcel without visible errors", async ({ page }) => {
 	await expectNoVisibleErrors(page);
 
 	await page
+		.getByRole("main")
 		.locator(".leaflet-container")
+		.last()
 		.click({ position: { x: 220, y: 180 } });
 
 	const dialog = page.getByRole("dialog", { name: "Add New Parcel" });
