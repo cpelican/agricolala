@@ -17,6 +17,7 @@ export async function cleanReferenceData(db: ReferenceDataClient) {
 }
 
 export async function seedReferenceData(db: ReferenceDataClient) {
+	// Create diseases
 	const oidium = await db.disease.create({
 		data: {
 			name: "Oidium",
@@ -38,7 +39,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 	const copper = await db.substance.create({
 		data: {
 			name: "Copper",
-			maxDosage: 4,
+			maxDosage: 4, // kg/ha/year
 			diseases: {
 				connect: [{ id: peronospora.id }],
 			},
@@ -48,29 +49,32 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 	const sulfur = await db.substance.create({
 		data: {
 			name: "Sulfur",
-			maxDosage: 10,
+			maxDosage: 10, // kg/ha/year
 			diseases: {
 				connect: [{ id: oidium.id }],
 			},
 		},
 	});
 
+	// create products
+	const MAX_APPLICATIONS = 6;
 	const copperProduct = await db.product.create({
 		data: {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
-			maxApplications: 6,
+			maxApplications: MAX_APPLICATIONS,
 			composition: {
 				create: [{ substanceId: copper.id, dose: 25 }],
 			},
 		},
 	});
 
+	const MAX_APPLICATIONS_SULFUR = 10;
 	const sulfurProduct = await db.product.create({
 		data: {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",
-			maxApplications: 10,
+			maxApplications: MAX_APPLICATIONS_SULFUR,
 			composition: {
 				create: [{ substanceId: sulfur.id, dose: 80 }],
 			},
