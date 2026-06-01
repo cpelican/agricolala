@@ -61,8 +61,11 @@ jobs:
       - name: Run database migrations
         run: npx -y prisma migrate deploy
 
+      - name: List test files
+        run: git ls-files -- '**/*.test.ts' '**/*.test.tsx'
+
       - name: Run tests
-        run: npx -y vitest run
+        run: npx -y vitest run --reporter=verbose
 
       - name: Upload test results (if any)
         if: failure()
