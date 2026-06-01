@@ -14,6 +14,8 @@ process.env.NEXTAUTH_URL ??= baseURL;
 process.env.TEST_USER_EMAIL ??= "playwright@agricolala.test";
 process.env.TEST_USER_PASSWORD ??= "playwright-local-password";
 
+const recordDemo = process.env.PLAYWRIGHT_RECORD_DEMO === "1";
+
 export default defineConfig({
 	testDir: "./e2e",
 	globalTeardown: "./e2e/global-teardown.ts",
@@ -29,6 +31,7 @@ export default defineConfig({
 		storageState: authStatePath,
 		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
+		video: recordDemo ? "on" : "retain-on-failure",
 	},
 	webServer: {
 		command: `npm run dev -- --hostname ${serverUrl.hostname} --port ${port}`,
@@ -48,16 +51,7 @@ export default defineConfig({
 		{
 			name: "mobile-chromium",
 			testMatch: /.*\.spec\.ts$/,
-			testIgnore: /.*\.demo\.ts$/,
 			dependencies: ["setup"],
-		},
-		{
-			name: "demo",
-			testMatch: /.*\.demo\.ts$/,
-			dependencies: ["setup"],
-			use: {
-				video: "on",
-			},
 		},
 	],
 });

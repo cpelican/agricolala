@@ -21,7 +21,7 @@ export default defineConfig([globalIgnores([
         }],
     },
 }, {
-    files: ["**/*.test.ts", "**/*.spec.ts", "**/*.demo.ts"],
+    files: ["**/*.test.ts", "**/*.spec.ts"],
     plugins: {
         jest: jestPlugin,
     },

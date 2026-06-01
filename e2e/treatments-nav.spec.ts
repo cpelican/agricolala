@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./support/test";
 import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
 import {
 	getChartSummary,

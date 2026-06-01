@@ -37,7 +37,7 @@ Next.js 16 + React 19 vineyard treatments app (Prisma, PostgreSQL, NextAuth, Ver
 | E2e install | `npm run test:e2e:install` |
 | E2e specs (local/CI) | `npm run test:e2e:db:start` then `npm run test:e2e` |
 | E2e (Cloud) | `npm run test:e2e:agent` |
-| E2e demo video | `npm run test:e2e:demo` |
+| E2e walkthrough video | `npm run test:e2e:record` |
 | Prisma Studio | `npm run studio` |
 
 Vitest: Next on **3001** (`.env.test`). E2e: **127.0.0.1:3002**, mobile viewport, English `/en`. On failure: `test-results/`, `playwright-report/`.
@@ -46,7 +46,7 @@ Vitest: Next on **3001** (`.env.test`). E2e: **127.0.0.1:3002**, mobile viewport
 
 - **API / lib / server:** `npm run test` (local: `test:db:start` first).
 - **UI / auth / parcels / treatments / dashboard:** e2e per environment above.
-- **UX change:** [e2e/TESTING.md](e2e/TESTING.md) — update `e2e/flows/`, add `e2e/demos/*.demo.ts`, run `npm run test:e2e:demo`, share `test-results/demo-videos/<demoSlug>.webm`. Add `e2e/*.spec.ts` only when asked.
+- **UX change:** [e2e/TESTING.md](e2e/TESTING.md) — update/add `e2e/*.spec.ts` and `e2e/flows/`, run `npm run test:e2e`, then `npm run test:e2e:record` and share `test-results/demo-videos/<spec-slug>.webm`.
 - Report which commands you ran and pass/fail.
 
 ## Authentication
