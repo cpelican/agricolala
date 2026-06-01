@@ -1,6 +1,7 @@
 import { PrismaClient, CultureType, TreatmentStatus } from "@prisma/client";
 import { dirname, join } from "node:path";
 import { mkdir } from "node:fs/promises";
+import { seedReferenceData } from "../../prisma/seed";
 
 const prisma = new PrismaClient();
 
@@ -100,65 +101,7 @@ export async function seedE2eData() {
 			},
 		});
 
-		const peronospora = await tx.disease.create({
-			data: {
-				name: "Peronospora",
-				description: "Downy mildew, a fungal disease affecting grapevines",
-				sensitivityMonthMin: 3,
-				sensitivityMonthMax: 7,
-			},
-		});
-
-		const oidium = await tx.disease.create({
-			data: {
-				name: "Oidium",
-				description: "Powdery mildew, a fungal disease affecting grapevines",
-				sensitivityMonthMin: 4,
-				sensitivityMonthMax: 8,
-			},
-		});
-
-		const copper = await tx.substance.create({
-			data: {
-				name: "Copper",
-				maxDosage: 4,
-				diseases: {
-					connect: [{ id: peronospora.id }],
-				},
-			},
-		});
-
-		const sulfur = await tx.substance.create({
-			data: {
-				name: "Sulfur",
-				maxDosage: 10,
-				diseases: {
-					connect: [{ id: oidium.id }],
-				},
-			},
-		});
-
-		const copperProduct = await tx.product.create({
-			data: {
-				name: "Pasta cafaro",
-				brand: "Pasta cafaro",
-				maxApplications: 6,
-				composition: {
-					create: [{ substanceId: copper.id, dose: 25 }],
-				},
-			},
-		});
-
-		await tx.product.create({
-			data: {
-				name: "Zolfo tiovit",
-				brand: "Zolfo tiovit",
-				maxApplications: 10,
-				composition: {
-					create: [{ substanceId: sulfur.id, dose: 80 }],
-				},
-			},
-		});
+		const { copper, copperProduct, peronospora } = await seedReferenceData(tx);
 
 		const parcel = await tx.parcel.create({
 			data: {

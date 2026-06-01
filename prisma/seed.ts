@@ -1,19 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+interface ReferenceDataClient {
+	disease: PrismaClient["disease"];
+	product: PrismaClient["product"];
+	productApplication: PrismaClient["productApplication"];
+	substance: PrismaClient["substance"];
+	substanceDose: PrismaClient["substanceDose"];
+}
 
-async function main() {
-	// Delete existing data
-	console.log("Deleting existing data...");
-	await prisma.substanceDose.deleteMany();
-	await prisma.productApplication.deleteMany();
-	await prisma.substance.deleteMany();
-	await prisma.disease.deleteMany();
-	await prisma.product.deleteMany();
-	console.log("Existing data deleted.");
+export async function cleanReferenceData(db: ReferenceDataClient) {
+	await db.substanceDose.deleteMany();
+	await db.productApplication.deleteMany();
+	await db.substance.deleteMany();
+	await db.disease.deleteMany();
+	await db.product.deleteMany();
+}
 
-	// Create diseases
-	const oidium = await prisma.disease.create({
+export async function seedReferenceData(db: ReferenceDataClient) {
+	const oidium = await db.disease.create({
 		data: {
 			name: "Oidium",
 			description: "Powdery mildew, a fungal disease affecting grapevines",
@@ -22,7 +26,7 @@ async function main() {
 		},
 	});
 
-	const peronospora = await prisma.disease.create({
+	const peronospora = await db.disease.create({
 		data: {
 			name: "Peronospora",
 			description: "Downy mildew, a fungal disease affecting grapevines",
@@ -31,61 +35,85 @@ async function main() {
 		},
 	});
 
-	// Create substances
-	const copper = await prisma.substance.create({
+	const copper = await db.substance.create({
 		data: {
 			name: "Copper",
-			maxDosage: 4, // kg/ha/year
+			maxDosage: 4,
 			diseases: {
 				connect: [{ id: peronospora.id }],
 			},
 		},
 	});
 
-	const sulfur = await prisma.substance.create({
+	const sulfur = await db.substance.create({
 		data: {
 			name: "Sulfur",
-			maxDosage: 10, // kg/ha/year
+			maxDosage: 10,
 			diseases: {
 				connect: [{ id: oidium.id }],
 			},
 		},
 	});
 
-	// create products
-	const MAX_APPLICATIONS = 6;
-	await prisma.product.create({
+	const copperProduct = await db.product.create({
 		data: {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
-			maxApplications: MAX_APPLICATIONS,
+			maxApplications: 6,
 			composition: {
-				create: [{ substanceId: copper.id, dose: 25.0 }],
+				create: [{ substanceId: copper.id, dose: 25 }],
 			},
 		},
 	});
-	const MAX_APPLICATIONS_SULFUR = 10;
-	await prisma.product.create({
+
+	const sulfurProduct = await db.product.create({
 		data: {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",
-			maxApplications: MAX_APPLICATIONS_SULFUR,
+			maxApplications: 10,
 			composition: {
-				create: [{ substanceId: sulfur.id, dose: 80.0 }],
+				create: [{ substanceId: sulfur.id, dose: 80 }],
 			},
 		},
 	});
 
-	console.log("Seed data created:");
-	console.log("Diseases:", { oidium, peronospora });
-	console.log("Substances:", { copper, sulfur });
+	return {
+		copper,
+		copperProduct,
+		oidium,
+		peronospora,
+		sulfur,
+		sulfurProduct,
+	};
 }
 
-main()
-	.catch((e) => {
+async function main() {
+	const prisma = new PrismaClient();
+
+	// Delete existing data
+	console.log("Deleting existing data...");
+	try {
+		await cleanReferenceData(prisma);
+		console.log("Existing data deleted.");
+
+		const { copper, oidium, peronospora, sulfur } =
+			await seedReferenceData(prisma);
+
+		console.log("Seed data created:");
+		console.log("Diseases:", { oidium, peronospora });
+		console.log("Substances:", { copper, sulfur });
+	} finally {
+		await prisma.$disconnect();
+	}
+}
+
+const isSeedScript = process.argv.some(
+	(arg) => arg.endsWith("prisma/seed.ts") || arg.endsWith("prisma/seed.js"),
+);
+
+if (isSeedScript) {
+	main().catch((e) => {
 		console.error("Error seeding database:", e);
 		process.exit(1);
-	})
-	.finally(async () => {
-		await prisma.$disconnect();
 	});
+}
