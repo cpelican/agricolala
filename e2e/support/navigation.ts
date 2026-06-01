@@ -1,9 +1,7 @@
 import type { Page } from "@playwright/test";
+import { expectNoVisibleErrors } from "./assertions";
 
-/** Bottom nav sits under the Next.js dev error overlay in `next dev`; force avoids flake. */
 export async function clickMobileNavLink(page: Page, name: string) {
-	await page
-		.getByRole("navigation")
-		.getByRole("link", { name })
-		.click({ force: true });
+	await expectNoVisibleErrors(page);
+	await page.getByRole("navigation").getByRole("link", { name }).click();
 }

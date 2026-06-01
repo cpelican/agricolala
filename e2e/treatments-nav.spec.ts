@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { runDashboardNavTreatmentFlow } from "./flows/dashboard-nav-treatment";
+import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
 import {
 	getChartSummary,
 	getCopperDataset,
@@ -10,10 +10,7 @@ import {
 	expectedCopperChartKgAfterAdditionalTreatment,
 	expectedDashboardCopperLabelsAfterAdditionalTreatment,
 } from "./support/e2e-data";
-import {
-	expectDashboardLoaded,
-	expectNoVisibleErrors,
-} from "./support/assertions";
+import { expectDashboardLoaded } from "./support/assertions";
 import { clickMobileNavLink } from "./support/navigation";
 
 test.describe.configure({ mode: "serial" });
@@ -31,10 +28,7 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 		...expectedCopperChartKg,
 	]);
 
-	await runDashboardNavTreatmentFlow(page, { stopBeforeReturnHome: true });
-	await expect(
-		page.getByRole("heading", { name: "5 Completed" }),
-	).toBeVisible();
+	await goToTreatmentsAndAddTreatment(page);
 
 	await clickMobileNavLink(page, "Home");
 	await expectDashboardLoaded(page);
@@ -48,5 +42,4 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 	await expect(main.getByText(labels.productText)).toBeVisible();
 	await expect(main.getByText(labels.pureText)).toBeVisible();
 	await expect(main.getByText(labels.kgHaText)).toBeVisible();
-	await expectNoVisibleErrors(page);
 });

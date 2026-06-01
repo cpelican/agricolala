@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { parcelLocationMapLabel } from "./map";
 
 export interface AddParcelOptions {
 	name?: string;
@@ -27,9 +28,7 @@ export async function addParcelFromMapDialog(
 	const parcel = { ...defaults, ...options };
 
 	await page
-		.getByRole("main")
-		.locator(".leaflet-container")
-		.last()
+		.getByRole("application", { name: parcelLocationMapLabel })
 		.click({ position: parcel.mapClickPosition });
 
 	const dialog = page.getByRole("dialog", { name: "Add New Parcel" });

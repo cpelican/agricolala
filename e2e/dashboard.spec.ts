@@ -5,10 +5,7 @@ import {
 	getDashboardChart,
 } from "./support/chart";
 import { expectedCopperChartKg } from "./support/e2e-data";
-import {
-	expectDashboardLoaded,
-	expectNoVisibleErrors,
-} from "./support/assertions";
+import { expectDashboardLoaded } from "./support/assertions";
 
 test.describe.configure({ mode: "serial" });
 
@@ -17,7 +14,6 @@ test("dashboard shows April treatment data in the line chart", async ({
 }) => {
 	await page.goto("/en");
 	await expectDashboardLoaded(page);
-	await expectNoVisibleErrors(page);
 
 	const main = page.getByRole("main");
 	const chart = getDashboardChart(main);

@@ -4,6 +4,7 @@ import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { type Parcel } from "@prisma/client";
+import { useTranslations } from "@/contexts/translations-context";
 
 // Fix Leaflet default icon
 const defaultIcon = L.icon({
@@ -40,6 +41,7 @@ export function ParcelMap({
 	onMapClick,
 	highlightParcelId,
 }: ParcelMapProps) {
+	const { t } = useTranslations();
 	const mapRef = useRef<HTMLDivElement>(null);
 	const mapInstanceRef = useRef<L.Map | null>(null);
 	const markersRef = useRef<L.Marker[]>([]);
@@ -159,7 +161,13 @@ export function ParcelMap({
 
 	return (
 		<div className="w-full">
-			<div ref={mapRef} className="w-full h-[400px] rounded-lg relative z-0" />
+			<div
+				ref={mapRef}
+				role="application"
+				aria-label={t("parcels.locationMap")}
+				tabIndex={0}
+				className="w-full h-[400px] rounded-lg relative z-0"
+			/>
 			{isLoading && (
 				<div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
