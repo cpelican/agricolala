@@ -12,8 +12,8 @@ export const e2eUser = {
 	password: process.env.TEST_USER_PASSWORD ?? "playwright-local-password",
 } as const;
 
-export const cinqueTerreParcel = {
-	name: "Cinque Terre Vineyard",
+export const seededParcel = {
+	name: "E2E Vineyard",
 	latitude: 44.1461,
 	longitude: 9.6543,
 	altitude: 120,
@@ -25,7 +25,7 @@ const APRIL_TREATMENT_DAYS = [2, 9, 16, 23] as const;
 const COPPER_PRODUCT_COPPER_FRACTION = 0.25;
 const TYPICAL_SEASON_TREATMENT_COUNT = 10;
 const MAX_COPPER_KG_PER_HA = 4;
-const PARCEL_AREA_M2 = cinqueTerreParcel.width * cinqueTerreParcel.height;
+const PARCEL_AREA_M2 = seededParcel.width * seededParcel.height;
 const maxCopperGramsPerSeason =
 	(MAX_COPPER_KG_PER_HA * 1_000 * PARCEL_AREA_M2) / 10_000;
 // 10 x 64g product at 25% copper on 400m2 = 160g copper/year, or 4kg/ha.
@@ -148,7 +148,7 @@ export async function seedE2eData() {
 
 		const parcel = await tx.parcel.create({
 			data: {
-				...cinqueTerreParcel,
+				...seededParcel,
 				type: CultureType.VINEYARD,
 				userId: user.id,
 			},

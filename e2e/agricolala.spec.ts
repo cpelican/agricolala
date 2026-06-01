@@ -1,11 +1,11 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
 	authStatePath,
-	cinqueTerreParcel,
 	disconnectE2ePrisma,
 	e2eUser,
 	ensureAuthStateDirectory,
 	expectedCopperChartKg,
+	seededParcel,
 	seedE2eData,
 } from "./support/e2e-data";
 
@@ -130,7 +130,7 @@ test("adds a treatment without visible errors", async ({ page }) => {
 	await dialog.getByText("Select parcel").click();
 	await page
 		.getByRole("option", {
-			name: new RegExp(cinqueTerreParcel.name),
+			name: new RegExp(seededParcel.name),
 		})
 		.click();
 	await dialog.getByText("Select disease").click();
