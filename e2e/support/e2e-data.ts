@@ -22,6 +22,8 @@ export const cinqueTerreParcel = {
 } as const;
 
 const APRIL_TREATMENT_DAYS = [2, 9, 16, 23] as const;
+// 4 x 80g product at 25% copper on 400m2 = 80g copper, or 2kg/ha.
+// This stays below the 4kg/ha annual copper cap while still giving the chart data.
 const COPPER_PRODUCT_DOSE_GRAMS = 80;
 const COPPER_PRODUCT_COPPER_FRACTION = 0.25;
 const totalCopperProductDoseGrams =
