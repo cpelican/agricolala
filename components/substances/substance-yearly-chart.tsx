@@ -124,6 +124,7 @@ export function SubstanceYearlyChart({
 		<ChartWrapper
 			data={chartData}
 			options={options}
+			ariaLabel={t("substances.yearlyUsageTitle")}
 			emptyMessage={t("substances.noTreatmentData")}
 		/>
 	);

@@ -28,7 +28,7 @@ interface ChartWrapperProps {
 	data: ChartData<"line">;
 	options: ChartOptions<"line">;
 	emptyMessage?: string;
-	testId?: string;
+	ariaLabel: string;
 }
 
 function getChartSummary(data: ChartData<"line">) {
@@ -58,7 +58,7 @@ export function ChartWrapper({
 	data,
 	options,
 	emptyMessage,
-	testId,
+	ariaLabel,
 }: ChartWrapperProps) {
 	const hasData = data.datasets.some(
 		(dataset) =>
@@ -72,9 +72,10 @@ export function ChartWrapper({
 
 	return (
 		<div
+			aria-label={ariaLabel}
 			className="max-h-[400px] flex justify-center items-center"
 			data-chart-summary={JSON.stringify(getChartSummary(data))}
-			data-testid={testId}
+			role="img"
 		>
 			<Line data={data} options={options} />
 		</div>
