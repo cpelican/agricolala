@@ -22,17 +22,23 @@ export const cinqueTerreParcel = {
 } as const;
 
 const APRIL_TREATMENT_DAYS = [2, 9, 16, 23] as const;
-// 4 x 80g product at 25% copper on 400m2 = 80g copper, or 2kg/ha.
-// This stays below the 4kg/ha annual copper cap while still giving the chart data.
-const COPPER_PRODUCT_DOSE_GRAMS = 80;
 const COPPER_PRODUCT_COPPER_FRACTION = 0.25;
+const TYPICAL_SEASON_TREATMENT_COUNT = 10;
+const MAX_COPPER_KG_PER_HA = 4;
+const PARCEL_AREA_M2 = cinqueTerreParcel.width * cinqueTerreParcel.height;
+const maxCopperGramsPerSeason =
+	(MAX_COPPER_KG_PER_HA * 1_000 * PARCEL_AREA_M2) / 10_000;
+// 10 x 64g product at 25% copper on 400m2 = 160g copper/year, or 4kg/ha.
+// This fixture seeds only 4 April treatments, so the dashboard starts at 1.6kg/ha.
+const COPPER_PRODUCT_DOSE_GRAMS =
+	maxCopperGramsPerSeason /
+	TYPICAL_SEASON_TREATMENT_COUNT /
+	COPPER_PRODUCT_COPPER_FRACTION;
 const totalCopperProductDoseGrams =
 	APRIL_TREATMENT_DAYS.length * COPPER_PRODUCT_DOSE_GRAMS;
 const totalCopperGrams =
 	totalCopperProductDoseGrams * COPPER_PRODUCT_COPPER_FRACTION;
-const totalCopperPerHaGrams =
-	(totalCopperGrams * 10_000) /
-	(cinqueTerreParcel.width * cinqueTerreParcel.height);
+const totalCopperPerHaGrams = (totalCopperGrams * 10_000) / PARCEL_AREA_M2;
 
 export const expectedCopperChartKg = [
 	0,
