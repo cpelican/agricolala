@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { OpenMeteoClient, type OpenMeteoResponse } from "@/lib/openMeteoClient";
+import {
+	OpenMeteoClient,
+	type OpenMeteoResponse,
+} from "@/lib/open-meteo-client";
 
 const createHourlyRange = (startIsoHour: string, hours: number) => {
 	const start = new Date(`${startIsoHour}:00Z`);
