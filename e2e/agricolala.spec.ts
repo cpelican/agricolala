@@ -125,7 +125,7 @@ test("adds a treatment without visible errors", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: "Treatments" })).toBeVisible();
 	await expectNoVisibleErrors(page);
 
-	await page.getByRole("button", { name: "Add treatment" }).click();
+	await page.getByRole("button", { name: "Add Treatment" }).click();
 
 	const dialog = page.getByRole("dialog", { name: "Add Treatment" });
 	await expect(dialog).toBeVisible();
