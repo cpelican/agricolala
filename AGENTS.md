@@ -1,103 +1,157 @@
 # AGENTS.md
 
-## Cursor Cloud specific instructions
+Instructions for **AI coding agents** in this repo (**Cursor Cloud** or **local Cursor/IDE**). Step-by-step human setup: [readme.md](readme.md).
 
-### Overview
+## Choose your environment
 
-Agricolala is a Next.js 15 + React 19 web app for managing vineyard treatments and tracking substance usage for organic EU compliance. Uses Prisma ORM with PostgreSQL, Google OAuth via NextAuth, and is deployed on Vercel.
+| Where you run | Dev database | Vitest | Playwright e2e |
+|---------------|--------------|--------|----------------|
+| **Cursor Cloud** | Native PG 16, `agraria` @ `5432` | `npm run test` → `agraria_test` @ `5432` | `npm run test:e2e:agent` → `agraria_e2e` — **no Docker** |
+| **Local** | `docker compose up` → `agraria` @ `5435` | `npm run test:db:start` → `5433`; then `npm run test` | `test:e2e:db:start` → `npm run test:e2e` → `test:e2e:db:stop` |
 
-### Database
+**CI** (`.github/workflows/test.yml`, same ports as **Local** Docker):
 
-PostgreSQL 16 is installed natively (not Docker, to avoid Docker Hub rate limits). The `agraria` user has superuser privileges (needed for integration tests that set `session_replication_role`).
+- **Vitest job:** Postgres 15 service on `5433`, `npm run test` (no `test:db:start` script)
+- **E2e job:** Postgres 15 service on `5434`, `npm run test:e2e`
 
-- Dev database: `agraria` on `localhost:5432`
-- Test database: `agraria_test` on `localhost:5432`
+### Which row am I?
 
-To start PostgreSQL if it's not running:
-```
-sudo pg_ctlcluster 16 main start
-```
+| You are… | Row |
+|----------|-----|
+| Agent in **Cursor Cloud** (remote Linux VM, no Docker for Postgres) | **Cursor Cloud** |
+| Agent or dev on a **local machine** (laptop/desktop; use Docker Compose per readme) | **Local** |
+| Debugging a **GitHub Actions** failure | **Local** ports/commands above |
 
-### Environment Variables
+Do not use `test:e2e:agent` on a local Docker setup, or `test:e2e:db:start` in Cursor Cloud.
 
-The `.env` file uses `localhost:5432` (native PostgreSQL) instead of the Docker port `5435` documented in the README. The `.env.test` file also uses port `5432`.
+## Ports and databases
 
-### Starting the Dev Environment (full sequence)
+| Purpose | App URL | Cursor Cloud (native) | Local (Docker) |
+|--------|---------|----------------------|----------------|
+| Dev | `http://localhost:3000` | `agraria` @ `5432` | `agraria` @ `5435` |
+| Vitest | `http://localhost:3001` | `agraria_test` @ `5432` | `agraria` @ `5433` |
+| Playwright e2e | `http://127.0.0.1:3002` | `agraria_e2e` @ socket `5432` | `agraria` @ `5434` |
 
-```bash
-# 1. Start PostgreSQL
-sudo pg_ctlcluster 16 main start
+`.env` and `.env.test` are gitignored. **Cloud:** use `5432` URLs. **Local:** use `5435` / `5433` as in [readme.md](readme.md).
 
-# 2. Apply any new migrations
-npx prisma migrate dev
+## Before finishing a task
 
-# 3. Start the dev server
-npm run dev
-```
+- **API / lib / server logic:** `npm run test` (local: run `npm run test:db:start` first)
+- **UI, auth, parcels, treatments, dashboard charts:** e2e (commands below)
+- **Optional:** `npm run tsc`, `npm run precommit`
 
-The dev server runs on `http://localhost:3000`. Login at `/auth/signin` with the credentials from `.env` (see Authentication section below).
-
-### Common Commands
-
-Standard commands from `package.json`:
-- `npm run dev` — starts Next.js dev server on port 3000
-- `npm run lint` — ESLint
-- `npm run tsc` — TypeScript type checking
-- `npm run build` — production build (includes `prisma generate`)
-- `npm run seed` — seeds reference data (products, substances, diseases)
-- `npm run studio` — Prisma Studio GUI
-
-### Running Tests
-
-```bash
-npx vitest run
-```
-
-Tests use `.env.test` (loaded by vitest config). The global setup starts a Next.js server on port 3001 and connects to `agraria_test` database. No need to run `test:db:start` since PostgreSQL runs natively.
-
-One integration test (`should create a TODO treatment when all products used in last treatment are no longer considered active`) has a pre-existing date-sensitivity issue that may fail depending on the current month.
-
-### Running Playwright e2e Tests
-
-Use Playwright as the final agent check when UI flows, auth, parcel creation, treatment creation, or dashboard chart behavior changes.
+**E2e — Cursor Cloud:**
 
 ```bash
 npm run test:e2e:install
 npm run test:e2e:agent
 ```
 
-Agents should use native PostgreSQL via `npm run test:e2e:agent`; do not use Docker Compose in Cursor Cloud. The Playwright `beforeAll` resets the e2e database, seeds an authorized test user, one parcel, and four April treatments for the dashboard chart, then logs in through the credentials form. The reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
+**E2e — local (matches CI):** run `test:e2e:db:start` before `test:e2e` (same shell).
 
-When writing Playwright tests, prefer accessible selectors in this order: `getByRole` with a name, `getByLabel`, `getByPlaceholder`, and visible text. Avoid `getByTestId` unless there is no practical accessible surface; if a test needs one, first consider improving the component semantics with labels, roles, or accessible names.
+```bash
+npm run test:e2e:install
+npm run test:e2e:db:start
+npm run test:e2e
+npm run test:e2e:db:stop   # optional cleanup
+```
 
-### Pre-commit Hook
+Report which commands you ran and whether they passed.
 
-The `.husky/pre-commit` hook runs `npm run precommit` which executes:
-- `npm run lint` (ESLint)
-- `npx biome check .` (Biome formatting/linting)
+## Overview
 
-### Authentication (Dev/Test Credentials Login)
+Agricolala is a Next.js 16 + React 19 web app for managing vineyard treatments and tracking substance usage for organic EU compliance. Uses Prisma ORM with PostgreSQL, NextAuth, and is deployed on Vercel.
 
-A `CredentialsProvider` is enabled when `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are set in `.env`. This allows agents and developers to log in without Google OAuth. The credentials provider works during both `npm run dev` and `npm run build` (since `next build` sets `NODE_ENV=production` internally).
+## Database
 
-**Required env vars for auth** (must be set in `.env`):
+Integration tests may set `session_replication_role`; the DB user needs superuser (or equivalent).
+
+**Cursor Cloud:** Native PostgreSQL **16** (no Docker — Docker Hub rate limits). Databases on `5432`: `agraria`, `agraria_test`, `agraria_e2e` (e2e DB created by `test:e2e:agent`). The `agraria` OS user should be a **superuser** (integration tests use `session_replication_role`).
+
+```bash
+sudo pg_ctlcluster 16 main start   # Linux; adjust on other OSes
+```
+
+**Local / CI:** Docker Postgres **15** images. Local: `docker compose up` (dev, `5435`). Vitest: `test:db:start` / `test:db:stop` (`5433`). E2e: `test:e2e:db:start` / `test:e2e:db:stop` (`5434`).
+
+## Environment variables
+
+- **Cloud:** `.env` / `.env.test` → `localhost:5432`
+- **Local:** `.env` / `.env.test` → `5435` / `5433` (see readme)
+- **E2e:** Playwright defaults in `playwright.config.ts`; Cloud overrides via `run-e2e-native.sh` (`agraria_e2e`)
+
+## Starting the dev environment
+
+**Cursor Cloud:**
+
+```bash
+sudo pg_ctlcluster 16 main start
+npx prisma migrate dev
+npm run dev
+```
+
+**Local:** `docker compose up`, then `npx prisma migrate dev`, `npm run seed`, `npm run dev` (readme).
+
+Dev app: `http://localhost:3000` → `/auth/signin`.
+
+## Common commands
+
+- `npm run dev`, `npm run test`, `npm run lint`, `npm run tsc`, `npm run build`, `npm run studio`, `npm run precommit`
+- `npm run seed` — reference data only; wipes products/substances/diseases on the DB in `.env` (dev), not test/e2e DBs
+- `test:db:start` / `test:db:stop` — **local** vitest Postgres
+- `test:e2e:install`, `test:e2e:agent` (**Cloud**), `test:e2e`, `test:e2e:db:start`, `test:e2e:db:stop` (**local** / CI)
+
+## Running tests
+
+```bash
+npm run test
+```
+
+Uses `.env.test` and `vitest.config.mts`. Global setup serves Next on **3001**.
+
+- **Cloud:** `agraria_test` on `5432`; no `test:db:start`
+- **Local:** `npm run test:db:start` before, `test:db:stop` after
+
+Flaky integration test (date-sensitive): `should create a TODO treatment when all products used in last treatment are no longer considered active (daysBetweenApplications reached)`.
+
+## Running Playwright e2e tests
+
+Final check for UI, auth, parcels, treatments, dashboard charts.
+
+**Shared:**
+
+- App on **`http://127.0.0.1:3002`**; dev on 3000 can stay up
+- E2e login: `playwright@agricolala.test` / `playwright-local-password` (not dev `.env` creds)
+- `beforeAll` resets e2e DB, seeds data, logs in, writes `e2e/.auth/user.json`
+- **Serial** suite; **English** UI (`/en`)
+- Reset guard (no override): **Cloud** — DB name contains **`e2e`** (`agraria_e2e` on `5432`); **Local / CI** — `localhost`/`127.0.0.1` port **5434** or host **`postgres-e2e`**
+
+**Cloud only:** `npm run test:e2e:agent` (`run-e2e-native.sh`; may need `sudo` on a fresh VM). Do not use Docker e2e in Cloud.
+
+**Local / CI:** run `test:e2e:db:start` (starts Postgres + migrations) **before** `npm run test:e2e` in the same shell session.
+
+On failure, inspect `test-results/` and `playwright-report/` (CI uploads these as artifacts).
+
+**Selectors:** `getByRole` (name) → `getByLabel` → `getByPlaceholder` → visible text. Avoid `getByTestId` unless accessibility cannot be improved.
+
+## Pre-commit hook
+
+`npm run precommit` → ESLint + `npx biome check .`
+
+## Authentication (credentials only)
+
+Agents must sign in with the **credentials** form only. Do not use or configure any other sign-in provider.
+
+When `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` are set and `VERCEL_ENV` is not `production`:
+
+**`.env` example:**
+
 ```
 TEST_USER_EMAIL=test@agricolala.dev
 TEST_USER_PASSWORD=test-password-dev
 NEXTAUTH_SECRET=dev-secret-key-for-local-development-only
 ```
 
-`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be left empty when `TEST_USER_EMAIL`/`TEST_USER_PASSWORD` are set — the app will start and build without the Google provider.
-
-**How login works:**
-
-1. Start the dev server: `npm run dev`
-2. Navigate to `http://localhost:3000/auth/signin`
-3. The sign-in page shows an email/password form (credentials provider)
-4. Enter `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` values and submit
-5. On first login, a `User` record is auto-created with `isAuthorized: true`
-6. After login you're redirected to the main app at `/{locale}`
-
-**First-time login note:** After the first credentials login, the app shows a Terms of Service dialog. Accept it to proceed to the full app UI.
-
-**Google OAuth:** When `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are also set, Google OAuth appears as an additional sign-in option alongside credentials.
+1. `npm run dev` → `http://localhost:3000/auth/signin`
+2. “Sign in with credentials” with `.env` values
+3. First login creates authorized `User`; accept ToS if prompted (e2e seed sets `tosAcceptedAt` to skip ToS in Playwright)
