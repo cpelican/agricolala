@@ -5,6 +5,7 @@ import { parse } from "url";
 import next from "next";
 
 export default async function globalSetup() {
+	process.env.CRON_ALLOW_AS_OF ??= "true";
 	const testPrisma = getTestPrisma();
 	const dev = process.env.NODE_ENV !== "production";
 	const app = next({ dev });

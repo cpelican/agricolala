@@ -10,24 +10,13 @@ import {
 import { getTestPrisma } from "@/test/test-prisma-client";
 import { getCurrentDiseases } from "@/lib/data-fetcher";
 
-// HTTP tests hit Next on :3001 (separate process). The cron uses its own new Date();
-// Vitest cannot freeze that clock. We shape DB dates/months so server "now" matches intent.
+// HTTP tests hit Next on :3001 (separate process). Use x-cron-as-of (CRON_ALLOW_AS_OF)
+// so the server evaluates seed sensitivity months on a fixed date, not the wall clock.
 
-/** Calendar month 1–12, matching getCurrentDiseases and seed data. */
-function getCalendarMonth(date: Date): number {
-	return date.getMonth() + 1;
-}
-
-function diseaseSensitivityForCalendarMonth(date: Date): {
-	sensitivityMonthMin: number;
-	sensitivityMonthMax: number;
-} {
-	const month = getCalendarMonth(date);
-	return {
-		sensitivityMonthMin: Math.max(1, month - 2),
-		sensitivityMonthMax: Math.min(12, month + 2),
-	};
-}
+/** June — both seed diseases active (Peronospora 3–7, Oidium 4–8). */
+const CRON_AS_OF_IN_SEASON = new Date(2024, 5, 15, 12, 0, 0);
+/** January — neither disease active; interval alone must not create a TODO. */
+const CRON_AS_OF_OUT_OF_SEASON = new Date(2024, 0, 15, 12, 0, 0);
 
 /** Local midnight N calendar days before `from` (stable vs cron Math.floor day count). */
 function localMidnightDaysAgo(from: Date, days: number): Date {
@@ -49,25 +38,12 @@ function expectedSuggestedDateRange(
 	return { dateMin, dateMax };
 }
 
-async function setDiseasesActiveForCurrentMonth(
-	testPrisma: PrismaClient,
-	testData: Awaited<ReturnType<typeof seedTestData>>,
-	currentDate: Date,
-) {
-	const sensitivity = diseaseSensitivityForCalendarMonth(currentDate);
-
-	await testPrisma.disease.update({
-		where: { id: testData.oidium.id },
-		data: {
-			name: "Oidium",
-			description: "Powdery mildew, a fungal disease affecting grapevines",
-			...sensitivity,
+async function fetchSuggestTreatments(asOf: Date) {
+	return fetch("http://localhost:3001/api/cron/suggest-treatments", {
+		headers: {
+			Authorization: `Bearer ${process.env.CRON_SECRET}`,
+			"x-cron-as-of": asOf.toISOString(),
 		},
-	});
-
-	await testPrisma.disease.update({
-		where: { id: testData.peronospora.id },
-		data: sensitivity,
 	});
 }
 
@@ -84,8 +60,7 @@ describe("[Integration] Suggest Treatments", () => {
 	// we would need to look for all previous user treatments and for now we dont want this
 	test("should not create a TODO treatment if one of the product used in last treatment is considered still active (daysBetweenApplications not reached)", async () => {
 		const { pastTreatment } = testData;
-		const currentDate = new Date();
-		const lastTreatmentDate = localMidnightDaysAgo(currentDate, 3);
+		const lastTreatmentDate = localMidnightDaysAgo(CRON_AS_OF_IN_SEASON, 3);
 
 		await testPrisma.treatment.update({
 			where: { id: pastTreatment.id },
@@ -95,18 +70,9 @@ describe("[Integration] Suggest Treatments", () => {
 			},
 		});
 
-		await setDiseasesActiveForCurrentMonth(testPrisma, testData, currentDate);
 		const previousTreatmentsCount = await testPrisma.treatment.count();
 
-		// Simulate the cron job query logic by calling its endpoint
-		const response = await fetch(
-			"http://localhost:3001/api/cron/suggest-treatments",
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.CRON_SECRET}`,
-				},
-			},
-		);
+		const response = await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
 		const data = await response.json();
 
 		expect(response.status).toBe(200);
@@ -121,9 +87,8 @@ describe("[Integration] Suggest Treatments", () => {
 	test("should create a TODO treatment when all products used in last treatment are no longer considered active (daysBetweenApplications reached)", async () => {
 		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
 			testData;
-		const currentDate = new Date();
 		const lastTreatmentDate = localMidnightDaysAgo(
-			currentDate,
+			CRON_AS_OF_IN_SEASON,
 			COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS + 2,
 		);
 
@@ -135,18 +100,9 @@ describe("[Integration] Suggest Treatments", () => {
 			},
 		});
 
-		await setDiseasesActiveForCurrentMonth(testPrisma, testData, currentDate);
-
 		const previousTreatmentsCount = await testPrisma.treatment.count();
 
-		const response = await fetch(
-			"http://localhost:3001/api/cron/suggest-treatments",
-			{
-				headers: {
-					Authorization: `Bearer ${process.env.CRON_SECRET}`,
-				},
-			},
-		);
+		const response = await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
 		const data = await response.json();
 
 		expect(response.status).toBe(200);
@@ -177,6 +133,33 @@ describe("[Integration] Suggest Treatments", () => {
 		expect(createdTreatment.dateMax?.toISOString().slice(0, 10)).toBe(
 			expectedDateMax.toISOString().slice(0, 10),
 		);
+	});
+
+	test("should not create a TODO treatment when no disease is in sensitivity season (asOf out of season)", async () => {
+		const { pastTreatment, COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } =
+			testData;
+		const lastTreatmentDate = localMidnightDaysAgo(
+			CRON_AS_OF_OUT_OF_SEASON,
+			COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS + 2,
+		);
+
+		await testPrisma.treatment.update({
+			where: { id: pastTreatment.id },
+			data: {
+				appliedDate: lastTreatmentDate,
+				diseaseIds: [testData.peronospora.id, testData.oidium.id],
+			},
+		});
+
+		const previousTreatmentsCount = await testPrisma.treatment.count();
+
+		const response = await fetchSuggestTreatments(CRON_AS_OF_OUT_OF_SEASON);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(data.success).toBe(true);
+		expect(data.message).toBe(`Created 0 suggested treatments`);
+		expect(await testPrisma.treatment.count()).toEqual(previousTreatmentsCount);
 	});
 
 	test.each([

@@ -32,6 +32,7 @@ jobs:
       DATABASE_URL: postgresql://agraria:agraria@localhost:5433/agraria
       DIRECT_URL: postgresql://agraria:agraria@localhost:5433/agraria
       CRON_SECRET: test-cron-secret
+      CRON_ALLOW_AS_OF: "true"
       PORT: 3001
       NODE_ENV: test
       ENABLE_DB_TESTS: "true"
