@@ -14,9 +14,17 @@
 		"indentStyle": "tab"
 	},
 	"linter": {
-		"enabled": false,
+		"enabled": true,
 		"rules": {
-			"recommended": false
+			"recommended": false,
+			"style": {
+				"useFilenamingConvention": {
+					"level": "error",
+					"options": {
+						"filenameCases": ["kebab-case"]
+					}
+				}
+			}
 		}
 	},
 	"javascript": {
