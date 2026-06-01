@@ -45,8 +45,14 @@ export default defineConfig({
 	},
 	projects: [
 		{
+			name: "setup",
+			testMatch: /auth\.setup\.ts/,
+		},
+		{
 			name: "mobile-chromium",
+			testMatch: /.*\.spec\.ts$/,
 			use: { ...devices["Pixel 5"] },
+			dependencies: ["setup"],
 		},
 	],
 });
