@@ -21,7 +21,7 @@ export default async function Layout({
 	const session = await requireAuth();
 
 	return (
-		<Providers userEmail={session.user.email}>
+		<Providers>
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title="Agricolala"
