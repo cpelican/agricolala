@@ -11,6 +11,7 @@ import {
 	useCompositions,
 } from "@/contexts/cached-data-context";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
+import { useTranslations } from "@/contexts/translations-context";
 
 export const AddTreatmentButton = ({
 	parcelId,
@@ -24,9 +25,11 @@ export const AddTreatmentButton = ({
 	const products = useProducts();
 	const substances = useSubstances();
 	const compositions = useCompositions();
+	const { t } = useTranslations();
 	return (
 		<>
 			<Button
+				aria-label={t("treatments.addTreatment")}
 				onClick={() => setIsAddTreatmentOpen(true)}
 				style={{ bottom: 100 }}
 				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-main-gradient hover:bg-primary-700"

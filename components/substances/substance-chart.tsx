@@ -78,6 +78,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		<ChartWrapper
 			data={chartData}
 			options={options}
+			ariaLabel={t("substances.monthlyPureActiveSubstanceKg")}
 			emptyMessage={t("substances.noTreatmentData")}
 		/>
 	);

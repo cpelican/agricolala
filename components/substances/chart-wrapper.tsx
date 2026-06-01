@@ -13,6 +13,7 @@ import {
 import { Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
 import { Skeleton } from "../ui/skeleton";
+import { useId } from "react";
 
 ChartJS.register(
 	CategoryScale,
@@ -28,6 +29,19 @@ interface ChartWrapperProps {
 	data: ChartData<"line">;
 	options: ChartOptions<"line">;
 	emptyMessage?: string;
+	ariaLabel: string;
+}
+
+function getChartSummary(data: ChartData<"line">) {
+	return {
+		labels: data.labels?.map((label) => String(label)) ?? [],
+		datasets: data.datasets.map((dataset) => ({
+			label: String(dataset.label ?? ""),
+			data: dataset.data.map((value) =>
+				typeof value === "number" ? value : Number(value),
+			),
+		})),
+	};
 }
 
 export function ChartSkeleton() {
@@ -45,7 +59,9 @@ export function ChartWrapper({
 	data,
 	options,
 	emptyMessage,
+	ariaLabel,
 }: ChartWrapperProps) {
+	const captionId = useId();
 	const hasData = data.datasets.some(
 		(dataset) =>
 			Array.isArray(dataset.data) &&
@@ -57,8 +73,15 @@ export function ChartWrapper({
 	}
 
 	return (
-		<div className="max-h-[400px] flex justify-center items-center">
+		<figure
+			aria-labelledby={captionId}
+			className="max-h-[400px] flex justify-center items-center"
+			data-chart-summary={JSON.stringify(getChartSummary(data))}
+		>
+			<figcaption id={captionId} className="sr-only">
+				{ariaLabel}
+			</figcaption>
 			<Line data={data} options={options} />
-		</div>
+		</figure>
 	);
 }

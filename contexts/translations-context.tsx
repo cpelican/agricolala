@@ -94,6 +94,10 @@ export function useTranslations() {
 }
 
 export const getLocaleFromBrowser = (): Locale => {
+	// SSR has no navigator; sign-in renders null until the client session check, so the real UI uses the browser locale.
+	if (typeof navigator === "undefined") {
+		return defaultLocale;
+	}
 	const browserLang =
 		navigator.language ||
 		navigator.languages?.find((lang) => lang in appLanguages);
