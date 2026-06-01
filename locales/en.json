@@ -54,6 +54,7 @@
 		"enterCoordinates": "Enter coordinates",
 		"enterWidth": "Enter width",
 		"enterHeight": "Enter height",
+		"locationMap": "Parcel location map",
 		"clickMapToAdd": "Click on the map to add a parcel",
 		"clickMapToAddFirst": "Click on the map to add your first parcel",
 		"zoomInToFindLocation": "Zoom in to find your exact location",
@@ -74,6 +75,7 @@
 		"description": "Manage your wineyard treatments",
 		"addTreatment": "Add Treatment",
 		"addTreatmentDescription": "Add a new treatment for this parcel. Fill in the details below.",
+		"addTreatmentFormDescription": "Record a treatment: choose parcel, disease, product, and dose.",
 		"applicationDate": "Application Date",
 		"pickDate": "Pick a date",
 		"parcels": "Parcels",
@@ -392,6 +394,7 @@
 	"home": {
 		"welcome": "Welcome",
 		"description": "Manage your agricultural parcels and treatments",
-		"getStarted": "Get Started"
+		"getStarted": "Get Started",
+		"loading": "Loading dashboard"
 	}
 }

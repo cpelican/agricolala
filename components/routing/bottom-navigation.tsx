@@ -21,6 +21,7 @@ export function BottomNavigation() {
 						<LocaleLink
 							key={item.name}
 							href={item.href}
+							prefetch
 							className={cn(
 								"flex flex-col items-center px-3 py-2 text-xs font-medium rounded-lg transition-colors",
 								isActive

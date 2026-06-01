@@ -1,8 +1,17 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function HomeSkeleton() {
+interface HomeSkeletonProps {
+	ariaLabel: string;
+}
+
+export function HomeSkeleton({ ariaLabel }: HomeSkeletonProps) {
 	return (
-		<div className="p-4 space-y-4">
+		<div
+			className="p-4 space-y-4"
+			role="status"
+			aria-busy="true"
+			aria-label={ariaLabel}
+		>
 			<div className="space-y-4">
 				<Skeleton className="h-100 w-full" />
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -1,4 +1,6 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig } from "@playwright/test";
+import { authStatePath } from "./e2e/support/e2e-data";
+import { mobileUse } from "./e2e/support/playwright-mobile";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3002";
 const serverUrl = new URL(baseURL);
@@ -12,28 +14,44 @@ process.env.NEXTAUTH_URL ??= baseURL;
 process.env.TEST_USER_EMAIL ??= "playwright@agricolala.test";
 process.env.TEST_USER_PASSWORD ??= "playwright-local-password";
 
+const recordDemo = process.env.PLAYWRIGHT_RECORD_DEMO === "1";
+
 export default defineConfig({
 	testDir: "./e2e",
+	globalTeardown: "./e2e/global-teardown.ts",
 	fullyParallel: false,
+	workers: 1,
 	timeout: 45_000,
 	expect: {
 		timeout: 10_000,
 	},
 	use: {
+		...mobileUse,
 		baseURL,
+		storageState: authStatePath,
 		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
+		video: recordDemo ? "on" : "retain-on-failure",
 	},
 	webServer: {
 		command: `npm run dev -- --hostname ${serverUrl.hostname} --port ${port}`,
 		url: `${baseURL}/api/health`,
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,
+		env: {
+			...process.env,
+			PLAYWRIGHT: "1",
+		},
 	},
 	projects: [
 		{
-			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
+			name: "setup",
+			testMatch: /auth\.setup\.ts/,
+		},
+		{
+			name: "mobile-chromium",
+			testMatch: /.*\.spec\.ts$/,
+			dependencies: ["setup"],
 		},
 	],
 });

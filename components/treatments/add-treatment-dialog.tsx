@@ -267,11 +267,11 @@ export function AddTreatmentDialog({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>{t("treatments.addTreatment")}</DialogTitle>
-					{parcelId && (
-						<DialogDescription>
-							{t("treatments.addTreatmentDescription")}
-						</DialogDescription>
-					)}
+					<DialogDescription>
+						{parcelId
+							? t("treatments.addTreatmentDescription")
+							: t("treatments.addTreatmentFormDescription")}
+					</DialogDescription>
 				</DialogHeader>
 
 				{serverError && (

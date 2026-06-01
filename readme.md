@@ -46,7 +46,7 @@ Then run
 
 ## Run Playwright e2e tests
 
-The Playwright tests run the app against a dedicated e2e PostgreSQL database. The suite seeds its own authorized test user, one parcel, and dashboard treatments in `beforeAll`.
+The Playwright tests run the app against a dedicated e2e PostgreSQL database in a **mobile viewport only** (Pixel 5). See [e2e/TESTING.md](e2e/TESTING.md) for conventions, waits, and walkthrough videos (`npm run test:e2e:record`).
 
 ```bash
 npm run test:e2e:install

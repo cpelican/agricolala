@@ -40,6 +40,8 @@ const totalCopperGrams =
 	totalCopperProductDoseGrams * COPPER_PRODUCT_COPPER_FRACTION;
 const totalCopperPerHaGrams = (totalCopperGrams * 10_000) / PARCEL_AREA_M2;
 
+const GRAMS_PER_KILOGRAM = 1_000;
+
 export const expectedCopperChartKg = [
 	0,
 	0,
@@ -54,6 +56,32 @@ export const expectedCopperChartKg = [
 	0,
 	0,
 ] as const;
+
+export const additionalTreatmentProductGrams = 50;
+const additionalTreatmentPureCopperGrams =
+	additionalTreatmentProductGrams * COPPER_PRODUCT_COPPER_FRACTION;
+
+export function expectedCopperChartKgAfterAdditionalTreatment() {
+	const monthIndex = new Date().getMonth();
+	const additionalKg = additionalTreatmentPureCopperGrams / 1_000;
+
+	return expectedCopperChartKg.map((value, index) =>
+		index === monthIndex ? value + additionalKg : value,
+	);
+}
+
+export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
+	const pureGrams = totalCopperGrams + additionalTreatmentPureCopperGrams;
+	const kgHa = Math.round(
+		(pureGrams * 10_000) / PARCEL_AREA_M2 / GRAMS_PER_KILOGRAM,
+	);
+
+	return {
+		productText: `${(totalCopperProductDoseGrams + additionalTreatmentProductGrams).toFixed(2)} gr of product`,
+		pureText: `${Math.round(pureGrams)} gr of pure active substance`,
+		kgHaText: `${kgHa} kg/ha of pure active substance`,
+	};
+}
 
 export async function ensureAuthStateDirectory() {
 	await mkdir(dirname(authStatePath), { recursive: true });

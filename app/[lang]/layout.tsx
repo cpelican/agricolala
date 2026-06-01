@@ -25,7 +25,16 @@ export default async function Layout({
 			<CachedDataWrapper>
 				<LayoutWithHeader
 					title="Agricolala"
-					icon={<Image src="/1.png" alt="Agricolala" width={32} height={32} />}
+					icon={
+						<Image
+							src="/1.png"
+							alt="Agricolala"
+							width={32}
+							height={32}
+							className="size-8 shrink-0"
+							style={{ width: "auto", height: "auto" }}
+						/>
+					}
 					isAuthorized={session.user.isAuthorized}
 				>
 					{children}
