@@ -56,7 +56,7 @@ test("dashboard shows April treatment data in the line chart", async ({
 	await expectNoVisibleErrors(page);
 
 	const main = page.getByRole("main");
-	const chart = main.getByRole("img", {
+	const chart = main.getByRole("figure", {
 		name: "Monthly pure active substance (kg)",
 	});
 	await expect(chart).toBeVisible();
