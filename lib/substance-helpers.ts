@@ -241,3 +241,73 @@ export function calculateAdvisedDosePerProduct(
 		return acc;
 	}, {});
 }
+
+export function dedupeDiseaseEntries(
+	diseases: { diseaseId: string }[],
+): { diseaseId: string }[] {
+	const seen = new Set<string>();
+	const result: { diseaseId: string }[] = [];
+	let hasEmptyRow = false;
+
+	for (const entry of diseases) {
+		if (!entry.diseaseId) {
+			if (!hasEmptyRow) {
+				result.push(entry);
+				hasEmptyRow = true;
+			}
+			continue;
+		}
+		if (seen.has(entry.diseaseId)) {
+			continue;
+		}
+		seen.add(entry.diseaseId);
+		result.push(entry);
+	}
+
+	if (result.length === 0) {
+		return [{ diseaseId: "" }];
+	}
+
+	return result;
+}
+
+export function getDiseaseIdsForProducts(
+	productIds: string[],
+	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
+	substances: Array<Pick<Substance, "id"> & { diseaseIds: string[] }>,
+): { diseaseId: string }[] {
+	const selectedProductIds = productIds.filter(Boolean);
+	if (selectedProductIds.length === 0) {
+		return [{ diseaseId: "" }];
+	}
+
+	const substanceById = substances.reduce<
+		Record<string, { diseaseIds: string[] }>
+	>((acc, substance) => {
+		acc[substance.id] = substance;
+		return acc;
+	}, {});
+
+	const diseaseIdSet = new Set<string>();
+	for (const productId of selectedProductIds) {
+		const productComposition = compositions[productId];
+		if (!productComposition) {
+			continue;
+		}
+		for (const substanceId of Object.keys(productComposition)) {
+			const substance = substanceById[substanceId];
+			if (!substance) {
+				continue;
+			}
+			for (const diseaseId of substance.diseaseIds) {
+				diseaseIdSet.add(diseaseId);
+			}
+		}
+	}
+
+	if (diseaseIdSet.size === 0) {
+		return [{ diseaseId: "" }];
+	}
+
+	return Array.from(diseaseIdSet).map((diseaseId) => ({ diseaseId }));
+}

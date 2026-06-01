@@ -101,9 +101,11 @@ export async function createTreatment(formData: FormData) {
 						appliedDate: validatedData.appliedDate,
 						status: TreatmentStatus.DONE,
 						userId: session.user.id,
-						diseaseIds: validatedData.diseases.map(
-							(disease) => disease.diseaseId,
-						),
+						diseaseIds: [
+							...new Set(
+								validatedData.diseases.map((disease) => disease.diseaseId),
+							),
+						],
 					},
 				});
 

@@ -36,7 +36,11 @@ import {
 	type getCachedCompositions,
 	type ParcelWithTreatments,
 } from "@/lib/data-fetcher";
-import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
+import {
+	calculateAdvisedDosePerProduct,
+	dedupeDiseaseEntries,
+	getDiseaseIdsForProducts,
+} from "@/lib/substance-helpers";
 import { createTreatment } from "@/lib/actions";
 import React from "react";
 
@@ -47,7 +51,9 @@ interface AddTreatmentDialogProps {
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name" | "maxApplications">[];
-	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
+	substances: Array<
+		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
+	>;
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
 
@@ -100,8 +106,10 @@ export function AddTreatmentDialog({
 	const updateDisease = (index: number, diseaseId: string) => {
 		setFormData((prev) => ({
 			...prev,
-			diseases: prev.diseases.map((disease, i) =>
-				i === index ? { ...disease, diseaseId } : disease,
+			diseases: dedupeDiseaseEntries(
+				prev.diseases.map((disease, i) =>
+					i === index ? { ...disease, diseaseId } : disease,
+				),
 			),
 		}));
 	};
@@ -138,13 +146,30 @@ export function AddTreatmentDialog({
 	};
 
 	const removeProduct = (index: number) => {
-		setFormData((prev) => ({
-			...prev,
-			productApplications: prev.productApplications.filter(
+		setFormData((prev) => {
+			const productApplications = prev.productApplications.filter(
 				(_, i) => i !== index,
-			),
-		}));
+			);
+			return {
+				...prev,
+				productApplications,
+				diseases: getDiseaseIdsForProducts(
+					productApplications.map((p) => p.productId),
+					compositions,
+					substances,
+				),
+			};
+		});
 	};
+
+	const syncDiseasesFromProducts = (
+		productApplications: { productId: string; dose: number }[],
+	) =>
+		getDiseaseIdsForProducts(
+			productApplications.map((p) => p.productId),
+			compositions,
+			substances,
+		);
 
 	// Calculate advised dose using the helper function
 	const advisedDosePerProduct = calculateAdvisedDosePerProduct(
@@ -160,12 +185,19 @@ export function AddTreatmentDialog({
 		field: "productId" | "dose",
 		value: string | number,
 	) => {
-		setFormData((prev) => ({
-			...prev,
-			productApplications: prev.productApplications.map((product, i) =>
+		setFormData((prev) => {
+			const productApplications = prev.productApplications.map((product, i) =>
 				i === index ? { ...product, [field]: value } : product,
-			),
-		}));
+			);
+			if (field === "productId") {
+				return {
+					...prev,
+					productApplications,
+					diseases: syncDiseasesFromProducts(productApplications),
+				};
+			}
+			return { ...prev, productApplications };
+		});
 	};
 
 	const validateForm = () => {
@@ -231,7 +263,10 @@ export function AddTreatmentDialog({
 				: formData.parcelIds.filter((id) => id);
 			parcelIds.forEach((id) => formDataParam.append("parcelIds", id));
 
-			formDataParam.append("diseases", JSON.stringify(formData.diseases));
+			formDataParam.append(
+				"diseases",
+				JSON.stringify(dedupeDiseaseEntries(formData.diseases)),
+			);
 			formDataParam.append(
 				"productApplications",
 				JSON.stringify(formData.productApplications),
@@ -264,7 +299,7 @@ export function AddTreatmentDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>{t("treatments.addTreatment")}</DialogTitle>
 					<DialogDescription>
@@ -280,272 +315,288 @@ export function AddTreatmentDialog({
 					</div>
 				)}
 
-				<form
-					action={handleSubmit}
-					className="space-y-4 -mx-6 max-h-[80vh] overflow-y-scroll p-6"
-				>
-					<div>
-						<Label>{t("treatments.applicationDate")}</Label>
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									type="button"
-									variant="outline"
-									className={cn(
-										"w-full pl-3 text-left font-normal",
-										!formData.appliedDate && "text-muted-foreground",
-									)}
-								>
-									{formData.appliedDate ? (
-										format(formData.appliedDate, "PPP")
-									) : (
-										<span>{t("treatments.pickDate")}</span>
-									)}
-									<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0" align="start">
-								<Calendar
-									mode="single"
-									selected={formData.appliedDate}
-									onSelect={(date) =>
-										date &&
-										setFormData((prev) => ({ ...prev, appliedDate: date }))
-									}
-									disabled={(date) =>
-										date > new Date() || date < new Date("1900-01-01")
-									}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
-						<input
-							type="hidden"
-							name="appliedDate"
-							value={formData.appliedDate.toISOString().split("T")[0]}
-						/>
-						{errors.appliedDate.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
-
-					{!!parcels?.length && (
-						<div className="space-y-4">
-							<div className="flex items-center justify-between">
-								<Label>{t("treatments.parcels")}</Label>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={addParcel}
-								>
-									<Plus className="h-4 w-4 mr-2" />
-									{t("treatments.addParcel")}
-								</Button>
-							</div>
-							{formData.parcelIds.map((parcelId, index) => (
-								<div key={index} className="flex gap-2 items-start mb-1">
-									<Select
-										value={parcelId}
-										onValueChange={(value) => updateParcel(index, value)}
+				<form action={handleSubmit} className="flex flex-col flex-1 min-h-0">
+					<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
+						<div>
+							<Label>{t("treatments.applicationDate")}</Label>
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										className={cn(
+											"w-full pl-3 text-left font-normal",
+											!formData.appliedDate && "text-muted-foreground",
+										)}
 									>
-										<SelectTrigger className="flex-1">
-											<SelectValue placeholder={t("treatments.selectParcel")} />
-										</SelectTrigger>
-										<SelectContent>
-											{parcels.map((parcel) => (
-												<SelectItem key={parcel.id} value={parcel.id}>
-													{parcel.name} ({parcel.width}m × {parcel.height}m)
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{formData.parcelIds.length > 1 && (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={() => removeParcel(index)}
-											className="mt-2"
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									)}
-								</div>
-							))}
-							{errors.parcelIds.map((er) => (
+										{formData.appliedDate ? (
+											format(formData.appliedDate, "PPP")
+										) : (
+											<span>{t("treatments.pickDate")}</span>
+										)}
+										<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className="w-auto p-0" align="start">
+									<Calendar
+										mode="single"
+										selected={formData.appliedDate}
+										onSelect={(date) =>
+											date &&
+											setFormData((prev) => ({ ...prev, appliedDate: date }))
+										}
+										disabled={(date) =>
+											date > new Date() || date < new Date("1900-01-01")
+										}
+										initialFocus
+									/>
+								</PopoverContent>
+							</Popover>
+							<input
+								type="hidden"
+								name="appliedDate"
+								value={formData.appliedDate.toISOString().split("T")[0]}
+							/>
+							{errors.appliedDate.map((er) => (
 								<p key={er} className="text-sm text-red-700">
 									{er}
 								</p>
 							))}
 						</div>
-					)}
 
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<Label>{t("treatments.diseases")}</Label>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={addDisease}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								{t("treatments.addDisease")}
-							</Button>
-						</div>
-						{formData.diseases.map((disease, index) => (
-							<div key={index} className="flex gap-2 items-start mb-1">
-								<Select
-									value={disease.diseaseId}
-									onValueChange={(value) => updateDisease(index, value)}
-								>
-									<SelectTrigger className="flex-1">
-										<SelectValue placeholder={t("treatments.selectDisease")} />
-									</SelectTrigger>
-									<SelectContent>
-										{diseases.map((d) => (
-											<SelectItem key={d.id} value={d.id}>
-												{d.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								{index > 0 && (
+						{!!parcels?.length && (
+							<div className="space-y-4">
+								<div className="flex items-center justify-between">
+									<Label>{t("treatments.parcels")}</Label>
 									<Button
 										type="button"
-										variant="ghost"
-										size="icon"
-										onClick={() => removeDisease(index)}
-										className="mt-2"
+										variant="outline"
+										size="sm"
+										onClick={addParcel}
 									>
-										<X className="h-4 w-4" />
+										<Plus className="h-4 w-4 mr-2" />
+										{t("treatments.addParcel")}
 									</Button>
-								)}
+								</div>
+								{formData.parcelIds.map((parcelId, index) => (
+									<div key={index} className="flex gap-2 items-start mb-1">
+										<Select
+											value={parcelId}
+											onValueChange={(value) => updateParcel(index, value)}
+										>
+											<SelectTrigger className="flex-1">
+												<SelectValue
+													placeholder={t("treatments.selectParcel")}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{parcels.map((parcel) => (
+													<SelectItem key={parcel.id} value={parcel.id}>
+														{parcel.name} ({parcel.width}m × {parcel.height}m)
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										{formData.parcelIds.length > 1 && (
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												onClick={() => removeParcel(index)}
+												className="mt-2"
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										)}
+									</div>
+								))}
+								{errors.parcelIds.map((er) => (
+									<p key={er} className="text-sm text-red-700">
+										{er}
+									</p>
+								))}
 							</div>
-						))}
-						{errors.diseases.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
+						)}
 
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div>
-								<Label>{t("treatments.products")}</Label>
-								<p className="text-sm text-muted-foreground">
-									{t("treatments.dosesInGrams")}
-								</p>
+						<div className="space-y-4">
+							<div className="flex items-center justify-between">
+								<div>
+									<Label>{t("treatments.products")}</Label>
+									<p className="text-sm text-muted-foreground">
+										{t("treatments.dosesInGrams")}
+									</p>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={addProduct}
+								>
+									<Plus className="h-4 w-4 mr-2" />
+									{t("treatments.addProduct")}
+								</Button>
 							</div>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={addProduct}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								{t("treatments.addProduct")}
-							</Button>
+							{formData.productApplications.map((product, index) => (
+								<React.Fragment key={index}>
+									<div className="flex gap-2 items-start mb-1">
+										<Select
+											value={product.productId}
+											onValueChange={(value) =>
+												updateProduct(index, "productId", value)
+											}
+										>
+											<SelectTrigger className="flex-1">
+												<SelectValue
+													placeholder={t("treatments.selectProduct")}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{products.map((p) => (
+													<SelectItem key={p.id} value={p.id}>
+														{p.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<Input
+											type="number"
+											placeholder="gr"
+											step="0.1"
+											min="0.1"
+											value={product.dose || ""}
+											onChange={(e) =>
+												updateProduct(index, "dose", Number(e.target.value))
+											}
+											className="w-24"
+										/>
+										{index > 0 && (
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												onClick={() => removeProduct(index)}
+												className="mt-2"
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										)}
+									</div>
+									{advisedDosePerProduct[product.productId] &&
+									advisedDosePerProduct[product.productId] < product.dose ? (
+										<p className="text-sm text-orange-400">
+											{t("treatments.warnings.doseAdvice")}{" "}
+											{Math.round(advisedDosePerProduct[product.productId])}gr
+										</p>
+									) : null}
+								</React.Fragment>
+							))}
+							{errors.productApplications.map((er) => (
+								<p key={er} className="text-sm text-red-700">
+									{er}
+								</p>
+							))}
 						</div>
-						{formData.productApplications.map((product, index) => (
-							<React.Fragment key={index}>
-								<div className="flex gap-2 items-start mb-1">
+
+						<div className="space-y-4">
+							<div className="flex items-center justify-between">
+								<div>
+									<Label>{t("treatments.diseases")}</Label>
+									<p className="text-sm text-muted-foreground">
+										{t("treatments.diseasesFromProductsHint")}
+									</p>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={addDisease}
+								>
+									<Plus className="h-4 w-4 mr-2" />
+									{t("treatments.addDisease")}
+								</Button>
+							</div>
+							{formData.diseases.map((disease, index) => (
+								<div key={index} className="flex gap-2 items-start mb-1">
 									<Select
-										value={product.productId}
-										onValueChange={(value) =>
-											updateProduct(index, "productId", value)
-										}
+										value={disease.diseaseId}
+										onValueChange={(value) => updateDisease(index, value)}
 									>
 										<SelectTrigger className="flex-1">
 											<SelectValue
-												placeholder={t("treatments.selectProduct")}
+												placeholder={t("treatments.selectDisease")}
 											/>
 										</SelectTrigger>
 										<SelectContent>
-											{products.map((p) => (
-												<SelectItem key={p.id} value={p.id}>
-													{p.name}
-												</SelectItem>
-											))}
+											{diseases
+												.filter(
+													(d) =>
+														d.id === disease.diseaseId ||
+														!formData.diseases.some(
+															(fd, i) => i !== index && fd.diseaseId === d.id,
+														),
+												)
+												.map((d) => (
+													<SelectItem key={d.id} value={d.id}>
+														{d.name}
+													</SelectItem>
+												))}
 										</SelectContent>
 									</Select>
-									<Input
-										type="number"
-										placeholder="gr"
-										step="0.1"
-										min="0.1"
-										value={product.dose || ""}
-										onChange={(e) =>
-											updateProduct(index, "dose", Number(e.target.value))
-										}
-										className="w-24"
-									/>
 									{index > 0 && (
 										<Button
 											type="button"
 											variant="ghost"
 											size="icon"
-											onClick={() => removeProduct(index)}
+											onClick={() => removeDisease(index)}
 											className="mt-2"
 										>
 											<X className="h-4 w-4" />
 										</Button>
 									)}
 								</div>
-								{advisedDosePerProduct[product.productId] &&
-								advisedDosePerProduct[product.productId] < product.dose ? (
-									<p className="text-sm text-orange-400">
-										{t("treatments.warnings.doseAdvice")}{" "}
-										{Math.round(advisedDosePerProduct[product.productId])}gr
-									</p>
-								) : null}
-							</React.Fragment>
-						))}
-						{errors.productApplications.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
+							))}
+							{errors.diseases.map((er) => (
+								<p key={er} className="text-sm text-red-700">
+									{er}
+								</p>
+							))}
+						</div>
 
-					<div>
-						<Label htmlFor="waterDose">{t("treatments.waterDose")}</Label>
-						<Input
-							id="waterDose"
-							name="waterDose"
-							type="number"
-							step="0.1"
-							min="0"
-							value={formData.waterDose}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									waterDose: Number(e.target.value),
-								}))
-							}
+						<div>
+							<Label htmlFor="waterDose">{t("treatments.waterDose")}</Label>
+							<Input
+								id="waterDose"
+								name="waterDose"
+								type="number"
+								step="0.1"
+								min="0"
+								value={formData.waterDose}
+								onChange={(e) =>
+									setFormData((prev) => ({
+										...prev,
+										waterDose: Number(e.target.value),
+									}))
+								}
+							/>
+							{errors.waterDose.map((er) => (
+								<p key={er} className="text-sm text-red-700">
+									{er}
+								</p>
+							))}
+						</div>
+
+						{/* Hidden inputs for server action */}
+						<input
+							type="hidden"
+							name="diseases"
+							value={JSON.stringify(formData.diseases)}
 						/>
-						{errors.waterDose.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
+						<input
+							type="hidden"
+							name="productApplications"
+							value={JSON.stringify(formData.productApplications)}
+						/>
 					</div>
-
-					{/* Hidden inputs for server action */}
-					<input
-						type="hidden"
-						name="diseases"
-						value={JSON.stringify(formData.diseases)}
-					/>
-					<input
-						type="hidden"
-						name="productApplications"
-						value={JSON.stringify(formData.productApplications)}
-					/>
 
 					<DialogFooter>
 						<Button

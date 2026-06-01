@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 import { authStatePath } from "./e2e/support/e2e-data";
 import { mobileUse } from "./e2e/support/playwright-mobile";
 
@@ -45,13 +45,8 @@ export default defineConfig({
 	},
 	projects: [
 		{
-			name: "setup",
-			testMatch: /auth\.setup\.ts/,
-		},
-		{
 			name: "mobile-chromium",
-			testMatch: /.*\.spec\.ts$/,
-			dependencies: ["setup"],
+			use: { ...devices["Pixel 5"] },
 		},
 	],
 });

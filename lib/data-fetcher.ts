@@ -205,19 +205,30 @@ export const getCachedCompositions = cache(async () => {
 
 export const getCachedSubstances = cache(async () => {
 	const substances = await prisma.substance.findMany({
-		select: { id: true, name: true, maxDosage: true },
+		select: {
+			id: true,
+			name: true,
+			maxDosage: true,
+			diseases: { select: { id: true } },
+		},
 		orderBy: { name: "asc" },
 	});
 
 	return substances.map((substance) => {
+		const base = {
+			id: substance.id,
+			name: substance.name,
+			maxDosage: substance.maxDosage,
+			diseaseIds: substance.diseases.map((d) => d.id),
+		};
 		if (substance.name in substanceToColors) {
 			return {
-				...substance,
+				...base,
 				color:
 					substanceToColors[substance.name as keyof typeof substanceToColors],
 			};
 		}
-		return { ...substance, color: "rgb(182, 182, 182)" };
+		return { ...base, color: "rgb(182, 182, 182)" };
 	});
 });
 

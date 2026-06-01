@@ -32,7 +32,17 @@ export const createTreatmentSchema = z
 					diseaseId: z.string().min(1, "Disease is required"),
 				}),
 			)
-			.min(1, "At least one disease is required"),
+			.min(1, "At least one disease is required")
+			.transform((diseases) => {
+				const seen = new Set<string>();
+				return diseases.filter((disease) => {
+					if (seen.has(disease.diseaseId)) {
+						return false;
+					}
+					seen.add(disease.diseaseId);
+					return true;
+				});
+			}),
 		waterDose: z
 			.number()
 			.min(0.1, "Water dose must be at least 0.1L")
