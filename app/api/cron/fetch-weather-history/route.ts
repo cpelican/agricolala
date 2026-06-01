@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Errors } from "@/lib/constants";
-import { OpenMeteoClient } from "@/lib/openMeteoClient";
+import { OpenMeteoClient } from "@/lib/open-meteo-client";
 
 export async function GET(request: NextRequest) {
 	const authHeader = request.headers.get("authorization");

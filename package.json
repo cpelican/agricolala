@@ -101,5 +101,8 @@
 	"overrides": {
 		"react": "^19.1.2",
 		"react-dom": "^19.1.2"
+	},
+	"engines": {
+		"node": "24.x"
 	}
 }
