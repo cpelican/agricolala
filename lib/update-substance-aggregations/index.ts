@@ -5,6 +5,7 @@ import { updateSubstanceAggregations as updateSubstanceAggregationsCore } from "
 export async function updateSubstanceAggregations(
 	userId: string,
 	year: number = new Date().getFullYear(),
+	options?: { affectedParcelIds?: string[] },
 ) {
-	return updateSubstanceAggregationsCore(prisma, userId, year);
+	return updateSubstanceAggregationsCore(prisma, userId, year, options);
 }

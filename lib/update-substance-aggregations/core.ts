@@ -6,13 +6,40 @@ import {
 	updateParcelAggregations,
 } from "../aggregation-utils";
 
-export async function updateSubstanceAggregations(
+type TreatmentForAggregation = Awaited<
+	ReturnType<typeof fetchTreatmentsForAggregation>
+>[number];
+
+function transformTreatmentForAggregation(treatment: TreatmentForAggregation) {
+	return {
+		id: treatment.id,
+		appliedDate: treatment.appliedDate,
+		parcelId: treatment.parcelId,
+		parcelName: treatment.parcel.name,
+		parcel: {
+			width: treatment.parcel.width,
+			height: treatment.parcel.height,
+			areaM2: treatment.parcel.areaM2,
+		},
+		productApplications: treatment.productApplications.map((app) => ({
+			dose: app.dose,
+			product: {
+				id: app.product.id,
+				composition: app.product.composition.map((comp) => ({
+					dose: comp.dose,
+					substanceId: comp.substanceId,
+				})),
+			},
+		})),
+	};
+}
+
+async function fetchTreatmentsForAggregation(
 	prisma: PrismaClient,
 	userId: string,
-	year: number = new Date().getFullYear(),
+	year: number,
 ) {
-	// Get all treatments for the user in the specified year
-	const treatments = await prisma.treatment.findMany({
+	return prisma.treatment.findMany({
 		where: {
 			userId,
 			appliedDate: {
@@ -51,10 +78,18 @@ export async function updateSubstanceAggregations(
 			},
 		},
 	});
+}
 
-	// Group treatments by parcel for parcel-level aggregations
+export async function updateSubstanceAggregations(
+	prisma: PrismaClient,
+	userId: string,
+	year: number = new Date().getFullYear(),
+	options?: { affectedParcelIds?: string[] },
+) {
+	const treatments = await fetchTreatmentsForAggregation(prisma, userId, year);
+
 	const treatmentsByParcel = treatments.reduce<
-		Record<string, typeof treatments>
+		Record<string, TreatmentForAggregation[]>
 	>((acc, treatment) => {
 		if (!acc[treatment.parcelId]) {
 			acc[treatment.parcelId] = [];
@@ -64,27 +99,9 @@ export async function updateSubstanceAggregations(
 	}, {});
 
 	// Calculate user-level aggregations (all treatments combined)
-	const allTransformedTreatments = treatments.map((treatment) => ({
-		id: treatment.id,
-		appliedDate: treatment.appliedDate,
-		parcelId: treatment.parcelId,
-		parcelName: treatment.parcel.name,
-		parcel: {
-			width: treatment.parcel.width,
-			height: treatment.parcel.height,
-			areaM2: treatment.parcel.areaM2,
-		},
-		productApplications: treatment.productApplications.map((app) => ({
-			dose: app.dose,
-			product: {
-				id: app.product.id,
-				composition: app.product.composition.map((comp) => ({
-					dose: comp.dose,
-					substanceId: comp.substanceId,
-				})),
-			},
-		})),
-	}));
+	const allTransformedTreatments = treatments.map(
+		transformTreatmentForAggregation,
+	);
 
 	const compositions = await getCachedCompositions();
 	const userSubstanceData = calculateSubstanceData(
@@ -99,52 +116,32 @@ export async function updateSubstanceAggregations(
 
 	await updateUserAggregations(userSubstanceData, userId, year);
 
-	const userParcels = await prisma.parcel.findMany({
-		where: { userId },
-		select: { id: true },
-	});
+	const parcelIdsToUpdate =
+		options?.affectedParcelIds ??
+		(
+			await prisma.parcel.findMany({
+				where: { userId },
+				select: { id: true },
+			})
+		).map((parcel) => parcel.id);
 
-	await prisma.parcelSubstanceAggregation.deleteMany({
-		where: {
-			parcelId: { in: userParcels.map((parcel) => parcel.id) },
-			year,
-		},
-	});
+	for (const parcelId of parcelIdsToUpdate) {
+		const parcelTreatments = treatmentsByParcel[parcelId] ?? [];
+		const parcelTransformedTreatments = parcelTreatments.map(
+			transformTreatmentForAggregation,
+		);
 
-	await Promise.all(
-		Object.entries(treatmentsByParcel).map(
-			async ([parcelId, parcelTreatments]) => {
-				const parcelTransformedTreatments = parcelTreatments.map(
-					(treatment) => ({
-						id: treatment.id,
-						appliedDate: treatment.appliedDate,
-						parcelId: treatment.parcelId,
-						parcelName: treatment.parcel.name,
-						parcel: {
-							width: treatment.parcel.width,
-							height: treatment.parcel.height,
-							areaM2: treatment.parcel.areaM2,
-						},
-						productApplications: treatment.productApplications.map((app) => ({
-							dose: app.dose,
-							product: {
-								id: app.product.id,
-								composition: app.product.composition.map((comp) => ({
-									dose: comp.dose,
-									substanceId: comp.substanceId,
-								})),
-							},
-						})),
-					}),
-				);
+		const parcelSubstanceData = calculateSubstanceData(
+			parcelTransformedTreatments,
+			compositions,
+		);
 
-				const parcelSubstanceData = calculateSubstanceData(
-					parcelTransformedTreatments,
-					compositions,
-				);
+		await prisma.parcelSubstanceAggregation.deleteMany({
+			where: { parcelId, year },
+		});
 
-				await updateParcelAggregations(parcelSubstanceData, parcelId, year);
-			},
-		),
-	);
+		if (parcelSubstanceData.length > 0) {
+			await updateParcelAggregations(parcelSubstanceData, parcelId, year);
+		}
+	}
 }
