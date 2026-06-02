@@ -240,7 +240,7 @@ export function AddTreatmentDialog({
 		return Object.values(newErrors).flat().length === 0;
 	};
 
-	const handleSubmit = async (_formDataParam: FormData) => {
+	const handleSubmit = async () => {
 		if (isSubmittingRef.current) {
 			return;
 		}
@@ -262,7 +262,10 @@ export function AddTreatmentDialog({
 			: formData.parcelIds.filter((id) => id);
 		parcelIds.forEach((id) => submitData.append("parcelIds", id));
 
-		submitData.append("diseases", JSON.stringify(formData.diseases));
+		submitData.append(
+			"diseases",
+			JSON.stringify(dedupeDiseaseEntries(formData.diseases)),
+		);
 		submitData.append(
 			"productApplications",
 			JSON.stringify(formData.productApplications),
@@ -291,6 +294,16 @@ export function AddTreatmentDialog({
 		}
 	};
 
+	const preventNumberEnterSubmit = (
+		event: React.KeyboardEvent<HTMLInputElement>,
+	) => {
+		// On mobile, the keyboard "Done"/"Enter" on number inputs can implicitly submit the form.
+		// We only block Enter for number inputs to avoid breaking desktop mouse UX.
+		if (event.key === "Enter") {
+			event.preventDefault();
+		}
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
@@ -303,7 +316,13 @@ export function AddTreatmentDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form action={handleSubmit} className="flex flex-col flex-1 min-h-0">
+				<form
+					className="flex flex-col flex-1 min-h-0"
+					onSubmit={(event) => {
+						event.preventDefault();
+						void handleSubmit();
+					}}
+				>
 					<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
 						<div>
 							<Label>{t("treatments.applicationDate")}</Label>
@@ -448,13 +467,16 @@ export function AddTreatmentDialog({
 										</Select>
 										<Input
 											type="number"
-											placeholder="g"
+											inputMode="decimal"
+											enterKeyHint="next"
+											placeholder="gr"
 											step="0.1"
 											min="0.1"
 											value={product.dose || ""}
 											onChange={(e) =>
 												updateProduct(index, "dose", Number(e.target.value))
 											}
+											onKeyDown={preventNumberEnterSubmit}
 											className="w-24"
 										/>
 										{index > 0 && (
@@ -556,6 +578,8 @@ export function AddTreatmentDialog({
 								id="waterDose"
 								name="waterDose"
 								type="number"
+								inputMode="decimal"
+								enterKeyHint="done"
 								step="0.1"
 								min="0"
 								value={formData.waterDose}
@@ -565,6 +589,7 @@ export function AddTreatmentDialog({
 										waterDose: Number(e.target.value),
 									}))
 								}
+								onKeyDown={preventNumberEnterSubmit}
 							/>
 							{errors.waterDose.map((er) => (
 								<p key={er} className="text-sm text-red-700">
