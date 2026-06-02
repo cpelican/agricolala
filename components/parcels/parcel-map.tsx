@@ -5,21 +5,35 @@ import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Prisma } from "@prisma/client";
 import { PARCEL_MAP_HEIGHT_PX } from "@/components/parcels/parcel-map-skeleton";
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/contexts/translations-context";
 import {
 	type ParcelBoundaryPoint,
 	parseParcelBoundaryJson,
 } from "@/lib/parcel-geometry";
+import {
+	FIT_BOUNDS_PADDING,
+	getDefaultMapZoom,
+	getDrawModeZoom,
+	getHighlightZoom,
+	getSatelliteTileConfig,
+	MAP_FLY_DURATION,
+	MIN_MAP_ZOOM,
+} from "@/lib/map-tiles";
+import {
+	canRequestGeolocation,
+	defaultUserLocation,
+	geolocationFailureMessage,
+	isValidLatLng,
+	requestUserLocation,
+	type UserLocationFailureReason,
+} from "@/lib/user-location";
 
-const defaultIcon = L.icon({
-	iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-	iconRetinaUrl:
-		"https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
-	shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-	iconSize: [25, 41],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-	shadowSize: [41, 41],
+const vertexIcon = L.divIcon({
+	className: "parcel-draw-vertex",
+	html: `<div class="w-3 h-3 bg-emerald-600 rounded-full border-2 border-white shadow"></div>`,
+	iconSize: [12, 12],
+	iconAnchor: [6, 6],
 });
 
 const highlightedIcon = L.divIcon({
@@ -29,16 +43,19 @@ const highlightedIcon = L.divIcon({
 	iconAnchor: [12, 12],
 });
 
-const vertexIcon = L.divIcon({
-	className: "parcel-draw-vertex",
-	html: `<div class="w-3 h-3 bg-emerald-600 rounded-full border-2 border-white shadow"></div>`,
+const parcelMarkerIcon = L.divIcon({
+	className: "parcel-centroid-marker",
+	html: `<div class="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow"></div>`,
 	iconSize: [12, 12],
 	iconAnchor: [6, 6],
 });
 
-L.Marker.prototype.options.icon = defaultIcon;
-
-const DEFAULT_LOCATION = { lat: 45.0, lng: 7.0 } as const;
+const userLocationIcon = L.divIcon({
+	className: "user-location-marker",
+	html: `<div class="w-4 h-4 bg-sky-500 rounded-full border-2 border-white shadow-lg"></div>`,
+	iconSize: [16, 16],
+	iconAnchor: [8, 8],
+});
 
 const PARCEL_POLYGON_STYLE: L.PolylineOptions = {
 	color: "#16a34a",
@@ -85,6 +102,57 @@ function getParcelBoundary(
 	}
 }
 
+function isMapLayoutReady(map: L.Map): boolean {
+	const container = map.getContainer();
+	return container.offsetWidth > 0 && container.offsetHeight > 0;
+}
+
+function getSafeMapCenter(map: L.Map): L.LatLng | null {
+	try {
+		const center = map.getCenter();
+		return isValidLatLng(center.lat, center.lng) ? center : null;
+	} catch {
+		return null;
+	}
+}
+
+function setViewLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
+	map.setView([lat, lng], zoom, { animate: false });
+}
+
+function flyToLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
+	if (!isValidLatLng(lat, lng) || !Number.isFinite(zoom)) {
+		return;
+	}
+
+	map.invalidateSize();
+
+	if (!isMapLayoutReady(map)) {
+		return;
+	}
+
+	const safeCenter = getSafeMapCenter(map);
+	const shouldAnimate = MAP_FLY_DURATION > 0 && safeCenter != null;
+
+	if (!shouldAnimate) {
+		setViewLatLng(map, lat, lng, zoom);
+		return;
+	}
+
+	try {
+		map.flyTo([lat, lng], zoom, {
+			animate: true,
+			duration: MAP_FLY_DURATION,
+		});
+	} catch {
+		setViewLatLng(map, lat, lng, zoom);
+	}
+}
+
+function isValidParcelCoords(parcel: ParcelMapParcel): boolean {
+	return isValidLatLng(parcel.latitude, parcel.longitude);
+}
+
 export function ParcelMap({
 	parcels,
 	drawing,
@@ -96,58 +164,98 @@ export function ParcelMap({
 	const parcelLayersRef = useRef<L.LayerGroup | null>(null);
 	const drawingLayersRef = useRef<L.LayerGroup | null>(null);
 	const drawingRef = useRef(drawing);
-	const [userLocation, setUserLocation] = useState<[number, number]>([
-		DEFAULT_LOCATION.lat,
-		DEFAULT_LOCATION.lng,
-	]);
-	const [isLoading, setIsLoading] = useState(
-		typeof navigator !== "undefined" && !!navigator.geolocation,
+	const hasAutoCenteredForEmptyParcelsRef = useRef(false);
+	const [userLocation, setUserLocation] = useState<[number, number] | null>(
+		null,
 	);
+	const [locationFailure, setLocationFailure] =
+		useState<UserLocationFailureReason | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		drawingRef.current = drawing;
 	}, [drawing]);
 
 	useEffect(() => {
-		if (!navigator.geolocation) {
-			return;
-		}
+		let cancelled = false;
 
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				const { latitude, longitude } = position.coords;
-				setUserLocation([
-					latitude ?? DEFAULT_LOCATION.lat,
-					longitude ?? DEFAULT_LOCATION.lng,
-				]);
-				setIsLoading(false);
-			},
-			(error) => {
-				console.warn("Error getting location:", error);
-				setIsLoading(false);
-			},
-		);
+		void (async () => {
+			setIsLoading(true);
+			const result = await requestUserLocation(false);
+			if (cancelled) {
+				return;
+			}
+
+			if (result.ok && isValidLatLng(result.location[0], result.location[1])) {
+				setUserLocation([result.location[0], result.location[1]]);
+				setLocationFailure(null);
+			} else {
+				const fallback = defaultUserLocation();
+				setUserLocation([fallback[0], fallback[1]]);
+				setLocationFailure(result.ok ? "unavailable" : result.reason);
+			}
+			setIsLoading(false);
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
+
+	function handleUseMyLocation() {
+		void (async () => {
+			setIsLoading(true);
+			const result = await requestUserLocation(true);
+			if (result.ok && isValidLatLng(result.location[0], result.location[1])) {
+				setUserLocation([result.location[0], result.location[1]]);
+				setLocationFailure(null);
+				const map = mapInstanceRef.current;
+				if (map) {
+					flyToLatLng(
+						map,
+						result.location[0],
+						result.location[1],
+						drawingRef.current ? getDrawModeZoom() : getDefaultMapZoom(),
+					);
+				}
+			} else {
+				setLocationFailure(result.ok ? "unavailable" : result.reason);
+			}
+			setIsLoading(false);
+		})();
+	}
 
 	useEffect(() => {
 		if (
 			typeof window === "undefined" ||
 			!mapRef.current ||
-			mapInstanceRef.current
+			mapInstanceRef.current ||
+			userLocation == null
 		) {
 			return;
 		}
 
+		const tileConfig = getSatelliteTileConfig();
+		const defaultZoom = getDefaultMapZoom();
+		const initialCenter = isValidLatLng(userLocation[0], userLocation[1])
+			? userLocation
+			: defaultUserLocation();
+
 		const map = L.map(mapRef.current, {
+			center: [initialCenter[0], initialCenter[1]],
+			zoom: defaultZoom,
 			zoomControl: true,
 			attributionControl: true,
 			scrollWheelZoom: true,
 			dragging: true,
-		}).setView([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng], 13);
+			minZoom: MIN_MAP_ZOOM,
+			maxZoom: tileConfig.maxZoom,
+		});
 
-		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-			attribution:
-				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		L.tileLayer(tileConfig.url, {
+			attribution: tileConfig.attribution,
+			maxZoom: tileConfig.maxZoom,
+			maxNativeZoom: tileConfig.maxZoom,
 		}).addTo(map);
 
 		parcelLayersRef.current = L.layerGroup().addTo(map);
@@ -161,37 +269,65 @@ export function ParcelMap({
 
 		mapInstanceRef.current = map;
 
+		let initCancelled = false;
+		const ensureInitialView = () => {
+			if (initCancelled || mapInstanceRef.current !== map) {
+				return;
+			}
+			if (!isMapLayoutReady(map)) {
+				requestAnimationFrame(ensureInitialView);
+				return;
+			}
+			map.invalidateSize();
+			if (!getSafeMapCenter(map)) {
+				setViewLatLng(map, initialCenter[0], initialCenter[1], defaultZoom);
+			}
+		};
+		requestAnimationFrame(ensureInitialView);
+
 		return () => {
+			initCancelled = true;
 			map.remove();
 			mapInstanceRef.current = null;
 			parcelLayersRef.current = null;
 			drawingLayersRef.current = null;
 		};
-	}, []);
+	}, [userLocation]);
 
 	useEffect(() => {
-		mapInstanceRef.current?.setView(
-			userLocation,
-			mapInstanceRef.current.getZoom(),
-		);
-	}, [userLocation]);
+		if (parcels.length > 0) {
+			hasAutoCenteredForEmptyParcelsRef.current = false;
+		}
+	}, [parcels.length]);
 
 	useEffect(() => {
 		const map = mapInstanceRef.current;
 		const parcelLayers = parcelLayersRef.current;
-		if (!map || !parcelLayers) {
+		if (!map || !parcelLayers || userLocation == null) {
 			return;
 		}
 
+		let cancelled = false;
+
 		parcelLayers.clearLayers();
 		const boundsPoints: L.LatLngExpression[] = [];
+		let highlightedParcel: ParcelMapParcel | null = null;
 
 		for (const parcel of parcels) {
+			if (!isValidParcelCoords(parcel)) {
+				continue;
+			}
+
 			const boundary = getParcelBoundary(parcel);
 			const isHighlighted = highlightParcelId === parcel.id;
 
 			if (boundary && boundary.length >= 3) {
-				const latLngs = boundary.map((p) => [p.lat, p.lng] as L.LatLngTuple);
+				const latLngs = boundary
+					.filter((p) => isValidLatLng(p.lat, p.lng))
+					.map((p) => [p.lat, p.lng] as L.LatLngTuple);
+				if (latLngs.length < 3) {
+					continue;
+				}
 				L.polygon(latLngs, {
 					...PARCEL_POLYGON_STYLE,
 					...(isHighlighted ? { color: "#dc2626", fillColor: "#ef4444" } : {}),
@@ -200,11 +336,13 @@ export function ParcelMap({
 						`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3></div>`,
 					)
 					.addTo(parcelLayers);
-				latLngs.forEach((ll) => boundsPoints.push(ll));
+				for (const ll of latLngs) {
+					boundsPoints.push(ll);
+				}
 			}
 
 			const marker = L.marker([parcel.latitude, parcel.longitude], {
-				icon: isHighlighted ? highlightedIcon : defaultIcon,
+				icon: isHighlighted ? highlightedIcon : parcelMarkerIcon,
 			})
 				.bindPopup(
 					`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3><p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p></div>`,
@@ -214,26 +352,76 @@ export function ParcelMap({
 			boundsPoints.push([parcel.latitude, parcel.longitude]);
 
 			if (isHighlighted) {
+				highlightedParcel = parcel;
 				marker.openPopup();
-				map.setView([parcel.latitude, parcel.longitude], 15);
 			}
 		}
 
-		if (parcels.length === 0) {
-			const userIcon = L.divIcon({
-				className: "user-location-marker",
-				html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
-			});
-			L.marker(userLocation, { icon: userIcon })
+		const hasValidUserLocation = isValidLatLng(
+			userLocation[0],
+			userLocation[1],
+		);
+
+		if (parcels.length === 0 && hasValidUserLocation) {
+			L.marker(userLocation, { icon: userLocationIcon })
 				.bindPopup("Your location")
 				.addTo(parcelLayers);
 			boundsPoints.push(userLocation);
 		}
 
-		if (boundsPoints.length > 0 && !highlightParcelId) {
-			map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50] });
-		}
-	}, [parcels, highlightParcelId, userLocation]);
+		const applyCamera = () => {
+			if (
+				cancelled ||
+				mapInstanceRef.current !== map ||
+				!isMapLayoutReady(map)
+			) {
+				if (!cancelled && mapInstanceRef.current === map) {
+					requestAnimationFrame(applyCamera);
+				}
+				return;
+			}
+
+			if (highlightedParcel && isValidParcelCoords(highlightedParcel)) {
+				flyToLatLng(
+					map,
+					highlightedParcel.latitude,
+					highlightedParcel.longitude,
+					getHighlightZoom(),
+				);
+			} else if (
+				parcels.length === 0 &&
+				!drawing &&
+				hasValidUserLocation &&
+				!hasAutoCenteredForEmptyParcelsRef.current
+			) {
+				flyToLatLng(map, userLocation[0], userLocation[1], getDefaultMapZoom());
+				hasAutoCenteredForEmptyParcelsRef.current = true;
+			} else if (boundsPoints.length > 0 && !highlightParcelId && !drawing) {
+				const bounds = L.latLngBounds(boundsPoints);
+				if (bounds.isValid()) {
+					try {
+						map.fitBounds(bounds, {
+							padding: FIT_BOUNDS_PADDING,
+							maxZoom: getDefaultMapZoom(),
+							animate: MAP_FLY_DURATION > 0,
+							duration: MAP_FLY_DURATION,
+						});
+					} catch {
+						const center = bounds.getCenter();
+						if (isValidLatLng(center.lat, center.lng)) {
+							setViewLatLng(map, center.lat, center.lng, getDefaultMapZoom());
+						}
+					}
+				}
+			}
+		};
+
+		map.whenReady(applyCamera);
+
+		return () => {
+			cancelled = true;
+		};
+	}, [parcels, highlightParcelId, userLocation, drawing]);
 
 	useEffect(() => {
 		const drawingLayers = drawingLayersRef.current;
@@ -281,6 +469,24 @@ export function ParcelMap({
 			{isLoading && (
 				<div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80 z-10">
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+				</div>
+			)}
+			{locationFailure && !isLoading && (
+				<div className="absolute top-2 left-2 right-2 z-[1000] flex flex-col gap-2 rounded-lg border bg-background/95 p-3 shadow-md">
+					<p className="text-sm text-muted-foreground">
+						{geolocationFailureMessage(locationFailure, t)}
+					</p>
+					{canRequestGeolocation() && (
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							className="self-start"
+							onClick={handleUseMyLocation}
+						>
+							{t("parcels.useMyLocation")}
+						</Button>
+					)}
 				</div>
 			)}
 		</div>
