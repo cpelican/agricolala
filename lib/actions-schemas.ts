@@ -27,22 +27,31 @@ export const createTreatmentSchema = z
 			.array(z.string().min(1, "Parcel ID is required"))
 			.min(1, "At least one parcel is required"),
 		diseases: z
-			.array(
-				z.object({
-					diseaseId: z.string().min(1, "Disease is required"),
-				}),
-			)
-			.min(1, "At least one disease is required")
+			.array(z.object({ diseaseId: z.string() }))
 			.transform((diseases) => {
 				const seen = new Set<string>();
-				return diseases.filter((disease) => {
-					if (seen.has(disease.diseaseId)) {
-						return false;
+				const result: { diseaseId: string }[] = [];
+
+				for (const disease of diseases) {
+					const diseaseId = disease.diseaseId.trim();
+					if (!diseaseId || seen.has(diseaseId)) {
+						continue;
 					}
-					seen.add(disease.diseaseId);
-					return true;
-				});
-			}),
+					seen.add(diseaseId);
+					result.push({ diseaseId });
+				}
+
+				return result;
+			})
+			.pipe(
+				z
+					.array(
+						z.object({
+							diseaseId: z.string().min(1, "Disease is required"),
+						}),
+					)
+					.min(1, "At least one disease is required"),
+			),
 		waterDose: z
 			.number()
 			.min(0.1, "Water dose must be at least 0.1L")

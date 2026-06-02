@@ -42,7 +42,16 @@ import {
 	getDiseaseIdsForProducts,
 } from "@/lib/substance-helpers";
 import { createTreatment } from "@/lib/actions";
+import { useToast } from "@/hooks/use-toast";
 import React from "react";
+
+const defaultFormData = (parcelId?: string) => ({
+	appliedDate: new Date(),
+	diseases: [{ diseaseId: "" }],
+	productApplications: [{ productId: "", dose: 0 }],
+	waterDose: 10,
+	parcelIds: parcelId ? [parcelId] : [""],
+});
 
 interface AddTreatmentDialogProps {
 	open: boolean;
@@ -77,17 +86,10 @@ export function AddTreatmentDialog({
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const { t } = useTranslations();
+	const { toast } = useToast();
 	const isSubmittingRef = useRef(false);
-	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
-	const [serverError, setServerError] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
-		appliedDate: new Date(),
-		diseases: [{ diseaseId: "" }],
-		productApplications: [{ productId: "", dose: 0 }],
-		waterDose: 10,
-		parcelIds: parcelId ? [parcelId] : [""],
-	});
+	const [formData, setFormData] = useState(() => defaultFormData(parcelId));
 
 	const addDisease = () => {
 		setFormData((prev) => ({
@@ -237,63 +239,54 @@ export function AddTreatmentDialog({
 		return Object.values(newErrors).flat().length === 0;
 	};
 
-	const handleSubmit = async (formDataParam: FormData) => {
+	const handleSubmit = async (_formDataParam: FormData) => {
 		if (isSubmittingRef.current) {
 			return;
 		}
-		isSubmittingRef.current = true;
-		setLoading(true);
-		setServerError(null);
 
-		// Client-side validation
 		if (!validateForm()) {
-			isSubmittingRef.current = false;
-			setLoading(false);
 			return;
 		}
 
+		isSubmittingRef.current = true;
+
+		const submitData = new FormData();
+		submitData.append(
+			"appliedDate",
+			formData.appliedDate.toISOString().split("T")[0],
+		);
+
+		const parcelIds = parcelId
+			? [parcelId]
+			: formData.parcelIds.filter((id) => id);
+		parcelIds.forEach((id) => submitData.append("parcelIds", id));
+
+		submitData.append("diseases", JSON.stringify(formData.diseases));
+		submitData.append(
+			"productApplications",
+			JSON.stringify(formData.productApplications),
+		);
+		submitData.append("waterDose", formData.waterDose.toString());
+
+		onOpenChange(false);
+		setFormData(defaultFormData(parcelId));
+		setErrors(defaultErrors);
+
 		try {
-			formDataParam.append(
-				"appliedDate",
-				formData.appliedDate.toISOString().split("T")[0],
-			);
-
-			const parcelIds = parcelId
-				? [parcelId]
-				: formData.parcelIds.filter((id) => id);
-			parcelIds.forEach((id) => formDataParam.append("parcelIds", id));
-
-			formDataParam.append(
-				"diseases",
-				JSON.stringify(dedupeDiseaseEntries(formData.diseases)),
-			);
-			formDataParam.append(
-				"productApplications",
-				JSON.stringify(formData.productApplications),
-			);
-			formDataParam.append("waterDose", formData.waterDose.toString());
-
-			await createTreatment(formDataParam);
-
-			onOpenChange(false);
-			setFormData({
-				appliedDate: new Date(),
-				diseases: [{ diseaseId: "" }],
-				productApplications: [{ productId: "", dose: 0 }],
-				waterDose: 10,
-				parcelIds: [],
-			});
+			await createTreatment(submitData);
 			router.refresh();
+			toast({
+				title: t("treatments.treatmentAdded"),
+			});
 		} catch (error) {
 			console.error("Error creating treatment");
-			setServerError(
-				error instanceof Error
-					? error.message
-					: t("treatments.errors.createFailed"),
-			);
+			toast({
+				variant: "destructive",
+				title: t("treatments.errors.createFailed"),
+				description: error instanceof Error ? error.message : undefined,
+			});
 		} finally {
 			isSubmittingRef.current = false;
-			setLoading(false);
 		}
 	};
 
@@ -308,12 +301,6 @@ export function AddTreatmentDialog({
 							: t("treatments.addTreatmentFormDescription")}
 					</DialogDescription>
 				</DialogHeader>
-
-				{serverError && (
-					<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-						<p className="text-sm text-destructive">{serverError}</p>
-					</div>
-				)}
 
 				<form action={handleSubmit} className="flex flex-col flex-1 min-h-0">
 					<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
@@ -608,12 +595,9 @@ export function AddTreatmentDialog({
 						</Button>
 						<Button
 							type="submit"
-							disabled={loading}
 							className="bg-main-gradient hover:bg-primary-700"
 						>
-							{loading
-								? t("treatments.creating")
-								: t("treatments.createTreatment")}
+							{t("treatments.createTreatment")}
 						</Button>
 					</DialogFooter>
 				</form>
