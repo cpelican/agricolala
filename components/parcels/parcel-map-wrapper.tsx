@@ -18,13 +18,13 @@ const ParcelMap = dynamic(
 export function ParcelMapWrapper({
 	parcels,
 	highlightParcelId,
-	onMapClick,
+	drawing,
 }: ParcelMapProps) {
 	return (
 		<ParcelMap
 			parcels={parcels}
 			highlightParcelId={highlightParcelId}
-			onMapClick={onMapClick}
+			drawing={drawing}
 		/>
 	);
 }

@@ -55,8 +55,15 @@
 		"enterWidth": "Inserisci larghezza",
 		"enterHeight": "Inserisci altezza",
 		"locationMap": "Mappa per la posizione del campo",
-		"clickMapToAdd": "Clicca sulla mappa per aggiungere un campo",
-		"clickMapToAddFirst": "Clicca sulla mappa per aggiungere il tuo primo campo",
+		"drawParcel": "Disegna campo",
+		"drawParcelHint": "Disegna il confine del campo sulla mappa",
+		"drawInstructions": "Tocca la mappa per aggiungere angoli, poi chiudi la forma",
+		"undoPoint": "Annulla",
+		"finishShape": "Chiudi",
+		"cancelDrawing": "Annulla disegno",
+		"calculatedArea": "Superficie calcolata",
+		"clickMapToAdd": "Disegna un campo sulla mappa per iniziare",
+		"clickMapToAddFirst": "Disegna il tuo primo campo sulla mappa",
 		"zoomInToFindLocation": "Zooma per trovare la tua posizione esatta",
 		"cancel": "Annulla",
 		"adding": "Aggiunta...",
@@ -67,7 +74,9 @@
 		"trackSubstanceApplications": "Monitora le tue applicazioni di sostanze per questo campo",
 		"productDose": "L/ha",
 		"errors": {
-			"createFailed": "Impossibile creare il campo"
+			"createFailed": "Impossibile creare il campo",
+			"minPoints": "Disegna almeno 3 angoli prima di chiudere",
+			"invalidShape": "La forma non è valida. Modifica gli angoli e riprova."
 		}
 	},
 	"treatments": {

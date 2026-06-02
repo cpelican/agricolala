@@ -3,11 +3,14 @@
 import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { type Parcel } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { PARCEL_MAP_HEIGHT_PX } from "@/components/parcels/parcel-map-skeleton";
 import { useTranslations } from "@/contexts/translations-context";
+import {
+	type ParcelBoundaryPoint,
+	parseParcelBoundaryJson,
+} from "@/lib/parcel-geometry";
 
-// Fix Leaflet default icon
 const defaultIcon = L.icon({
 	iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
 	iconRetinaUrl:
@@ -19,7 +22,6 @@ const defaultIcon = L.icon({
 	shadowSize: [41, 41],
 });
 
-// Highlighted parcel icon
 const highlightedIcon = L.divIcon({
 	className: "highlighted-parcel-marker",
 	html: `<div class="w-6 h-6 bg-red-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>`,
@@ -27,25 +29,73 @@ const highlightedIcon = L.divIcon({
 	iconAnchor: [12, 12],
 });
 
+const vertexIcon = L.divIcon({
+	className: "parcel-draw-vertex",
+	html: `<div class="w-3 h-3 bg-emerald-600 rounded-full border-2 border-white shadow"></div>`,
+	iconSize: [12, 12],
+	iconAnchor: [6, 6],
+});
+
 L.Marker.prototype.options.icon = defaultIcon;
 
 const DEFAULT_LOCATION = { lat: 45.0, lng: 7.0 } as const;
 
+const PARCEL_POLYGON_STYLE: L.PolylineOptions = {
+	color: "#16a34a",
+	fillColor: "#22c55e",
+	fillOpacity: 0.25,
+	weight: 2,
+};
+
+const DRAFT_POLYGON_STYLE: L.PolylineOptions = {
+	color: "#2563eb",
+	fillColor: "#3b82f6",
+	fillOpacity: 0.2,
+	weight: 2,
+	dashArray: "6 4",
+};
+
+export interface ParcelMapParcel {
+	id: string;
+	name: string;
+	latitude: number;
+	longitude: number;
+	boundary?: Prisma.JsonValue | null;
+}
+
 export interface ParcelMapProps {
-	parcels: Pick<Parcel, "id" | "name" | "latitude" | "longitude">[];
-	onMapClick?: (lat: number, lng: number, alt?: number) => void;
+	parcels: ParcelMapParcel[];
+	drawing?: {
+		vertices: ParcelBoundaryPoint[];
+		onVertexAdd: (lat: number, lng: number) => void;
+	};
 	highlightParcelId?: string;
+}
+
+function getParcelBoundary(
+	parcel: ParcelMapParcel,
+): ParcelBoundaryPoint[] | null {
+	if (parcel.boundary == null) {
+		return null;
+	}
+	try {
+		return parseParcelBoundaryJson(parcel.boundary);
+	} catch {
+		return null;
+	}
 }
 
 export function ParcelMap({
 	parcels,
-	onMapClick,
+	drawing,
 	highlightParcelId,
 }: ParcelMapProps) {
 	const { t } = useTranslations();
 	const mapRef = useRef<HTMLDivElement>(null);
 	const mapInstanceRef = useRef<L.Map | null>(null);
-	const markersRef = useRef<L.Marker[]>([]);
+	const parcelLayersRef = useRef<L.LayerGroup | null>(null);
+	const drawingLayersRef = useRef<L.LayerGroup | null>(null);
+	const drawingRef = useRef(drawing);
 	const [userLocation, setUserLocation] = useState<[number, number]>([
 		DEFAULT_LOCATION.lat,
 		DEFAULT_LOCATION.lng,
@@ -55,7 +105,13 @@ export function ParcelMap({
 	);
 
 	useEffect(() => {
-		if (!navigator.geolocation) return;
+		drawingRef.current = drawing;
+	}, [drawing]);
+
+	useEffect(() => {
+		if (!navigator.geolocation) {
+			return;
+		}
 
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
@@ -74,91 +130,141 @@ export function ParcelMap({
 	}, []);
 
 	useEffect(() => {
-		if (typeof window === "undefined" || !mapRef.current || !userLocation)
+		if (
+			typeof window === "undefined" ||
+			!mapRef.current ||
+			mapInstanceRef.current
+		) {
 			return;
-
-		if (!mapInstanceRef.current) {
-			mapInstanceRef.current = L.map(mapRef.current, {
-				zoomControl: true,
-				attributionControl: true,
-				scrollWheelZoom: true,
-				dragging: true,
-			}).setView(userLocation, 13);
-
-			L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-				attribution:
-					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-			}).addTo(mapInstanceRef.current);
-
-			mapInstanceRef.current.on("click", (e: L.LeafletMouseEvent) => {
-				if (onMapClick) {
-					onMapClick(e.latlng.lat, e.latlng.lng, e.latlng.alt);
-				}
-			});
-
-			if (parcels.length === 0) {
-				const userIcon = L.divIcon({
-					className: "user-location-marker",
-					html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
-				});
-
-				L.marker(userLocation, { icon: userIcon })
-					.bindPopup("Your location")
-					.addTo(mapInstanceRef.current);
-			}
 		}
 
-		markersRef.current.forEach((marker) => marker.remove());
-		markersRef.current = [];
+		const map = L.map(mapRef.current, {
+			zoomControl: true,
+			attributionControl: true,
+			scrollWheelZoom: true,
+			dragging: true,
+		}).setView([DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng], 13);
 
-		parcels.forEach((parcel) => {
-			const isHighlighted = highlightParcelId === parcel.id;
-			const marker = L.marker([parcel.latitude, parcel.longitude], {
-				icon: isHighlighted ? highlightedIcon : defaultIcon,
-			})
-				.bindPopup(`
-					<div class="p-2">
-						<h3 class="font-medium">${parcel.name}</h3>
-						<p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p>
-					</div>
-				`)
-				.addTo(mapInstanceRef.current!);
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution:
+				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		}).addTo(map);
 
-			markersRef.current.push(marker);
+		parcelLayersRef.current = L.layerGroup().addTo(map);
+		drawingLayersRef.current = L.layerGroup().addTo(map);
 
-			// If this is the highlighted parcel, open its popup and zoom to it
-			if (isHighlighted) {
-				marker.openPopup();
-				mapInstanceRef.current!.setView(
-					[parcel.latitude, parcel.longitude],
-					15,
-				);
+		map.on("click", (e: L.LeafletMouseEvent) => {
+			if (drawingRef.current) {
+				drawingRef.current.onVertexAdd(e.latlng.lat, e.latlng.lng);
 			}
 		});
 
-		// Fit bounds to show all markers if there are any and no specific parcel is highlighted
-		if (parcels.length > 0 && !highlightParcelId) {
-			const coordinates: L.LatLngExpression[] = parcels.map((p) => [
-				p.latitude,
-				p.longitude,
-			]);
-
-			// Include user location in bounds only if we're showing it (no parcels)
-			if (parcels.length === 0 && userLocation) {
-				coordinates.push(userLocation);
-			}
-
-			const bounds = L.latLngBounds(coordinates);
-			mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
-		}
+		mapInstanceRef.current = map;
 
 		return () => {
-			if (mapInstanceRef.current) {
-				mapInstanceRef.current.remove();
-				mapInstanceRef.current = null;
-			}
+			map.remove();
+			mapInstanceRef.current = null;
+			parcelLayersRef.current = null;
+			drawingLayersRef.current = null;
 		};
-	}, [parcels, onMapClick, userLocation, highlightParcelId]);
+	}, []);
+
+	useEffect(() => {
+		mapInstanceRef.current?.setView(
+			userLocation,
+			mapInstanceRef.current.getZoom(),
+		);
+	}, [userLocation]);
+
+	useEffect(() => {
+		const map = mapInstanceRef.current;
+		const parcelLayers = parcelLayersRef.current;
+		if (!map || !parcelLayers) {
+			return;
+		}
+
+		parcelLayers.clearLayers();
+		const boundsPoints: L.LatLngExpression[] = [];
+
+		for (const parcel of parcels) {
+			const boundary = getParcelBoundary(parcel);
+			const isHighlighted = highlightParcelId === parcel.id;
+
+			if (boundary && boundary.length >= 3) {
+				const latLngs = boundary.map((p) => [p.lat, p.lng] as L.LatLngTuple);
+				L.polygon(latLngs, {
+					...PARCEL_POLYGON_STYLE,
+					...(isHighlighted ? { color: "#dc2626", fillColor: "#ef4444" } : {}),
+				})
+					.bindPopup(
+						`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3></div>`,
+					)
+					.addTo(parcelLayers);
+				latLngs.forEach((ll) => boundsPoints.push(ll));
+			}
+
+			const marker = L.marker([parcel.latitude, parcel.longitude], {
+				icon: isHighlighted ? highlightedIcon : defaultIcon,
+			})
+				.bindPopup(
+					`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3><p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p></div>`,
+				)
+				.addTo(parcelLayers);
+
+			boundsPoints.push([parcel.latitude, parcel.longitude]);
+
+			if (isHighlighted) {
+				marker.openPopup();
+				map.setView([parcel.latitude, parcel.longitude], 15);
+			}
+		}
+
+		if (parcels.length === 0) {
+			const userIcon = L.divIcon({
+				className: "user-location-marker",
+				html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>`,
+			});
+			L.marker(userLocation, { icon: userIcon })
+				.bindPopup("Your location")
+				.addTo(parcelLayers);
+			boundsPoints.push(userLocation);
+		}
+
+		if (boundsPoints.length > 0 && !highlightParcelId) {
+			map.fitBounds(L.latLngBounds(boundsPoints), { padding: [50, 50] });
+		}
+	}, [parcels, highlightParcelId, userLocation]);
+
+	useEffect(() => {
+		const drawingLayers = drawingLayersRef.current;
+		if (!drawingLayers) {
+			return;
+		}
+
+		drawingLayers.clearLayers();
+
+		if (!drawing || drawing.vertices.length === 0) {
+			return;
+		}
+
+		const latLngs = drawing.vertices.map(
+			(p) => [p.lat, p.lng] as L.LatLngTuple,
+		);
+
+		for (const point of drawing.vertices) {
+			L.marker([point.lat, point.lng], { icon: vertexIcon }).addTo(
+				drawingLayers,
+			);
+		}
+
+		if (drawing.vertices.length >= 2) {
+			L.polyline(latLngs, { color: "#2563eb", weight: 2 }).addTo(drawingLayers);
+		}
+
+		if (drawing.vertices.length >= 3) {
+			L.polygon(latLngs, DRAFT_POLYGON_STYLE).addTo(drawingLayers);
+		}
+	}, [drawing]);
 
 	return (
 		<div
@@ -173,8 +279,8 @@ export function ParcelMap({
 				className="relative z-0 h-full w-full rounded-lg"
 			/>
 			{isLoading && (
-				<div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
-					<div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600" />
+				<div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80 z-10">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
 				</div>
 			)}
 		</div>
