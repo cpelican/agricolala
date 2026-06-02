@@ -7,10 +7,11 @@ export interface AddParcelOptions {
 	mapClickPositions?: { x: number; y: number }[];
 }
 
+/** Wide triangle for satellite draw zoom ~19 (~50–250 m² at typical latitudes). */
 const defaultTriangle: { x: number; y: number }[] = [
-	{ x: 180, y: 120 },
-	{ x: 260, y: 120 },
-	{ x: 220, y: 200 },
+	{ x: 50, y: 50 },
+	{ x: 350, y: 50 },
+	{ x: 200, y: 340 },
 ];
 
 const defaults: Required<AddParcelOptions> = {

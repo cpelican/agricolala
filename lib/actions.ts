@@ -258,6 +258,14 @@ export async function createParcel(formData: FormData) {
 		};
 	} catch (error) {
 		console.error("Error creating parcel", error);
+		if (
+			error &&
+			typeof error === "object" &&
+			"code" in error &&
+			error.code === "P2003"
+		) {
+			throw new Error(Errors.ACCESS_DENIED);
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }

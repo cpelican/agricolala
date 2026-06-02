@@ -48,23 +48,41 @@ export function ParcelDetail({
 									<div key={treatment.id} className="border rounded-lg p-4">
 										<div className="mt-2 space-y-2">
 											{treatment.productApplications.map((app, index) => {
-												const substance =
-													compositions[app.product.composition[0].substanceId][
-														app.product.id
-													]?.substance;
+												if (app.product.composition.length === 0) {
+													return (
+														<div key={index} className="text-sm">
+															<p>
+																{app.product.name} - {app.dose}
+																{t("parcels.productDose")}
+															</p>
+														</div>
+													);
+												}
+
+												const compositionLine = app.product.composition
+													.map((comp) => {
+														const substance =
+															compositions[comp.substanceId]?.[app.product.id]
+																?.substance;
+														if (!substance) {
+															return null;
+														}
+														return `${substance.name} (${comp.dose}%)`;
+													})
+													.filter(Boolean)
+													.join(", ");
+
 												return (
 													<div key={index} className="text-sm">
 														<p>
 															{app.product.name} - {app.dose}
 															{t("parcels.productDose")}
 														</p>
-														<p className="text-muted-foreground">
-															{app.product.composition
-																.map(
-																	(comp) => `${substance.name} (${comp.dose}%)`,
-																)
-																.join(", ")}
-														</p>
+														{compositionLine ? (
+															<p className="text-muted-foreground">
+																{compositionLine}
+															</p>
+														) : null}
 													</div>
 												);
 											})}
