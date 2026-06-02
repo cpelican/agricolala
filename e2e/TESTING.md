@@ -1,4 +1,4 @@
-# E2e testing (Playwright)
+# E2e (Playwright)
 
 Mobile-only UI tests. Env & commands: [AGENTS.md](../AGENTS.md#environment).
 
@@ -6,14 +6,18 @@ Mobile-only UI tests. Env & commands: [AGENTS.md](../AGENTS.md#environment).
 
 | Layer | Path | CI |
 |-------|------|-----|
-| Shared steps | `e2e/flows/*.ts` | — |
-| Regression | `e2e/*.spec.ts` | yes |
+| Flows | `e2e/flows/*.ts` | — |
+| Specs | `e2e/*.spec.ts` | yes |
 
 [`playwright.config.ts`](../playwright.config.ts): `global-setup.ts` → `auth.setup.ts` → `.auth/user.json`; project `mobile-chromium`. Specs: `import { test, expect } from "./support/test"`.
 
 ## Support
 
 `e2e/support/` — `test.ts` plus helpers (`add-parcel`, `add-treatment`, `navigation`, `assertions`, `chart`, `map`, `parcels-map`, `demo-auth`).
+
+## Support
+
+`e2e/support/` — import `test`/`expect` from `test.ts`; flows use `add-parcel.ts`, `add-treatment.ts`, `navigation.ts`, `assertions.ts`, `chart.ts`, `map.ts`, `demo-auth.ts`.
 
 ## Recording
 
@@ -37,6 +41,8 @@ Mobile-only UI tests. Env & commands: [AGENTS.md](../AGENTS.md#environment).
 - `workers: 1`; serial only when one file shares a journey; seed in `auth.setup.ts`; `/en` only.
 
 ## UX change workflow
+
+User-visible flow change → mandatory demo `.webm` (do not skip after green specs). Styling-only → `test:e2e` per AGENTS.md, skip record.
 
 1. Change UI.
 2. Update `e2e/flows/*.ts` and `e2e/*.spec.ts`.

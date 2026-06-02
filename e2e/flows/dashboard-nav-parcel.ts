@@ -13,6 +13,7 @@ export async function goToParcelsAndAddParcel(
 ) {
 	await page.goto("/en");
 	await clickMobileNavLink(page, "Parcels");
+	await expect(page).toHaveURL(/\/en\/parcels\/?$/);
 	await expect(page.getByRole("heading", { name: "Parcels" })).toBeVisible();
 	const parcelName = await addParcelFromMapDialog(page, parcelOptions);
 	await expect(page.getByRole("heading", { name: parcelName })).toBeVisible();
@@ -27,6 +28,7 @@ export async function runDashboardNavParcelFlow(
 	await page.goto("/en");
 	await expectDashboardLoaded(page);
 	await clickMobileNavLink(page, "Parcels");
+	await expect(page).toHaveURL(/\/en\/parcels\/?$/);
 	await expect(page.getByRole("heading", { name: "Parcels" })).toBeVisible();
 	const parcelName = await addParcelFromMapDialog(page, parcelOptions);
 	await expect(page.getByRole("heading", { name: parcelName })).toBeVisible();

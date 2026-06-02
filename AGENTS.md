@@ -21,7 +21,7 @@ Vitest local: `test:db:start` first (Next **3001**, `.env.test`). E2e: `npm run 
 |------|---------|
 | Dev | `npm run dev` → `http://localhost:3000` |
 | Migrate | `npx prisma migrate dev` |
-| Seed (dev only; wipes ref data) | `npm run seed` |
+| Seed (dev; wipes ref data) | `npm run seed` |
 | Typecheck | `npm run tsc` |
 | Lint + format | `npm run precommit` |
 | Vitest (all) | `npm run test` |

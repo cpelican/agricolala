@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslations } from "@/contexts/translations-context";
+import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -392,7 +393,7 @@ export function AddTreatmentDialog({
 											<SelectContent>
 												{parcels.map((parcel) => (
 													<SelectItem key={parcel.id} value={parcel.id}>
-														{parcel.name} ({parcel.width}m × {parcel.height}m)
+														{parcel.name} ({formatParcelAreaDisplay(parcel)})
 													</SelectItem>
 												))}
 											</SelectContent>

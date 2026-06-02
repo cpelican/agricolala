@@ -55,8 +55,15 @@
 		"enterWidth": "Enter width",
 		"enterHeight": "Enter height",
 		"locationMap": "Parcel location map",
-		"clickMapToAdd": "Click on the map to add a parcel",
-		"clickMapToAddFirst": "Click on the map to add your first parcel",
+		"drawParcel": "Draw parcel",
+		"drawParcelHint": "Draw the parcel boundary on the map",
+		"drawInstructions": "Tap the map to add corners, then finish the shape",
+		"undoPoint": "Undo",
+		"finishShape": "Finish",
+		"cancelDrawing": "Cancel",
+		"calculatedArea": "Calculated area",
+		"clickMapToAdd": "Draw a parcel on the map to get started",
+		"clickMapToAddFirst": "Draw your first parcel on the map",
 		"zoomInToFindLocation": "Zoom in to find your exact location",
 		"cancel": "Cancel",
 		"adding": "Adding...",
@@ -67,7 +74,9 @@
 		"trackSubstanceApplications": "Track your substance applications for this parcel",
 		"productDose": "L/ha",
 		"errors": {
-			"createFailed": "Failed to create parcel"
+			"createFailed": "Failed to create parcel",
+			"minPoints": "Draw at least 3 corners before finishing",
+			"invalidShape": "The shape is invalid. Adjust the corners and try again."
 		}
 	},
 	"treatments": {

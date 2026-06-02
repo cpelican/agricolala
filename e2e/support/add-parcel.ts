@@ -3,22 +3,20 @@ import { parcelLocationMapLabel } from "./map";
 
 export interface AddParcelOptions {
 	name?: string;
-	widthMeters?: string;
-	heightMeters?: string;
-	latitude?: string;
-	longitude?: string;
 	altitude?: string;
-	mapClickPosition?: { x: number; y: number };
+	mapClickPositions?: { x: number; y: number }[];
 }
+
+const defaultTriangle: { x: number; y: number }[] = [
+	{ x: 180, y: 120 },
+	{ x: 260, y: 120 },
+	{ x: 220, y: 200 },
+];
 
 const defaults: Required<AddParcelOptions> = {
 	name: "E2E Added Parcel",
-	widthMeters: "80",
-	heightMeters: "45",
-	latitude: "44.135",
-	longitude: "9.684",
 	altitude: "65",
-	mapClickPosition: { x: 220, y: 180 },
+	mapClickPositions: defaultTriangle,
 };
 
 export async function addParcelFromMapDialog(
@@ -26,19 +24,28 @@ export async function addParcelFromMapDialog(
 	options: AddParcelOptions = {},
 ) {
 	const parcel = { ...defaults, ...options };
+	const map = page.getByRole("application", { name: parcelLocationMapLabel });
 
-	await page
-		.getByRole("application", { name: parcelLocationMapLabel })
-		.click({ position: parcel.mapClickPosition });
+	await expect(map).toBeVisible();
+
+	await page.getByRole("button", { name: "Draw parcel" }).first().click();
+	await expect(page.getByRole("button", { name: "Finish" })).toBeVisible();
+
+	for (const position of parcel.mapClickPositions) {
+		await map.click({ position, force: true });
+	}
+
+	const finishButton = page.getByRole("button", { name: "Finish" });
+	await expect(finishButton).toBeEnabled({ timeout: 10_000 });
+	await finishButton.click();
 
 	const dialog = page.getByRole("dialog", { name: "Add New Parcel" });
 	await expect(dialog).toBeVisible();
+	await expect(dialog.getByText("Calculated area")).toBeVisible();
 	await dialog.getByLabel("Parcel Name").fill(parcel.name);
-	await dialog.getByLabel("Width (meters)").fill(parcel.widthMeters);
-	await dialog.getByLabel("Height (meters)").fill(parcel.heightMeters);
-	await dialog.getByLabel("Latitude").fill(parcel.latitude);
-	await dialog.getByLabel("Longitude").fill(parcel.longitude);
-	await dialog.getByLabel("Altitude").fill(parcel.altitude);
+	if (parcel.altitude) {
+		await dialog.getByLabel("Altitude").fill(parcel.altitude);
+	}
 
 	await dialog.getByRole("button", { name: "Add Parcel" }).click();
 	await expect(dialog).toBeHidden();
