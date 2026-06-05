@@ -233,6 +233,14 @@ export async function seedE2eData() {
 	});
 }
 
+/** Removes the e2e user while keeping a stale auth cookie in the browser context. */
+export async function invalidateE2eUserSession() {
+	assertSafeE2eDatabase();
+	await prisma.user.deleteMany({
+		where: { email: e2eUser.email },
+	});
+}
+
 export async function disconnectE2ePrisma() {
 	await prisma.$disconnect();
 }
