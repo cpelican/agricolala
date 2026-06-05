@@ -1,10 +1,16 @@
 "use client";
 
-import { MapPin, X, ChevronRight } from "lucide-react";
+import { ChevronRight, MapPin, Pencil, X } from "lucide-react";
 import { LocaleLink } from "../locale/locale-link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
@@ -43,8 +49,8 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 		setDraftVertices((prev) => [...prev, { lat, lng }]);
 	};
 
-	const handleUndoPoint = () => {
-		setDraftVertices((prev) => prev.slice(0, -1));
+	const handleUndoShape = () => {
+		setDraftVertices([]);
 	};
 
 	const handleCancelDrawing = () => {
@@ -64,19 +70,6 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 
 	return (
 		<div className="p-4 space-y-4">
-			<div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
-				<p className="text-sm text-gray-500">
-					{isDrawing
-						? t("parcels.drawInstructions")
-						: t("parcels.drawParcelHint")}
-				</p>
-				{!isDrawing && !showAddDialog && (
-					<Button type="button" onClick={handleStartDrawing}>
-						{t("parcels.drawParcel")}
-					</Button>
-				)}
-			</div>
-
 			<Card>
 				<CardContent className="p-0 relative">
 					<ParcelMapWrapper
@@ -87,36 +80,64 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 								: undefined
 						}
 					/>
+					{!isDrawing && !showAddDialog && (
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										className="absolute top-3 right-3 z-[1000] h-10 w-10 bg-background text-foreground shadow-md"
+										onClick={handleStartDrawing}
+										aria-label={t("parcels.drawParcelHint")}
+									>
+										<Pencil className="h-4 w-4" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="left">
+									{t("parcels.drawParcelHint")}
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					)}
 					{isDrawing && (
-						<div className="absolute bottom-3 left-3 right-3 z-[1000] flex flex-wrap gap-2 justify-center">
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={handleUndoPoint}
-								disabled={draftVertices.length === 0}
-								aria-label={t("parcels.undoPoint")}
-							>
-								{t("parcels.undoPoint")}
-							</Button>
-							<Button
-								type="button"
-								size="sm"
-								onClick={handleFinishShape}
-								disabled={draftVertices.length < 3}
-								aria-label={t("parcels.finishShape")}
-							>
-								{t("parcels.finishShape")}
-							</Button>
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={handleCancelDrawing}
-								aria-label={t("parcels.cancelDrawing")}
-							>
-								{t("parcels.cancelDrawing")}
-							</Button>
+						<div className="absolute bottom-3 left-3 right-3 z-[1000] flex flex-col gap-2 rounded-lg border bg-background p-2 shadow-md">
+							<p className="text-center text-sm text-muted-foreground">
+								{t("parcels.drawInstructions")}
+							</p>
+							<div className="flex flex-wrap justify-center gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									className="bg-background"
+									onClick={handleUndoShape}
+									disabled={draftVertices.length === 0}
+									aria-label={t("parcels.undoPoint")}
+								>
+									{t("parcels.undoPoint")}
+								</Button>
+								<Button
+									type="button"
+									size="sm"
+									onClick={handleFinishShape}
+									disabled={draftVertices.length < 3}
+									aria-label={t("parcels.finishShape")}
+								>
+									{t("parcels.finishShape")}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									className="bg-background"
+									onClick={handleCancelDrawing}
+									aria-label={t("parcels.cancelDrawing")}
+								>
+									{t("parcels.cancelDrawing")}
+								</Button>
+							</div>
 						</div>
 					)}
 					{parcels.length === 0 && showEmptyState && !isDrawing && (
@@ -135,13 +156,6 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 							<p className="text-sm text-gray-500 mt-1">
 								{t("parcels.zoomInToFindLocation")}
 							</p>
-							<Button
-								type="button"
-								className="mt-4"
-								onClick={handleStartDrawing}
-							>
-								{t("parcels.drawParcel")}
-							</Button>
 						</div>
 					)}
 				</CardContent>

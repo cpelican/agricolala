@@ -57,7 +57,7 @@
 		"locationMap": "Mappa per la posizione del campo",
 		"drawParcel": "Disegna campo",
 		"drawParcelHint": "Disegna il confine del campo sulla mappa",
-		"drawInstructions": "Tocca la mappa per aggiungere angoli, poi chiudi la forma",
+		"drawInstructions": "Tocca la mappa per aggiungere angoli",
 		"undoPoint": "Annulla",
 		"finishShape": "Chiudi",
 		"cancelDrawing": "Annulla disegno",

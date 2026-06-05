@@ -1,7 +1,8 @@
 "use client";
 
 import L from "leaflet";
-import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Prisma } from "@prisma/client";
 import { PARCEL_MAP_HEIGHT_PX } from "@/components/parcels/parcel-map-skeleton";
@@ -116,11 +117,29 @@ function getSafeMapCenter(map: L.Map): L.LatLng | null {
 	}
 }
 
-function setViewLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
+// Leaflet moveend cannot tell user pans from our flyTo/fitBounds — flag programmatic moves.
+type BooleanRef = { current: boolean };
+
+function setViewLatLng(
+	map: L.Map,
+	lat: number,
+	lng: number,
+	zoom: number,
+	programmaticMoveRef?: BooleanRef,
+) {
+	if (programmaticMoveRef) {
+		programmaticMoveRef.current = true;
+	}
 	map.setView([lat, lng], zoom, { animate: false });
 }
 
-function flyToLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
+function flyToLatLng(
+	map: L.Map,
+	lat: number,
+	lng: number,
+	zoom: number,
+	programmaticMoveRef?: BooleanRef,
+) {
 	if (!isValidLatLng(lat, lng) || !Number.isFinite(zoom)) {
 		return;
 	}
@@ -131,11 +150,15 @@ function flyToLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
 		return;
 	}
 
+	if (programmaticMoveRef) {
+		programmaticMoveRef.current = true;
+	}
+
 	const safeCenter = getSafeMapCenter(map);
 	const shouldAnimate = MAP_FLY_DURATION > 0 && safeCenter != null;
 
 	if (!shouldAnimate) {
-		setViewLatLng(map, lat, lng, zoom);
+		map.setView([lat, lng], zoom, { animate: false });
 		return;
 	}
 
@@ -145,12 +168,30 @@ function flyToLatLng(map: L.Map, lat: number, lng: number, zoom: number) {
 			duration: MAP_FLY_DURATION,
 		});
 	} catch {
-		setViewLatLng(map, lat, lng, zoom);
+		map.setView([lat, lng], zoom, { animate: false });
 	}
 }
 
 function isValidParcelCoords(parcel: ParcelMapParcel): boolean {
 	return isValidLatLng(parcel.latitude, parcel.longitude);
+}
+
+function getInitialCenterFromParcels(
+	parcels: ParcelMapParcel[],
+): [number, number] {
+	const valid = parcels.filter(isValidParcelCoords);
+	if (valid.length === 0) {
+		const fallback = defaultUserLocation();
+		return [fallback[0], fallback[1]];
+	}
+	if (valid.length === 1) {
+		return [valid[0].latitude, valid[0].longitude];
+	}
+	const bounds = L.latLngBounds(
+		valid.map((p) => [p.latitude, p.longitude] as L.LatLngTuple),
+	);
+	const center = bounds.getCenter();
+	return [center.lat, center.lng];
 }
 
 export function ParcelMap({
@@ -164,81 +205,83 @@ export function ParcelMap({
 	const parcelLayersRef = useRef<L.LayerGroup | null>(null);
 	const drawingLayersRef = useRef<L.LayerGroup | null>(null);
 	const drawingRef = useRef(drawing);
+	// One-time fly-to on empty map; reset when parcels are added.
 	const hasAutoCenteredForEmptyParcelsRef = useRef(false);
-	const [userLocation, setUserLocation] = useState<[number, number] | null>(
-		null,
+	// Set on user pan/zoom so layer re-renders do not snap back to fallback GPS.
+	const hasUserAdjustedViewRef = useRef(false);
+	const programmaticCameraMoveRef = useRef(false);
+	const hasParcels = parcels.length > 0;
+	const parcelMapCenter = useMemo(
+		() => (hasParcels ? getInitialCenterFromParcels(parcels) : null),
+		[hasParcels, parcels],
 	);
-	const [locationFailure, setLocationFailure] =
-		useState<UserLocationFailureReason | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const [emptyMapGeo, setEmptyMapGeo] = useState<{
+		point: [number, number] | null;
+		failure: UserLocationFailureReason | null;
+		loading: boolean;
+	}>({ point: null, failure: null, loading: true });
+	const [locationFailureDismissed, setLocationFailureDismissed] =
+		useState(false);
 
-	useEffect(() => {
-		drawingRef.current = drawing;
-	}, [drawing]);
+	const mapReadyPoint = hasParcels ? parcelMapCenter : emptyMapGeo.point;
+	const userLocation = hasParcels ? null : emptyMapGeo.point;
+	const locationFailure = hasParcels ? null : emptyMapGeo.failure;
+	const isLoading = hasParcels ? false : emptyMapGeo.loading;
 
+	// Geolocation only when the map is empty; parcel center is derived above.
 	useEffect(() => {
+		if (hasParcels) {
+			return;
+		}
+
 		let cancelled = false;
 
 		void (async () => {
-			setIsLoading(true);
 			const result = await requestUserLocation(false);
 			if (cancelled) {
 				return;
 			}
 
 			if (result.ok && isValidLatLng(result.location[0], result.location[1])) {
-				setUserLocation([result.location[0], result.location[1]]);
-				setLocationFailure(null);
+				const location: [number, number] = [
+					result.location[0],
+					result.location[1],
+				];
+				setEmptyMapGeo({
+					point: location,
+					failure: null,
+					loading: false,
+				});
 			} else {
 				const fallback = defaultUserLocation();
-				setUserLocation([fallback[0], fallback[1]]);
-				setLocationFailure(result.ok ? "unavailable" : result.reason);
+				setEmptyMapGeo({
+					point: [fallback[0], fallback[1]],
+					failure: result.ok ? "unavailable" : result.reason,
+					loading: false,
+				});
 			}
-			setIsLoading(false);
 		})();
 
 		return () => {
 			cancelled = true;
 		};
-	}, []);
+	}, [hasParcels]);
 
-	function handleUseMyLocation() {
-		void (async () => {
-			setIsLoading(true);
-			const result = await requestUserLocation(true);
-			if (result.ok && isValidLatLng(result.location[0], result.location[1])) {
-				setUserLocation([result.location[0], result.location[1]]);
-				setLocationFailure(null);
-				const map = mapInstanceRef.current;
-				if (map) {
-					flyToLatLng(
-						map,
-						result.location[0],
-						result.location[1],
-						drawingRef.current ? getDrawModeZoom() : getDefaultMapZoom(),
-					);
-				}
-			} else {
-				setLocationFailure(result.ok ? "unavailable" : result.reason);
-			}
-			setIsLoading(false);
-		})();
-	}
-
+	// Create the Leaflet map once; destroyed only if mapReadyPoint changes.
 	useEffect(() => {
 		if (
 			typeof window === "undefined" ||
 			!mapRef.current ||
 			mapInstanceRef.current ||
-			userLocation == null
+			mapReadyPoint == null
 		) {
 			return;
 		}
 
 		const tileConfig = getSatelliteTileConfig();
 		const defaultZoom = getDefaultMapZoom();
-		const initialCenter = isValidLatLng(userLocation[0], userLocation[1])
-			? userLocation
+		const initialCenter = isValidLatLng(mapReadyPoint[0], mapReadyPoint[1])
+			? mapReadyPoint
 			: defaultUserLocation();
 
 		const map = L.map(mapRef.current, {
@@ -267,6 +310,14 @@ export function ParcelMap({
 			}
 		});
 
+		// Initial setView/flyTo also fire moveend — programmatic flag avoids false positives.
+		map.on("moveend", () => {
+			if (!programmaticCameraMoveRef.current) {
+				hasUserAdjustedViewRef.current = true;
+			}
+			programmaticCameraMoveRef.current = false;
+		});
+
 		mapInstanceRef.current = map;
 
 		let initCancelled = false;
@@ -280,7 +331,13 @@ export function ParcelMap({
 			}
 			map.invalidateSize();
 			if (!getSafeMapCenter(map)) {
-				setViewLatLng(map, initialCenter[0], initialCenter[1], defaultZoom);
+				setViewLatLng(
+					map,
+					initialCenter[0],
+					initialCenter[1],
+					defaultZoom,
+					programmaticCameraMoveRef,
+				);
 			}
 		};
 		requestAnimationFrame(ensureInitialView);
@@ -292,18 +349,25 @@ export function ParcelMap({
 			parcelLayersRef.current = null;
 			drawingLayersRef.current = null;
 		};
-	}, [userLocation]);
+	}, [mapReadyPoint]);
 
+	// Allow auto-center again after the first parcel is added (empty → non-empty).
 	useEffect(() => {
 		if (parcels.length > 0) {
 			hasAutoCenteredForEmptyParcelsRef.current = false;
 		}
 	}, [parcels.length]);
 
+	// Keep ref in sync for map click handler and applyCamera without drawing in their deps.
+	useEffect(() => {
+		drawingRef.current = drawing;
+	}, [drawing]);
+
+	// Sync parcel layers and run initial camera (highlight, fitBounds, or GPS center).
 	useEffect(() => {
 		const map = mapInstanceRef.current;
 		const parcelLayers = parcelLayersRef.current;
-		if (!map || !parcelLayers || userLocation == null) {
+		if (!map || !parcelLayers || mapReadyPoint == null) {
 			return;
 		}
 
@@ -357,10 +421,8 @@ export function ParcelMap({
 			}
 		}
 
-		const hasValidUserLocation = isValidLatLng(
-			userLocation[0],
-			userLocation[1],
-		);
+		const hasValidUserLocation =
+			userLocation != null && isValidLatLng(userLocation[0], userLocation[1]);
 
 		if (parcels.length === 0 && hasValidUserLocation) {
 			L.marker(userLocation, { icon: userLocationIcon })
@@ -387,19 +449,40 @@ export function ParcelMap({
 					highlightedParcel.latitude,
 					highlightedParcel.longitude,
 					getHighlightZoom(),
+					programmaticCameraMoveRef,
 				);
-			} else if (
+				return;
+			}
+
+			// Preserve view after manual navigation or when entering draw mode.
+			if (hasUserAdjustedViewRef.current || drawingRef.current) {
+				return;
+			}
+
+			// Empty map: center once on GPS or fallback (e.g. 45°N 7°E when geo fails).
+			if (
 				parcels.length === 0 &&
-				!drawing &&
 				hasValidUserLocation &&
 				!hasAutoCenteredForEmptyParcelsRef.current
 			) {
-				flyToLatLng(map, userLocation[0], userLocation[1], getDefaultMapZoom());
+				flyToLatLng(
+					map,
+					userLocation[0],
+					userLocation[1],
+					getDefaultMapZoom(),
+					programmaticCameraMoveRef,
+				);
 				hasAutoCenteredForEmptyParcelsRef.current = true;
-			} else if (boundsPoints.length > 0 && !highlightParcelId && !drawing) {
+			} else if (
+				parcels.length > 0 &&
+				boundsPoints.length > 0 &&
+				!highlightParcelId
+			) {
+				// fitBounds needs real parcel bounds; a lone fallback marker would hijack the view.
 				const bounds = L.latLngBounds(boundsPoints);
 				if (bounds.isValid()) {
 					try {
+						programmaticCameraMoveRef.current = true;
 						map.fitBounds(bounds, {
 							padding: FIT_BOUNDS_PADDING,
 							maxZoom: getDefaultMapZoom(),
@@ -409,7 +492,13 @@ export function ParcelMap({
 					} catch {
 						const center = bounds.getCenter();
 						if (isValidLatLng(center.lat, center.lng)) {
-							setViewLatLng(map, center.lat, center.lng, getDefaultMapZoom());
+							setViewLatLng(
+								map,
+								center.lat,
+								center.lng,
+								getDefaultMapZoom(),
+								programmaticCameraMoveRef,
+							);
 						}
 					}
 				}
@@ -421,8 +510,22 @@ export function ParcelMap({
 		return () => {
 			cancelled = true;
 		};
-	}, [parcels, highlightParcelId, userLocation, drawing]);
+		// drawing omitted: toggling draw must not re-run applyCamera (was snapping to fallback).
+	}, [parcels, highlightParcelId, mapReadyPoint, userLocation]);
 
+	// Leaflet uses grab/grabbing for pan; pointer signals tap-to-place vertices.
+	useEffect(() => {
+		const container = mapInstanceRef.current?.getContainer();
+		if (!container) {
+			return;
+		}
+		container.style.cursor = drawing ? "pointer" : "";
+		return () => {
+			container.style.cursor = "";
+		};
+	}, [drawing, mapReadyPoint]);
+
+	// Draw draft boundary vertices, polyline, and closed polygon while adding a parcel.
 	useEffect(() => {
 		const drawingLayers = drawingLayersRef.current;
 		if (!drawingLayers) {
@@ -454,6 +557,43 @@ export function ParcelMap({
 		}
 	}, [drawing]);
 
+	function handleUseMyLocation() {
+		void (async () => {
+			setEmptyMapGeo((prev) => ({ ...prev, loading: true }));
+			const result = await requestUserLocation(true);
+			if (result.ok && isValidLatLng(result.location[0], result.location[1])) {
+				const location: [number, number] = [
+					result.location[0],
+					result.location[1],
+				];
+				setEmptyMapGeo({
+					point: location,
+					failure: null,
+					loading: false,
+				});
+				const map = mapInstanceRef.current;
+				if (map) {
+					flyToLatLng(
+						map,
+						result.location[0],
+						result.location[1],
+						drawingRef.current ? getDrawModeZoom() : getDefaultMapZoom(),
+						programmaticCameraMoveRef,
+					);
+					// Explicit user action — do not let a later applyCamera override this flyTo.
+					hasUserAdjustedViewRef.current = true;
+				}
+			} else {
+				setEmptyMapGeo((prev) => ({
+					...prev,
+					failure: result.ok ? "unavailable" : result.reason,
+					loading: false,
+				}));
+				setLocationFailureDismissed(false); // show banner again after a failed retry
+			}
+		})();
+	}
+
 	return (
 		<div
 			className="relative w-full"
@@ -471,24 +611,37 @@ export function ParcelMap({
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
 				</div>
 			)}
-			{locationFailure && !isLoading && (
-				<div className="absolute top-2 left-2 right-2 z-[1000] flex flex-col gap-2 rounded-lg border bg-background/95 p-3 shadow-md">
-					<p className="text-sm text-muted-foreground">
-						{geolocationFailureMessage(locationFailure, t)}
-					</p>
-					{canRequestGeolocation() && (
+			{parcels.length === 0 &&
+				locationFailure &&
+				!isLoading &&
+				!locationFailureDismissed && (
+					<div className="absolute top-2 left-2 right-2 z-[1000] rounded-lg border bg-background/95 p-3 pr-10 shadow-md">
 						<Button
 							type="button"
-							variant="outline"
+							variant="ghost"
 							size="sm"
-							className="self-start"
-							onClick={handleUseMyLocation}
+							className="absolute top-2 right-2 h-6 w-6 p-0"
+							onClick={() => setLocationFailureDismissed(true)}
+							aria-label={t("common.close")}
 						>
-							{t("parcels.useMyLocation")}
+							<X className="h-4 w-4" />
 						</Button>
-					)}
-				</div>
-			)}
+						<p className="text-sm text-muted-foreground">
+							{geolocationFailureMessage(locationFailure, t)}
+						</p>
+						{canRequestGeolocation() && (
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								className="mt-2"
+								onClick={handleUseMyLocation}
+							>
+								{t("parcels.useMyLocation")}
+							</Button>
+						)}
+					</div>
+				)}
 		</div>
 	);
 }

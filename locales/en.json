@@ -57,7 +57,7 @@
 		"locationMap": "Parcel location map",
 		"drawParcel": "Draw parcel",
 		"drawParcelHint": "Draw the parcel boundary on the map",
-		"drawInstructions": "Tap the map to add corners, then finish the shape",
+		"drawInstructions": "Tap the map to add corners",
 		"undoPoint": "Undo",
 		"finishShape": "Finish",
 		"cancelDrawing": "Cancel",
