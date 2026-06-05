@@ -15,7 +15,7 @@ export type UserLocationResult =
 
 const GEO_OPTIONS: PositionOptions = {
 	enableHighAccuracy: false,
-	timeout: 20_000,
+	timeout: 10_000,
 	maximumAge: 300_000,
 };
 
