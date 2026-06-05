@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import { parcelLocationMapLabel } from "./map";
+import { drawParcelButtonLabel, parcelLocationMapLabel } from "./map";
 
 export interface AddParcelOptions {
 	name?: string;
@@ -7,11 +7,11 @@ export interface AddParcelOptions {
 	mapClickPositions?: { x: number; y: number }[];
 }
 
-/** Wide triangle for satellite draw zoom ~19 (~50–250 m² at typical latitudes). */
+/** Wide triangle for satellite draw zoom ~19 (~50–250 m²). Stays clear of top zoom and bottom draw toolbar. */
 const defaultTriangle: { x: number; y: number }[] = [
-	{ x: 50, y: 50 },
-	{ x: 350, y: 50 },
-	{ x: 200, y: 340 },
+	{ x: 60, y: 100 },
+	{ x: 280, y: 100 },
+	{ x: 170, y: 220 },
 ];
 
 const defaults: Required<AddParcelOptions> = {
@@ -29,11 +29,13 @@ export async function addParcelFromMapDialog(
 
 	await expect(map).toBeVisible();
 
-	await page.getByRole("button", { name: "Draw parcel" }).first().click();
+	await page.getByRole("button", { name: drawParcelButtonLabel }).click();
 	await expect(page.getByRole("button", { name: "Finish" })).toBeVisible();
+	await expect(page.getByText("Tap the map to add corners")).toBeVisible();
 
+	const mapPane = map.locator(".leaflet-pane.leaflet-map-pane");
 	for (const position of parcel.mapClickPositions) {
-		await map.click({ position, force: true });
+		await mapPane.click({ position, force: true });
 	}
 
 	const finishButton = page.getByRole("button", { name: "Finish" });
