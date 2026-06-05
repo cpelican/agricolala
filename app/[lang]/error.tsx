@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { RouteErrorContent } from "@/components/misc/route-error-content";
 import { useTranslations } from "@/contexts/translations-context";
 
@@ -9,12 +8,8 @@ interface ErrorPageProps {
 	reset: () => void;
 }
 
-export default function ErrorPage({ error, reset }: ErrorPageProps) {
+export default function ErrorPage({ reset }: ErrorPageProps) {
 	const { t } = useTranslations();
-
-	useEffect(() => {
-		console.error("Route error:", error);
-	}, [error]);
 
 	return (
 		<RouteErrorContent
