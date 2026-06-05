@@ -46,16 +46,16 @@ Then run
 
 ## Run Playwright e2e tests
 
-The Playwright tests run the app against a dedicated e2e PostgreSQL database in a **mobile viewport only** (Pixel 5). See [e2e/TESTING.md](e2e/TESTING.md) for conventions, waits, and walkthrough videos (`npm run test:e2e:record`).
+Mobile viewport only (Pixel 5), app on **127.0.0.1:3002**, e2e Postgres on **5434**. Conventions and UX workflow: [e2e/TESTING.md](e2e/TESTING.md).
 
 ```bash
-npm run test:e2e:install
-npm run test:e2e:db:start
-npm run test:e2e
-npm run test:e2e:db:stop
+npm run test:e2e:install   # once
+npm run test:e2e           # global-setup starts Docker e2e DB + migrates if needed
 ```
 
-`npm run test:e2e:db:start` starts `docker-compose.e2e.yml`, waits for PostgreSQL, applies Prisma migrations, and generates the Prisma client. The Playwright config provides local non-production defaults for `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `TEST_USER_EMAIL`, and `TEST_USER_PASSWORD`. The e2e reset guard has no override and only allows localhost/127.0.0.1 on port 5434, local database names containing `e2e`, or the `postgres-e2e` Docker host.
+Optional: `npm run test:e2e:db:start` / `test:e2e:db:stop` to manage the Docker DB yourself. One spec: `npx playwright test e2e/<spec>.spec.ts --project=mobile-chromium`. Demo video: `npm run test:e2e:record`.
+
+Playwright ignores dev `.env` `DATABASE_URL` and uses the e2e database (`127.0.0.1:5434`). Auth defaults: `playwright@agricolala.test` / `playwright-local-password`.
 
 
 
