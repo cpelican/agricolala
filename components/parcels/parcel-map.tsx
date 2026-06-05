@@ -2,7 +2,7 @@
 
 import L from "leaflet";
 import { X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Prisma } from "@prisma/client";
 import { PARCEL_MAP_HEIGHT_PX } from "@/components/parcels/parcel-map-skeleton";
@@ -358,8 +358,8 @@ export function ParcelMap({
 		}
 	}, [parcels.length]);
 
-	// Keep ref in sync for map click handler and applyCamera without drawing in their deps.
-	useEffect(() => {
+	// Before paint so the first map tap after Draw is not lost to a stale ref.
+	useLayoutEffect(() => {
 		drawingRef.current = drawing;
 	}, [drawing]);
 
