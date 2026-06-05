@@ -15,11 +15,10 @@ export async function expectSignInPage(page: Page) {
 }
 
 export async function expectNotFoundPage(page: Page) {
+	const main = page.getByRole("main");
+	await expect(main.getByText("Page not found", { exact: true })).toBeVisible();
 	await expect(
-		page.getByRole("heading", { name: "Page not found" }),
+		main.getByText("The page you're looking for doesn't exist or was removed."),
 	).toBeVisible();
-	await expect(
-		page.getByText("The page you're looking for doesn't exist or was removed."),
-	).toBeVisible();
-	await expect(page.getByRole("link", { name: "Back to home" })).toBeVisible();
+	await expect(main.getByRole("link", { name: "Back to home" })).toBeVisible();
 }
