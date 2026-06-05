@@ -159,6 +159,19 @@
 		"signInWithGoogle": "Sign in with Google",
 		"unauthorizedMessage": "This app is still a work in progress, so we prefer to know a bit who will use it. Please contact the admin to unlock your account."
 	},
+	"errors": {
+		"page": {
+			"title": "Something went wrong",
+			"description": "An unexpected error occurred. You can try again or go back home.",
+			"tryAgain": "Try again",
+			"backHome": "Back to home"
+		},
+		"notFound": {
+			"title": "Page not found",
+			"description": "The page you're looking for doesn't exist or was removed.",
+			"backHome": "Back to home"
+		}
+	},
 	"diseases": {
 		"peronospora": "Downy Mildew",
 		"oidium": "Powdery Mildew"
