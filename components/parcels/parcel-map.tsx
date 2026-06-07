@@ -4,6 +4,7 @@ import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { type Parcel } from "@prisma/client";
+import { PARCEL_MAP_HEIGHT_PX } from "@/components/parcels/parcel-map-skeleton";
 import { useTranslations } from "@/contexts/translations-context";
 
 // Fix Leaflet default icon
@@ -160,17 +161,20 @@ export function ParcelMap({
 	}, [parcels, onMapClick, userLocation, highlightParcelId]);
 
 	return (
-		<div className="w-full">
+		<div
+			className="relative w-full"
+			style={{ height: PARCEL_MAP_HEIGHT_PX, minHeight: PARCEL_MAP_HEIGHT_PX }}
+		>
 			<div
 				ref={mapRef}
 				role="application"
 				aria-label={t("parcels.locationMap")}
 				tabIndex={0}
-				className="w-full h-[400px] rounded-lg relative z-0"
+				className="relative z-0 h-full w-full rounded-lg"
 			/>
 			{isLoading && (
-				<div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+				<div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/80">
+					<div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600" />
 				</div>
 			)}
 		</div>

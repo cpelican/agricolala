@@ -57,7 +57,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 
 	const options: ChartOptions<"line"> = {
 		responsive: true,
-		aspectRatio: 1.2,
+		maintainAspectRatio: false,
 		plugins: {
 			legend: {
 				position: "top" as const,

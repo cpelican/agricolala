@@ -81,12 +81,7 @@ export default async function ParcelPage({
 					>
 						<Applicability parcelId={parcel.id} locale={lang} />
 					</ParcelDetail>
-					<div className="h-64">
-						<ParcelMapWrapper
-							parcels={[parcel]}
-							highlightParcelId={parcel.id}
-						/>
-					</div>
+					<ParcelMapWrapper parcels={[parcel]} highlightParcelId={parcel.id} />
 				</div>
 			</Suspense>
 		</>

@@ -25,6 +25,9 @@ ChartJS.register(
 	Legend,
 );
 
+/** Fixed chart area height — keep in sync with skeletons to avoid CLS. */
+export const CHART_HEIGHT_PX = 400;
+
 interface ChartWrapperProps {
 	data: ChartData<"line">;
 	options: ChartOptions<"line">;
@@ -46,11 +49,12 @@ function getChartSummary(data: ChartData<"line">) {
 
 export function ChartSkeleton() {
 	return (
-		<div className="flex items-center justify-center h-[400px] w-full">
-			<div className="w-full space-y-4">
-				<Skeleton className="h-6 w-48 mx-auto" />
-				<Skeleton className="h-[300px] w-full" />
-			</div>
+		<div
+			className="w-full space-y-4"
+			style={{ height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
+		>
+			<Skeleton className="h-6 w-48 mx-auto" />
+			<Skeleton className="h-[332px] w-full" />
 		</div>
 	);
 }
@@ -69,19 +73,35 @@ export function ChartWrapper({
 	);
 
 	if (!hasData && emptyMessage) {
-		return <div className="text-center py-8 text-gray-500">{emptyMessage}</div>;
+		return (
+			<div
+				className="flex items-center justify-center text-center text-gray-500"
+				style={{ height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
+			>
+				{emptyMessage}
+			</div>
+		);
 	}
 
 	return (
 		<figure
 			aria-labelledby={captionId}
-			className="max-h-[400px] flex justify-center items-center"
+			className="w-full"
+			style={{ height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
 			data-chart-summary={JSON.stringify(getChartSummary(data))}
 		>
 			<figcaption id={captionId} className="sr-only">
 				{ariaLabel}
 			</figcaption>
-			<Line data={data} options={options} />
+			<div className="h-full w-full">
+				<Line
+					data={data}
+					options={{
+						...options,
+						maintainAspectRatio: false,
+					}}
+				/>
+			</div>
 		</figure>
 	);
 }

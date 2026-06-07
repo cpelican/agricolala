@@ -1,9 +1,9 @@
 "use client";
 
 import type { ParcelMapProps } from "@/components/parcels/parcel-map";
+import { ParcelMapSkeleton } from "@/components/parcels/parcel-map-skeleton";
 import dynamic from "next/dynamic";
 
-// Dynamic import for the map component to improve performance
 const ParcelMap = dynamic(
 	() =>
 		import("@/components/parcels/parcel-map").then((mod) => ({
@@ -11,9 +11,7 @@ const ParcelMap = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="animate-pulse h-64 bg-gray-200 rounded"></div>
-		),
+		loading: () => <ParcelMapSkeleton />,
 	},
 );
 

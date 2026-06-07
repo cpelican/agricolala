@@ -1,9 +1,8 @@
 import { StrictMode, Suspense } from "react";
-import { HomeContentAsync } from "@/components/async/home-content-async";
+import { HomePageContent } from "@/components/async/home-page-content";
 import { requireAuth } from "@/lib/auth-utils";
 import { tServer } from "@/lib/translations-server-only";
 import { HomeSkeleton } from "@/components/skeletons/home-skeleton";
-import { Header } from "@/components/misc/header";
 import { getLanguageAsLocale } from "@/lib/translations-helpers";
 
 export default async function Home({
@@ -16,14 +15,20 @@ export default async function Home({
 	const dict = tServer(locale);
 	const session = await requireAuth();
 	const userId = session.user.id;
+	const welcomeTitle = `${dict?.home?.welcome} ${session?.user?.name ?? session?.user?.email}!`;
 
 	return (
 		<StrictMode>
-			<Header
-				title={`${dict?.home?.welcome} ${session?.user?.name ?? session?.user?.email}!`}
-			/>
-			<Suspense fallback={<HomeSkeleton ariaLabel={dict.home.loading} />}>
-				<HomeContentAsync locale={locale} userId={userId} />
+			<Suspense
+				fallback={
+					<HomeSkeleton ariaLabel={dict.home.loading} variant="empty" />
+				}
+			>
+				<HomePageContent
+					locale={locale}
+					userId={userId}
+					welcomeTitle={welcomeTitle}
+				/>
 			</Suspense>
 		</StrictMode>
 	);
