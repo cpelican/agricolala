@@ -84,6 +84,10 @@ export async function createTreatment(formData: FormData) {
 			0,
 		);
 
+		const diseaseIds = validatedData.diseases.map(
+			(disease) => disease.diseaseId,
+		);
+
 		const calculateDosePerParcel = (totalDose: number, parcelArea: number) => {
 			const result = (totalDose * parcelArea) / totalArea;
 
@@ -92,50 +96,41 @@ export async function createTreatment(formData: FormData) {
 			return result;
 		};
 
-		const createdTreatments = await Promise.all(
-			parcels.map(async (parcel) => {
-				const treatment = await prisma.treatment.create({
+		const createdTreatments = await prisma.$transaction(async (tx) => {
+			const results: { id: string }[] = [];
+
+			for (const parcel of parcels) {
+				const parcelArea = parcel.width * parcel.height;
+				const treatment = await tx.treatment.create({
 					data: {
 						waterDose: validatedData.waterDose,
 						parcelId: parcel.id,
 						appliedDate: validatedData.appliedDate,
 						status: TreatmentStatus.DONE,
 						userId: session.user.id,
-						diseaseIds: [
-							...new Set(
-								validatedData.diseases.map((disease) => disease.diseaseId),
-							),
-						],
+						diseaseIds,
 					},
+					select: { id: true },
 				});
 
-				const productApplications = await Promise.all(
-					validatedData.productApplications.map(async (product) => {
-						const parcelArea = parcel.width * parcel.height;
-						const calculatedDose = calculateDosePerParcel(
-							product.dose,
-							parcelArea,
-						);
+				await tx.productApplication.createMany({
+					data: validatedData.productApplications.map((product) => ({
+						dose: calculateDosePerParcel(product.dose, parcelArea),
+						productId: product.productId,
+						treatmentId: treatment.id,
+					})),
+				});
 
-						return prisma.productApplication.create({
-							data: {
-								dose: calculatedDose,
-								productId: product.productId,
-								treatmentId: treatment.id,
-							},
-						});
-					}),
-				);
+				results.push(treatment);
+			}
 
-				return {
-					treatment,
-					productApplications,
-				};
-			}),
-		);
+			return results;
+		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear);
+		await updateSubstanceAggregations(session.user.id, currentYear, {
+			affectedParcelIds: parcels.map((parcel) => parcel.id),
+		});
 
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
@@ -143,7 +138,7 @@ export async function createTreatment(formData: FormData) {
 
 		return {
 			success: true,
-			treatments: createdTreatments.map((t) => t.treatment.id),
+			treatments: createdTreatments.map((t) => t.id),
 			message: `Created ${createdTreatments.length} treatments across ${parcels.length} parcels`,
 		};
 	} catch (error) {
@@ -179,7 +174,9 @@ export async function deleteTreatment(treatmentId: string) {
 		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear);
+		await updateSubstanceAggregations(session.user.id, currentYear, {
+			affectedParcelIds: [treatment.parcelId],
+		});
 
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
