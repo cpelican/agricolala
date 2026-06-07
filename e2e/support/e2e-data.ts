@@ -155,14 +155,23 @@ export async function seedE2eData() {
 		await tx.parcel.deleteMany();
 		await tx.session.deleteMany();
 		await tx.account.deleteMany();
-		await tx.user.deleteMany();
+		await tx.user.deleteMany({ where: { email: { not: e2eUser.email } } });
 		await tx.substanceDose.deleteMany();
 		await tx.product.deleteMany();
 		await tx.disease.deleteMany();
 		await tx.substance.deleteMany();
 
-		const user = await tx.user.create({
-			data: {
+		// Upsert keeps user id stable so auth cookies from setup stay valid across resets.
+		const user = await tx.user.upsert({
+			where: { email: e2eUser.email },
+			update: {
+				emailVerified: new Date(),
+				isAuthorized: true,
+				locale: "en",
+				name: "Playwright User",
+				tosAcceptedAt: new Date(),
+			},
+			create: {
 				email: e2eUser.email,
 				emailVerified: new Date(),
 				isAuthorized: true,

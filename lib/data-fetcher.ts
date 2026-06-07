@@ -1,8 +1,6 @@
 import { TreatmentStatus, type UserSubstanceAggregation } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { Errors } from "@/lib/constants";
-
 const productApplicationsSelect = {
 	dose: true,
 	product: {
@@ -115,10 +113,6 @@ export const getParcelDetail = cache(
 			where: { id: parcelId, userId },
 			select: parcelDetailSelect,
 		});
-
-		if (!parcel) {
-			throw new Error(Errors.RESOURCE_NOT_FOUND);
-		}
 
 		return parcel;
 	},
@@ -344,4 +338,6 @@ export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];
 export type ParcelWithTreatments = Awaited<
 	ReturnType<typeof getParcels>
 >[number];
-export type ParcelDetailType = Awaited<ReturnType<typeof getParcelDetail>>;
+export type ParcelDetailType = NonNullable<
+	Awaited<ReturnType<typeof getParcelDetail>>
+>;

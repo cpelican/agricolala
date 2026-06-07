@@ -159,6 +159,19 @@
 		"title": "Agricolala",
 		"description": "Gestisci i trattamenti e i campi della tua vigna"
 	},
+	"errors": {
+		"page": {
+			"title": "Qualcosa è andato storto",
+			"description": "Si è verificato un errore imprevisto. Puoi riprovare o tornare alla home.",
+			"tryAgain": "Riprova",
+			"backHome": "Torna alla home"
+		},
+		"notFound": {
+			"title": "Pagina non trovata",
+			"description": "La pagina che stai cercando non esiste o è stata rimossa.",
+			"backHome": "Torna alla home"
+		}
+	},
 	"diseases": {
 		"peronospora": "Peronospora",
 		"oidium": "Oidio"
