@@ -19,8 +19,10 @@ Agricolala helps you manage your wineyard treatments and track substance usage t
 asdf install
 
 npm i
+# optional:
+docker compose down --remove-orphans
 
-docker compose up
+docker compose up --force-recreate --remove-orphans
 
 npx prisma migrate dev
 

@@ -6,7 +6,6 @@ import {
 	getCachedParcelSubstanceAggregations,
 	getCachedSubstances,
 	getParcelDetail,
-	type ParcelDetailType,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
@@ -25,11 +24,8 @@ export default async function ParcelPage({
 }: PageProps<{ lang: Locale; parcelId: string }>) {
 	const { parcelId, lang } = await params;
 	const session = await requireAuth();
-	let parcel: ParcelDetailType;
-	try {
-		parcel = await getParcelDetail(parcelId, session.user.id);
-	} catch (error) {
-		console.error("Error fetching parcel detail", error);
+	const parcel = await getParcelDetail(parcelId, session.user.id);
+	if (!parcel) {
 		notFound();
 	}
 
