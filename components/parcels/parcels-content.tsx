@@ -36,24 +36,26 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 			</div>
 
 			<Card>
-				<CardContent className="p-0">
+				<CardContent className="relative p-0">
 					<ParcelMapWrapper parcels={parcels} onMapClick={handleMapClick} />
 					{parcels.length === 0 && showEmptyState && (
-						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-8 rounded-lg shadow-lg text-center">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="absolute top-3 right-3 h-6 w-6 p-0"
-								onClick={() => setShowEmptyState(false)}
-							>
-								<X className="h-4 w-4" />
-							</Button>
-							<p className="text-gray-700 font-medium">
-								{t("parcels.clickMapToAddFirst")}
-							</p>
-							<p className="text-sm text-gray-500 mt-1">
-								{t("parcels.zoomInToFindLocation")}
-							</p>
+						<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
+							<div className="pointer-events-auto relative max-w-sm rounded-lg bg-white/90 p-8 text-center shadow-lg">
+								<Button
+									variant="ghost"
+									size="sm"
+									className="absolute top-3 right-3 h-6 w-6 p-0"
+									onClick={() => setShowEmptyState(false)}
+								>
+									<X className="h-4 w-4" />
+								</Button>
+								<p className="text-gray-700 font-medium">
+									{t("parcels.clickMapToAddFirst")}
+								</p>
+								<p className="mt-1 text-sm text-gray-500">
+									{t("parcels.zoomInToFindLocation")}
+								</p>
+							</div>
 						</div>
 					)}
 				</CardContent>

@@ -3,23 +3,19 @@ import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
 	getCachedSubstances,
-	getParcels,
 } from "@/lib/data-fetcher";
-import { HomeContentUI } from "@/components/misc/home-content-ui";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
-interface HomeContentProps {
+interface HomeDashboardContentProps {
 	locale: Locale;
 	userId: string;
 }
 
-export async function HomeContentAsync({ locale, userId }: HomeContentProps) {
-	const parcels = await getParcels(userId);
-	if (parcels.length === 0) {
-		return <HomeContentUI />;
-	}
-
+export async function HomeDashboardContent({
+	locale,
+	userId,
+}: HomeDashboardContentProps) {
 	const currentYear = new Date().getFullYear();
 
 	const [currentYearData, allYearsData] = await Promise.all([
@@ -43,7 +39,7 @@ export async function HomeContentAsync({ locale, userId }: HomeContentProps) {
 	const hasMultipleYears = years.length > 1;
 
 	return (
-		<div className="p-4 space-y-4">
+		<div className="space-y-4 p-4">
 			<SubstanceUsageSection
 				substanceData={enrichedSubstanceData}
 				description={dict.substances.trackApplicationsHome}

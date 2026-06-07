@@ -1,29 +1,80 @@
+import { ChartSkeleton } from "@/components/substances/chart-wrapper";
+import { WelcomeHeaderSkeleton } from "@/components/skeletons/welcome-header-skeleton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface HomeSkeletonProps {
 	ariaLabel: string;
+	variant?: "empty" | "dashboard";
 }
 
-export function HomeSkeleton({ ariaLabel }: HomeSkeletonProps) {
+export function HomeEmptyBodySkeleton() {
 	return (
-		<div
-			className="p-4 space-y-4"
-			role="status"
-			aria-busy="true"
-			aria-label={ariaLabel}
-		>
-			<div className="space-y-4">
-				<Skeleton className="h-100 w-full" />
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{Array.from({ length: 3 }).map((_, i) => (
-						<div key={i} className="space-y-2">
-							<Skeleton className="h-4 w-24" />
-							<Skeleton className="h-8 w-full" />
-							<Skeleton className="h-3 w-16" />
+		<div className="p-4">
+			<Card>
+				<CardHeader className="space-y-2 text-center">
+					<Skeleton className="mx-auto h-6 w-32" />
+					<Skeleton className="mx-auto h-4 w-64 max-w-full" />
+				</CardHeader>
+				<CardContent className="text-center">
+					<Skeleton className="mx-auto h-10 w-40 rounded-md" />
+				</CardContent>
+			</Card>
+		</div>
+	);
+}
+
+export function HomeDashboardBodySkeleton() {
+	return (
+		<div className="space-y-4 p-4">
+			<Card className="bg-card">
+				<CardHeader className="space-y-2">
+					<Skeleton className="h-6 w-48" />
+					<Skeleton className="h-4 w-full max-w-md" />
+				</CardHeader>
+				<CardContent>
+					<ChartSkeleton />
+				</CardContent>
+			</Card>
+
+			<div className="grid gap-4">
+				<Skeleton className="h-7 w-44" />
+				<Card>
+					<CardContent className="p-4">
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex flex-1 items-center gap-2">
+								<Skeleton className="size-4 shrink-0 rounded-full" />
+								<div className="flex-1 space-y-2">
+									<Skeleton className="h-5 w-28" />
+									<Skeleton className="h-4 w-full" />
+									<Skeleton className="h-4 w-5/6" />
+									<Skeleton className="h-4 w-2/3" />
+								</div>
+							</div>
+							<div className="space-y-2 text-right">
+								<Skeleton className="ml-auto h-3 w-20" />
+								<Skeleton className="h-2 w-16" />
+							</div>
 						</div>
-					))}
-				</div>
+					</CardContent>
+				</Card>
 			</div>
+		</div>
+	);
+}
+
+export function HomeSkeleton({
+	ariaLabel,
+	variant = "empty",
+}: HomeSkeletonProps) {
+	return (
+		<div role="status" aria-busy="true" aria-label={ariaLabel}>
+			<WelcomeHeaderSkeleton />
+			{variant === "dashboard" ? (
+				<HomeDashboardBodySkeleton />
+			) : (
+				<HomeEmptyBodySkeleton />
+			)}
 		</div>
 	);
 }

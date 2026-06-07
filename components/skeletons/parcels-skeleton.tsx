@@ -1,11 +1,12 @@
+import { ParcelMapSkeleton } from "@/components/parcels/parcel-map-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ParcelsSkeleton() {
 	return (
 		<div className="p-4 space-y-4">
 			<div className="space-y-2">
-				<Skeleton className="h-4 w-32 ml-auto" />
-				<Skeleton className="h-100 w-full rounded-lg" />
+				<Skeleton className="ml-auto h-4 w-32" />
+				<ParcelMapSkeleton />
 			</div>
 
 			<div className="grid gap-4">
