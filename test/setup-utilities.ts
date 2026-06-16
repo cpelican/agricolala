@@ -191,6 +191,7 @@ export async function seedTestData() {
 		copperProduct,
 		sulfurProduct,
 		oidium,
+		copper,
 		peronospora,
 		COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
 		OIDIUM_SENSITIVITY_MONTH_MIN,
