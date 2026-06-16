@@ -97,6 +97,18 @@ export async function updateSubstanceAggregations(
 
 	await updateUserAggregations(userSubstanceData, userId, year);
 
+	const userParcels = await prisma.parcel.findMany({
+		where: { userId },
+		select: { id: true },
+	});
+
+	await prisma.parcelSubstanceAggregation.deleteMany({
+		where: {
+			parcelId: { in: userParcels.map((parcel) => parcel.id) },
+			year,
+		},
+	});
+
 	for (const [parcelId, parcelTreatments] of Object.entries(
 		treatmentsByParcel,
 	)) {
@@ -125,10 +137,6 @@ export async function updateSubstanceAggregations(
 			parcelTransformedTreatments,
 			compositions,
 		);
-
-		await prisma.parcelSubstanceAggregation.deleteMany({
-			where: { parcelId, year },
-		});
 
 		await updateParcelAggregations(parcelSubstanceData, parcelId, year);
 	}

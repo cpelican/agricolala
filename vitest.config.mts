@@ -21,12 +21,6 @@ export default defineConfig(() => {
       sequence: {
         concurrent: false,
       },
-      poolOptions: {
-        threads: {
-          maxThreads: 1,
-          minThreads: 1,
-        },
-      },
       setupFiles: ['./test/setup.ts'],
       globalSetup: './test/server-setup.ts',
       testTimeout: 10_000,

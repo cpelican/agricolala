@@ -147,9 +147,11 @@ export class OpenMeteoClient {
 				continue;
 			}
 
-			const dateKey = dateTime.toISOString().split("T")[0];
-			const dateOnly = new Date(dateKey);
-			dateOnly.setHours(0, 0, 0, 0);
+			// Use the calendar date from the API string (local to the coordinates),
+			// not toISOString() which shifts buckets near timezone boundaries.
+			const dateKey = timestamp.slice(0, 10);
+			const [year, month, day] = dateKey.split("-").map(Number);
+			const dateOnly = new Date(Date.UTC(year, month - 1, day));
 
 			if (!dailyMap.has(dateKey)) {
 				dailyMap.set(dateKey, {

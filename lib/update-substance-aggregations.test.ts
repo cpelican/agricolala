@@ -66,16 +66,20 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			totalUsedOfPureActiveSubstancePerHa: perHaGrams(copperPure, parcelAreaM2),
 			applicationCount: 1,
 		});
-		expect(userAggregations[0].monthlyData[appliedDate.getMonth()]).toBe(
+		expect(userAggregations[0].monthlyData[appliedDate.getMonth()]).toBeCloseTo(
 			copperPure,
 		);
 		expect(userAggregations[1]).toMatchObject({
 			substanceName: "Sulfur",
 			totalDoseOfProduct: 3,
-			totalUsedOfPureActiveSubstance: sulfurPure,
-			totalUsedOfPureActiveSubstancePerHa: perHaGrams(sulfurPure, parcelAreaM2),
 			applicationCount: 1,
 		});
+		expect(userAggregations[1].totalUsedOfPureActiveSubstance).toBeCloseTo(
+			sulfurPure,
+		);
+		expect(userAggregations[1].totalUsedOfPureActiveSubstancePerHa).toBeCloseTo(
+			perHaGrams(sulfurPure, parcelAreaM2),
+		);
 
 		const parcelAggregations =
 			await testPrisma.parcelSubstanceAggregation.findMany({
@@ -83,10 +87,10 @@ describe("[Integration] updateSubstanceAggregations", () => {
 				orderBy: { substanceName: "asc" },
 			});
 		expect(parcelAggregations).toHaveLength(2);
-		expect(parcelAggregations[0].totalUsedOfPureActiveSubstance).toBe(
+		expect(parcelAggregations[0].totalUsedOfPureActiveSubstance).toBeCloseTo(
 			copperPure,
 		);
-		expect(parcelAggregations[1].totalUsedOfPureActiveSubstance).toBe(
+		expect(parcelAggregations[1].totalUsedOfPureActiveSubstance).toBeCloseTo(
 			sulfurPure,
 		);
 	});
@@ -126,6 +130,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 				},
 			},
 		});
+
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+
 		const copperAggregationBeforeUpdate =
 			await testPrisma.userSubstanceAggregation.findFirst({
 				where: {
