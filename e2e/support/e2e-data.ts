@@ -1,4 +1,9 @@
-import { PrismaClient, CultureType, TreatmentStatus } from "@prisma/client";
+import {
+	CultureType,
+	type Prisma,
+	PrismaClient,
+	TreatmentStatus,
+} from "@prisma/client";
 import { dirname, join } from "node:path";
 import { mkdir } from "node:fs/promises";
 import { seedReferenceData } from "../../prisma/seed";
@@ -94,7 +99,7 @@ function assertSafeE2eDatabase() {
 
 	if (!isSafe) {
 		throw new Error(
-			`Refusing to reset database host "${hostname}" and database "${databaseName}". Playwright e2e resets are limited to localhost/127.0.0.1 on port 5434, local database names containing "e2e", or the "postgres-e2e" Docker host.`,
+			`Refusing to reset database host "${hostname}" and database "${databaseName}". Playwright e2e resets are limited to localhost/127.0.0.1 on port 5434, local database names containing "e2e", native socket Postgres (e.g. agraria_e2e), or the "postgres-e2e" Docker host.`,
 		);
 	}
 }
@@ -128,6 +133,73 @@ function parseE2eDatabaseSafety(databaseUrl: string) {
 	}
 }
 
+type E2eTx = Prisma.TransactionClient;
+
+async function wipeE2eDatabase(tx: E2eTx) {
+	await tx.productApplication.deleteMany();
+	await tx.treatment.deleteMany();
+	await tx.parcelSubstanceAggregation.deleteMany();
+	await tx.userSubstanceAggregation.deleteMany();
+	await tx.parcel.deleteMany();
+	await tx.session.deleteMany();
+	await tx.account.deleteMany();
+	await tx.user.deleteMany();
+	await tx.substanceDose.deleteMany();
+	await tx.product.deleteMany();
+	await tx.disease.deleteMany();
+	await tx.substance.deleteMany();
+}
+
+async function createE2eUser(tx: E2eTx) {
+	return await tx.user.upsert({
+		where: { email: e2eUser.email },
+		update: {
+			emailVerified: new Date(),
+			isAuthorized: true,
+			locale: "en",
+			name: "Playwright User",
+			tosAcceptedAt: new Date(),
+		},
+		create: {
+			email: e2eUser.email,
+			emailVerified: new Date(),
+			isAuthorized: true,
+			locale: "en",
+			name: "Playwright User",
+			tosAcceptedAt: new Date(),
+		},
+	});
+}
+
+/** User and reference catalog only — no parcels (map / geolocation specs). */
+export async function seedE2eDataNoParcels() {
+	assertSafeE2eDatabase();
+
+	await prisma.$transaction(async (tx) => {
+		await wipeE2eDatabase(tx);
+		await createE2eUser(tx);
+		await seedReferenceData(tx);
+	});
+}
+
+/** One parcel, no treatments (second-parcel map spec). */
+export async function seedE2eDataOneParcel() {
+	assertSafeE2eDatabase();
+
+	await prisma.$transaction(async (tx) => {
+		await wipeE2eDatabase(tx);
+		const user = await createE2eUser(tx);
+		await seedReferenceData(tx);
+		await tx.parcel.create({
+			data: {
+				...seededParcel,
+				type: CultureType.VINEYARD,
+				userId: user.id,
+			},
+		});
+	});
+}
+
 export async function seedE2eData() {
 	assertSafeE2eDatabase();
 
@@ -148,38 +220,9 @@ export async function seedE2eData() {
 	] as const;
 
 	await prisma.$transaction(async (tx) => {
-		await tx.productApplication.deleteMany();
-		await tx.treatment.deleteMany();
-		await tx.parcelSubstanceAggregation.deleteMany();
-		await tx.userSubstanceAggregation.deleteMany();
-		await tx.parcel.deleteMany();
-		await tx.session.deleteMany();
-		await tx.account.deleteMany();
-		await tx.user.deleteMany({ where: { email: { not: e2eUser.email } } });
-		await tx.substanceDose.deleteMany();
-		await tx.product.deleteMany();
-		await tx.disease.deleteMany();
-		await tx.substance.deleteMany();
+		await wipeE2eDatabase(tx);
 
-		// Upsert keeps user id stable so auth cookies from setup stay valid across resets.
-		const user = await tx.user.upsert({
-			where: { email: e2eUser.email },
-			update: {
-				emailVerified: new Date(),
-				isAuthorized: true,
-				locale: "en",
-				name: "Playwright User",
-				tosAcceptedAt: new Date(),
-			},
-			create: {
-				email: e2eUser.email,
-				emailVerified: new Date(),
-				isAuthorized: true,
-				locale: "en",
-				name: "Playwright User",
-				tosAcceptedAt: new Date(),
-			},
-		});
+		const user = await createE2eUser(tx);
 
 		const { copper, copperProduct, peronospora } = await seedReferenceData(tx);
 

@@ -45,6 +45,7 @@ export async function updateSubstanceAggregations(
 				select: {
 					width: true,
 					height: true,
+					areaM2: true,
 					name: true,
 				},
 			},
@@ -71,6 +72,7 @@ export async function updateSubstanceAggregations(
 		parcel: {
 			width: treatment.parcel.width,
 			height: treatment.parcel.height,
+			areaM2: treatment.parcel.areaM2,
 		},
 		productApplications: treatment.productApplications.map((app) => ({
 			dose: app.dose,
@@ -120,6 +122,7 @@ export async function updateSubstanceAggregations(
 			parcel: {
 				width: treatment.parcel.width,
 				height: treatment.parcel.height,
+				areaM2: treatment.parcel.areaM2,
 			},
 			productApplications: treatment.productApplications.map((app) => ({
 				dose: app.dose,

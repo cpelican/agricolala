@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { taintUtils } from "@/lib/taint-utils";
 import { defaultLocale, getLanguageAsLocale } from "@/lib/translations-helpers";
-import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
+import { INVALID_SESSION_ID } from "@/lib/constants";
 
 taintUtils.taintOAuthSecrets();
 
@@ -137,33 +137,42 @@ export const authOptions: NextAuthOptions = {
 		 * @param token - The JWT token object that gets encoded and sent to the client
 		 * @param user - Present only during initial sign-in, contains OAuth provider user data
 		 *
-		 * Note: Changes to isAuthorized or user deletion won't be reflected until the token
-		 * expires or the user signs in again. This is the trade-off for stateless JWT performance.
+		 * Re-resolves `token.id` from the database by email on each call so a JWT
+		 * survives DB resets/migrations without breaking foreign keys.
 		 */
 		async jwt({ token, user }) {
-			// Initial sign-in: populate token with user data from database
-			if (user?.email) {
-				try {
-					const dbUser = await prisma.user.findUniqueOrThrow({
-						where: { email: user.email },
-						select: {
-							id: true,
-							isAuthorized: true,
-							locale: true,
-						},
-					});
+			const email =
+				typeof user?.email === "string"
+					? user.email
+					: typeof token.email === "string"
+						? token.email
+						: null;
 
-					token.id = dbUser.id;
-					token.isAuthorized = dbUser.isAuthorized;
-					token.locale = getLanguageAsLocale(dbUser.locale);
-				} catch (error) {
-					console.error("Error fetching user in JWT callback:", error);
-					throw new Error(Errors.ACCESS_DENIED);
-				}
+			if (!email) {
+				return token;
 			}
 
-			// Subsequent requests: return token as-is (no database query)
-			// This is the performance benefit of JWT - stateless and fast
+			token.email = email;
+
+			try {
+				const dbUser = await prisma.user.findUniqueOrThrow({
+					where: { email },
+					select: {
+						id: true,
+						isAuthorized: true,
+						locale: true,
+					},
+				});
+
+				token.id = dbUser.id;
+				token.isAuthorized = dbUser.isAuthorized;
+				token.locale = getLanguageAsLocale(dbUser.locale);
+			} catch (error) {
+				console.error("Error fetching user in JWT callback:", error);
+				token.id = undefined;
+				token.isAuthorized = false;
+			}
+
 			return token;
 		},
 		/**

@@ -3,6 +3,7 @@
 import type { ParcelMapProps } from "@/components/parcels/parcel-map";
 import { ParcelMapSkeleton } from "@/components/parcels/parcel-map-skeleton";
 import dynamic from "next/dynamic";
+import "leaflet/dist/leaflet.css";
 
 const ParcelMap = dynamic(
 	() =>
@@ -18,13 +19,13 @@ const ParcelMap = dynamic(
 export function ParcelMapWrapper({
 	parcels,
 	highlightParcelId,
-	onMapClick,
+	drawing,
 }: ParcelMapProps) {
 	return (
 		<ParcelMap
 			parcels={parcels}
 			highlightParcelId={highlightParcelId}
-			onMapClick={onMapClick}
+			drawing={drawing}
 		/>
 	);
 }

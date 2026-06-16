@@ -15,7 +15,7 @@
 		"test:db:start": "scripts/run-test-integration.sh",
 		"test:db:stop": "docker-compose -f docker-compose.test.yml down",
 		"test:e2e": "playwright test --project=mobile-chromium",
-		"test:e2e:record": "PLAYWRIGHT_RECORD_DEMO=1 playwright test e2e/treatments-nav.spec.ts --project=mobile-chromium",
+		"test:e2e:record": "PLAYWRIGHT_RECORD_DEMO=1 playwright test --project=mobile-chromium",
 		"test:e2e:agent": "scripts/run-e2e-native.sh",
 		"test:e2e:db:start": "scripts/setup-e2e-db.sh",
 		"test:e2e:db:stop": "docker compose -f docker-compose.e2e.yml down",
@@ -25,7 +25,8 @@
 		"prepare": "husky",
 		"seed": "npx tsx prisma/seed.ts",
 		"studio": "npx prisma studio",
-		"populate-aggregations": "npx tsx scripts/update-substance-aggregations.ts"
+		"populate-aggregations": "npx tsx scripts/update-substance-aggregations.ts",
+		"knip": "knip"
 	},
 	"prisma": {
 		"seed": "npx tsx prisma/seed.ts"
@@ -61,6 +62,10 @@
 		"@radix-ui/react-toggle": "1.1.1",
 		"@radix-ui/react-toggle-group": "1.1.1",
 		"@radix-ui/react-tooltip": "1.1.6",
+		"@turf/area": "^7.3.5",
+		"@turf/centroid": "^7.3.5",
+		"@turf/helpers": "^7.3.5",
+		"@turf/kinks": "^7.3.5",
 		"chart.js": "latest",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -89,9 +94,9 @@
 		"@tailwindcss/postcss": "^4.1.11",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.3.0",
-		"@types/leaflet": "^1.9.18",
+		"@types/leaflet": "^1.9.21",
 		"@types/negotiator": "^0.6.4",
-		"@types/node": "^24",
+		"@types/node": "^24.12.4",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitejs/plugin-react": "^6.0.2",
@@ -100,9 +105,10 @@
 		"eslint-plugin-jest": "^29.15.2",
 		"husky": "^9.1.7",
 		"jsdom": "^26.1.0",
+		"knip": "^6.15.0",
 		"postcss": "^8.5",
 		"tailwindcss": "^4.1.11",
-		"typescript": "^5",
+		"typescript": "^5.9.3",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^4.1.0"
 	},

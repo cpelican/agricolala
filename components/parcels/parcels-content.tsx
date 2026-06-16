@@ -1,14 +1,26 @@
 "use client";
 
-import { MapPin, X, ChevronRight } from "lucide-react";
+import { ChevronRight, MapPin, Pencil, X } from "lucide-react";
 import { LocaleLink } from "../locale/locale-link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AddParcelDialog } from "./add-parcel-dialog";
 import { ParcelMapWrapper } from "./parcel-map-wrapper";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 import { useTranslations } from "@/contexts/translations-context";
+import {
+	type ParcelBoundary,
+	type ParcelBoundaryPoint,
+	computeParcelAreaM2,
+	formatParcelAreaDisplay,
+} from "@/lib/parcel-geometry";
 
 interface ParcelsContentProps {
 	parcels: ParcelWithTreatments[];
@@ -17,45 +29,133 @@ interface ParcelsContentProps {
 export function ParcelsContent({ parcels }: ParcelsContentProps) {
 	const [showAddDialog, setShowAddDialog] = useState(false);
 	const [showEmptyState, setShowEmptyState] = useState(true);
-	const [selectedLocation, setSelectedLocation] = useState<{
-		lat: number;
-		lng: number;
-		altitude?: number;
-	} | null>(null);
+	const [isDrawing, setIsDrawing] = useState(false);
+	const [draftVertices, setDraftVertices] = useState<ParcelBoundaryPoint[]>([]);
+	const [completedBoundary, setCompletedBoundary] =
+		useState<ParcelBoundary | null>(null);
 	const { t } = useTranslations();
 
-	const handleMapClick = (lat: number, lng: number, alt?: number) => {
-		setSelectedLocation({ lat, lng, altitude: alt });
+	const handleStartDrawing = () => {
+		setIsDrawing(true);
+		setDraftVertices([]);
+		setCompletedBoundary(null);
+		setShowEmptyState(false);
+	};
+
+	const handleVertexAdd = (lat: number, lng: number) => {
+		if (!isDrawing) {
+			return;
+		}
+		setDraftVertices((prev) => [...prev, { lat, lng }]);
+	};
+
+	const handleUndoShape = () => {
+		setDraftVertices([]);
+	};
+
+	const handleCancelDrawing = () => {
+		setIsDrawing(false);
+		setDraftVertices([]);
+		setCompletedBoundary(null);
+	};
+
+	const handleFinishShape = () => {
+		if (draftVertices.length < 3) {
+			return;
+		}
+		setCompletedBoundary([...draftVertices]);
+		setIsDrawing(false);
 		setShowAddDialog(true);
 	};
 
 	return (
 		<div className="p-4 space-y-4">
-			<div className="flex justify-end items-center">
-				<p className="text-sm text-gray-500">{t("parcels.clickMapToAdd")}</p>
-			</div>
-
 			<Card>
-				<CardContent className="relative p-0">
-					<ParcelMapWrapper parcels={parcels} onMapClick={handleMapClick} />
-					{parcels.length === 0 && showEmptyState && (
-						<div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
-							<div className="pointer-events-auto relative max-w-sm rounded-lg bg-white/90 p-8 text-center shadow-lg">
+				<CardContent className="p-0 relative">
+					<ParcelMapWrapper
+						parcels={parcels}
+						drawing={
+							isDrawing
+								? { vertices: draftVertices, onVertexAdd: handleVertexAdd }
+								: undefined
+						}
+					/>
+					{!isDrawing && !showAddDialog && (
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										className="absolute top-3 right-3 z-[1000] h-10 w-10 bg-background text-foreground shadow-md"
+										onClick={handleStartDrawing}
+										aria-label={t("parcels.drawParcelHint")}
+									>
+										<Pencil className="h-4 w-4" />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="left">
+									{t("parcels.drawParcelHint")}
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					)}
+					{isDrawing && (
+						<div className="absolute bottom-3 left-3 right-3 z-[1000] flex flex-col gap-2 rounded-lg border bg-background p-2 shadow-md">
+							<p className="text-center text-sm text-muted-foreground">
+								{t("parcels.drawInstructions")}
+							</p>
+							<div className="flex flex-wrap justify-center gap-2">
 								<Button
-									variant="ghost"
+									type="button"
+									variant="outline"
 									size="sm"
-									className="absolute top-3 right-3 h-6 w-6 p-0"
-									onClick={() => setShowEmptyState(false)}
+									className="bg-background"
+									onClick={handleUndoShape}
+									disabled={draftVertices.length === 0}
+									aria-label={t("parcels.undoPoint")}
 								>
-									<X className="h-4 w-4" />
+									{t("parcels.undoPoint")}
 								</Button>
-								<p className="text-gray-700 font-medium">
-									{t("parcels.clickMapToAddFirst")}
-								</p>
-								<p className="mt-1 text-sm text-gray-500">
-									{t("parcels.zoomInToFindLocation")}
-								</p>
+								<Button
+									type="button"
+									size="sm"
+									onClick={handleFinishShape}
+									disabled={draftVertices.length < 3}
+									aria-label={t("parcels.finishShape")}
+								>
+									{t("parcels.finishShape")}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									className="bg-background"
+									onClick={handleCancelDrawing}
+									aria-label={t("parcels.cancelDrawing")}
+								>
+									{t("parcels.cancelDrawing")}
+								</Button>
 							</div>
+						</div>
+					)}
+					{parcels.length === 0 && showEmptyState && !isDrawing && (
+						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-8 rounded-lg shadow-lg text-center max-w-xs">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="absolute top-3 right-3 h-6 w-6 p-0"
+								onClick={() => setShowEmptyState(false)}
+							>
+								<X className="h-4 w-4" />
+							</Button>
+							<p className="text-gray-700 font-medium">
+								{t("parcels.clickMapToAddFirst")}
+							</p>
+							<p className="text-sm text-gray-500 mt-1">
+								{t("parcels.zoomInToFindLocation")}
+							</p>
 						</div>
 					)}
 				</CardContent>
@@ -73,8 +173,7 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 											{parcel.type.toLowerCase()}
 										</p>
 										<p className="text-sm text-gray-500">
-											{parcel.width}m × {parcel.height}m (
-											{((parcel.width * parcel.height) / 10000).toFixed(2)} ha)
+											{formatParcelAreaDisplay(parcel)}
 										</p>
 										<div className="flex items-center text-gray-400 mt-2">
 											<MapPin className="h-4 w-4 mr-1" />
@@ -96,8 +195,17 @@ export function ParcelsContent({ parcels }: ParcelsContentProps) {
 
 			<AddParcelDialog
 				open={showAddDialog}
-				onOpenChange={setShowAddDialog}
-				selectedLocation={selectedLocation}
+				onOpenChange={(open) => {
+					setShowAddDialog(open);
+					if (!open) {
+						setCompletedBoundary(null);
+						setDraftVertices([]);
+					}
+				}}
+				boundary={completedBoundary}
+				previewAreaM2={
+					completedBoundary ? computeParcelAreaM2(completedBoundary) : undefined
+				}
 			/>
 		</div>
 	);

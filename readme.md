@@ -88,20 +88,6 @@ npm run prettify
 npm run tsc
 ```
 
-## TODOs / docs
-- [nope] use prisma studio
-- [x] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
-- [x] create a stats db record that will be recalculated each time a user adds a treatment
-- [x] Improve the queries, make them smaller, avoid nesting
-- [x] excel export
-- [x] improve security
-- [x] fix map
+### MISC
 
-- [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
-
-
-
-Things made to improve performance:
-- [x] add subquery for the user when creating rls policies to avoid querying on each row the user
-- [x] avoid doppione for the rls policy creation since for all was iterating on all queries, and then we were defining again the policy for select. This was an issue for the tables Product, Substance, Disease, SubstanceDose
-- [x] page load - improve fcp: cache the session, and make the session handling less complicated. use it server side
+Url for logout: http://localhost:3000/api/auth/signout

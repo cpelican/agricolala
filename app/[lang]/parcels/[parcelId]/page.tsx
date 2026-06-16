@@ -13,6 +13,7 @@ import { type Locale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
+import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -63,7 +64,7 @@ export default async function ParcelPage({
 		<>
 			<Header
 				title={`${parcel.name}`}
-				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+				subtitle={`${parcel.type} - ${formatParcelAreaDisplay(parcel)}`}
 			>
 				<DeleteParcelButton
 					parcelId={parcel.id}

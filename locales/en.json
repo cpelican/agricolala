@@ -55,9 +55,22 @@
 		"enterWidth": "Enter width",
 		"enterHeight": "Enter height",
 		"locationMap": "Parcel location map",
-		"clickMapToAdd": "Click on the map to add a parcel",
-		"clickMapToAddFirst": "Click on the map to add your first parcel",
+		"drawParcel": "Draw parcel",
+		"drawParcelHint": "Draw the parcel boundary on the map",
+		"drawInstructions": "Tap the map to add corners",
+		"undoPoint": "Undo",
+		"finishShape": "Finish",
+		"cancelDrawing": "Cancel",
+		"calculatedArea": "Calculated area",
+		"clickMapToAdd": "Draw a parcel on the map to get started",
+		"clickMapToAddFirst": "Draw your first parcel on the map",
 		"zoomInToFindLocation": "Zoom in to find your exact location",
+		"useMyLocation": "Use my location",
+		"locationInsecureContext": "Location only works on http://localhost:3000 (not via a network IP like 192.168.x.x). Open that address on this device.",
+		"locationDenied": "Location access was blocked. Allow it in your browser settings, then tap Use my location.",
+		"locationUnavailable": "Could not determine your location. Try again or move the map manually.",
+		"locationTimeout": "Location took too long. Try again with Use my location.",
+		"locationUnsupported": "This browser does not support location.",
 		"cancel": "Cancel",
 		"adding": "Adding...",
 		"addParcelButton": "Add Parcel",
@@ -67,7 +80,9 @@
 		"trackSubstanceApplications": "Track your substance applications for this parcel",
 		"productDose": "L/ha",
 		"errors": {
-			"createFailed": "Failed to create parcel"
+			"createFailed": "Failed to create parcel",
+			"minPoints": "Draw at least 3 corners before finishing",
+			"invalidShape": "The shape is invalid. Adjust the corners and try again."
 		}
 	},
 	"treatments": {

@@ -1,24 +1,23 @@
 import { expect, type Page } from "@playwright/test";
-import { parcelLocationMapLabel } from "./map";
+import { drawParcelButtonLabel, parcelLocationMapLabel } from "./map";
 
 export interface AddParcelOptions {
 	name?: string;
-	widthMeters?: string;
-	heightMeters?: string;
-	latitude?: string;
-	longitude?: string;
 	altitude?: string;
-	mapClickPosition?: { x: number; y: number };
+	mapClickPositions?: { x: number; y: number }[];
 }
+
+/** Wide triangle for satellite draw zoom ~19 (~50–250 m²). Stays clear of top zoom and bottom draw toolbar. */
+const defaultTriangle: { x: number; y: number }[] = [
+	{ x: 60, y: 100 },
+	{ x: 280, y: 100 },
+	{ x: 170, y: 220 },
+];
 
 const defaults: Required<AddParcelOptions> = {
 	name: "E2E Added Parcel",
-	widthMeters: "80",
-	heightMeters: "45",
-	latitude: "44.135",
-	longitude: "9.684",
 	altitude: "65",
-	mapClickPosition: { x: 220, y: 180 },
+	mapClickPositions: defaultTriangle,
 };
 
 export async function addParcelFromMapDialog(
@@ -26,19 +25,30 @@ export async function addParcelFromMapDialog(
 	options: AddParcelOptions = {},
 ) {
 	const parcel = { ...defaults, ...options };
+	const map = page.getByRole("application", { name: parcelLocationMapLabel });
 
-	await page
-		.getByRole("application", { name: parcelLocationMapLabel })
-		.click({ position: parcel.mapClickPosition });
+	await expect(map).toBeVisible();
+
+	await page.getByRole("button", { name: drawParcelButtonLabel }).click();
+	await expect(page.getByRole("button", { name: "Finish" })).toBeVisible();
+	await expect(page.getByText("Tap the map to add corners")).toBeVisible();
+
+	const mapPane = map.locator(".leaflet-pane.leaflet-map-pane");
+	for (const position of parcel.mapClickPositions) {
+		await mapPane.click({ position, force: true });
+	}
+
+	const finishButton = page.getByRole("button", { name: "Finish" });
+	await expect(finishButton).toBeEnabled({ timeout: 10_000 });
+	await finishButton.click();
 
 	const dialog = page.getByRole("dialog", { name: "Add New Parcel" });
 	await expect(dialog).toBeVisible();
+	await expect(dialog.getByText("Calculated area")).toBeVisible();
 	await dialog.getByLabel("Parcel Name").fill(parcel.name);
-	await dialog.getByLabel("Width (meters)").fill(parcel.widthMeters);
-	await dialog.getByLabel("Height (meters)").fill(parcel.heightMeters);
-	await dialog.getByLabel("Latitude").fill(parcel.latitude);
-	await dialog.getByLabel("Longitude").fill(parcel.longitude);
-	await dialog.getByLabel("Altitude").fill(parcel.altitude);
+	if (parcel.altitude) {
+		await dialog.getByLabel("Altitude").fill(parcel.altitude);
+	}
 
 	await dialog.getByRole("button", { name: "Add Parcel" }).click();
 	await expect(dialog).toBeHidden();
