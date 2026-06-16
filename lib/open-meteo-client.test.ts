@@ -11,7 +11,7 @@ const createHourlyRange = (startIsoHour: string, hours: number) => {
 	return Array.from({ length: hours }, (_, index) => {
 		const date = new Date(start);
 		date.setUTCHours(start.getUTCHours() + index);
-		return date.toISOString().slice(0, 13) + ":00";
+		return `${date.toISOString().slice(0, 13)}:00Z`;
 	});
 };
 
@@ -93,9 +93,9 @@ describe("OpenMeteoClient", () => {
 		vi.setSystemTime(new Date("2026-06-01T08:16:00Z"));
 
 		const timestamps = [
-			"2026-06-01T08:00",
-			"2026-06-01T09:00",
-			"2026-06-02T00:00",
+			"2026-06-01T08:00Z",
+			"2026-06-01T09:00Z",
+			"2026-06-02T00:00Z",
 		];
 		const requestedUrls = mockOpenMeteoFetch(
 			createOpenMeteoResponse(timestamps),

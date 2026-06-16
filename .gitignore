@@ -5,6 +5,7 @@
 
 # next.js
 /.next/
+/.next-vitest/
 /out/
 
 # production
@@ -23,6 +24,7 @@ playwright-report/
 
 # env files
 *.env*
+!.env.test.example
 
 # vercel
 .vercel

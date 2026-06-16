@@ -1,14 +1,18 @@
 import { getTestPrisma } from "./test-prisma-client";
+import { applyTestEnv } from "./load-test-env";
 
 import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
 
 export default async function globalSetup() {
-	process.env.CRON_ALLOW_AS_OF ??= "true";
+	// Next.js reloads env from .env / .env.development and ignores Vitest's env.
+	// Force the test database (5433) before the server starts.
+	applyTestEnv();
 	const testPrisma = getTestPrisma();
 	const dev = process.env.NODE_ENV !== "production";
-	const app = next({ dev });
+	// Separate distDir avoids "Another next dev server is already running" when `npm run dev` is active.
+	const app = next({ dev, conf: { distDir: ".next-vitest" } });
 	const handle = app.getRequestHandler();
 
 	await app.prepare();

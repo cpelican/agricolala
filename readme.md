@@ -32,19 +32,27 @@ npm run dev
 npm run studio
 ```
 
-## Run tests
-In you env, you should have the following variables
-```
-# tests
-POSTGRES_PASSWORD=agraria
-DATABASE_URL=postgresql://agraria:agraria@localhost:5433/agraria?schema=public
-DIRECT_URL=postgresql://agraria:agraria@localhost:5433/agraria?schema=public
+## Run tests (Vitest)
+
+Integration tests use a **separate** Postgres on port **5433** (`docker-compose.test.yml`). Dev uses port **5435** — do not put test `DATABASE_URL` in `.env` or the Next.js test server will connect to the wrong database.
+
+1. Copy the test env template (once):
+
+```bash
+cp .env.test.example .env.test
 ```
 
-Then run
-`npm run test:db:start`
-`npx vitest run`
-`npm run test:db:stop`
+2. Start the test database, run tests, then stop:
+
+```bash
+npm run test:db:start   # Docker Postgres @ 5433 + migrate
+npm run test            # or: npx vitest run
+npm run test:db:stop
+```
+
+If `.env.test` is missing, tests fall back to the same defaults as `.env.test.example`. You still need Docker running for `test:db:start`.
+
+One file: `npm run test -- lib/substance-helpers.test.ts`
 
 ## Run Playwright e2e tests
 
