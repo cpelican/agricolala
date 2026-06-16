@@ -1,13 +1,13 @@
-import "server-only";
-import { prisma } from "./prisma";
-import { calculateSubstanceData } from "./substance-helpers";
-import { getCachedCompositions } from "./data-fetcher";
+import { type PrismaClient } from "@prisma/client";
+import { calculateSubstanceData } from "../substance-helpers";
+import { getCachedCompositions } from "../data-fetcher";
 import {
 	updateUserAggregations,
 	updateParcelAggregations,
-} from "./aggregation-utils";
+} from "../aggregation-utils";
 
 export async function updateSubstanceAggregations(
+	prisma: PrismaClient,
 	userId: string,
 	year: number = new Date().getFullYear(),
 ) {

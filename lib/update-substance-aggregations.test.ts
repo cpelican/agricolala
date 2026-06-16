@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach } from "vitest";
 import { type PrismaClient } from "@prisma/client";
 import { cleanDatabase, seedTestData } from "@/test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
-import { updateSubstanceAggregations } from "./update-substance-aggregations";
+import { updateSubstanceAggregations } from "./update-substance-aggregations/core";
 import { calculateSubstanceData } from "./substance-helpers";
 import { getCachedCompositions } from "./data-fetcher";
 
@@ -46,7 +46,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		const appliedDate = new Date(TEST_YEAR, 5, 15);
 		await setTreatmentDate(testPrisma, pastTreatment.id, appliedDate);
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		const parcelAreaM2 = testParcel.width * testParcel.height;
 		const copperPure = pureActiveSubstanceGrams(5, 25);
@@ -137,7 +137,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		expect(copperAggregationBeforeUpdate?.totalDoseOfProduct).toBe(5);
 		expect(copperAggregationBeforeUpdate?.applicationCount).toBe(1);
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		const copperAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -159,7 +159,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			new Date(TEST_YEAR, 2, 1),
 		);
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 		// Manually corrupt the aggregations
 		await testPrisma.userSubstanceAggregation.updateMany({
 			where: { userId: testUser.id, year: TEST_YEAR },
@@ -170,7 +170,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			data: { totalDoseOfProduct: 999, applicationCount: 99 },
 		});
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 		// the computation relies on the treatments data, so the corruption on the aggregation disapears.
 		const copperUserAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -202,11 +202,11 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			pastTreatment.id,
 			new Date(TEST_YEAR, 1, 1),
 		);
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		await testPrisma.treatment.delete({ where: { id: pastTreatment.id } });
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		expect(
 			await testPrisma.userSubstanceAggregation.count({
@@ -255,7 +255,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			pastTreatment.id,
 			new Date(TEST_YEAR, 7, 1),
 		);
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		const otherYearUserAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -324,7 +324,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			});
 		}
 
-		await updateSubstanceAggregations(testUser.id, TEST_YEAR);
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
 
 		const copperSubstanceId = (
 			await testPrisma.substanceDose.findFirst({
