@@ -9,7 +9,7 @@ Vitest local: `test:db:start` first (Next **3001**, `.env.test`). E2e: `npm run 
 | Where | Dev DB | Vitest | E2e (`E2E_DB_SETUP`) |
 |-------|--------|--------|----------------------|
 | **Local** | `agraria` @ `5435` | `agraria` @ `5433` | unset → `docker`, Postgres @ `5434`; `global-setup.ts` migrates or runs `setup-e2e-db.sh` |
-| **Cursor Cloud** | `agraria` @ `5432` | `agraria_test` @ `5432` | `native` (or `test:e2e:agent`) → `agraria_e2e` via socket; `setup-e2e-native.sh` |
+| **Cloud Agent** | `agraria` @ `5432` | `agraria_test` @ `5432` | `native` (or `test:e2e:agent`) → `agraria_e2e` via socket; `setup-e2e-native.sh` |
 | **CI** | — | PG `5433` | unset → service Postgres @ `5434` |
 
 `E2E_DATABASE_URL` optional override (port **5434**; native adds `?host=/var/run/postgresql`). `E2E_POSTGRES_USER` / `E2E_POSTGRES_DB` for native. `test:e2e:db:start` optional locally; not in Cloud.
