@@ -410,5 +410,22 @@
 		"description": "Gestisci le tue parcelle agricole e trattamenti",
 		"getStarted": "Inizia",
 		"loading": "Caricamento dashboard"
+	},
+	"coverage": {
+		"title": "Copertura Trattamenti",
+		"description": "Sostanza attiva residua stimata dopo il dilavamento da pioggia e la degradazione naturale nel tempo",
+		"remaining": "g/ha rimasti",
+		"initial": "g/ha applicati",
+		"fullDose": "g/ha dose piena",
+		"rainSince": "pioggia dall'ultimo trattamento",
+		"mm": "mm",
+		"leafSurface": "mg/m² sulla foglia",
+		"copperThreshold": "Soglia efficacia: 2,5 mg/m²",
+		"coveragePercent": "copertura",
+		"forecast": "Previsione 3 Giorni",
+		"showDetails": "Mostra dettaglio campi",
+		"hideDetails": "Nascondi dettaglio campi",
+		"noWeatherData": "Dati pioggia non disponibili — la stima di copertura riflette solo la degradazione nel tempo, non il dilavamento",
+		"incompleteWeatherData": "Lo storico piogge potrebbe essere incompleto per alcuni trattamenti precedenti"
 	}
 }

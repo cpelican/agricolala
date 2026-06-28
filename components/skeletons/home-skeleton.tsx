@@ -63,6 +63,35 @@ export function HomeDashboardBodySkeleton() {
 	);
 }
 
+export function CoverageWidgetSkeleton() {
+	return (
+		<div className="space-y-3">
+			<Card className="bg-card">
+				<CardHeader className="space-y-2">
+					<Skeleton className="h-6 w-44" />
+					<Skeleton className="h-4 w-72 max-w-full" />
+				</CardHeader>
+			</Card>
+			{[0, 1].map((i) => (
+				<Card key={i}>
+					<CardContent className="p-4 space-y-3">
+						<div className="flex items-start justify-between gap-3">
+							<div className="flex items-center gap-2">
+								<Skeleton className="w-3 h-3 rounded-full shrink-0" />
+								<div className="space-y-1">
+									<Skeleton className="h-5 w-24" />
+									<Skeleton className="h-4 w-40" />
+								</div>
+							</div>
+							<Skeleton className="h-2 w-16 rounded-full" />
+						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	);
+}
+
 export function HomeSkeleton({
 	ariaLabel,
 	variant = "empty",

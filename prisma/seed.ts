@@ -63,6 +63,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
 			maxApplications: MAX_APPLICATIONS,
+			daysBetweenApplications: 7, // Source: product label
 			composition: {
 				create: [{ substanceId: copper.id, dose: 25 }],
 			},
@@ -75,6 +76,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",
 			maxApplications: MAX_APPLICATIONS_SULFUR,
+			daysBetweenApplications: 7, // Source: https://www.psm.admin.ch/it/produkte/18
 			composition: {
 				create: [{ substanceId: sulfur.id, dose: 80 }],
 			},

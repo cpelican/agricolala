@@ -410,5 +410,22 @@
 		"description": "Manage your agricultural parcels and treatments",
 		"getStarted": "Get Started",
 		"loading": "Loading dashboard"
+	},
+	"coverage": {
+		"title": "Treatment Coverage",
+		"description": "Estimated residual active substance after rainfall and natural degradation over time",
+		"remaining": "g/ha remaining",
+		"initial": "g/ha applied",
+		"fullDose": "g/ha full dose",
+		"rainSince": "rain since last treatment",
+		"mm": "mm",
+		"leafSurface": "mg/m² on leaf",
+		"copperThreshold": "Efficacy threshold: 2.5 mg/m²",
+		"coveragePercent": "coverage",
+		"forecast": "3-Day Forecast",
+		"showDetails": "Show parcel breakdown",
+		"hideDetails": "Hide parcel breakdown",
+		"noWeatherData": "Rain data unavailable — coverage estimate reflects time-based degradation only, not rainfall",
+		"incompleteWeatherData": "Rain history may be incomplete for some early treatments"
 	}
 }
