@@ -1,4 +1,7 @@
+import { Suspense } from "react";
 import { SubstanceUsageSection } from "../substances/substance-usage-section";
+import { CoverageWidgetContent } from "./coverage-widget-content";
+import { CoverageWidgetSkeleton } from "@/components/skeletons/home-skeleton";
 import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
@@ -45,6 +48,9 @@ export async function HomeDashboardContent({
 				description={dict.substances.trackApplicationsHome}
 				allYearsData={hasMultipleYears ? allYearsData : undefined}
 			/>
+			<Suspense fallback={<CoverageWidgetSkeleton />}>
+				<CoverageWidgetContent userId={userId} />
+			</Suspense>
 		</div>
 	);
 }
