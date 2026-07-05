@@ -22,8 +22,10 @@ export type PageProps<T extends Record<string, string>> = {
 export default async function ParcelPage({
 	params,
 }: PageProps<{ lang: Locale; parcelId: string }>) {
-	const { parcelId, lang } = await params;
-	const session = await requireAuth();
+	const [{ parcelId, lang }, session] = await Promise.all([
+		params,
+		requireAuth(),
+	]);
 	const parcel = await getParcelDetail(parcelId, session.user.id);
 	if (!parcel) {
 		notFound();
@@ -35,11 +37,10 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	const substanceData = await getCachedParcelSubstanceAggregations(
-		parcelId,
-		currentYear,
-	);
-	const substances = await getCachedSubstances();
+	const [substanceData, substances] = await Promise.all([
+		getCachedParcelSubstanceAggregations(parcelId, currentYear),
+		getCachedSubstances(),
+	]);
 
 	const now = new Date();
 	const upcomingTreatments = currentYearTreatments.filter(

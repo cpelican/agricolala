@@ -109,35 +109,39 @@ export async function updateSubstanceAggregations(
 		},
 	});
 
-	for (const [parcelId, parcelTreatments] of Object.entries(
-		treatmentsByParcel,
-	)) {
-		const parcelTransformedTreatments = parcelTreatments.map((treatment) => ({
-			id: treatment.id,
-			appliedDate: treatment.appliedDate,
-			parcelId: treatment.parcelId,
-			parcelName: treatment.parcel.name,
-			parcel: {
-				width: treatment.parcel.width,
-				height: treatment.parcel.height,
+	await Promise.all(
+		Object.entries(treatmentsByParcel).map(
+			async ([parcelId, parcelTreatments]) => {
+				const parcelTransformedTreatments = parcelTreatments.map(
+					(treatment) => ({
+						id: treatment.id,
+						appliedDate: treatment.appliedDate,
+						parcelId: treatment.parcelId,
+						parcelName: treatment.parcel.name,
+						parcel: {
+							width: treatment.parcel.width,
+							height: treatment.parcel.height,
+						},
+						productApplications: treatment.productApplications.map((app) => ({
+							dose: app.dose,
+							product: {
+								id: app.product.id,
+								composition: app.product.composition.map((comp) => ({
+									dose: comp.dose,
+									substanceId: comp.substanceId,
+								})),
+							},
+						})),
+					}),
+				);
+
+				const parcelSubstanceData = calculateSubstanceData(
+					parcelTransformedTreatments,
+					compositions,
+				);
+
+				await updateParcelAggregations(parcelSubstanceData, parcelId, year);
 			},
-			productApplications: treatment.productApplications.map((app) => ({
-				dose: app.dose,
-				product: {
-					id: app.product.id,
-					composition: app.product.composition.map((comp) => ({
-						dose: comp.dose,
-						substanceId: comp.substanceId,
-					})),
-				},
-			})),
-		}));
-
-		const parcelSubstanceData = calculateSubstanceData(
-			parcelTransformedTreatments,
-			compositions,
-		);
-
-		await updateParcelAggregations(parcelSubstanceData, parcelId, year);
-	}
+		),
+	);
 }
