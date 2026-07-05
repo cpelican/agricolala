@@ -29,23 +29,24 @@ interface SubstanceUsageExportData {
 }
 
 export async function generateTreatmentsExcel(userId: string, year: number) {
-	const treatments = await prisma.treatment.findMany({
-		where: {
-			userId,
-			appliedDate: {
-				gte: new Date(year, 0, 1),
-				lte: new Date(year, 11, 31),
+	const [treatments, substances, compositions, parcels] = await Promise.all([
+		prisma.treatment.findMany({
+			where: {
+				userId,
+				appliedDate: {
+					gte: new Date(year, 0, 1),
+					lte: new Date(year, 11, 31),
+				},
 			},
-		},
-		select: treatmentSelect,
-		orderBy: {
-			appliedDate: "desc",
-		},
-	});
-
-	const substances = await getCachedSubstances();
-	const compositions = await getCachedCompositions();
-	const parcels = await getParcels(userId);
+			select: treatmentSelect,
+			orderBy: {
+				appliedDate: "desc",
+			},
+		}),
+		getCachedSubstances(),
+		getCachedCompositions(),
+		getParcels(userId),
+	]);
 
 	const productApplicationsData: ProductApplicationExportData[] = [];
 	const substanceUsageData: SubstanceUsageExportData[] = [];

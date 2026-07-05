@@ -18,43 +18,45 @@ export async function cleanReferenceData(db: ReferenceDataClient) {
 
 export async function seedReferenceData(db: ReferenceDataClient) {
 	// Create diseases
-	const oidium = await db.disease.create({
-		data: {
-			name: "Oidium",
-			description: "Powdery mildew, a fungal disease affecting grapevines",
-			sensitivityMonthMin: 4,
-			sensitivityMonthMax: 8,
-		},
-	});
-
-	const peronospora = await db.disease.create({
-		data: {
-			name: "Peronospora",
-			description: "Downy mildew, a fungal disease affecting grapevines",
-			sensitivityMonthMin: 3,
-			sensitivityMonthMax: 7,
-		},
-	});
-
-	const copper = await db.substance.create({
-		data: {
-			name: "Copper",
-			maxDosage: 4, // kg/ha/year
-			diseases: {
-				connect: [{ id: peronospora.id }],
+	const [oidium, peronospora] = await Promise.all([
+		db.disease.create({
+			data: {
+				name: "Oidium",
+				description: "Powdery mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: 4,
+				sensitivityMonthMax: 8,
 			},
-		},
-	});
-
-	const sulfur = await db.substance.create({
-		data: {
-			name: "Sulfur",
-			maxDosage: 10, // kg/ha/year
-			diseases: {
-				connect: [{ id: oidium.id }],
+		}),
+		db.disease.create({
+			data: {
+				name: "Peronospora",
+				description: "Downy mildew, a fungal disease affecting grapevines",
+				sensitivityMonthMin: 3,
+				sensitivityMonthMax: 7,
 			},
-		},
-	});
+		}),
+	]);
+
+	const [copper, sulfur] = await Promise.all([
+		db.substance.create({
+			data: {
+				name: "Copper",
+				maxDosage: 4, // kg/ha/year
+				diseases: {
+					connect: [{ id: peronospora.id }],
+				},
+			},
+		}),
+		db.substance.create({
+			data: {
+				name: "Sulfur",
+				maxDosage: 10, // kg/ha/year
+				diseases: {
+					connect: [{ id: oidium.id }],
+				},
+			},
+		}),
+	]);
 
 	// create products
 	const MAX_APPLICATIONS = 6;

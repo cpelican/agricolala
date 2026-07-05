@@ -16,92 +16,103 @@ export async function GET(request: NextRequest) {
 			},
 		});
 
+		const taskResults = await Promise.all(
+			tasks.map(async (task) => {
+				try {
+					// Fetch parcels associated with this task
+					const parcels = await prisma.parcel.findMany({
+						where: {
+							weatherHistoryTasks: {
+								some: {
+									id: task.id,
+								},
+							},
+						},
+						select: {
+							id: true,
+						},
+					});
+					const parcelIds = parcels.map((parcel) => parcel.id);
+
+					const dailyData = await OpenMeteoClient.getHistoryWeatherData(
+						task.latitude,
+						task.longitude,
+					);
+
+					await Promise.all(
+						dailyData.map((daily) =>
+							prisma.weatherHistory.upsert({
+								where: {
+									dateTime: daily.date,
+								},
+								update: {
+									cityName: task.cityName,
+									latitude: task.latitude,
+									longitude: task.longitude,
+									temperature2mMin: daily.temperature2mMin,
+									temperature2mMax: daily.temperature2mMax,
+									temperature80mMin: daily.temperature80mMin,
+									temperature80mMax: daily.temperature80mMax,
+									relative_humidity_2mMin: daily.relative_humidity_2mMin,
+									relative_humidity_2mMax: daily.relative_humidity_2mMax,
+									wind_speed_10mMin: daily.wind_speed_10mMin,
+									wind_speed_10mMax: daily.wind_speed_10mMax,
+									wind_speed_180mMin: daily.wind_speed_180mMin,
+									wind_speed_180mMax: daily.wind_speed_180mMax,
+									cumulativePrecipitation: daily.cumulativePrecipitation,
+									...(parcelIds.length > 0 && {
+										parcels: {
+											set: parcelIds.map((id) => ({ id })),
+										},
+									}),
+								},
+								create: {
+									cityName: task.cityName,
+									latitude: task.latitude,
+									longitude: task.longitude,
+									dateTime: daily.date,
+									temperature2mMin: daily.temperature2mMin,
+									temperature2mMax: daily.temperature2mMax,
+									temperature80mMin: daily.temperature80mMin,
+									temperature80mMax: daily.temperature80mMax,
+									relative_humidity_2mMin: daily.relative_humidity_2mMin,
+									relative_humidity_2mMax: daily.relative_humidity_2mMax,
+									wind_speed_10mMin: daily.wind_speed_10mMin,
+									wind_speed_10mMax: daily.wind_speed_10mMax,
+									wind_speed_180mMin: daily.wind_speed_180mMin,
+									wind_speed_180mMax: daily.wind_speed_180mMax,
+									cumulativePrecipitation: daily.cumulativePrecipitation,
+									...(parcelIds.length > 0 && {
+										parcels: {
+											connect: parcelIds.map((id) => ({ id })),
+										},
+									}),
+								},
+							}),
+						),
+					);
+
+					return { success: true as const, entriesCreated: dailyData.length };
+				} catch (error) {
+					const errorMessage = `Error processing task ${task.id} (${task.cityName}): ${
+						error instanceof Error ? error.message : String(error)
+					}`;
+					console.error(errorMessage, error);
+					return { success: false as const, errorMessage };
+				}
+			}),
+		);
+
 		let totalEntriesCreated = 0;
 		let tasksProcessed = 0;
 		const errors: string[] = [];
 
-		for (const task of tasks) {
-			try {
-				// Fetch parcels associated with this task
-				const parcels = await prisma.parcel.findMany({
-					where: {
-						weatherHistoryTasks: {
-							some: {
-								id: task.id,
-							},
-						},
-					},
-					select: {
-						id: true,
-					},
-				});
-				const parcelIds = parcels.map((parcel) => parcel.id);
-
-				const dailyData = await OpenMeteoClient.getHistoryWeatherData(
-					task.latitude,
-					task.longitude,
-				);
-
-				for (const daily of dailyData) {
-					await prisma.weatherHistory.upsert({
-						where: {
-							dateTime: daily.date,
-						},
-						update: {
-							cityName: task.cityName,
-							latitude: task.latitude,
-							longitude: task.longitude,
-							temperature2mMin: daily.temperature2mMin,
-							temperature2mMax: daily.temperature2mMax,
-							temperature80mMin: daily.temperature80mMin,
-							temperature80mMax: daily.temperature80mMax,
-							relative_humidity_2mMin: daily.relative_humidity_2mMin,
-							relative_humidity_2mMax: daily.relative_humidity_2mMax,
-							wind_speed_10mMin: daily.wind_speed_10mMin,
-							wind_speed_10mMax: daily.wind_speed_10mMax,
-							wind_speed_180mMin: daily.wind_speed_180mMin,
-							wind_speed_180mMax: daily.wind_speed_180mMax,
-							cumulativePrecipitation: daily.cumulativePrecipitation,
-							...(parcelIds.length > 0 && {
-								parcels: {
-									set: parcelIds.map((id) => ({ id })),
-								},
-							}),
-						},
-						create: {
-							cityName: task.cityName,
-							latitude: task.latitude,
-							longitude: task.longitude,
-							dateTime: daily.date,
-							temperature2mMin: daily.temperature2mMin,
-							temperature2mMax: daily.temperature2mMax,
-							temperature80mMin: daily.temperature80mMin,
-							temperature80mMax: daily.temperature80mMax,
-							relative_humidity_2mMin: daily.relative_humidity_2mMin,
-							relative_humidity_2mMax: daily.relative_humidity_2mMax,
-							wind_speed_10mMin: daily.wind_speed_10mMin,
-							wind_speed_10mMax: daily.wind_speed_10mMax,
-							wind_speed_180mMin: daily.wind_speed_180mMin,
-							wind_speed_180mMax: daily.wind_speed_180mMax,
-							cumulativePrecipitation: daily.cumulativePrecipitation,
-							...(parcelIds.length > 0 && {
-								parcels: {
-									connect: parcelIds.map((id) => ({ id })),
-								},
-							}),
-						},
-					});
-
-					totalEntriesCreated++;
-				}
-
+		for (const result of taskResults) {
+			if (result.success) {
 				tasksProcessed++;
-			} catch (error) {
-				const errorMessage = `Error processing task ${task.id} (${task.cityName}): ${
-					error instanceof Error ? error.message : String(error)
-				}`;
-				console.error(errorMessage, error);
-				errors.push(errorMessage);
+				totalEntriesCreated += result.entriesCreated;
+			} else {
+				errors.push(result.errorMessage);
 			}
 		}
 

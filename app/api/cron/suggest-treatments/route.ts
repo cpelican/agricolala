@@ -94,14 +94,36 @@ export async function GET(request: NextRequest) {
 		// Delete all TODO treatments
 		// We want a one to one type relationship for todo treatment with the parcel
 		// it is easier / simpler to re-create the todo rather than update it
-		await prisma.treatment.deleteMany({
-			where: {
-				status: TreatmentStatus.TODO,
-			},
-		});
+		const [, users, compositions] = await Promise.all([
+			prisma.treatment.deleteMany({
+				where: {
+					status: TreatmentStatus.TODO,
+				},
+			}),
+			getAuthorizedUsersWithLastTreatmentsData(currentDate),
+			getCachedCompositions(),
+		]);
 
-		const users = await getAuthorizedUsersWithLastTreatmentsData(currentDate);
-		const compositions = await getCachedCompositions();
+		// Filter diseaseIds to only include currently active diseases.
+		// This only depends on the reference date, not on the user/parcel being
+		// processed, so it's computed once instead of once per parcel.
+		const currentDiseases = await getCurrentDiseases(
+			isExplicitAsOf ? currentDate : undefined,
+		);
+		const { currentDiseaseIds, substancesByDiseaseId } =
+			currentDiseases.reduce<{
+				currentDiseaseIds: Set<string>;
+				substancesByDiseaseId: Record<string, string[]>;
+			}>(
+				(acc, disease) => {
+					acc.currentDiseaseIds.add(disease.id);
+					acc.substancesByDiseaseId[disease.id] = disease.substances.map(
+						(substance) => substance.id,
+					);
+					return acc;
+				},
+				{ currentDiseaseIds: new Set<string>(), substancesByDiseaseId: {} },
+			);
 
 		for (const user of users) {
 			for (const parcel of user.parcels) {
@@ -115,24 +137,6 @@ export async function GET(request: NextRequest) {
 					(currentDate.getTime() - lastTreatment.appliedDate.getTime()) /
 						(1000 * 60 * 60 * 24),
 				);
-				// Filter diseaseIds to only include currently active diseases
-				const currentDiseases = await getCurrentDiseases(
-					isExplicitAsOf ? currentDate : undefined,
-				);
-				const { currentDiseaseIds, substancesByDiseaseId } =
-					currentDiseases.reduce<{
-						currentDiseaseIds: Set<string>;
-						substancesByDiseaseId: Record<string, string[]>;
-					}>(
-						(acc, disease) => {
-							acc.currentDiseaseIds.add(disease.id);
-							acc.substancesByDiseaseId[disease.id] = disease.substances.map(
-								(substance) => substance.id,
-							);
-							return acc;
-						},
-						{ currentDiseaseIds: new Set<string>(), substancesByDiseaseId: {} },
-					);
 				const filteredDiseaseIds = lastTreatment.diseaseIds.filter((id) =>
 					currentDiseaseIds.has(id),
 				);
