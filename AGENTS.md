@@ -31,6 +31,8 @@ Vitest local: `test:db:start` first (Next **3001**, `.env.test`). E2e: `npm run 
 | E2e install | `npm run test:e2e:install` |
 | Prisma Studio | `npm run studio` |
 
+`npm run dev` auto-runs `predev` (`scripts/kill-dev-lock.sh`), which kills a stale `next dev` process left over from a prior session (via its `.next/dev/lock` PID) and frees the default port. This runs unprompted — the agent is pre-authorized to kill stale local `next dev` processes as part of starting the dev server for preview/verification.
+
 ## Before finishing
 
 - **API / lib / server:** `npm run test` (local: `test:db:start` first).

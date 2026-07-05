@@ -1,12 +1,10 @@
-import { Suspense } from "react";
 import { SubstanceUsageSection } from "../substances/substance-usage-section";
-import { CoverageWidgetContent } from "./coverage-widget-content";
-import { CoverageWidgetSkeleton } from "@/components/skeletons/home-skeleton";
 import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
 	getCachedSubstances,
 } from "@/lib/data-fetcher";
+import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
@@ -21,12 +19,15 @@ export async function HomeDashboardContent({
 }: HomeDashboardContentProps) {
 	const currentYear = new Date().getFullYear();
 
-	const [currentYearData, allYearsData] = await Promise.all([
+	// Not awaited here: streamed into SubstanceUsageSection via Suspense so a
+	// slow weather API doesn't block the rest of the dashboard's first render.
+	const coverageDataPromise = getCoverageWidgetData(userId);
+
+	const [currentYearData, allYearsData, substances] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
 		getAllYearsSubstanceAggregations(userId),
+		getCachedSubstances(),
 	]);
-
-	const substances = await getCachedSubstances();
 
 	const enrichedSubstanceData = currentYearData.map((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
@@ -47,10 +48,8 @@ export async function HomeDashboardContent({
 				substanceData={enrichedSubstanceData}
 				description={dict.substances.trackApplicationsHome}
 				allYearsData={hasMultipleYears ? allYearsData : undefined}
+				coverageDataPromise={coverageDataPromise}
 			/>
-			<Suspense fallback={<CoverageWidgetSkeleton />}>
-				<CoverageWidgetContent userId={userId} />
-			</Suspense>
 		</div>
 	);
 }

@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"precommit": "npm run lint && npx biome check .",
+		"predev": "scripts/kill-dev-lock.sh",
 		"dev": "next dev",
 		"build": "prisma generate && next build",
 		"start": "next start",

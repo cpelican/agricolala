@@ -468,7 +468,6 @@ Add `"coverage"` namespace:
   "forecast": "3-Day Forecast",
   "showDetails": "Show parcel breakdown",
   "hideDetails": "Hide parcel breakdown",
-  "noWeatherData": "Rain data unavailable — coverage estimate reflects time-based degradation only, not rainfall",
   "incompleteWeatherData": "Rain history may be incomplete for some early treatments"
 }
 ```
