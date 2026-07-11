@@ -27,9 +27,11 @@ if [ -f "$LOCK_FILE" ]; then
   rm -f "$LOCK_FILE"
 fi
 
-PORT_PID=$(lsof -ti tcp:"$DEFAULT_PORT" -sTCP:LISTEN 2>/dev/null || true)
-if [ -n "$PORT_PID" ]; then
-  kill_pid "$PORT_PID"
+PORT_PIDS=$(lsof -ti tcp:"$DEFAULT_PORT" -sTCP:LISTEN 2>/dev/null || true)
+if [ -n "$PORT_PIDS" ]; then
+  while IFS= read -r port_pid; do
+    [ -n "$port_pid" ] && kill_pid "$port_pid"
+  done <<< "$PORT_PIDS"
 fi
 
 exit 0

@@ -12,16 +12,16 @@ export async function getCoverageWidgetData(
 	userId: string,
 ): Promise<CoverageWidgetData | null> {
 	try {
-		const [activeDiseases, parcels, compositions, substances] =
-			await Promise.all([
-				getCurrentDiseases(),
-				getTreatmentsWithParcelWeather(userId),
-				getCachedCompositions(),
-				getCachedSubstances(),
-			]);
+		const activeDiseases = await getCurrentDiseases();
 
 		// Hide coverage data entirely outside disease season (e.g. December)
 		if (activeDiseases.length === 0) return null;
+
+		const [parcels, compositions, substances] = await Promise.all([
+			getTreatmentsWithParcelWeather(userId),
+			getCachedCompositions(),
+			getCachedSubstances(),
+		]);
 
 		// Fetch 3-day forecast from the first parcel that has coordinates
 		const representativeParcel = parcels.find(
