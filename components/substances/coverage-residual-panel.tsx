@@ -185,7 +185,7 @@ function ForecastRow({
 	forecast: CoverageForecastDay[];
 	metric: ForecastMetric | null;
 }) {
-	const { t } = useTranslations();
+	const { t, locale } = useTranslations();
 	if (forecast.length === 0) return null;
 
 	return (
@@ -202,7 +202,7 @@ function ForecastRow({
 				{forecast.map((day, i) => {
 					const date = new Date(day.date);
 					const dayName = date
-						.toLocaleDateString(undefined, {
+						.toLocaleDateString(locale, {
 							weekday: "short",
 							timeZone: "UTC",
 						})
