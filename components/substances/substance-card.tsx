@@ -1,7 +1,12 @@
 "use client";
 
+import { Suspense, use } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { type SubstanceData, type SubstanceCoverage } from "../types";
+import {
+	type SubstanceData,
+	type SubstanceCoverage,
+	type CoverageWidgetData,
+} from "../types";
 import { SubstanceCircle } from "./substance-circle";
 import { CumulatedDoseSection } from "./cumulated-dose-section";
 import {
@@ -26,16 +31,36 @@ function CoverageSection({
 	return <ResidualPanel {...panelProps} />;
 }
 
+function CoverageSectionFromPromise({
+	substanceName,
+	coverageDataPromise,
+}: {
+	substanceName: string;
+	coverageDataPromise: Promise<CoverageWidgetData | null>;
+}) {
+	const coverageData = use(coverageDataPromise);
+	const coverage = coverageData?.substances.find(
+		(s) => s.substanceName === substanceName,
+	);
+
+	if (!coverage) return null;
+
+	return (
+		<CoverageSection
+			coverage={coverage}
+			hasWeatherData={coverageData?.hasWeatherData ?? true}
+		/>
+	);
+}
+
 interface SubstanceCardProps {
 	substance: SubstanceData;
-	coverage?: SubstanceCoverage;
-	hasWeatherData: boolean;
+	coverageDataPromise?: Promise<CoverageWidgetData | null>;
 }
 
 export function SubstanceCard({
 	substance,
-	coverage,
-	hasWeatherData,
+	coverageDataPromise,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -59,11 +84,13 @@ export function SubstanceCard({
 					substanceColor={substanceColor}
 				/>
 
-				{coverage && (
-					<CoverageSection
-						coverage={coverage}
-						hasWeatherData={hasWeatherData}
-					/>
+				{coverageDataPromise && (
+					<Suspense fallback={null}>
+						<CoverageSectionFromPromise
+							substanceName={substance.name}
+							coverageDataPromise={coverageDataPromise}
+						/>
+					</Suspense>
 				)}
 			</CardContent>
 		</Card>

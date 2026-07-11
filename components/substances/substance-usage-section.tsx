@@ -24,38 +24,20 @@ interface SubstanceUsageSectionProps {
 	coverageDataPromise?: Promise<CoverageWidgetData | null>;
 }
 
-function SubstanceCardsWithCoverage({
-	substanceData,
+function IncompleteWeatherBanner({
 	coverageDataPromise,
 }: {
-	substanceData: SubstanceData[];
 	coverageDataPromise: Promise<CoverageWidgetData | null>;
 }) {
 	const coverageData = use(coverageDataPromise);
 	const { t } = useTranslations();
 
-	return (
-		<>
-			{coverageData?.hasIncompleteWeatherHistory && (
-				<p className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">
-					{t("coverage.incompleteWeatherData")}
-				</p>
-			)}
-			{substanceData.map((substance) => {
-				const coverage = coverageData?.substances.find(
-					(s) => s.substanceName === substance.name,
-				);
+	if (!coverageData?.hasIncompleteWeatherHistory) return null;
 
-				return (
-					<SubstanceCard
-						key={substance.name}
-						substance={substance}
-						coverage={coverage}
-						hasWeatherData={coverageData?.hasWeatherData ?? true}
-					/>
-				);
-			})}
-		</>
+	return (
+		<p className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">
+			{t("coverage.incompleteWeatherData")}
+		</p>
 	);
 }
 
@@ -91,30 +73,20 @@ export function SubstanceUsageSection({
 					<div className="grid gap-4">
 						<h2 className="text-lg font-semibold">{t("substances.details")}</h2>
 
-						{coverageDataPromise ? (
-							<Suspense
-								fallback={substanceData.map((substance) => (
-									<SubstanceCard
-										key={substance.name}
-										substance={substance}
-										hasWeatherData
-									/>
-								))}
-							>
-								<SubstanceCardsWithCoverage
-									substanceData={substanceData}
+						{coverageDataPromise && (
+							<Suspense fallback={null}>
+								<IncompleteWeatherBanner
 									coverageDataPromise={coverageDataPromise}
 								/>
 							</Suspense>
-						) : (
-							substanceData.map((substance) => (
-								<SubstanceCard
-									key={substance.name}
-									substance={substance}
-									hasWeatherData
-								/>
-							))
 						)}
+						{substanceData.map((substance) => (
+							<SubstanceCard
+								key={substance.name}
+								substance={substance}
+								coverageDataPromise={coverageDataPromise}
+							/>
+						))}
 					</div>
 				)}
 
