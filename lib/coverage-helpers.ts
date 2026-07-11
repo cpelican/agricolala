@@ -33,6 +33,9 @@ const COPPER_EFFICACY_THRESHOLD_MG_M2 = 2.5;
 // Scientific anchors for 100% coverage per substance.
 // Copper: 2.5 mg/m² efficacy threshold × LAI=4 × 10 = 100 g/ha active (InfoWine / Cabùs et al.)
 // Sulfur: 8 kg/ha wettable product × 80% composition = 6 400 g/ha active (Vitisphere, lower bound)
+// A substance not listed here (and not "Copper" for leafSurfaceMgPerM2 above) gets no
+// coverage/residual panel at all — components/substances/coverage-residual-panel.tsx's
+// getResidualPanelProps returns null with neither anchor set. Add a new substance's dose here.
 export const FULL_DOSE_G_PER_HA: Record<string, number> = {
 	Copper: 100,
 	Sulfur: 6_400,
