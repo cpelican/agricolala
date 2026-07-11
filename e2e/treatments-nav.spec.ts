@@ -39,7 +39,16 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 	);
 
 	const labels = expectedDashboardCopperLabelsAfterAdditionalTreatment();
-	await expect(main.getByText(labels.productText)).toBeVisible();
-	await expect(main.getByText(labels.pureText)).toBeVisible();
-	await expect(main.getByText(labels.kgHaText)).toBeVisible();
+	await expect(
+		main.getByText("Product applied", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.productValue, { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText("Active substance", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.activeSubstanceValue, { exact: true }),
+	).toBeVisible();
 });

@@ -61,6 +61,10 @@ interface DailyWeatherData
 const WEATHER_HISTORY_DAYS = 7;
 const WEATHER_FORECAST_DAYS = 3;
 
+// Fail fast rather than hang on a slow/unreachable upstream — well under
+// Playwright's default 10s expect timeout and Next.js request lifetime.
+const FETCH_TIMEOUT_MS = 5_000;
+
 const getStartOfUtcDay = (date: Date) => {
 	return new Date(
 		Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
@@ -90,11 +94,42 @@ const parseOpenMeteoResponse = async (
 	return parsedResponse.data;
 };
 
+// `PLAYWRIGHT=1` is set on the e2e webServer (playwright.config.ts). The real
+// Open-Meteo API is unreliable from CI runners (503s / connect timeouts),
+// which delayed the coverage widget's Suspense boundary past Playwright's
+// 10s expect timeout and failed unrelated dashboard assertions.
+const isPlaywrightEnv = () => process.env.PLAYWRIGHT === "1";
+
+const buildMockOpenMeteoResponse = (days: number): OpenMeteoResponse => {
+	const start = getStartOfUtcDay(new Date());
+	const time = Array.from({ length: days * 24 }, (_, index) => {
+		const date = new Date(start);
+		date.setUTCHours(date.getUTCHours() + index);
+		return `${date.toISOString().slice(0, 13)}:00Z`;
+	});
+
+	return {
+		hourly: {
+			time,
+			temperature_2m: time.map(() => 18),
+			temperature_80m: time.map(() => 17),
+			precipitation: time.map(() => 0),
+			relative_humidity_2m: time.map(() => 60),
+			wind_speed_10m: time.map(() => 8),
+			wind_speed_180m: time.map(() => 10),
+		},
+	};
+};
+
 export class OpenMeteoClient {
 	private static fetchWeatherData = async (
 		latitude: number,
 		longitude: number,
 	): Promise<OpenMeteoResponse> => {
+		if (isPlaywrightEnv()) {
+			return buildMockOpenMeteoResponse(WEATHER_HISTORY_DAYS);
+		}
+
 		const url = new URL("https://api.open-meteo.com/v1/forecast");
 		url.searchParams.set("latitude", latitude.toString());
 		url.searchParams.set("longitude", longitude.toString());
@@ -105,7 +140,9 @@ export class OpenMeteoClient {
 		url.searchParams.set("past_days", WEATHER_HISTORY_DAYS.toString());
 		url.searchParams.set("forecast_days", "0");
 
-		const response = await fetch(url.toString());
+		const response = await fetch(url.toString(), {
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+		});
 		if (!response.ok) {
 			console.error(`Failed to fetch weather data: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
@@ -118,6 +155,10 @@ export class OpenMeteoClient {
 		latitude: number,
 		longitude: number,
 	): Promise<OpenMeteoResponse> => {
+		if (isPlaywrightEnv()) {
+			return buildMockOpenMeteoResponse(WEATHER_FORECAST_DAYS);
+		}
+
 		const url = new URL("https://api.open-meteo.com/v1/forecast");
 		url.searchParams.set("latitude", latitude.toString());
 		url.searchParams.set("longitude", longitude.toString());
@@ -126,7 +167,9 @@ export class OpenMeteoClient {
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
 		url.searchParams.set("forecast_days", WEATHER_FORECAST_DAYS.toString());
-		const response = await fetch(url.toString());
+		const response = await fetch(url.toString(), {
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+		});
 		if (!response.ok) {
 			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
