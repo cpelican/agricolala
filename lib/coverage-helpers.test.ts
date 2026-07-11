@@ -150,7 +150,7 @@ const compositions = {
 	},
 	"substance-sulfur": {
 		"product-sulfur": {
-			substance: { name: "Sulfur", maxDosage: 10 },
+			substance: { name: "Sulfur", maxDosage: 40 },
 			dose: 80,
 			productId: "product-sulfur",
 			substanceId: "substance-sulfur",
@@ -159,7 +159,7 @@ const compositions = {
 	},
 	"product-sulfur": {
 		"substance-sulfur": {
-			substance: { name: "Sulfur", maxDosage: 10 },
+			substance: { name: "Sulfur", maxDosage: 40 },
 			dose: 80,
 			productId: "product-sulfur",
 			substanceId: "substance-sulfur",
@@ -307,12 +307,12 @@ describe("calculateCoverageData", () => {
 	});
 
 	test("sulfur: 2.5mm rain reduces coverage to ~45% of full dose", () => {
-		// dose=8000g product at 80% composition, 10 000m² → 8000*0.8*10000/10000 = 6400 g/ha = SULFUR_FULL_DOSE.
-		// After 2.5mm (k=ln(2)/2.5 → ×0.5) + 1 day (k=ln(2)/7 → ×0.906): ≈ 2899 g/ha → 45%
+		// dose=5 000g product at 80% composition, 10 000m² → 5000*0.8*10000/10000 = 4000 g/ha = SULFUR_FULL_DOSE.
+		// After 2.5mm (k=ln(2)/2.5 → ×0.5) + 1 day (k=ln(2)/7 → ×0.906): ≈ 1812 g/ha → 45%
 		const parcel = makeParcel({
 			productId: "product-sulfur",
 			substanceId: "substance-sulfur",
-			dose: 8_000,
+			dose: 5_000,
 			compositionDose: 80,
 			treatmentDate: new Date("2025-06-19T12:00:00Z"),
 			weatherHistories: [

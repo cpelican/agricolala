@@ -460,7 +460,7 @@ export function AddTreatmentDialog({
 										</Select>
 										<Input
 											type="number"
-											placeholder="gr"
+											placeholder="g"
 											step="0.1"
 											min="0.1"
 											value={product.dose || ""}
@@ -485,7 +485,7 @@ export function AddTreatmentDialog({
 									advisedDosePerProduct[product.productId] < product.dose ? (
 										<p className="text-sm text-orange-400">
 											{t("treatments.warnings.doseAdvice")}{" "}
-											{Math.round(advisedDosePerProduct[product.productId])}gr
+											{Math.round(advisedDosePerProduct[product.productId])}g
 										</p>
 									) : null}
 								</React.Fragment>

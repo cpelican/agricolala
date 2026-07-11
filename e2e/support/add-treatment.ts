@@ -19,7 +19,7 @@ export async function addTreatmentFromDialog(
 	await page.getByRole("option", { name: "Peronospora" }).click();
 	await dialog.getByText("Select product").click();
 	await page.getByRole("option", { name: "Pasta cafaro" }).click();
-	await dialog.getByPlaceholder("gr").fill(String(productDoseGrams));
+	await dialog.getByPlaceholder("g").fill(String(productDoseGrams));
 
 	await dialog.getByRole("button", { name: "Create Treatment" }).click();
 	await expect(dialog).toBeHidden();

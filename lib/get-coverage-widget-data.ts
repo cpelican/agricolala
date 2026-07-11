@@ -6,19 +6,15 @@ import {
 } from "@/lib/data-fetcher";
 import { calculateCoverageData } from "@/lib/coverage-helpers";
 import { OpenMeteoClient } from "@/lib/open-meteo-client";
-import { CoverageWidget } from "@/components/substances/coverage-widget";
+import { type CoverageWidgetData } from "@/components/types";
 
-interface CoverageWidgetContentProps {
-	userId: string;
-}
-
-export async function CoverageWidgetContent({
-	userId,
-}: CoverageWidgetContentProps) {
-	// Hide widget entirely outside disease season (e.g. December)
-	let data;
+export async function getCoverageWidgetData(
+	userId: string,
+): Promise<CoverageWidgetData | null> {
 	try {
 		const activeDiseases = await getCurrentDiseases();
+
+		// Hide coverage data entirely outside disease season (e.g. December)
 		if (activeDiseases.length === 0) return null;
 
 		const [parcels, compositions, substances] = await Promise.all([
@@ -39,6 +35,7 @@ export async function CoverageWidgetContent({
 				forecastDays = await OpenMeteoClient.getForecastWeatherData(
 					representativeParcel.latitude,
 					representativeParcel.longitude,
+					{ allowPlaywrightMock: true },
 				);
 			} catch (err) {
 				console.error("[CoverageWidget] forecast fetch failed:", err);
@@ -49,18 +46,16 @@ export async function CoverageWidgetContent({
 			substances.map((s) => [s.name, s.color]),
 		);
 
-		data = calculateCoverageData(
+		const data = calculateCoverageData(
 			parcels,
 			compositions,
 			substanceColorMap,
 			forecastDays,
 		);
+
+		return data.substances.length > 0 ? data : null;
 	} catch (err) {
 		console.error("[CoverageWidget] failed to load coverage data:", err);
 		return null;
 	}
-
-	if (!data || data.substances.length === 0) return null;
-
-	return <CoverageWidget data={data} />;
 }

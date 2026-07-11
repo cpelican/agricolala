@@ -40,8 +40,6 @@ const totalCopperGrams =
 	totalCopperProductDoseGrams * COPPER_PRODUCT_COPPER_FRACTION;
 const totalCopperPerHaGrams = (totalCopperGrams * 10_000) / PARCEL_AREA_M2;
 
-const GRAMS_PER_KILOGRAM = 1_000;
-
 export const expectedCopperChartKg = [
 	0,
 	0,
@@ -70,16 +68,21 @@ export function expectedCopperChartKgAfterAdditionalTreatment() {
 	);
 }
 
+// Mirrors CumulatedDoseSection's formatNumber: "en" locale, up to 2 decimals,
+// thousands separators, trailing zeros stripped.
+function formatGramsPerHa(value: number): string {
+	return value.toLocaleString("en", { maximumFractionDigits: 2 });
+}
+
 export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
 	const pureGrams = totalCopperGrams + additionalTreatmentPureCopperGrams;
-	const kgHa = Math.round(
-		(pureGrams * 10_000) / PARCEL_AREA_M2 / GRAMS_PER_KILOGRAM,
-	);
+	const pureGramsPerHa = (pureGrams * 10_000) / PARCEL_AREA_M2;
+	const productGrams =
+		totalCopperProductDoseGrams + additionalTreatmentProductGrams;
 
 	return {
-		productText: `${(totalCopperProductDoseGrams + additionalTreatmentProductGrams).toFixed(2)} gr of product`,
-		pureText: `${Math.round(pureGrams)} gr of pure active substance`,
-		kgHaText: `${kgHa} kg/ha of pure active substance`,
+		productValue: `${formatGramsPerHa(productGrams)} g`,
+		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
 	};
 }
 

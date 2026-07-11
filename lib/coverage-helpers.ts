@@ -27,15 +27,22 @@ const COPPER_SUBSTANCE_NAME = "Copper";
 // LAI (Leaf Area Index) ≈ 4 for vineyards; ×10 converts g/ha to mg/m²
 // Source: InfoWine — Bassi dosaggi di rame in viticoltura
 // https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
-const COPPER_LEAF_AREA_FACTOR = 4 * 10;
+export const COPPER_LEAF_AREA_FACTOR = 4 * 10;
 const COPPER_EFFICACY_THRESHOLD_MG_M2 = 2.5;
 
 // Scientific anchors for 100% coverage per substance.
 // Copper: 2.5 mg/m² efficacy threshold × LAI=4 × 10 = 100 g/ha active (InfoWine / Cabùs et al.)
-// Sulfur: 8 kg/ha wettable product × 80% composition = 6 400 g/ha active (Vitisphere, lower bound)
+// Sulfur: annual ecological limit (Substance.maxDosage, 40 kg/ha/year) split across estimated 10
+// applications/season = 4 000 g/ha active per application — an application rate high enough
+// to be effective (within the 3-10 kg/ha literature range) without exhausting the season's
+// budget in a handful of sprays. Chosen over the literature high-pressure single-spray rate
+// (6 400 g/ha) because that would only afford ~6 full sprays/year against the 40 kg/ha cap.
+// A substance not listed here (and not "Copper" for leafSurfaceMgPerM2 above) gets no
+// coverage/residual panel at all — components/substances/coverage-residual-panel.tsx's
+// getResidualPanelProps returns null with neither anchor set. Add a new substance's dose here.
 export const FULL_DOSE_G_PER_HA: Record<string, number> = {
 	Copper: 100,
-	Sulfur: 6_400,
+	Sulfur: 4_000,
 };
 
 export function getWashoffK(substanceName: string): number {

@@ -50,7 +50,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 		db.substance.create({
 			data: {
 				name: "Sulfur",
-				maxDosage: 10, // kg/ha/year
+				maxDosage: 40, // kg/ha/year
 				diseases: {
 					connect: [{ id: oidium.id }],
 				},

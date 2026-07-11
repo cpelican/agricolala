@@ -35,9 +35,12 @@ test("dashboard shows April treatment data in the line chart", async ({
 
 	const copperDataset = getCopperDataset(summary);
 	expect(copperDataset?.data).toEqual([...expectedCopperChartKg]);
-	await expect(main.getByText("256.00 gr of product")).toBeVisible();
-	await expect(main.getByText("64 gr of pure active substance")).toBeVisible();
 	await expect(
-		main.getByText("2 kg/ha of pure active substance"),
+		main.getByText("Product applied", { exact: true }),
 	).toBeVisible();
+	await expect(main.getByText("256 g", { exact: true })).toBeVisible();
+	await expect(
+		main.getByText("Active substance", { exact: true }),
+	).toBeVisible();
+	await expect(main.getByText("1,600 g/ha", { exact: true })).toBeVisible();
 });
