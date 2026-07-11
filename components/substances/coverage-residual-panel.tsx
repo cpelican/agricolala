@@ -202,7 +202,10 @@ function ForecastRow({
 				{forecast.map((day, i) => {
 					const date = new Date(day.date);
 					const dayName = date
-						.toLocaleDateString(undefined, { weekday: "short" })
+						.toLocaleDateString(undefined, {
+							weekday: "short",
+							timeZone: "UTC",
+						})
 						.toUpperCase();
 					const value = metric
 						? metric.convert(day.projectedWeightedRemainingGPerHa)
@@ -217,7 +220,7 @@ function ForecastRow({
 							}`}
 						>
 							<p className="text-xs text-muted-foreground">
-								{dayName} {date.getDate()}
+								{dayName} {date.getUTCDate()}
 							</p>
 							{value !== null && level ? (
 								<>
