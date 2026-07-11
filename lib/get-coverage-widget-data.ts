@@ -35,6 +35,7 @@ export async function getCoverageWidgetData(
 				forecastDays = await OpenMeteoClient.getForecastWeatherData(
 					representativeParcel.latitude,
 					representativeParcel.longitude,
+					{ allowPlaywrightMock: true },
 				);
 			} catch (err) {
 				console.error("[CoverageWidget] forecast fetch failed:", err);

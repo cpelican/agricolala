@@ -46,6 +46,7 @@ describe("OpenMeteoClient", () => {
 	afterEach(() => {
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
+		vi.unstubAllEnvs();
 		vi.restoreAllMocks();
 	});
 
@@ -114,6 +115,24 @@ describe("OpenMeteoClient", () => {
 			["2026-06-01", "2026-06-02"],
 		);
 		expect(dailyData.map((day) => day.cumulativePrecipitation)).toEqual([1, 1]);
+	});
+
+	test("only fabricates forecast data under PLAYWRIGHT=1 when the caller opts in", async () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2026-06-01T08:16:00Z"));
+		vi.stubEnv("PLAYWRIGHT", "1");
+		const requestedUrls = mockOpenMeteoFetch(createOpenMeteoResponse([]));
+
+		const mockedData = await OpenMeteoClient.getForecastWeatherData(
+			44.0998,
+			9.7387,
+			{ allowPlaywrightMock: true },
+		);
+		expect(requestedUrls).toHaveLength(0);
+		expect(mockedData.length).toBeGreaterThan(0);
+
+		await OpenMeteoClient.getForecastWeatherData(44.0998, 9.7387);
+		expect(requestedUrls).toHaveLength(1);
 	});
 
 	test("rejects malformed Open-Meteo payloads before aggregation", async () => {

@@ -97,7 +97,10 @@ const parseOpenMeteoResponse = async (
 // `PLAYWRIGHT=1` is set on the e2e webServer (playwright.config.ts). The real
 // Open-Meteo API is unreliable from CI runners (503s / connect timeouts),
 // which delayed the coverage widget's Suspense boundary past Playwright's
-// 10s expect timeout and failed unrelated dashboard assertions.
+// 10s expect timeout. Mocking is opt-in per call site (see
+// `allowPlaywrightMock` below) so it stays scoped to the coverage widget's
+// forecast fetch instead of silently changing data for every other caller
+// of this client (e.g. the Applicability panel) under e2e.
 const isPlaywrightEnv = () => process.env.PLAYWRIGHT === "1";
 
 const buildMockOpenMeteoResponse = (days: number): OpenMeteoResponse => {
@@ -126,10 +129,6 @@ export class OpenMeteoClient {
 		latitude: number,
 		longitude: number,
 	): Promise<OpenMeteoResponse> => {
-		if (isPlaywrightEnv()) {
-			return buildMockOpenMeteoResponse(WEATHER_HISTORY_DAYS);
-		}
-
 		const url = new URL("https://api.open-meteo.com/v1/forecast");
 		url.searchParams.set("latitude", latitude.toString());
 		url.searchParams.set("longitude", longitude.toString());
@@ -154,8 +153,9 @@ export class OpenMeteoClient {
 	private static fetchWeatherForecast = async (
 		latitude: number,
 		longitude: number,
+		allowPlaywrightMock: boolean,
 	): Promise<OpenMeteoResponse> => {
-		if (isPlaywrightEnv()) {
+		if (allowPlaywrightMock && isPlaywrightEnv()) {
 			return buildMockOpenMeteoResponse(WEATHER_FORECAST_DAYS);
 		}
 
@@ -334,10 +334,12 @@ export class OpenMeteoClient {
 	public static getForecastWeatherData = async (
 		latitude: number,
 		longitude: number,
+		options?: { allowPlaywrightMock?: boolean },
 	): Promise<DailyWeatherData[]> => {
 		const forecastResponse = await OpenMeteoClient.fetchWeatherForecast(
 			latitude,
 			longitude,
+			options?.allowPlaywrightMock ?? false,
 		);
 		const now = new Date();
 		const dailyData = OpenMeteoClient.computeDailyWeatherData(
