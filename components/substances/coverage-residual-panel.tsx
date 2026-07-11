@@ -3,7 +3,10 @@
 import { type ReactNode } from "react";
 import { type CoverageForecastDay, type SubstanceCoverage } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
-import { COPPER_EFFICACY_THRESHOLD_MG_M2 } from "@/lib/coverage-helpers";
+import {
+	COPPER_EFFICACY_THRESHOLD_MG_M2,
+	COPPER_LEAF_AREA_FACTOR,
+} from "@/lib/coverage-helpers";
 import { AlertTriangle, CheckCircle2, CloudRain } from "lucide-react";
 
 // Presentation-only scale for the leaf-residual gauge (copper). Not a business threshold.
@@ -319,11 +322,6 @@ export function getResidualPanelProps(
 	const status = getCoverageStatus(coverage, t);
 
 	if (leafSurfaceMgPerM2 !== undefined && status) {
-		const leafSurfaceRatio =
-			coverage.weightedRemainingGPerHa > 0
-				? leafSurfaceMgPerM2 / coverage.weightedRemainingGPerHa
-				: null;
-
 		return {
 			titleSuffix: ` · ${
 				hasWeatherData
@@ -354,16 +352,13 @@ export function getResidualPanelProps(
 						: t("coverage.aboveThreshold"),
 			},
 			forecast: coverage.forecast,
-			forecastMetric:
-				leafSurfaceRatio !== null
-					? {
-							convert: (g) => g * leafSurfaceRatio,
-							unit: "mg/m²",
-							statusLevel: (v) =>
-								v < COPPER_EFFICACY_THRESHOLD_MG_M2 ? "critical" : "optimal",
-							subtitle: t("coverage.forecastSubtitleLeaf"),
-						}
-					: null,
+			forecastMetric: {
+				convert: (g) => g / COPPER_LEAF_AREA_FACTOR,
+				unit: "mg/m²",
+				statusLevel: (v) =>
+					v < COPPER_EFFICACY_THRESHOLD_MG_M2 ? "critical" : "optimal",
+				subtitle: t("coverage.forecastSubtitleLeaf"),
+			},
 		};
 	}
 

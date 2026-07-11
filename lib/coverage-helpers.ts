@@ -27,7 +27,7 @@ const COPPER_SUBSTANCE_NAME = "Copper";
 // LAI (Leaf Area Index) ≈ 4 for vineyards; ×10 converts g/ha to mg/m²
 // Source: InfoWine — Bassi dosaggi di rame in viticoltura
 // https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
-const COPPER_LEAF_AREA_FACTOR = 4 * 10;
+export const COPPER_LEAF_AREA_FACTOR = 4 * 10;
 const COPPER_EFFICACY_THRESHOLD_MG_M2 = 2.5;
 
 // Scientific anchors for 100% coverage per substance.
