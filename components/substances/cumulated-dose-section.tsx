@@ -3,10 +3,7 @@
 import { type SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
 import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
-
-function formatTrimmed(value: number, decimals = 2): string {
-	return String(Number(value.toFixed(decimals)));
-}
+import { formatNumber } from "@/lib/utils";
 
 export function CumulatedDoseSection({
 	substance,
@@ -15,7 +12,7 @@ export function CumulatedDoseSection({
 	substance: SubstanceData;
 	substanceColor: string;
 }) {
-	const { t } = useTranslations();
+	const { t, locale } = useTranslations();
 	const substanceInKgPerHa =
 		substance.totalUsedOfPureActiveSubstancePerHaGrams / GRAMS_PER_KILOGRAM;
 	const dosePct =
@@ -28,16 +25,21 @@ export function CumulatedDoseSection({
 
 	return (
 		<div className="border-t pt-4 space-y-3">
-			<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-				{t("coverage.cumulatedDose")}
-			</p>
+			<div>
+				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+					{t("coverage.cumulatedDose")}
+				</p>
+				<p className="text-xs text-muted-foreground">
+					{t("coverage.cumulatedDoseSubtitle")}
+				</p>
+			</div>
 			<div className="grid grid-cols-2 gap-3">
 				<div className="rounded-lg bg-muted p-3">
 					<p className="text-xs text-muted-foreground">
 						{t("coverage.productApplied")}
 					</p>
 					<p className="text-lg font-bold">
-						{substance.totalDoseOfProduct.toFixed(2)} gr
+						{formatNumber(substance.totalDoseOfProduct, locale, 2)} g
 					</p>
 				</div>
 				<div className="rounded-lg bg-muted p-3">
@@ -45,7 +47,11 @@ export function CumulatedDoseSection({
 						{t("coverage.activeSubstance")}
 					</p>
 					<p className="text-lg font-bold">
-						{formatTrimmed(substance.totalUsedOfPureActiveSubstancePerHaGrams)}{" "}
+						{formatNumber(
+							substance.totalUsedOfPureActiveSubstancePerHaGrams,
+							locale,
+							2,
+						)}{" "}
 						g/ha
 					</p>
 				</div>

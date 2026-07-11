@@ -7,6 +7,7 @@ import {
 	COPPER_EFFICACY_THRESHOLD_MG_M2,
 	COPPER_LEAF_AREA_FACTOR,
 } from "@/lib/coverage-helpers";
+import { formatNumber } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2, CloudRain } from "lucide-react";
 
 // Presentation-only scale for the leaf-residual gauge (copper). Not a business threshold.
@@ -317,6 +318,7 @@ export function getResidualPanelProps(
 	coverage: SubstanceCoverage,
 	hasWeatherData: boolean,
 	t: (key: string) => string,
+	locale: string,
 ): ResidualPanelProps | null {
 	const leafSurfaceMgPerM2 = coverage.leafSurfaceMgPerM2;
 	const status = getCoverageStatus(coverage, t);
@@ -390,8 +392,8 @@ export function getResidualPanelProps(
 						{Math.round(rawPercent)}% {t("coverage.remainingPercent")}
 					</span>{" "}
 					<span className="text-sm sm:text-base text-muted-foreground">
-						{Math.round(coverage.weightedRemainingGPerHa)} g/ha{" "}
-						{t("coverage.of")} {Math.round(fullDoseGPerHa)} g/ha
+						{formatNumber(coverage.weightedRemainingGPerHa, locale)} g/ha{" "}
+						{t("coverage.of")} {formatNumber(fullDoseGPerHa, locale)} g/ha
 					</span>
 				</>
 			),

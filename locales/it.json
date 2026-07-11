@@ -419,6 +419,7 @@
 		"productApplied": "Prodotto applicato",
 		"activeSubstance": "Sostanza attiva",
 		"cumulatedDose": "Dose Cumulata",
+		"cumulatedDoseSubtitle": "Sostanza attiva totale applicata quest'anno, confrontata con il limite normativo annuale",
 		"residualOnLeaves": "residuo sulle foglie",
 		"leafExplanation": "Deposito di rame sulla superficie fogliare, confrontato con la soglia di efficacia di 2.5 mg/m²",
 		"percentExplanation": "Percentuale della dose a piena protezione ancora residua sulla chioma",

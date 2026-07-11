@@ -23,8 +23,8 @@ function CoverageSection({
 	coverage: SubstanceCoverage;
 	hasWeatherData: boolean;
 }) {
-	const { t } = useTranslations();
-	const panelProps = getResidualPanelProps(coverage, hasWeatherData, t);
+	const { t, locale } = useTranslations();
+	const panelProps = getResidualPanelProps(coverage, hasWeatherData, t, locale);
 
 	if (!panelProps) return null;
 

@@ -102,7 +102,7 @@ export async function seedTestData() {
 	const sulfur = await testPrisma.substance.create({
 		data: {
 			name: "Sulfur",
-			maxDosage: 10,
+			maxDosage: 40,
 			diseases: {
 				connect: [{ id: oidium.id }],
 			},

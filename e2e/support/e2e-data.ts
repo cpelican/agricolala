@@ -68,17 +68,20 @@ export function expectedCopperChartKgAfterAdditionalTreatment() {
 	);
 }
 
-// Mirrors CumulatedDoseSection's formatTrimmed: 2 decimals, trailing zeros stripped.
+// Mirrors CumulatedDoseSection's formatNumber: "en" locale, up to 2 decimals,
+// thousands separators, trailing zeros stripped.
 function formatGramsPerHa(value: number): string {
-	return String(Number(value.toFixed(2)));
+	return value.toLocaleString("en", { maximumFractionDigits: 2 });
 }
 
 export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
 	const pureGrams = totalCopperGrams + additionalTreatmentPureCopperGrams;
 	const pureGramsPerHa = (pureGrams * 10_000) / PARCEL_AREA_M2;
+	const productGrams =
+		totalCopperProductDoseGrams + additionalTreatmentProductGrams;
 
 	return {
-		productValue: `${(totalCopperProductDoseGrams + additionalTreatmentProductGrams).toFixed(2)} gr`,
+		productValue: `${formatGramsPerHa(productGrams)} g`,
 		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
 	};
 }

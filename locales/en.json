@@ -419,6 +419,7 @@
 		"productApplied": "Product applied",
 		"activeSubstance": "Active substance",
 		"cumulatedDose": "Cumulated Dose",
+		"cumulatedDoseSubtitle": "Total active substance applied this year, checked against the annual regulatory limit",
 		"residualOnLeaves": "residual on leaves",
 		"leafExplanation": "Copper deposit on the leaf surface, compared to the 2.5 mg/m² efficacy threshold",
 		"percentExplanation": "Percentage of the full-protection dose still residual on the canopy",

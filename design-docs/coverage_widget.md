@@ -231,18 +231,18 @@ COPPER_FULL_DOSE_G_PER_HA = 2.5 mg/m² × 10 × LAI = 2.5 × 10 × 4 = 100 g/ha 
 
 Cross-check via the existing leaf-surface formula: `leafSurfaceMgPerM2 = remaining_g_per_ha / 40`. At `remaining = 100 g/ha` → `100 / 40 = 2.5 mg/m²` ✓ — exactly the efficacy threshold.
 
-#### Sulfur — `SULFUR_FULL_DOSE_G_PER_HA = 6_400` g/ha active
+#### Sulfur — `SULFUR_FULL_DOSE_G_PER_HA = 4_000` g/ha active
 
-Derived from the high-pressure per-application dose documented in the Scientific Basis section:
+Unlike copper, sulfur's regulatory ceiling (`Substance.maxDosage = 40` kg/ha/year, EU Regulation 2018/848) only affords a handful of full sprays if we anchor to the literature high-pressure single-application rate (6 400 g/ha → `40_000 / 6_400 ≈ 6` sprays/year). In practice growers need more, smaller applications across the season, so the anchor is instead derived by splitting the annual ecological budget across a target of 10 applications/year:
 
 ```
-Per-application dose at high disease pressure:  8 kg/ha wettable sulfur product  (Vitisphere)
-Wettable sulfur composition:                    80% active sulfur by weight       (Zolfo tiovit label)
+Annual regulatory limit:      40 kg/ha/year               (EU Regulation 2018/848, Substance.maxDosage)
+Target applications/season:   10
 
-SULFUR_FULL_DOSE_G_PER_HA = 8_000 g/ha × 80% = 6_400 g/ha active sulfur
+SULFUR_FULL_DOSE_G_PER_HA = 40_000 g/ha ÷ 10 = 4_000 g/ha active sulfur
 ```
 
-This uses the lower bound of the high-pressure dose range (8–10 kg/ha), so coverage reads 100% when the farmer has applied the minimum recommended dose for a high-disease-pressure period. Applying more would temporarily push the meter above 100% (display is clamped to 100%, the raw value is not).
+4 000 g/ha (4 kg/ha) still falls within the literature per-application range (3–10 kg/ha, early-to-mid season), so it remains an effective dose — it's just chosen to fit the ecological budget across a realistic number of sprays/year rather than the literature's single high-pressure rate. Applying more would temporarily push the meter above 100% (display is clamped to 100%, the raw value is not).
 
 #### Other substances
 
@@ -254,7 +254,7 @@ No scientific anchor available. For any substance not in the lookup table, fall 
 // lib/coverage-helpers.ts
 export const FULL_DOSE_G_PER_HA: Record<string, number> = {
   Copper: 100,    // 2.5 mg/m² × LAI=4 × 10 — InfoWine / Cabùs et al. 2017
-  Sulfur: 6_400,  // 8 kg/ha product × 80% composition — Vitisphere high-pressure dose
+  Sulfur: 4_000,  // 40 kg/ha/year annual budget ÷ 10 applications/season
 };
 
 // Per substance in calculateCoverageData:
@@ -338,7 +338,7 @@ recommendedTopUpProductG?: number;          // total grams of product for this s
 ### `lib/coverage-helpers.ts` — pure calculation, no I/O
 - `WASHOFF_COEFFICIENTS: Record<string, number>` + `DEFAULT_WASHOFF_K` — with source URL comments
 - `DEFAULT_DAYS_BETWEEN_APPLICATIONS = 14` — hardcoded conservative fallback
-- `FULL_DOSE_G_PER_HA: Record<string, number>` — scientific anchors for 100% coverage (Copper: 100, Sulfur: 6 400)
+- `FULL_DOSE_G_PER_HA: Record<string, number>` — scientific anchors for 100% coverage (Copper: 100, Sulfur: 4 000)
 - `getWashoffK(substanceName): number`
 - `getTimeDecayK(daysBetweenApplications: number | null): number` — `ln(2) / (days ?? DEFAULT_DAYS_BETWEEN_APPLICATIONS)`
 - `computeWashoffFactor(rainMm, k): number` — `exp(-k × rainMm)`
