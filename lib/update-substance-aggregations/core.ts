@@ -88,8 +88,12 @@ export async function updateSubstanceAggregations(
 ) {
 	const treatments = await fetchTreatmentsForAggregation(prisma, userId, year);
 
-	const treatmentsByParcel = treatments.reduce<
-		Record<string, TreatmentForAggregation[]>
+	const allTransformedTreatments = treatments.map(
+		transformTreatmentForAggregation,
+	);
+
+	const transformedTreatmentsByParcel = allTransformedTreatments.reduce<
+		Record<string, (typeof allTransformedTreatments)[number][]>
 	>((acc, treatment) => {
 		if (!acc[treatment.parcelId]) {
 			acc[treatment.parcelId] = [];
@@ -97,11 +101,6 @@ export async function updateSubstanceAggregations(
 		acc[treatment.parcelId].push(treatment);
 		return acc;
 	}, {});
-
-	// Calculate user-level aggregations (all treatments combined)
-	const allTransformedTreatments = treatments.map(
-		transformTreatmentForAggregation,
-	);
 
 	const compositions = await getCachedCompositions();
 	const userSubstanceData = calculateSubstanceData(
@@ -125,23 +124,23 @@ export async function updateSubstanceAggregations(
 			})
 		).map((parcel) => parcel.id);
 
-	for (const parcelId of parcelIdsToUpdate) {
-		const parcelTreatments = treatmentsByParcel[parcelId] ?? [];
-		const parcelTransformedTreatments = parcelTreatments.map(
-			transformTreatmentForAggregation,
-		);
+	await prisma.parcelSubstanceAggregation.deleteMany({
+		where: { parcelId: { in: parcelIdsToUpdate }, year },
+	});
 
-		const parcelSubstanceData = calculateSubstanceData(
-			parcelTransformedTreatments,
-			compositions,
-		);
+	await Promise.all(
+		parcelIdsToUpdate.map(async (parcelId) => {
+			const parcelTransformedTreatments =
+				transformedTreatmentsByParcel[parcelId] ?? [];
 
-		await prisma.parcelSubstanceAggregation.deleteMany({
-			where: { parcelId, year },
-		});
+			const parcelSubstanceData = calculateSubstanceData(
+				parcelTransformedTreatments,
+				compositions,
+			);
 
-		if (parcelSubstanceData.length > 0) {
-			await updateParcelAggregations(parcelSubstanceData, parcelId, year);
-		}
-	}
+			if (parcelSubstanceData.length > 0) {
+				await updateParcelAggregations(parcelSubstanceData, parcelId, year);
+			}
+		}),
+	);
 }

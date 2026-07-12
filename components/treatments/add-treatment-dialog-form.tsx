@@ -44,13 +44,13 @@ export interface AddTreatmentDialogFormErrors {
 
 interface AddTreatmentDialogFormProps {
 	t: (key: string) => string;
-	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name" | "maxApplications">[];
 	advisedDosePerProduct: Record<string, number>;
 	formData: AddTreatmentDialogFormData;
 	errors: AddTreatmentDialogFormErrors;
+	isSubmitting: boolean;
 	onCancel: () => void;
 	onSubmit: () => void;
 	onPreventEnterSubmit: (event: React.KeyboardEvent<HTMLFormElement>) => void;
@@ -80,6 +80,7 @@ export function AddTreatmentDialogForm({
 	advisedDosePerProduct,
 	formData,
 	errors,
+	isSubmitting,
 	onCancel,
 	onSubmit,
 	onPreventEnterSubmit,
@@ -371,6 +372,7 @@ export function AddTreatmentDialogForm({
 					type="button"
 					className="bg-main-gradient hover:bg-primary-700"
 					onClick={onSubmit}
+					disabled={isSubmitting}
 				>
 					{t("treatments.createTreatment")}
 				</Button>

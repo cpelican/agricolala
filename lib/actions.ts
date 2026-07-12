@@ -104,35 +104,35 @@ export async function createTreatment(formData: FormData) {
 			return result;
 		};
 
+		const parcelAreaById = new Map(
+			parcels.map((parcel) => [parcel.id, getParcelAreaM2(parcel)]),
+		);
+
 		const createdTreatments = await prisma.$transaction(async (tx) => {
-			const results: { id: string }[] = [];
+			const treatments = await tx.treatment.createManyAndReturn({
+				data: parcels.map((parcel) => ({
+					waterDose: validatedData.waterDose,
+					parcelId: parcel.id,
+					appliedDate: validatedData.appliedDate,
+					status: TreatmentStatus.DONE,
+					userId: session.user.id,
+					diseaseIds,
+				})),
+				select: { id: true, parcelId: true },
+			});
 
-			for (const parcel of parcels) {
-				const parcelArea = getParcelAreaM2(parcel);
-				const treatment = await tx.treatment.create({
-					data: {
-						waterDose: validatedData.waterDose,
-						parcelId: parcel.id,
-						appliedDate: validatedData.appliedDate,
-						status: TreatmentStatus.DONE,
-						userId: session.user.id,
-						diseaseIds,
-					},
-					select: { id: true },
-				});
-
-				await tx.productApplication.createMany({
-					data: validatedData.productApplications.map((product) => ({
+			await tx.productApplication.createMany({
+				data: treatments.flatMap((treatment) => {
+					const parcelArea = parcelAreaById.get(treatment.parcelId) ?? 0;
+					return validatedData.productApplications.map((product) => ({
 						dose: calculateDosePerParcel(product.dose, parcelArea),
 						productId: product.productId,
 						treatmentId: treatment.id,
-					})),
-				});
+					}));
+				}),
+			});
 
-				results.push(treatment);
-			}
-
-			return results;
+			return treatments;
 		});
 
 		const currentYear = new Date().getFullYear();

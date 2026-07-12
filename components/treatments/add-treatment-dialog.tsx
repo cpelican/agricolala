@@ -76,6 +76,7 @@ export function AddTreatmentDialog({
 	const { toast } = useToast();
 
 	const isSubmittingRef = useRef(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [errors, setErrors] =
 		useState<AddTreatmentDialogFormErrors>(defaultErrors);
 	const [formData, setFormData] = useState<AddTreatmentDialogFormData>(() =>
@@ -232,6 +233,7 @@ export function AddTreatmentDialog({
 		}
 
 		isSubmittingRef.current = true;
+		setIsSubmitting(true);
 
 		const submitData = new FormData();
 		submitData.append(
@@ -268,11 +270,12 @@ export function AddTreatmentDialog({
 			});
 		} finally {
 			isSubmittingRef.current = false;
+			setIsSubmitting(false);
 		}
 	};
 
 	const preventNumberEnterSubmit = (
-		event: React.KeyboardEvent<HTMLInputElement>,
+		event: React.KeyboardEvent<HTMLElement>,
 	) => {
 		if (event.key === "Enter") {
 			event.preventDefault();
@@ -293,16 +296,16 @@ export function AddTreatmentDialog({
 
 				<AddTreatmentDialogForm
 					t={t}
-					parcelId={parcelId}
 					parcels={parcels}
 					diseases={diseases}
 					products={products}
 					advisedDosePerProduct={advisedDosePerProduct}
 					formData={formData}
 					errors={errors}
+					isSubmitting={isSubmitting}
 					onCancel={() => onOpenChange(false)}
 					onSubmit={() => void handleSubmit()}
-					onPreventEnterSubmit={() => {}}
+					onPreventEnterSubmit={preventNumberEnterSubmit}
 					onNumberInputKeyDown={preventNumberEnterSubmit}
 					onAddParcel={addParcel}
 					onRemoveParcel={removeParcel}
