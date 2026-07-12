@@ -74,7 +74,6 @@ interface AddTreatmentDialogFormProps {
 
 export function AddTreatmentDialogForm({
 	t,
-	parcelId,
 	parcels,
 	diseases,
 	products,
