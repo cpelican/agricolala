@@ -173,7 +173,7 @@ export function AddTreatmentDialogForm({
 									<SelectContent>
 										{parcels.map((parcel) => (
 											<SelectItem key={parcel.id} value={parcel.id}>
-													{parcel.name} ({formatParcelAreaDisplay(parcel)})
+												{parcel.name} ({formatParcelAreaDisplay(parcel)})
 											</SelectItem>
 										))}
 									</SelectContent>
