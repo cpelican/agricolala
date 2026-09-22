@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	// For trying on a real mobile
+	allowedDevOrigins: process.env.VERCEL_ENV !== "production" ? ["192.168.1.13"] : undefined,
 	devIndicators: process.env.PLAYWRIGHT ? false : undefined,
 	experimental: {
 		taint: true,
@@ -28,6 +30,19 @@ const nextConfig = {
 				hostname: "lh3.googleusercontent.com",
 			},
 		],
+	},
+	async headers() {
+		return [
+			{
+				source: "/:path*",
+				headers: [
+					{
+						key: "Permissions-Policy",
+						value: "geolocation=(self)",
+					},
+				],
+			},
+		];
 	},
 };
 

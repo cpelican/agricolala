@@ -71,14 +71,46 @@ Playwright ignores dev `.env` `DATABASE_URL` and uses the e2e database (`127.0.0
 
 ## Deploy Agricolala
 
+The repository is connected to a Vercel deployment. If you push to main, this will trigger a new deploy. Vercel only needs one env var for the database: `DATABASE_URL` (Transaction pooler, see below) — its build (`prisma generate && next build`) doesn't touch the database, and the running app only ever queries through `DATABASE_URL`. `DIRECT_URL` is not needed in Vercel; it's only used locally, for running migrations (see next section).
+
+### Running migrations against production
+
+Migrations aren't automatic — run them manually from your machine before merging to main. **Run the migration before merging.** Merging triggers an immediate Vercel deploy, so if the new code ships before the schema is updated, requests can hit missing columns/tables until you run the migration. Confirm `npm run migrate:deploy:prod` succeeds first, then merge.
+
+To avoid keeping production credentials in `.env`, they're stored in the macOS Keychain and pulled in only for the duration of the command:
+
 ```bash
-# Pushes migrations to Supabase
-npx prisma migrate deploy
+npm run migrate:deploy:prod
 ```
 
-The repository is connected to a Vercel deployment. If you push to main, this will trigger a new deploy.
+See [scripts/migrate-prod.sh](scripts/migrate-prod.sh). It refuses to run if the resolved `DIRECT_URL` host looks like `localhost`, to guard against silently migrating the wrong database.
 
-if you need to update some rls policies for some new tables, make sure you update supabase-setup.sql
+**One-time setup / rotating credentials:**
+
+`prisma/schema.prisma` defines both `DATABASE_URL` and `DIRECT_URL` — `prisma migrate deploy` connects via `DIRECT_URL`, so both need to be stored in Keychain, from Supabase's dashboard (Project Settings → Database → Connection string):
+
+- `DATABASE_URL` → **Transaction pooler** (port 6543), with `?pgbouncer=true` appended — what Prisma Client uses at runtime; transaction-mode pooling fits Vercel's short-lived serverless functions. The `pgbouncer=true` flag disables Prisma's prepared-statement caching, which is required for transaction-mode pooling — without it, requests randomly fail with `prepared statement "sN" already exists` or `bind message supplies N parameters, but prepared statement "sN" requires M` once the pool starts reusing connections across queries.
+- `DIRECT_URL` → **Session pooler** (port 5432), no extra params needed — migrations need DDL support, which transaction-mode pooling doesn't allow. Session-mode pooling keeps one Postgres backend per client connection, so prepared statements work fine here.
+
+Don't use the raw **Direct connection** (`db.<ref>.supabase.co:5432`) for either — it's **IPv6-only**, and most home/office networks can't reach it, so `migrate deploy` fails with `P1001`.
+
+```bash
+security add-generic-password -a "$USER" -s agricolala-prod-db-url -w 'postgresql://...transaction-pooler...:6543/postgres?pgbouncer=true'
+security add-generic-password -a "$USER" -s agricolala-prod-direct-url -w 'postgresql://...session-pooler...:5432/postgres'
+
+# to update an existing entry (e.g. after rotating the DB password), add -U
+security add-generic-password -U -a "$USER" -s agricolala-prod-direct-url -w 'postgresql://...'
+```
+
+The database password is shared across every connection method (pooled and direct). If you reset it in Supabase (Project Settings → Database → Reset database password), update it everywhere right away:
+
+1. Both Keychain entries above (`-U` to overwrite).
+2. `.env` locally, if you keep prod values there.
+3. Vercel → Settings → Environment Variables → `DATABASE_URL` → then **redeploy** — Vercel bakes env vars into the deployment and won't pick up the change until you trigger a new one (Deployments → latest → ⋯ → Redeploy).
+
+Do the Vercel update+redeploy promptly after resetting — the live site will fail to connect to the database from the moment the password is reset until Vercel picks up the new one.
+
+If you need to update RLS policies for some new tables, make sure you update `supabase-setup.sql`.
 
 ## Linting & Formatting
 
@@ -88,20 +120,6 @@ npm run prettify
 npm run tsc
 ```
 
-## TODOs / docs
-- [nope] use prisma studio
-- [x] we would like to advise the use on the doses: see this document https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
-- [x] create a stats db record that will be recalculated each time a user adds a treatment
-- [x] Improve the queries, make them smaller, avoid nesting
-- [x] excel export
-- [x] improve security
-- [x] fix map
+### MISC
 
-- [x] https://dribbble.com/shots/25487881-Cruscott-Finance-Dashboard-Mobile
-
-
-
-Things made to improve performance:
-- [x] add subquery for the user when creating rls policies to avoid querying on each row the user
-- [x] avoid doppione for the rls policy creation since for all was iterating on all queries, and then we were defining again the policy for select. This was an issue for the tables Product, Substance, Disease, SubstanceDose
-- [x] page load - improve fcp: cache the session, and make the session handling less complicated. use it server side
+Url for logout: http://localhost:3000/api/auth/signout

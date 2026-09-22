@@ -8,6 +8,13 @@ import { type Locale } from "./translations-helpers";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
+import {
+	computeParcelAreaM2,
+	computeParcelCentroid,
+	parcelBoundaryToJson,
+	validateBoundary,
+	getParcelAreaM2,
+} from "./parcel-geometry";
 import { taintUtils } from "@/lib/taint-utils";
 import { generateTreatmentsExcel } from "./excel-export";
 import { Errors } from "@/lib/constants";
@@ -72,6 +79,7 @@ export async function createTreatment(formData: FormData) {
 				name: true,
 				width: true,
 				height: true,
+				areaM2: true,
 			},
 		});
 
@@ -80,7 +88,7 @@ export async function createTreatment(formData: FormData) {
 		}
 
 		const totalArea = parcels.reduce(
-			(sum, parcel) => sum + parcel.width * parcel.height,
+			(sum, parcel) => sum + getParcelAreaM2(parcel),
 			0,
 		);
 
@@ -111,7 +119,7 @@ export async function createTreatment(formData: FormData) {
 
 				const productApplications = await Promise.all(
 					validatedData.productApplications.map(async (product) => {
-						const parcelArea = parcel.width * parcel.height;
+						const parcelArea = getParcelAreaM2(parcel);
 						const calculatedDose = calculateDosePerParcel(
 							product.dose,
 							parcelArea,
@@ -205,24 +213,38 @@ export async function createParcel(formData: FormData) {
 
 	try {
 		const name = String(formData.get("name"));
-		const width = parseFloat(String(formData.get("width")));
-		const height = parseFloat(String(formData.get("height")));
 		const type = String(formData.get("type"));
-		const latitude = parseFloat(String(formData.get("latitude")));
-		const longitude = parseFloat(String(formData.get("longitude")));
+		const boundaryRaw = String(formData.get("boundary"));
+		const altitudeRaw = formData.get("altitude");
+		const boundary = JSON.parse(boundaryRaw);
 
 		const validatedData = createParcelSchema.parse({
 			name,
-			width,
-			height,
 			type,
-			latitude,
-			longitude,
+			boundary,
+			altitude:
+				altitudeRaw != null && String(altitudeRaw).length > 0
+					? parseFloat(String(altitudeRaw))
+					: undefined,
 		});
+
+		validateBoundary(validatedData.boundary);
+		const areaM2 = computeParcelAreaM2(validatedData.boundary);
+		const { lat: latitude, lng: longitude } = computeParcelCentroid(
+			validatedData.boundary,
+		);
 
 		const parcel = await prisma.parcel.create({
 			data: {
-				...validatedData,
+				name: validatedData.name,
+				type: validatedData.type,
+				latitude,
+				longitude,
+				altitude: validatedData.altitude,
+				boundary: parcelBoundaryToJson(validatedData.boundary),
+				areaM2,
+				width: 0,
+				height: 0,
 				userId: session.user.id,
 			},
 		});
@@ -236,6 +258,14 @@ export async function createParcel(formData: FormData) {
 		};
 	} catch (error) {
 		console.error("Error creating parcel", error);
+		if (
+			error &&
+			typeof error === "object" &&
+			"code" in error &&
+			error.code === "P2003"
+		) {
+			throw new Error(Errors.ACCESS_DENIED);
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }

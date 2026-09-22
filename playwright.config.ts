@@ -45,6 +45,7 @@ export default defineConfig({
 			DATABASE_URL: e2eDatabaseUrl,
 			DIRECT_URL: e2eDatabaseUrl,
 			PLAYWRIGHT: "1",
+			NEXT_PUBLIC_PLAYWRIGHT: "1",
 		},
 	},
 	projects: [

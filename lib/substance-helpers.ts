@@ -5,6 +5,7 @@ import {
 	type ParcelWithTreatments,
 } from "./data-fetcher";
 import { GRAMS_PER_KILOGRAM } from "./constants";
+import { getParcelAreaM2, type ParcelAreaFields } from "./parcel-geometry";
 
 const HECTARE_IN_METERS = 10_000;
 
@@ -13,10 +14,7 @@ interface TreatmentWithProducts {
 	appliedDate: Date | null;
 	parcelId: string;
 	parcelName?: string;
-	parcel: {
-		width: number;
-		height: number;
-	};
+	parcel: ParcelAreaFields;
 	productApplications: Array<{
 		dose: number;
 		product: {
@@ -171,7 +169,7 @@ export function calculateAdvisedDosePerProduct(
 ): Record<string, number> {
 	const totalAreaHa = parcels.reduce((total, parcel) => {
 		if (parcelIds.includes(parcel.id)) {
-			const areaM2 = parcel.width * parcel.height;
+			const areaM2 = getParcelAreaM2(parcel);
 			total += areaM2 / HECTARE_IN_METERS;
 		}
 		return total;
