@@ -10,6 +10,7 @@
 		"start": "next start",
 		"lint": "eslint .",
 		"migrate": "npx prisma migrate dev & npx prisma generate",
+		"migrate:deploy:prod": "scripts/migrate-prod.sh",
 		"lint:fix": "eslint --no-cache --quiet --fix . && npm run prettify",
 		"tsc": "tsc --noEmit",
 		"test": "vitest run",
