@@ -253,6 +253,9 @@ export function AddTreatmentDialog({
 		);
 		submitData.append("waterDose", formData.waterDose.toString());
 
+		// Close and reset right away for a fast feel; keep a snapshot so the
+		// user's input can be restored if the server rejects the treatment.
+		const submittedFormData = formData;
 		onOpenChange(false);
 		setFormData(buildDefaultFormData(parcelId));
 		setErrors(defaultErrors);
@@ -263,6 +266,8 @@ export function AddTreatmentDialog({
 			toast({ title: t("treatments.treatmentAdded") });
 		} catch (error) {
 			console.error("Error creating treatment");
+			setFormData(submittedFormData);
+			onOpenChange(true);
 			toast({
 				variant: "destructive",
 				title: t("treatments.errors.createFailed"),
