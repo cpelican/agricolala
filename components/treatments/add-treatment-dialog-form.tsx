@@ -243,7 +243,7 @@ export function AddTreatmentDialogForm({
 									type="number"
 									inputMode="decimal"
 									enterKeyHint="next"
-									placeholder="g"
+									placeholder={t("treatments.doseUnit")}
 									step="0.1"
 									min="0.1"
 									value={product.dose || ""}
