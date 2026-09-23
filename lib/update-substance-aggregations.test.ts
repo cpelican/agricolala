@@ -285,6 +285,77 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		expect(otherYearParcelAggregation?.totalDoseOfProduct).toBe(42);
 	});
 
+	test("only recomputes parcel aggregations for affectedParcelIds", async () => {
+		const { testUser, testParcel, pastTreatment, copperProduct, peronospora } =
+			testData;
+		const appliedDate = new Date(TEST_YEAR, 4, 1);
+		await setTreatmentDate(testPrisma, pastTreatment.id, appliedDate);
+
+		const otherParcel = await testPrisma.parcel.create({
+			data: {
+				name: "Other parcel",
+				latitude: 44.3,
+				longitude: 9.9,
+				width: 10,
+				height: 10,
+				type: "VINEYARD",
+				userId: testUser.id,
+			},
+		});
+		await testPrisma.treatment.create({
+			data: {
+				parcelId: otherParcel.id,
+				userId: testUser.id,
+				status: "DONE",
+				appliedDate,
+				waterDose: 10,
+				diseaseIds: [peronospora.id],
+				productApplications: {
+					create: [{ productId: copperProduct.id, dose: 7 }],
+				},
+			},
+		});
+
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		// Mark the untouched parcel's rows so we can tell whether they were rewritten.
+		await testPrisma.parcelSubstanceAggregation.updateMany({
+			where: { parcelId: otherParcel.id, year: TEST_YEAR },
+			data: { totalDoseOfProduct: 999 },
+		});
+
+		await testPrisma.treatment.create({
+			data: {
+				parcelId: testParcel.id,
+				userId: testUser.id,
+				status: "DONE",
+				appliedDate,
+				waterDose: 10,
+				diseaseIds: [peronospora.id],
+				productApplications: {
+					create: [{ productId: copperProduct.id, dose: 10 }],
+				},
+			},
+		});
+
+		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR, {
+			affectedParcelIds: [testParcel.id],
+		});
+
+		const findCopper = (parcelId: string) =>
+			testPrisma.parcelSubstanceAggregation.findFirst({
+				where: { parcelId, year: TEST_YEAR, substanceName: "Copper" },
+			});
+		expect((await findCopper(testParcel.id))?.totalDoseOfProduct).toBe(15);
+		expect((await findCopper(otherParcel.id))?.totalDoseOfProduct).toBe(999);
+
+		// User-level aggregations always cover every parcel.
+		const userCopper = await testPrisma.userSubstanceAggregation.findFirst({
+			where: { userId: testUser.id, year: TEST_YEAR, substanceName: "Copper" },
+		});
+		expect(userCopper?.totalDoseOfProduct).toBe(22);
+		expect(userCopper?.applicationCount).toBe(3);
+	});
+
 	test("computes surface-weighted user per-ha across multiple parcels", async () => {
 		const { testUser, copperProduct, peronospora } = testData;
 
