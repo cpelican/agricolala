@@ -1,6 +1,7 @@
 "use client";
 
 import type { Disease, Product, Substance } from "@prisma/client";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -236,9 +237,10 @@ export function AddTreatmentDialog({
 		setIsSubmitting(true);
 
 		const submitData = new FormData();
+		// Local calendar date: toISOString() would shift it back a day in UTC+ zones.
 		submitData.append(
 			"appliedDate",
-			formData.appliedDate.toISOString().split("T")[0],
+			format(formData.appliedDate, "yyyy-MM-dd"),
 		);
 		(parcelId ? [parcelId] : formData.parcelIds.filter(Boolean)).forEach((id) =>
 			submitData.append("parcelIds", id),
