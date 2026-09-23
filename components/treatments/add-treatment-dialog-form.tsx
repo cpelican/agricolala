@@ -53,8 +53,6 @@ interface AddTreatmentDialogFormProps {
 	isSubmitting: boolean;
 	onCancel: () => void;
 	onSubmit: () => void;
-	onPreventEnterSubmit: (event: React.KeyboardEvent<HTMLFormElement>) => void;
-	onNumberInputKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 	onAddParcel: () => void;
 	onRemoveParcel: (index: number) => void;
 	onUpdateParcel: (index: number, parcelId: string) => void;
@@ -72,6 +70,13 @@ interface AddTreatmentDialogFormProps {
 	onAppliedDateChange: (value: Date) => void;
 }
 
+// Stop Enter in number inputs from submitting the form (mobile "next"/"done" keys).
+function preventEnterSubmit(event: React.KeyboardEvent<HTMLInputElement>) {
+	if (event.key === "Enter") {
+		event.preventDefault();
+	}
+}
+
 export function AddTreatmentDialogForm({
 	t,
 	parcels,
@@ -83,8 +88,6 @@ export function AddTreatmentDialogForm({
 	isSubmitting,
 	onCancel,
 	onSubmit,
-	onPreventEnterSubmit,
-	onNumberInputKeyDown,
 	onAddParcel,
 	onRemoveParcel,
 	onUpdateParcel,
@@ -104,7 +107,6 @@ export function AddTreatmentDialogForm({
 				event.preventDefault();
 				onSubmit();
 			}}
-			onKeyDown={onPreventEnterSubmit}
 		>
 			<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
 				<div>
@@ -248,7 +250,7 @@ export function AddTreatmentDialogForm({
 									onChange={(e) =>
 										onUpdateProduct(index, "dose", Number(e.target.value))
 									}
-									onKeyDown={onNumberInputKeyDown}
+									onKeyDown={preventEnterSubmit}
 									className="w-24"
 								/>
 								{index > 0 && (
@@ -358,7 +360,7 @@ export function AddTreatmentDialogForm({
 						min="0"
 						value={formData.waterDose}
 						onChange={(e) => onWaterDoseChange(Number(e.target.value))}
-						onKeyDown={onNumberInputKeyDown}
+						onKeyDown={preventEnterSubmit}
 					/>
 					{errors.waterDose.map((er) => (
 						<p key={er} className="text-sm text-red-700">

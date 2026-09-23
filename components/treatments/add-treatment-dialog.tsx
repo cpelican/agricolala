@@ -2,7 +2,7 @@
 
 import type { Disease, Product, Substance } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import {
 	Dialog,
@@ -279,14 +279,6 @@ export function AddTreatmentDialog({
 		}
 	};
 
-	const preventNumberEnterSubmit = (
-		event: React.KeyboardEvent<HTMLElement>,
-	) => {
-		if (event.key === "Enter") {
-			event.preventDefault();
-		}
-	};
-
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
@@ -310,8 +302,6 @@ export function AddTreatmentDialog({
 					isSubmitting={isSubmitting}
 					onCancel={() => onOpenChange(false)}
 					onSubmit={() => void handleSubmit()}
-					onPreventEnterSubmit={preventNumberEnterSubmit}
-					onNumberInputKeyDown={preventNumberEnterSubmit}
 					onAddParcel={addParcel}
 					onRemoveParcel={removeParcel}
 					onUpdateParcel={updateParcel}
