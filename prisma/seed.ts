@@ -1,4 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import {
+	PrismaClient,
+	ProductDoseUnit,
+	SubstanceLimitUnit,
+} from "@prisma/client";
 
 interface ReferenceDataClient {
 	disease: PrismaClient["disease"];
@@ -37,11 +41,12 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 		}),
 	]);
 
-	const [copper, sulfur] = await Promise.all([
+	const [copper, sulfur, orangeOil] = await Promise.all([
 		db.substance.create({
 			data: {
 				name: "Copper",
 				maxDosage: 4, // kg/ha/year
+				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
 				diseases: {
 					connect: [{ id: peronospora.id }],
 				},
@@ -51,8 +56,19 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			data: {
 				name: "Sulfur",
 				maxDosage: 40, // kg/ha/year
+				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
 				diseases: {
 					connect: [{ id: oidium.id }],
+				},
+			},
+		}),
+		db.substance.create({
+			data: {
+				name: "Olio essenziale di arancio dolce",
+				maxDosage: 10, // kg/ha/year
+				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+				diseases: {
+					connect: [{ id: oidium.id }, { id: peronospora.id }],
 				},
 			},
 		}),
@@ -64,10 +80,27 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 		data: {
 			name: "Pasta cafaro",
 			brand: "Pasta cafaro",
+			doseUnit: ProductDoseUnit.GRAM,
 			maxApplications: MAX_APPLICATIONS,
 			daysBetweenApplications: 7, // Source: product label
 			composition: {
 				create: [{ substanceId: copper.id, dose: 25 }],
+			},
+		},
+	});
+
+	await db.product.create({
+		data: {
+			name: "OxyFlow",
+			brand: "OxyFlow",
+			doseUnit: ProductDoseUnit.MILLILITER,
+			productLiterToKiloGramConversionRate: 1,
+			maxApplications: MAX_APPLICATIONS,
+			composition: {
+				create: [
+					{ substanceId: copper.id, dose: 10 },
+					{ substanceId: sulfur.id, dose: 30 },
+				],
 			},
 		},
 	});
@@ -77,6 +110,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 		data: {
 			name: "Zolfo tiovit",
 			brand: "Zolfo tiovit",
+			doseUnit: ProductDoseUnit.GRAM,
 			maxApplications: MAX_APPLICATIONS_SULFUR,
 			daysBetweenApplications: 7, // Source: https://www.psm.admin.ch/it/produkte/18
 			composition: {
@@ -85,8 +119,23 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 		},
 	});
 
+	const MAX_APPS_ORANGE = 6;
+	await db.product.create({
+		data: {
+			name: "Olio essenziale di arancio dolce",
+			brand: "Olio essenziale di arancio dolce",
+			doseUnit: ProductDoseUnit.MILLILITER,
+			productLiterToKiloGramConversionRate: 0.9,
+			maxApplications: MAX_APPS_ORANGE,
+			composition: {
+				create: [{ substanceId: orangeOil.id, dose: 100 }],
+			},
+		},
+	});
+
 	return {
 		copper,
+		orangeOil,
 		copperProduct,
 		oidium,
 		peronospora,
@@ -104,12 +153,12 @@ async function main() {
 		await cleanReferenceData(prisma);
 		console.log("Existing data deleted.");
 
-		const { copper, oidium, peronospora, sulfur } =
+		const { copper, oidium, orangeOil, peronospora, sulfur } =
 			await seedReferenceData(prisma);
 
 		console.log("Seed data created:");
 		console.log("Diseases:", { oidium, peronospora });
-		console.log("Substances:", { copper, sulfur });
+		console.log("Substances:", { copper, sulfur, orangeOil });
 	} finally {
 		await prisma.$disconnect();
 	}

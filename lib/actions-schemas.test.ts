@@ -1,3 +1,4 @@
+import { ProductDoseUnit } from "@prisma/client";
 import { describe, test, expect } from "vitest";
 import { createTreatmentSchema } from "./actions-schemas";
 
@@ -5,7 +6,9 @@ const treatmentBase = {
 	appliedDate: new Date(),
 	parcelIds: ["parcel-1"],
 	waterDose: 10,
-	productApplications: [{ productId: "product-1", dose: 1 }],
+	productApplications: [
+		{ productId: "product-1", dose: 1, doseUnit: ProductDoseUnit.GRAM },
+	],
 };
 
 describe("createTreatmentSchema diseases", () => {

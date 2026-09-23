@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { type Locale } from "./translations-helpers";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
+import { productApplicationsToGrams } from "./product-dose-to-grams";
+import { getProductDoseUnits } from "./data-fetcher-catalog";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
 import {
 	computeParcelAreaM2,
@@ -87,6 +89,13 @@ export async function createTreatment(formData: FormData) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
+		const productApplicationsInGrams = productApplicationsToGrams(
+			validatedData.productApplications,
+			await getProductDoseUnits(
+				validatedData.productApplications.map((p) => p.productId),
+			),
+		);
+
 		const totalArea = parcels.reduce(
 			(sum, parcel) => sum + getParcelAreaM2(parcel),
 			0,
@@ -124,8 +133,8 @@ export async function createTreatment(formData: FormData) {
 			await tx.productApplication.createMany({
 				data: treatments.flatMap((treatment) => {
 					const parcelArea = parcelAreaById.get(treatment.parcelId) ?? 0;
-					return validatedData.productApplications.map((product) => ({
-						dose: calculateDosePerParcel(product.dose, parcelArea),
+					return productApplicationsInGrams.map((product) => ({
+						dose: calculateDosePerParcel(product.doseInGrams, parcelArea),
 						productId: product.productId,
 						treatmentId: treatment.id,
 					}));

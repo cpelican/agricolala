@@ -51,3 +51,29 @@ Vitest local: `test:db:start` first (Next **3001**, `.env.test`). E2e: `npm run 
 - Credentials only `/auth/signin` — no other providers.
 - Dev: `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, `NEXTAUTH_SECRET` in `.env` (readme).
 - E2e: `playwright@agricolala.test` / `playwright-local-password`.
+
+## Main Rules for development
+
+### TypeScript: type guards, not coercive assertions
+
+- Do **not** use `as SomeType` (or `as unknown as ...`) to force a value into a type. That hides mistakes and fights the checker.
+- **Prefer** narrowing the type checker can follow: [type predicates](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) (`function isFoo(x): x is Foo`), checks with `in` / `instanceof`, discriminated unions, and runtime validation (e.g. Zod) with inferred types.
+- **OK:** `as const` for literal/tuples, and `satisfies` to check excess properties without erasing a inferred type.
+
+### TypeScript: Prisma types first — avoid duplicate shapes
+
+- For anything that reflects **database fields or query results**, **do not** invent parallel `interface` / `type` definitions that repeat the same property names and semantics as Prisma models.
+- **Prefer** types from **`@prisma/client`**: models, enums, and `Prisma` namespace helpers (e.g. `Prisma.ModelGetPayload`, `Prisma.XxxArgs`).
+- **Compose** with `Pick`, `Omit`, and `ReturnType` / `Awaited<ReturnType<typeof someQuery>>` so the compiler stays tied to the schema. If you need a subset, derive it from the model or from a named `select` payload type instead of a hand-written duplicate.
+- **Zod (or similar)** is fine for runtime validation and forms; use **`z.infer<typeof schema>`** as the TS type so you still have a single definition, not a second interface that mirrors the same fields.
+- **OK:** small **UI-only** props (e.g. `isOpen`, `onClose`) that are not meant to mirror DB rows.
+
+### Database migrations (Prisma)
+
+- Do **not** add or edit SQL under `prisma/migrations/` by hand when implementing schema changes, unless someone explicitly asks for a custom/manual migration.
+- After changing `prisma/schema.prisma`, create migrations with the Prisma CLI, for example:
+
+  `npx prisma migrate dev --name <short_description>`
+
+  so the migration matches what Prisma generates and stays reviewable.
+- If you only update the schema file, tell the user to run `migrate dev` (or run it in the project when appropriate) instead of authoring new migration files from scratch.

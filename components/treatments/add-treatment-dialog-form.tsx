@@ -1,6 +1,6 @@
 "use client";
 
-import type { Disease, Product } from "@prisma/client";
+import { ProductDoseUnit, type Disease, type Product } from "@prisma/client";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import React from "react";
 import { format } from "date-fns";
@@ -29,7 +29,11 @@ import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 export interface AddTreatmentDialogFormData {
 	appliedDate: Date;
 	diseases: { diseaseId: string }[];
-	productApplications: { productId: string; dose: number }[];
+	productApplications: {
+		productId: string;
+		dose: number;
+		doseUnit: ProductDoseUnit;
+	}[];
 	waterDose: number;
 	parcelIds: string[];
 }
@@ -46,7 +50,7 @@ interface AddTreatmentDialogFormProps {
 	t: (key: string) => string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications">[];
+	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
 	advisedDosePerProduct: Record<string, number>;
 	formData: AddTreatmentDialogFormData;
 	errors: AddTreatmentDialogFormErrors;
@@ -60,7 +64,7 @@ interface AddTreatmentDialogFormProps {
 	onRemoveProduct: (index: number) => void;
 	onUpdateProduct: (
 		index: number,
-		field: "productId" | "dose",
+		field: "productId" | "dose" | "doseUnit",
 		value: string | number,
 	) => void;
 	onAddDisease: () => void;
@@ -68,6 +72,12 @@ interface AddTreatmentDialogFormProps {
 	onUpdateDisease: (index: number, diseaseId: string) => void;
 	onWaterDoseChange: (value: number) => void;
 	onAppliedDateChange: (value: Date) => void;
+}
+
+const doseUnits = Object.values(ProductDoseUnit);
+
+export function isProductDoseUnit(value: unknown): value is ProductDoseUnit {
+	return doseUnits.some((unit) => unit === value);
 }
 
 // Stop Enter in number inputs from submitting the form (mobile "next"/"done" keys).
@@ -206,7 +216,7 @@ export function AddTreatmentDialogForm({
 						<div>
 							<Label>{t("treatments.products")}</Label>
 							<p className="text-sm text-muted-foreground">
-								{t("treatments.dosesInGrams")}
+								{t("treatments.productDosesByUnit")}
 							</p>
 						</div>
 						<Button
@@ -243,7 +253,7 @@ export function AddTreatmentDialogForm({
 									type="number"
 									inputMode="decimal"
 									enterKeyHint="next"
-									placeholder={t("treatments.doseUnit")}
+									placeholder={t("treatments.doseUnitPlaceholder")}
 									step="0.1"
 									min="0.1"
 									value={product.dose || ""}
@@ -253,6 +263,23 @@ export function AddTreatmentDialogForm({
 									onKeyDown={preventEnterSubmit}
 									className="w-24"
 								/>
+								<Select
+									value={product.doseUnit}
+									onValueChange={(value) =>
+										onUpdateProduct(index, "doseUnit", value)
+									}
+								>
+									<SelectTrigger className="w-20">
+										<SelectValue placeholder={t("treatments.selectDoseUnit")} />
+									</SelectTrigger>
+									<SelectContent>
+										{doseUnits.map((unit) => (
+											<SelectItem key={unit} value={unit}>
+												{t(`substances.units.${unit}`)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
 								{index > 0 && (
 									<Button
 										type="button"

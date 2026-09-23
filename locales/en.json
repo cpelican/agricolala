@@ -101,10 +101,11 @@
 		"selectDisease": "Select disease",
 		"diseasesFromProductsHint": "Filled from selected products; you can adjust.",
 		"products": "Products",
-		"dosesInGrams": "Doses in grams (g)",
-		"doseUnit": "g",
+		"productDosesByUnit": "Enter each product amount in its unit (g, ml, or L).",
 		"addProduct": "Add Product",
 		"selectProduct": "Select product",
+		"doseUnitPlaceholder": "g/ml",
+		"selectDoseUnit": "Select unit",
 		"waterDose": "Water Dose (L)",
 		"cancel": "Cancel",
 		"creating": "Creating...",
@@ -195,16 +196,22 @@
 	"substances": {
 		"copper": "Copper",
 		"sulfur": "Sulfur",
+		"olio essenziale di arancio dolce": "Sweet orange essential oil",
 		"usageThisYear": "Substance Usage This Year",
 		"trackApplications": "Track your substance applications across all treatments",
 		"trackApplicationsHome": "Track your substance applications across all parcels",
 		"details": "Substance details",
 		"kgPerHa": "kg/ha of pure active substance",
 		"monthlyPureActiveSubstanceKg": "Monthly pure active substance (kg)",
+		"units": {
+			"KG_PER_HA": "kg/ha",
+			"GRAM": "g",
+			"MILLILITER": "ml"
+		},
 		"noTreatmentData": "No treatment data available for this year",
 		"yearlyComparison": "Yearly Substance Usage Comparison",
 		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
-		"yearlyUsageTitle": "Cumulated Substance Usage by Year (kg/ha)",
+		"yearlyUsageTitle": "Cumulated substance use per hectare by year",
 		"year": "Year"
 	},
 	"deleteTreatment": {

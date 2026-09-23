@@ -101,10 +101,11 @@
 		"selectDisease": "Seleziona malattia",
 		"diseasesFromProductsHint": "Compilate dai prodotti selezionati; puoi modificarle.",
 		"products": "Prodotti",
-		"dosesInGrams": "Dosi in grammi (g)",
-		"doseUnit": "g",
+		"productDosesByUnit": "Inserisci ogni dose nella sua unità (g, ml o L).",
 		"addProduct": "Aggiungi Prodotto",
 		"selectProduct": "Seleziona prodotto",
+		"doseUnitPlaceholder": "g/ml",
+		"selectDoseUnit": "Seleziona unità",
 		"waterDose": "Dose Acqua (L)",
 		"cancel": "Annulla",
 		"creating": "Creazione...",
@@ -195,16 +196,22 @@
 	"substances": {
 		"copper": "Rame",
 		"sulfur": "Zolfo",
+		"olio essenziale di arancio dolce": "Olio essenziale di arancio dolce",
 		"usageThisYear": "Uso delle sostanze quest'anno",
 		"trackApplications": "Monitora le tue applicazioni di sostanze in tutti i trattamenti",
 		"trackApplicationsHome": "Monitora le tue applicazioni di sostanze in tutti i campi",
 		"details": "Dettagli sostanze",
 		"kgPerHa": "kg/ha di sostanza attiva pura",
 		"monthlyPureActiveSubstanceKg": "Sostanza attiva pura mensile (kg)",
+		"units": {
+			"KG_PER_HA": "kg/ha",
+			"GRAM": "g",
+			"MILLILITER": "ml"
+		},
 		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno",
 		"yearlyComparison": "Confronto Uso Sostanze Annuale",
 		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
-		"yearlyUsageTitle": "Uso Cumulato Sostanze per Anno (kg/ha)",
+		"yearlyUsageTitle": "Uso cumulato per ettaro per anno",
 		"year": "Anno"
 	},
 	"deleteTreatment": {

@@ -10,10 +10,21 @@ export const getCachedDiseases = cache(async () => {
 
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
-		select: { id: true, name: true, maxApplications: true },
+		select: { id: true, name: true, maxApplications: true, doseUnit: true },
 		orderBy: { name: "asc" },
 	});
 });
+
+export async function getProductDoseUnits(productIds: string[]) {
+	return prisma.product.findMany({
+		where: { id: { in: productIds } },
+		select: {
+			id: true,
+			doseUnit: true,
+			productLiterToKiloGramConversionRate: true,
+		},
+	});
+}
 
 const substanceToColors = {
 	Copper: "rgb(59, 130, 246)",
@@ -62,6 +73,7 @@ export const getCachedSubstances = cache(async () => {
 			id: true,
 			name: true,
 			maxDosage: true,
+			maxDosageUnitPerAreaUnit: true,
 			diseases: { select: { id: true } },
 		},
 		orderBy: { name: "asc" },
@@ -72,6 +84,7 @@ export const getCachedSubstances = cache(async () => {
 			id: substance.id,
 			name: substance.name,
 			maxDosage: substance.maxDosage,
+			maxDosageUnitPerAreaUnit: substance.maxDosageUnitPerAreaUnit,
 			diseaseIds: substance.diseases.map((d) => d.id),
 		};
 		if (substance.name in substanceToColors) {
