@@ -1,0 +1,146 @@
+import { type PrismaClient } from "@prisma/client";
+import { calculateSubstanceData } from "../substance-helpers";
+import { getCachedCompositions } from "../data-fetcher";
+import {
+	updateUserAggregations,
+	updateParcelAggregations,
+} from "../aggregation-utils";
+
+type TreatmentForAggregation = Awaited<
+	ReturnType<typeof fetchTreatmentsForAggregation>
+>[number];
+
+function transformTreatmentForAggregation(treatment: TreatmentForAggregation) {
+	return {
+		id: treatment.id,
+		appliedDate: treatment.appliedDate,
+		parcelId: treatment.parcelId,
+		parcelName: treatment.parcel.name,
+		parcel: {
+			width: treatment.parcel.width,
+			height: treatment.parcel.height,
+			areaM2: treatment.parcel.areaM2,
+		},
+		productApplications: treatment.productApplications.map((app) => ({
+			dose: app.dose,
+			product: {
+				id: app.product.id,
+				composition: app.product.composition.map((comp) => ({
+					dose: comp.dose,
+					substanceId: comp.substanceId,
+				})),
+			},
+		})),
+	};
+}
+
+async function fetchTreatmentsForAggregation(
+	prisma: PrismaClient,
+	userId: string,
+	year: number,
+) {
+	return prisma.treatment.findMany({
+		where: {
+			userId,
+			appliedDate: {
+				gte: new Date(year, 0, 1),
+				lte: new Date(year, 11, 31),
+			},
+			status: "DONE",
+		},
+		select: {
+			id: true,
+			appliedDate: true,
+			parcelId: true,
+			productApplications: {
+				select: {
+					dose: true,
+					product: {
+						select: {
+							id: true,
+							composition: {
+								select: {
+									dose: true,
+									substanceId: true,
+								},
+							},
+						},
+					},
+				},
+			},
+			parcel: {
+				select: {
+					width: true,
+					height: true,
+					areaM2: true,
+					name: true,
+				},
+			},
+		},
+	});
+}
+
+export async function updateSubstanceAggregations(
+	prisma: PrismaClient,
+	userId: string,
+	year: number = new Date().getFullYear(),
+	options?: { affectedParcelIds?: string[] },
+) {
+	const treatments = await fetchTreatmentsForAggregation(prisma, userId, year);
+
+	const allTransformedTreatments = treatments.map(
+		transformTreatmentForAggregation,
+	);
+
+	const transformedTreatmentsByParcel = allTransformedTreatments.reduce<
+		Record<string, (typeof allTransformedTreatments)[number][]>
+	>((acc, treatment) => {
+		if (!acc[treatment.parcelId]) {
+			acc[treatment.parcelId] = [];
+		}
+		acc[treatment.parcelId].push(treatment);
+		return acc;
+	}, {});
+
+	const compositions = await getCachedCompositions();
+	const userSubstanceData = calculateSubstanceData(
+		allTransformedTreatments,
+		compositions,
+	);
+
+	// Clear existing user-level aggregations for this year
+	await prisma.userSubstanceAggregation.deleteMany({
+		where: { userId, year },
+	});
+
+	await updateUserAggregations(userSubstanceData, userId, year);
+
+	const parcelIdsToUpdate =
+		options?.affectedParcelIds ??
+		(
+			await prisma.parcel.findMany({
+				where: { userId },
+				select: { id: true },
+			})
+		).map((parcel) => parcel.id);
+
+	await prisma.parcelSubstanceAggregation.deleteMany({
+		where: { parcelId: { in: parcelIdsToUpdate }, year },
+	});
+
+	await Promise.all(
+		parcelIdsToUpdate.map(async (parcelId) => {
+			const parcelTransformedTreatments =
+				transformedTreatmentsByParcel[parcelId] ?? [];
+
+			const parcelSubstanceData = calculateSubstanceData(
+				parcelTransformedTreatments,
+				compositions,
+			);
+
+			if (parcelSubstanceData.length > 0) {
+				await updateParcelAggregations(parcelSubstanceData, parcelId, year);
+			}
+		}),
+	);
+}

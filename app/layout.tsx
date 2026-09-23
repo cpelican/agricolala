@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import type React from "react";
+import type { ReactNode } from "react";
 import "./globals.css";
 import { defaultLocale, LOCALE_HEADER } from "@/lib/translations-helpers";
 import { inter } from "./const";
@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({
 	children,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 }) {
 	const headersList = await headers();
 	const lang = headersList.get(LOCALE_HEADER) ?? defaultLocale;

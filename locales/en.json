@@ -54,9 +54,23 @@
 		"enterCoordinates": "Enter coordinates",
 		"enterWidth": "Enter width",
 		"enterHeight": "Enter height",
-		"clickMapToAdd": "Click on the map to add a parcel",
-		"clickMapToAddFirst": "Click on the map to add your first parcel",
+		"locationMap": "Parcel location map",
+		"drawParcel": "Draw parcel",
+		"drawParcelHint": "Draw the parcel boundary on the map",
+		"drawInstructions": "Tap the map to add corners",
+		"undoPoint": "Undo",
+		"finishShape": "Finish",
+		"cancelDrawing": "Cancel",
+		"calculatedArea": "Calculated area",
+		"clickMapToAdd": "Draw a parcel on the map to get started",
+		"clickMapToAddFirst": "Draw your first parcel on the map",
 		"zoomInToFindLocation": "Zoom in to find your exact location",
+		"useMyLocation": "Use my location",
+		"locationInsecureContext": "Location only works on http://localhost:3000 (not via a network IP like 192.168.x.x). Open that address on this device.",
+		"locationDenied": "Location access was blocked. Allow it in your browser settings, then tap Use my location.",
+		"locationUnavailable": "Could not determine your location. Try again or move the map manually.",
+		"locationTimeout": "Location took too long. Try again with Use my location.",
+		"locationUnsupported": "This browser does not support location.",
 		"cancel": "Cancel",
 		"adding": "Adding...",
 		"addParcelButton": "Add Parcel",
@@ -66,7 +80,9 @@
 		"trackSubstanceApplications": "Track your substance applications for this parcel",
 		"productDose": "L/ha",
 		"errors": {
-			"createFailed": "Failed to create parcel"
+			"createFailed": "Failed to create parcel",
+			"minPoints": "Draw at least 3 corners before finishing",
+			"invalidShape": "The shape is invalid. Adjust the corners and try again."
 		}
 	},
 	"treatments": {
@@ -74,6 +90,7 @@
 		"description": "Manage your wineyard treatments",
 		"addTreatment": "Add Treatment",
 		"addTreatmentDescription": "Add a new treatment for this parcel. Fill in the details below.",
+		"addTreatmentFormDescription": "Record a treatment: choose parcel, disease, product, and dose.",
 		"applicationDate": "Application Date",
 		"pickDate": "Pick a date",
 		"parcels": "Parcels",
@@ -82,11 +99,12 @@
 		"diseases": "Diseases",
 		"addDisease": "Add Disease",
 		"selectDisease": "Select disease",
+		"diseasesFromProductsHint": "Filled from selected products; you can adjust.",
 		"products": "Products",
 		"productDosesByUnit": "Enter each product amount in its unit (g, ml, or L).",
 		"addProduct": "Add Product",
 		"selectProduct": "Select product",
-		"doseUnitPlaceholder": "gr/ml",
+		"doseUnitPlaceholder": "g/ml",
 		"selectDoseUnit": "Select unit",
 		"waterDose": "Water Dose (L)",
 		"cancel": "Cancel",
@@ -119,7 +137,7 @@
 			"createFailed": "Failed to create treatment"
 		},
 		"warnings": {
-			"doseAdvice": "It is advised not to go beyond the dosage of"
+			"doseAdvice": "It is advised not to go beyond the dosage of {dose} g"
 		},
 		"applicability": {
 			"title": "Next 3 Days Treatment Applicability",
@@ -158,6 +176,19 @@
 		"signInWithGoogle": "Sign in with Google",
 		"unauthorizedMessage": "This app is still a work in progress, so we prefer to know a bit who will use it. Please contact the admin to unlock your account."
 	},
+	"errors": {
+		"page": {
+			"title": "Something went wrong",
+			"description": "An unexpected error occurred. You can try again or go back home.",
+			"tryAgain": "Try again",
+			"backHome": "Back to home"
+		},
+		"notFound": {
+			"title": "Page not found",
+			"description": "The page you're looking for doesn't exist or was removed.",
+			"backHome": "Back to home"
+		}
+	},
 	"diseases": {
 		"peronospora": "Downy Mildew",
 		"oidium": "Powdery Mildew"
@@ -169,19 +200,15 @@
 		"usageThisYear": "Substance Usage This Year",
 		"trackApplications": "Track your substance applications across all treatments",
 		"trackApplicationsHome": "Track your substance applications across all parcels",
-		"cumulatedDoses": "Cumulated Doses",
-		"grOfProduct": "gr of product",
-		"grOfPureActiveSubstance": "g of active substance",
+		"details": "Substance details",
 		"kgPerHa": "kg/ha of pure active substance",
-		"monthlyChartTitle": "Monthly active substance usage (kg/ha)",
+		"monthlyPureActiveSubstanceKg": "Monthly pure active substance (kg)",
 		"units": {
 			"KG_PER_HA": "kg/ha",
 			"GRAM": "g",
 			"MILLILITER": "ml"
 		},
-		"max": "Max",
 		"noTreatmentData": "No treatment data available for this year",
-		"lastYear": "last year",
 		"yearlyComparison": "Yearly Substance Usage Comparison",
 		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
 		"yearlyUsageTitle": "Cumulated substance use per hectare by year",
@@ -400,6 +427,35 @@
 	"home": {
 		"welcome": "Welcome",
 		"description": "Manage your agricultural parcels and treatments",
-		"getStarted": "Get Started"
+		"getStarted": "Get Started",
+		"loading": "Loading dashboard"
+	},
+	"coverage": {
+		"title": "Treatment Coverage",
+		"description": "Estimated residual active substance after rainfall and natural degradation over time",
+		"remaining": "g/ha remaining",
+		"remainingPercent": "remaining",
+		"mm": "mm",
+		"forecast": "3-Day Forecast",
+		"forecastSubtitleLeaf": "Estimated residual on leaves after decay & rain",
+		"forecastSubtitleDose": "Estimated % of full-protection dose remaining after decay & rain",
+		"productApplied": "Product applied",
+		"activeSubstance": "Active substance",
+		"cumulatedDose": "Cumulated Dose",
+		"cumulatedDoseSubtitle": "Total active substance applied this year, checked against the annual regulatory limit",
+		"residualOnLeaves": "residual on leaves",
+		"leafExplanation": "Copper deposit on the leaf surface, compared to the 2.5 mg/m² efficacy threshold",
+		"percentExplanation": "Percentage of the full-protection dose still residual on the canopy",
+		"of": "of",
+		"maxSuffix": "max",
+		"timeDecayOnly": "time decay only",
+		"belowThreshold": "Below efficacy threshold",
+		"aboveThreshold": "Above efficacy threshold",
+		"thresholdSuffix": "threshold",
+		"optimalSuffix": "optimal",
+		"critical": "Critical",
+		"warning": "Warning",
+		"optimalBadge": "Optimal",
+		"incompleteWeatherData": "Rain history may be incomplete for some early treatments"
 	}
 }

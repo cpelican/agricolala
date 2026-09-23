@@ -5,6 +5,7 @@
 
 # next.js
 /.next/
+/.next-vitest/
 /out/
 
 # production
@@ -17,9 +18,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+e2e/.auth/
+test-results/
+playwright-report/
 
 # env files
 *.env*
+!.env.test.example
 
 # vercel
 .vercel
@@ -27,3 +32,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code worktrees
+.claude/worktrees/

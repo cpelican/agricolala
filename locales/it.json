@@ -54,9 +54,23 @@
 		"enterCoordinates": "Inserisci coordinate",
 		"enterWidth": "Inserisci larghezza",
 		"enterHeight": "Inserisci altezza",
-		"clickMapToAdd": "Clicca sulla mappa per aggiungere un campo",
-		"clickMapToAddFirst": "Clicca sulla mappa per aggiungere il tuo primo campo",
+		"locationMap": "Mappa per la posizione del campo",
+		"drawParcel": "Disegna campo",
+		"drawParcelHint": "Disegna il confine del campo sulla mappa",
+		"drawInstructions": "Tocca la mappa per aggiungere angoli",
+		"undoPoint": "Annulla",
+		"finishShape": "Chiudi",
+		"cancelDrawing": "Annulla disegno",
+		"calculatedArea": "Superficie calcolata",
+		"clickMapToAdd": "Disegna un campo sulla mappa per iniziare",
+		"clickMapToAddFirst": "Disegna il tuo primo campo sulla mappa",
 		"zoomInToFindLocation": "Zooma per trovare la tua posizione esatta",
+		"useMyLocation": "Usa la mia posizione",
+		"locationInsecureContext": "La posizione funziona solo su http://localhost:3000 (non tramite IP di rete come 192.168.x.x). Apri quell'indirizzo su questo dispositivo.",
+		"locationDenied": "Accesso alla posizione bloccato. Consentilo nelle impostazioni del browser, poi tocca Usa la mia posizione.",
+		"locationUnavailable": "Impossibile determinare la posizione. Riprova o sposta la mappa manualmente.",
+		"locationTimeout": "La posizione ha impiegato troppo tempo. Riprova con Usa la mia posizione.",
+		"locationUnsupported": "Questo browser non supporta la geolocalizzazione.",
 		"cancel": "Annulla",
 		"adding": "Aggiunta...",
 		"addParcelButton": "Aggiungi Campo",
@@ -66,7 +80,9 @@
 		"trackSubstanceApplications": "Monitora le tue applicazioni di sostanze per questo campo",
 		"productDose": "L/ha",
 		"errors": {
-			"createFailed": "Impossibile creare il campo"
+			"createFailed": "Impossibile creare il campo",
+			"minPoints": "Disegna almeno 3 angoli prima di chiudere",
+			"invalidShape": "La forma non è valida. Modifica gli angoli e riprova."
 		}
 	},
 	"treatments": {
@@ -74,6 +90,7 @@
 		"description": "Gestisci i trattamenti di vigneto",
 		"addTreatment": "Aggiungi Trattamento",
 		"addTreatmentDescription": "Aggiungi un nuovo trattamento per questo campo. Compila i dettagli qui sotto.",
+		"addTreatmentFormDescription": "Registra un trattamento: scegli campo, malattia, prodotto e dose.",
 		"applicationDate": "Data Applicazione",
 		"pickDate": "Scegli una data",
 		"parcels": "Campi",
@@ -82,11 +99,12 @@
 		"diseases": "Malattie",
 		"addDisease": "Aggiungi Malattia",
 		"selectDisease": "Seleziona malattia",
+		"diseasesFromProductsHint": "Compilate dai prodotti selezionati; puoi modificarle.",
 		"products": "Prodotti",
 		"productDosesByUnit": "Inserisci ogni dose nella sua unità (g, ml o L).",
 		"addProduct": "Aggiungi Prodotto",
 		"selectProduct": "Seleziona prodotto",
-		"doseUnitPlaceholder": "gr/ml",
+		"doseUnitPlaceholder": "g/ml",
 		"selectDoseUnit": "Seleziona unità",
 		"waterDose": "Dose Acqua (L)",
 		"cancel": "Annulla",
@@ -119,7 +137,7 @@
 			"createFailed": "Impossibile creare il trattamento"
 		},
 		"warnings": {
-			"doseAdvice": "Si consiglia di non superare la dose di"
+			"doseAdvice": "Si consiglia di non superare la dose di {dose} gr"
 		},
 		"applicability": {
 			"title": "Applicabilità Trattamenti Prossimi 3 Giorni",
@@ -158,6 +176,19 @@
 		"title": "Agricolala",
 		"description": "Gestisci i trattamenti e i campi della tua vigna"
 	},
+	"errors": {
+		"page": {
+			"title": "Qualcosa è andato storto",
+			"description": "Si è verificato un errore imprevisto. Puoi riprovare o tornare alla home.",
+			"tryAgain": "Riprova",
+			"backHome": "Torna alla home"
+		},
+		"notFound": {
+			"title": "Pagina non trovata",
+			"description": "La pagina che stai cercando non esiste o è stata rimossa.",
+			"backHome": "Torna alla home"
+		}
+	},
 	"diseases": {
 		"peronospora": "Peronospora",
 		"oidium": "Oidio"
@@ -169,20 +200,15 @@
 		"usageThisYear": "Uso delle sostanze quest'anno",
 		"trackApplications": "Monitora le tue applicazioni di sostanze in tutti i trattamenti",
 		"trackApplicationsHome": "Monitora le tue applicazioni di sostanze in tutti i campi",
-		"cumulatedDoses": "Dosi Cumulate",
-		"grOfProduct": "gr di prodotto",
-		"grOfPureActiveSubstance": "g di sostanza attiva",
+		"details": "Dettagli sostanze",
 		"kgPerHa": "kg/ha di sostanza attiva pura",
-		"monthlyChartTitle": "Sostanza attiva mensile (g)",
+		"monthlyPureActiveSubstanceKg": "Sostanza attiva pura mensile (kg)",
 		"units": {
-			"kgPerHa": "kg/ha",
-			"gPerHa": "g/ha",
+			"KG_PER_HA": "kg/ha",
 			"GRAM": "g",
 			"MILLILITER": "ml"
 		},
-		"max": "Max",
 		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno",
-		"lastYear": "anno scorso",
 		"yearlyComparison": "Confronto Uso Sostanze Annuale",
 		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
 		"yearlyUsageTitle": "Uso cumulato per ettaro per anno",
@@ -401,6 +427,35 @@
 	"home": {
 		"welcome": "Ciao",
 		"description": "Gestisci le tue parcelle agricole e trattamenti",
-		"getStarted": "Inizia"
+		"getStarted": "Inizia",
+		"loading": "Caricamento dashboard"
+	},
+	"coverage": {
+		"title": "Copertura Trattamenti",
+		"description": "Sostanza attiva residua stimata dopo il dilavamento da pioggia e la degradazione naturale nel tempo",
+		"remaining": "g/ha rimasti",
+		"remainingPercent": "rimanente",
+		"mm": "mm",
+		"forecast": "Previsione 3 Giorni",
+		"forecastSubtitleLeaf": "Residuo stimato sulle foglie dopo degradazione e pioggia",
+		"forecastSubtitleDose": "Percentuale stimata della dose a piena protezione residua dopo degradazione e pioggia",
+		"productApplied": "Prodotto applicato",
+		"activeSubstance": "Sostanza attiva",
+		"cumulatedDose": "Dose Cumulata",
+		"cumulatedDoseSubtitle": "Sostanza attiva totale applicata quest'anno, confrontata con il limite normativo annuale",
+		"residualOnLeaves": "residuo sulle foglie",
+		"leafExplanation": "Deposito di rame sulla superficie fogliare, confrontato con la soglia di efficacia di 2.5 mg/m²",
+		"percentExplanation": "Percentuale della dose a piena protezione ancora residua sulla chioma",
+		"of": "di",
+		"maxSuffix": "massimo",
+		"timeDecayOnly": "solo degradazione nel tempo",
+		"belowThreshold": "Sotto soglia efficacia",
+		"aboveThreshold": "Sopra soglia efficacia",
+		"thresholdSuffix": "soglia",
+		"optimalSuffix": "ottimale",
+		"critical": "Critico",
+		"warning": "Attenzione",
+		"optimalBadge": "Ottimale",
+		"incompleteWeatherData": "Lo storico piogge potrebbe essere incompleto per alcuni trattamenti precedenti"
 	}
 }

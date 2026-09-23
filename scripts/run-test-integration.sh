@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# scripts/run-integration.sh
+# scripts/run-test-integration.sh — start Docker Postgres for Vitest (port 5433)
+
+set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-source $DIR/set-test-env.sh
+# shellcheck disable=SC1091
+source "$DIR/set-test-env.sh"
 
 echo "DATABASE_URL: $DATABASE_URL"
 echo "DIRECT_URL: $DIRECT_URL"
 echo "POSTGRES_USER: $POSTGRES_USER"
-echo "POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
 
-docker-compose -f docker-compose.test.yml down -v
-docker-compose -f docker-compose.test.yml up -d
+docker compose -f docker-compose.test.yml down -v --remove-orphans
+docker compose -f docker-compose.test.yml up -d --wait
 
-# Wait for database to be ready before running Prisma commands
-echo "Waiting for PostgreSQL to be ready..."
-$DIR/wait-until.sh "pg_isready -h localhost -p 5433 -U agraria -d agraria" 60
+echo "PostgreSQL is ready on localhost:5433"
 
 # Apply existing migrations to test database
 npx prisma migrate deploy

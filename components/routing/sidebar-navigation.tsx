@@ -20,6 +20,7 @@ export function SidebarNavigation() {
 					<li key={item.name}>
 						<LocaleLink
 							href={item.href}
+							prefetch
 							className={cn(
 								`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors`,
 								isActive

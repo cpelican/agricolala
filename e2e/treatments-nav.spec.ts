@@ -1,0 +1,54 @@
+import { expect, test } from "./support/test";
+import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
+import {
+	getChartSummary,
+	getCopperDataset,
+	getDashboardChart,
+} from "./support/chart";
+import {
+	expectedCopperChartKg,
+	expectedCopperChartKgAfterAdditionalTreatment,
+	expectedDashboardCopperLabelsAfterAdditionalTreatment,
+} from "./support/e2e-data";
+import { expectDashboardLoaded } from "./support/assertions";
+import { clickMobileNavLink } from "./support/navigation";
+
+test.describe.configure({ mode: "serial" });
+
+test("adds treatment via nav and updates dashboard on return home", async ({
+	page,
+}) => {
+	await page.goto("/en");
+	await expectDashboardLoaded(page);
+
+	const main = page.getByRole("main");
+	const chart = getDashboardChart(main);
+	const summaryBefore = await getChartSummary(chart);
+	expect(getCopperDataset(summaryBefore)?.data).toEqual([
+		...expectedCopperChartKg,
+	]);
+
+	await goToTreatmentsAndAddTreatment(page);
+
+	await clickMobileNavLink(page, "Home");
+	await expectDashboardLoaded(page);
+
+	const summaryAfter = await getChartSummary(chart);
+	expect(getCopperDataset(summaryAfter)?.data).toEqual(
+		expectedCopperChartKgAfterAdditionalTreatment(),
+	);
+
+	const labels = expectedDashboardCopperLabelsAfterAdditionalTreatment();
+	await expect(
+		main.getByText("Product applied", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.productValue, { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText("Active substance", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.activeSubstanceValue, { exact: true }),
+	).toBeVisible();
+});

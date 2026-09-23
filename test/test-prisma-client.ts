@@ -1,10 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import { config } from "dotenv";
-import { resolve } from "path";
+import { applyTestEnv } from "./load-test-env";
 
 let _testPrisma: PrismaClient | null = null;
 
-config({ path: resolve(process.cwd(), ".env.test") });
+applyTestEnv();
 
 export function getTestPrisma(): PrismaClient {
 	if (!_testPrisma) {

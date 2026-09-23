@@ -6,6 +6,7 @@ import {
 	treatmentSelect,
 	getParcels,
 } from "./data-fetcher";
+import { GRAMS_PER_KILOGRAM } from "./constants";
 import { calculateSubstanceData } from "./substance-helpers";
 
 interface ProductApplicationExportData {
@@ -28,23 +29,24 @@ interface SubstanceUsageExportData {
 }
 
 export async function generateTreatmentsExcel(userId: string, year: number) {
-	const treatments = await prisma.treatment.findMany({
-		where: {
-			userId,
-			appliedDate: {
-				gte: new Date(year, 0, 1),
-				lte: new Date(year, 11, 31),
+	const [treatments, substances, compositions, parcels] = await Promise.all([
+		prisma.treatment.findMany({
+			where: {
+				userId,
+				appliedDate: {
+					gte: new Date(year, 0, 1),
+					lte: new Date(year, 11, 31),
+				},
 			},
-		},
-		select: treatmentSelect,
-		orderBy: {
-			appliedDate: "desc",
-		},
-	});
-
-	const substances = await getCachedSubstances();
-	const compositions = await getCachedCompositions();
-	const parcels = await getParcels(userId);
+			select: treatmentSelect,
+			orderBy: {
+				appliedDate: "desc",
+			},
+		}),
+		getCachedSubstances(),
+		getCachedCompositions(),
+		getParcels(userId),
+	]);
 
 	const productApplicationsData: ProductApplicationExportData[] = [];
 	const substanceUsageData: SubstanceUsageExportData[] = [];
@@ -77,6 +79,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		treatments.map((t) => ({
 			id: t.id,
 			appliedDate: t.appliedDate,
+			parcelId: t.parcel.id,
 			parcelName: t.parcel.name,
 			parcel: {
 				width: parcels.find((p) => p.id === t.parcel.id)?.width || 0,
@@ -100,10 +103,10 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 	substanceData.forEach((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
 		const maxDosage = substanceMeta?.maxDosage || 0;
+		const totalUsedPerHaKg =
+			substance.totalUsedOfPureActiveSubstancePerHaGrams / GRAMS_PER_KILOGRAM;
 		const complianceStatus =
-			substance.totalUsedOfPureActiveSubstancePerHa <= maxDosage
-				? "Compliant"
-				: "Exceeds limit";
+			totalUsedPerHaKg <= maxDosage ? "Compliant" : "Exceeds limit";
 
 		const monthlyUsage = substance.monthlyData
 			.map((usage, month) => {
@@ -117,7 +120,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 		substanceUsageData.push({
 			substanceName: substance.name,
 			totalUsed: substance.totalUsedOfPureActiveSubstance,
-			totalUsedPerHa: substance.totalUsedOfPureActiveSubstancePerHa,
+			totalUsedPerHa: totalUsedPerHaKg,
 			maxDosage,
 			complianceStatus,
 			monthlyUsage,

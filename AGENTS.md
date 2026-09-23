@@ -1,33 +1,56 @@
-# Agricolala — notes for contributors and coding assistants
+# Agent Instructions
 
-**Agricolala** is a web app for managing **vineyard/agricultural parcels**, **treatments** (diseases, products, water dose), and **tracking agrochemical use** (active substances, limits per hectare, compliance-style summaries). The UI supports localized strings (e.g. Italian/English).
+Next.js 16 + React 19 vineyard treatments app (Prisma, PostgreSQL, NextAuth, Vercel). Setup: [readme.md](readme.md) · E2e: [e2e/TESTING.md](e2e/TESTING.md) · CI: [.github/workflows/test.yml](.github/workflows/test.yml).
 
-**Stack (high level):** Next.js (App Router), React, TypeScript, Prisma + PostgreSQL, NextAuth, Tailwind/shadcn-style UI, Vitest for unit tests.
+## Environment
 
----
+Vitest local: `test:db:start` first (Next **3001**, `.env.test`). E2e: `npm run test:e2e` (**127.0.0.1:3002**, mobile, `/en`). Failures: `test-results/`, `playwright-report/`.
 
-## Main commands
+| Where | Dev DB | Vitest | E2e (`E2E_DB_SETUP`) |
+|-------|--------|--------|----------------------|
+| **Local** | `agraria` @ `5435` | `agraria` @ `5433` | unset → `docker`, Postgres @ `5434`; `global-setup.ts` migrates or runs `setup-e2e-db.sh` |
+| **Cloud Agent** | `agraria` @ `5432` | `agraria_test` @ `5432` | `native` (or `test:e2e:agent`) → `agraria_e2e` via socket; `setup-e2e-native.sh` |
+| **CI** | — | PG `5433` | unset → service Postgres @ `5434` |
 
-| Command | Purpose |
-|--------|--------|
-| `npm run dev` | Start Next.js in development |
-| `npm run build` | `prisma generate` + production build |
-| `npm start` | Run production server (after `build`) |
-| `npm run lint` | ESLint |
-| `npm run tsc` | Typecheck (`tsc --noEmit`) |
-| `npx vitest` / `npx vitest run` | Run tests (see `vitest` config in repo) |
-| `npm run migrate` | Prisma migrate dev + generate (see [Database migrations](#database-migrations-prisma)) |
-| `npm run seed` | Run `prisma/seed.ts` |
-| `npm run studio` | Prisma Studio (DB browser) |
-| `npm run populate-aggregations` | Refresh substance aggregation data (script) |
-| `npm run test:db:start` / `test:db:stop` | Integration test DB (Docker) |
-| `npm run create-admin-user` | Admin user helper script |
-| `npm run precommit` | Lint + Biome (used with Husky) |
+`E2E_DATABASE_URL` override (port **5434**; native: `?host=/var/run/postgresql`). `E2E_POSTGRES_USER` / `E2E_POSTGRES_DB` native. `test:e2e:db:start` optional local; not Cloud.
+`.env` / `.env.test` gitignored; `.env.test` optional — defaults in `test/load-test-env.ts`. Vitest DB user superuser (`session_replication_role`).
 
-**Environment:** set `DATABASE_URL` (and any NextAuth/secret vars your deployment expects) — see `.env` / deployment docs you maintain locally.
+## Commands
 
----
+**Integration tests = Vitest + DB.** Recipe: `npm run test:db:start && npm run test`
+- Local `test:db:start` first: Docker PG @ `5433`, `migrate deploy`, `prisma generate`; **wipes test DB**; `--remove-orphans` may stop e2e compose containers
+- Vitest `globalSetup` boots Next on **3001** (HTTP integration tests hit this server)
+- Integration-only (2 files): `npm run test -- app/api/cron/suggest-treatments/route-suggest-treatments.test.ts lib/update-substance-aggregations.test.ts`
+- E2e only: failures → `test-results/`, `playwright-report/` (Vitest = console only)
 
+| Task | Command |
+|------|---------|
+| Dev | `npm run dev` → `http://localhost:3000` |
+| Migrate | `npx prisma migrate dev` |
+| Seed (dev; wipes ref data) | `npm run seed` |
+| Typecheck | `npm run tsc` |
+| Lint + format | `npm run precommit` |
+| Vitest (all) | `npm run test` |
+| Vitest (one file) | `npm run test -- path/to/file.test.ts` |
+| Vitest DB (local) | `npm run test:db:start` / `test:db:stop` |
+| E2e | `npm run test:e2e` (**127.0.0.1:3002**, mobile, `/en`) · optional `test:e2e:db:start` · cloud `test:e2e:agent` · record: [TESTING.md](e2e/TESTING.md#ux-change-workflow) |
+| E2e install | `npm run test:e2e:install` |
+| Prisma Studio | `npm run studio` |
+
+`npm run dev` auto-runs `predev` (`scripts/kill-dev-lock.sh`), which kills a stale `next dev` process left over from a prior session (via its `.next/dev/lock` PID) and frees the default port. This runs unprompted — the agent is pre-authorized to kill stale local `next dev` processes as part of starting the dev server for preview/verification.
+
+## Before finishing
+
+- **API / lib / server:** integration tests above (local: `test:db:start` first).
+- **UI / auth / parcels / treatments / dashboard:** e2e per Environment.
+- **UX change:** [TESTING.md workflow](e2e/TESTING.md#ux-change-workflow).
+- Report commands run + pass/fail.
+
+## Authentication
+
+- Credentials only `/auth/signin` — no other providers.
+- Dev: `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, `NEXTAUTH_SECRET` in `.env` (readme).
+- E2e: `playwright@agricolala.test` / `playwright-local-password`.
 
 ## Main Rules for development
 
@@ -44,8 +67,6 @@
 - **Compose** with `Pick`, `Omit`, and `ReturnType` / `Awaited<ReturnType<typeof someQuery>>` so the compiler stays tied to the schema. If you need a subset, derive it from the model or from a named `select` payload type instead of a hand-written duplicate.
 - **Zod (or similar)** is fine for runtime validation and forms; use **`z.infer<typeof schema>`** as the TS type so you still have a single definition, not a second interface that mirrors the same fields.
 - **OK:** small **UI-only** props (e.g. `isOpen`, `onClose`) that are not meant to mirror DB rows.
-
----
 
 ### Database migrations (Prisma)
 

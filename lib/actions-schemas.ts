@@ -1,26 +1,13 @@
 import { CultureType, ProductDoseUnit } from "@prisma/client";
 import z from "zod";
+import { parcelBoundarySchema } from "./parcel-geometry";
 
 export const createParcelSchema = z
 	.object({
 		name: z.string().min(1, "Name is required").max(100, "Name too long"),
-		width: z
-			.number()
-			.positive("Width must be positive")
-			.max(10000, "Width too large"),
-		height: z
-			.number()
-			.positive("Height must be positive")
-			.max(10000, "Height too large"),
 		type: z.nativeEnum(CultureType),
-		latitude: z.number().min(-90).max(90, "Invalid latitude"),
-		longitude: z.number().min(-180).max(180, "Invalid longitude"),
-	})
-	.strict();
-
-export const createTreatmentDiseaseRowSchema = z
-	.object({
-		diseaseId: z.string().min(1, "Disease is required"),
+		boundary: parcelBoundarySchema,
+		altitude: z.number().min(-500).max(9000).optional(),
 	})
 	.strict();
 
@@ -41,8 +28,31 @@ export const createTreatmentSchema = z
 			.array(z.string().min(1, "Parcel ID is required"))
 			.min(1, "At least one parcel is required"),
 		diseases: z
-			.array(createTreatmentDiseaseRowSchema)
-			.min(1, "At least one disease is required"),
+			.array(z.object({ diseaseId: z.string() }))
+			.transform((diseases) => {
+				const seen = new Set<string>();
+				const result: { diseaseId: string }[] = [];
+
+				for (const disease of diseases) {
+					const diseaseId = disease.diseaseId.trim();
+					if (!diseaseId || seen.has(diseaseId)) {
+						continue;
+					}
+					seen.add(diseaseId);
+					result.push({ diseaseId });
+				}
+
+				return result;
+			})
+			.pipe(
+				z
+					.array(
+						z.object({
+							diseaseId: z.string().min(1, "Disease is required"),
+						}),
+					)
+					.min(1, "At least one disease is required"),
+			),
 		waterDose: z
 			.number()
 			.min(0.1, "Water dose must be at least 0.1L")
@@ -59,5 +69,3 @@ export const createTreatmentSchema = z
 			),
 	})
 	.strict();
-
-export type CreateTreatmentFormValues = z.infer<typeof createTreatmentSchema>;

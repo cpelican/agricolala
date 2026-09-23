@@ -6,45 +6,36 @@ import {
 	type Product,
 	type Substance,
 } from "@prisma/client";
-import { Plus, X } from "lucide-react";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useTranslations } from "@/contexts/translations-context";
-import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
+
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import {
-	type getCachedCompositions,
-	type ParcelWithTreatments,
-} from "@/lib/data-fetcher";
-import { calculateAdvisedDosePerProduct } from "@/lib/substance-helpers";
+import { useTranslations } from "@/contexts/translations-context";
+import { useToast } from "@/hooks/use-toast";
 import { createTreatment } from "@/lib/actions";
-import { type CreateTreatmentFormValues } from "@/lib/actions-schemas";
-import React from "react";
+import type {
+	ParcelWithTreatments,
+	getCachedCompositions,
+} from "@/lib/data-fetcher";
+import {
+	calculateAdvisedDosePerProduct,
+	dedupeDiseaseEntries,
+	getDiseaseIdsForProducts,
+} from "@/lib/substance-helpers";
+
+import {
+	AddTreatmentDialogForm,
+	type AddTreatmentDialogFormData,
+	type AddTreatmentDialogFormErrors,
+	isProductDoseUnit,
+} from "./add-treatment-dialog-form";
 
 interface AddTreatmentDialogProps {
 	open: boolean;
@@ -53,19 +44,31 @@ interface AddTreatmentDialogProps {
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
 	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
-	substances: Pick<Substance, "id" | "maxDosage" | "name">[];
+	substances: Array<
+		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
+	>;
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 }
 
-const defaultErrors: Record<string, string[]> = {
+const defaultErrors: AddTreatmentDialogFormErrors = {
 	appliedDate: [],
 	parcelIds: [],
 	diseases: [],
 	productApplications: [],
 	waterDose: [],
-} as const;
+};
 
-const doseUnit = Object.values(ProductDoseUnit);
+function buildDefaultFormData(parcelId?: string): AddTreatmentDialogFormData {
+	return {
+		appliedDate: new Date(),
+		diseases: [{ diseaseId: "" }],
+		productApplications: [
+			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+		],
+		waterDose: 10,
+		parcelIds: parcelId ? [parcelId] : [""],
+	};
+}
 
 export function AddTreatmentDialog({
 	open,
@@ -79,18 +82,15 @@ export function AddTreatmentDialog({
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const { t } = useTranslations();
-	const [loading, setLoading] = useState(false);
-	const [errors, setErrors] = useState<typeof defaultErrors>(defaultErrors);
-	const [serverError, setServerError] = useState<string | null>(null);
-	const [formData, setFormData] = useState<CreateTreatmentFormValues>({
-		appliedDate: new Date(),
-		diseases: [{ diseaseId: "" }],
-		productApplications: [
-			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
-		],
-		waterDose: 10,
-		parcelIds: parcelId ? [parcelId] : [""],
-	});
+	const { toast } = useToast();
+
+	const isSubmittingRef = useRef(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errors, setErrors] =
+		useState<AddTreatmentDialogFormErrors>(defaultErrors);
+	const [formData, setFormData] = useState<AddTreatmentDialogFormData>(() =>
+		buildDefaultFormData(parcelId),
+	);
 
 	const addDisease = () => {
 		setFormData((prev) => ({
@@ -109,8 +109,10 @@ export function AddTreatmentDialog({
 	const updateDisease = (index: number, diseaseId: string) => {
 		setFormData((prev) => ({
 			...prev,
-			diseases: prev.diseases.map((disease, i) =>
-				i === index ? { ...disease, diseaseId } : disease,
+			diseases: dedupeDiseaseEntries(
+				prev.diseases.map((disease, i) =>
+					i === index ? { ...disease, diseaseId } : disease,
+				),
 			),
 		}));
 	};
@@ -129,10 +131,12 @@ export function AddTreatmentDialog({
 		}));
 	};
 
-	const updateParcel = (index: number, parcelId: string) => {
+	const updateParcel = (index: number, newParcelId: string) => {
 		setFormData((prev) => ({
 			...prev,
-			parcelIds: prev.parcelIds.map((id, i) => (i === index ? parcelId : id)),
+			parcelIds: prev.parcelIds.map((id, i) =>
+				i === index ? newParcelId : id,
+			),
 		}));
 	};
 
@@ -146,16 +150,63 @@ export function AddTreatmentDialog({
 		}));
 	};
 
+	const syncDiseasesFromProducts = (
+		productApplications: AddTreatmentDialogFormData["productApplications"],
+	) =>
+		getDiseaseIdsForProducts(
+			productApplications.map((p) => p.productId),
+			compositions,
+			substances,
+		);
+
 	const removeProduct = (index: number) => {
-		setFormData((prev) => ({
-			...prev,
-			productApplications: prev.productApplications.filter(
+		setFormData((prev) => {
+			const productApplications = prev.productApplications.filter(
 				(_, i) => i !== index,
-			),
-		}));
+			);
+			return {
+				...prev,
+				productApplications,
+				diseases: syncDiseasesFromProducts(productApplications),
+			};
+		});
 	};
 
-	// Calculate advised dose using the helper function
+	const updateProduct = (
+		index: number,
+		field: "productId" | "dose" | "doseUnit",
+		value: string | number,
+	) => {
+		setFormData((prev) => {
+			const productApplications = prev.productApplications.map((product, i) => {
+				if (i !== index) {
+					return product;
+				}
+				if (field === "productId" && typeof value === "string") {
+					// Liquid products are entered in ml, solids in g: follow the product's unit.
+					const doseUnit =
+						products.find((p) => p.id === value)?.doseUnit ??
+						ProductDoseUnit.GRAM;
+					return { ...product, productId: value, doseUnit };
+				}
+				if (field === "doseUnit") {
+					return isProductDoseUnit(value)
+						? { ...product, doseUnit: value }
+						: product;
+				}
+				return { ...product, [field]: value };
+			});
+			if (field === "productId") {
+				return {
+					...prev,
+					productApplications,
+					diseases: syncDiseasesFromProducts(productApplications),
+				};
+			}
+			return { ...prev, productApplications };
+		});
+	};
+
 	const advisedDosePerProduct = calculateAdvisedDosePerProduct(
 		formData.parcelIds,
 		compositions,
@@ -164,21 +215,8 @@ export function AddTreatmentDialog({
 		parcels || [],
 	);
 
-	const updateProduct = (
-		index: number,
-		field: "productId" | "dose" | "doseUnit",
-		value: string | number | ProductDoseUnit,
-	) => {
-		setFormData((prev) => ({
-			...prev,
-			productApplications: prev.productApplications.map((product, i) =>
-				i === index ? { ...product, [field]: value } : product,
-			),
-		}));
-	};
-
 	const validateForm = () => {
-		const newErrors: Record<string, string[]> = {
+		const nextErrors: AddTreatmentDialogFormErrors = {
 			appliedDate: [],
 			parcelIds: [],
 			diseases: [],
@@ -187,419 +225,124 @@ export function AddTreatmentDialog({
 		};
 
 		if (!formData.appliedDate) {
-			newErrors.appliedDate.push(
+			nextErrors.appliedDate.push(
 				t("treatments.errors.applicationDateRequired"),
 			);
 		}
-
-		if (formData.parcelIds.filter((id) => id).length === 0) {
-			newErrors.parcelIds.push(t("treatments.errors.parcelRequired"));
+		if (formData.parcelIds.filter(Boolean).length === 0) {
+			nextErrors.parcelIds.push(t("treatments.errors.parcelRequired"));
 		}
-
 		if (!formData.diseases.some((d) => d.diseaseId)) {
-			newErrors.diseases.push(t("treatments.errors.diseaseRequired"));
+			nextErrors.diseases.push(t("treatments.errors.diseaseRequired"));
 		}
-
 		if (!formData.productApplications.some((p) => p.productId && p.dose > 0)) {
-			newErrors.productApplications.push(
+			nextErrors.productApplications.push(
 				t("treatments.errors.productRequired"),
 			);
 		}
-
 		if (formData.waterDose <= 0) {
-			newErrors.waterDose.push(t("treatments.errors.waterDoseRequired"));
+			nextErrors.waterDose.push(t("treatments.errors.waterDoseRequired"));
 		}
 
-		setErrors(newErrors);
-		return Object.values(newErrors).flat().length === 0;
+		setErrors(nextErrors);
+		return Object.values(nextErrors).flat().length === 0;
 	};
 
-	const handleSubmit = async (formDataParam: FormData) => {
-		setLoading(true);
-		setServerError(null);
-
-		// Client-side validation
+	const handleSubmit = async () => {
+		if (isSubmittingRef.current) {
+			return;
+		}
 		if (!validateForm()) {
-			setLoading(false);
 			return;
 		}
 
+		isSubmittingRef.current = true;
+		setIsSubmitting(true);
+
+		const submitData = new FormData();
+		// Local calendar date: toISOString() would shift it back a day in UTC+ zones.
+		submitData.append(
+			"appliedDate",
+			format(formData.appliedDate, "yyyy-MM-dd"),
+		);
+		(parcelId ? [parcelId] : formData.parcelIds.filter(Boolean)).forEach((id) =>
+			submitData.append("parcelIds", id),
+		);
+		submitData.append(
+			"diseases",
+			JSON.stringify(dedupeDiseaseEntries(formData.diseases)),
+		);
+		submitData.append(
+			"productApplications",
+			JSON.stringify(formData.productApplications),
+		);
+		submitData.append("waterDose", formData.waterDose.toString());
+
+		// Close and reset right away for a fast feel; keep a snapshot so the
+		// user's input can be restored if the server rejects the treatment.
+		const submittedFormData = formData;
+		onOpenChange(false);
+		setFormData(buildDefaultFormData(parcelId));
+		setErrors(defaultErrors);
+
 		try {
-			formDataParam.append(
-				"appliedDate",
-				formData.appliedDate.toISOString().split("T")[0],
-			);
-
-			const parcelIds = parcelId
-				? [parcelId]
-				: formData.parcelIds.filter((id) => id);
-			parcelIds.forEach((id) => formDataParam.append("parcelIds", id));
-
-			formDataParam.append("diseases", JSON.stringify(formData.diseases));
-			formDataParam.append(
-				"productApplications",
-				JSON.stringify(formData.productApplications),
-			);
-			formDataParam.append("waterDose", formData.waterDose.toString());
-
-			await createTreatment(formDataParam);
-
-			onOpenChange(false);
-			setFormData({
-				appliedDate: new Date(),
-				diseases: [{ diseaseId: "" }],
-				productApplications: [
-					{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
-				],
-				waterDose: 10,
-				parcelIds: [],
-			});
+			await createTreatment(submitData);
 			router.refresh();
+			toast({ title: t("treatments.treatmentAdded") });
 		} catch (error) {
 			console.error("Error creating treatment");
-			setServerError(
-				error instanceof Error
-					? error.message
-					: t("treatments.errors.createFailed"),
-			);
+			setFormData(submittedFormData);
+			onOpenChange(true);
+			toast({
+				variant: "destructive",
+				title: t("treatments.errors.createFailed"),
+				description: error instanceof Error ? error.message : undefined,
+			});
 		} finally {
-			setLoading(false);
+			isSubmittingRef.current = false;
+			setIsSubmitting(false);
 		}
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[425px] max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>{t("treatments.addTreatment")}</DialogTitle>
-					{parcelId && (
-						<DialogDescription>
-							{t("treatments.addTreatmentDescription")}
-						</DialogDescription>
-					)}
+					<DialogDescription>
+						{parcelId
+							? t("treatments.addTreatmentDescription")
+							: t("treatments.addTreatmentFormDescription")}
+					</DialogDescription>
 				</DialogHeader>
 
-				{serverError && (
-					<div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-						<p className="text-sm text-destructive">{serverError}</p>
-					</div>
-				)}
-
-				<form action={handleSubmit} className="space-y-4">
-					<div>
-						<Label>{t("treatments.applicationDate")}</Label>
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									type="button"
-									variant="outline"
-									className={cn(
-										"w-full pl-3 text-left font-normal",
-										!formData.appliedDate && "text-muted-foreground",
-									)}
-								>
-									{formData.appliedDate ? (
-										format(formData.appliedDate, "PPP")
-									) : (
-										<span>{t("treatments.pickDate")}</span>
-									)}
-									<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0" align="start">
-								<Calendar
-									mode="single"
-									selected={formData.appliedDate}
-									onSelect={(date) =>
-										date &&
-										setFormData((prev) => ({ ...prev, appliedDate: date }))
-									}
-									disabled={(date) =>
-										date > new Date() || date < new Date("1900-01-01")
-									}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
-						<input
-							type="hidden"
-							name="appliedDate"
-							value={formData.appliedDate.toISOString().split("T")[0]}
-						/>
-						{errors.appliedDate.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
-
-					{!!parcels?.length && (
-						<div className="space-y-4">
-							<div className="flex items-center justify-between">
-								<Label>{t("treatments.parcels")}</Label>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={addParcel}
-								>
-									<Plus className="h-4 w-4 mr-2" />
-									{t("treatments.addParcel")}
-								</Button>
-							</div>
-							{formData.parcelIds.map((parcelId, index) => (
-								<div key={index} className="flex gap-2 items-start mb-1">
-									<Select
-										value={parcelId}
-										onValueChange={(value) => updateParcel(index, value)}
-									>
-										<SelectTrigger className="flex-1">
-											<SelectValue placeholder={t("treatments.selectParcel")} />
-										</SelectTrigger>
-										<SelectContent>
-											{parcels.map((parcel) => (
-												<SelectItem key={parcel.id} value={parcel.id}>
-													{parcel.name} ({parcel.width}m × {parcel.height}m)
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{formData.parcelIds.length > 1 && (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={() => removeParcel(index)}
-											className="mt-2"
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									)}
-								</div>
-							))}
-							{errors.parcelIds.map((er) => (
-								<p key={er} className="text-sm text-red-700">
-									{er}
-								</p>
-							))}
-						</div>
-					)}
-
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<Label>{t("treatments.diseases")}</Label>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={addDisease}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								{t("treatments.addDisease")}
-							</Button>
-						</div>
-						{formData.diseases.map((disease, index) => (
-							<div key={index} className="flex gap-2 items-start mb-1">
-								<Select
-									value={disease.diseaseId}
-									onValueChange={(value) => updateDisease(index, value)}
-								>
-									<SelectTrigger className="flex-1">
-										<SelectValue placeholder={t("treatments.selectDisease")} />
-									</SelectTrigger>
-									<SelectContent>
-										{diseases.map((d) => (
-											<SelectItem key={d.id} value={d.id}>
-												{d.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								{index > 0 && (
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										onClick={() => removeDisease(index)}
-										className="mt-2"
-									>
-										<X className="h-4 w-4" />
-									</Button>
-								)}
-							</div>
-						))}
-						{errors.diseases.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
-
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div>
-								<Label>{t("treatments.products")}</Label>
-								<p className="text-sm text-muted-foreground">
-									{t("treatments.productDosesByUnit")}
-								</p>
-							</div>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={addProduct}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								{t("treatments.addProduct")}
-							</Button>
-						</div>
-						{formData.productApplications.map((product, index) => (
-							<React.Fragment key={index}>
-								<div className="flex gap-2 items-start mb-1">
-									<Select
-										value={product.productId}
-										onValueChange={(value) => {
-											const p = products.find((x) => x.id === value);
-											setFormData((prev) => ({
-												...prev,
-												productApplications: prev.productApplications.map(
-													(row, i) =>
-														i === index
-															? {
-																	...row,
-																	productId: value,
-																	doseUnit: p?.doseUnit ?? ProductDoseUnit.GRAM,
-																}
-															: row,
-												),
-											}));
-										}}
-									>
-										<SelectTrigger className="flex-1">
-											<SelectValue
-												placeholder={t("treatments.selectProduct")}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{products.map((p) => (
-												<SelectItem key={p.id} value={p.id}>
-													{p.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<Input
-										type="number"
-										placeholder="20"
-										step="0.1"
-										min="0.1"
-										value={product.dose || ""}
-										onChange={(e) =>
-											updateProduct(index, "dose", Number(e.target.value))
-										}
-										className="w-24"
-									/>
-									<Select
-										value={product.doseUnit}
-										onValueChange={(value) =>
-											updateProduct(index, "doseUnit", value)
-										}
-									>
-										<SelectTrigger className="flex-1">
-											<SelectValue
-												placeholder={t("treatments.doseUnitPlaceholder")}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{doseUnit.map((p, i) => (
-												<SelectItem key={p + i} value={p}>
-													{t(`substances.units.${p}`) ?? p}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{index > 0 && (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={() => removeProduct(index)}
-											className="mt-2"
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									)}
-								</div>
-								{advisedDosePerProduct[product.productId] &&
-								advisedDosePerProduct[product.productId] < product.dose ? (
-									<p className="text-sm text-orange-400">
-										{t("treatments.warnings.doseAdvice")}{" "}
-										{Math.round(advisedDosePerProduct[product.productId])}gr
-									</p>
-								) : null}
-							</React.Fragment>
-						))}
-						{errors.productApplications.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
-
-					<div>
-						<Label htmlFor="waterDose">{t("treatments.waterDose")}</Label>
-						<Input
-							id="waterDose"
-							name="waterDose"
-							type="number"
-							step="0.1"
-							min="0"
-							value={formData.waterDose}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									waterDose: Number(e.target.value),
-								}))
-							}
-						/>
-						{errors.waterDose.map((er) => (
-							<p key={er} className="text-sm text-red-700">
-								{er}
-							</p>
-						))}
-					</div>
-
-					{/* Hidden inputs for server action */}
-					<input
-						type="hidden"
-						name="diseases"
-						value={JSON.stringify(formData.diseases)}
-					/>
-					<input
-						type="hidden"
-						name="productApplications"
-						value={JSON.stringify(formData.productApplications)}
-					/>
-
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-						>
-							{t("treatments.cancel")}
-						</Button>
-						<Button
-							type="submit"
-							disabled={loading}
-							className="bg-main-gradient hover:bg-primary-700"
-						>
-							{loading
-								? t("treatments.creating")
-								: t("treatments.createTreatment")}
-						</Button>
-					</DialogFooter>
-				</form>
+				<AddTreatmentDialogForm
+					t={t}
+					parcels={parcels}
+					diseases={diseases}
+					products={products}
+					advisedDosePerProduct={advisedDosePerProduct}
+					formData={formData}
+					errors={errors}
+					isSubmitting={isSubmitting}
+					onCancel={() => onOpenChange(false)}
+					onSubmit={() => void handleSubmit()}
+					onAddParcel={addParcel}
+					onRemoveParcel={removeParcel}
+					onUpdateParcel={updateParcel}
+					onAddProduct={addProduct}
+					onRemoveProduct={removeProduct}
+					onUpdateProduct={updateProduct}
+					onAddDisease={addDisease}
+					onRemoveDisease={removeDisease}
+					onUpdateDisease={updateDisease}
+					onWaterDoseChange={(value) =>
+						setFormData((prev) => ({ ...prev, waterDose: value }))
+					}
+					onAppliedDateChange={(value) =>
+						setFormData((prev) => ({ ...prev, appliedDate: value }))
+					}
+				/>
 			</DialogContent>
 		</Dialog>
 	);

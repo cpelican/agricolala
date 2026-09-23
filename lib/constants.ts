@@ -1,3 +1,5 @@
+export const GRAMS_PER_KILOGRAM = 1_000;
+
 export const Errors = {
 	RESOURCE_NOT_FOUND: "Resource not found",
 	UNAUTHORIZED: "Unauthorized",

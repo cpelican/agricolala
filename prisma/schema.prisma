@@ -74,6 +74,8 @@ model Parcel {
   altitude   Float?
   width      Float
   height     Float
+  boundary   Json?
+  areaM2     Float?
   type       CultureType @default(VINEYARD)
   userId     String
   createdAt  DateTime    @default(now())

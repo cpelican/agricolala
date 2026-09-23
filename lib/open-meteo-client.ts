@@ -1,35 +1,18 @@
 import { Errors } from "@/lib/constants";
-import { type WeatherHistory } from "@prisma/client";
+import {
+	type DailyWeatherData,
+	FETCH_TIMEOUT_MS,
+	type OpenMeteoResponse,
+	WEATHER_FORECAST_DAYS,
+	WEATHER_HISTORY_DAYS,
+	buildMockOpenMeteoResponse,
+	getStartOfUtcDay,
+	isPlaywrightEnv,
+	parseOpenMeteoResponse,
+	subtractUtcDays,
+} from "./open-meteo-schema";
 
-export interface OpenMeteoResponse {
-	hourly: {
-		time: string[];
-		temperature_2m: (number | null)[];
-		temperature_80m: (number | null)[];
-		precipitation: (number | null)[];
-		relative_humidity_2m: (number | null)[];
-		wind_speed_10m: (number | null)[];
-		wind_speed_180m: (number | null)[];
-	};
-}
-
-interface DailyWeatherData
-	extends Pick<
-		WeatherHistory,
-		| "temperature2mMin"
-		| "temperature2mMax"
-		| "temperature80mMin"
-		| "temperature80mMax"
-		| "cumulativePrecipitation"
-		| "relative_humidity_2mMin"
-		| "relative_humidity_2mMax"
-		| "wind_speed_10mMin"
-		| "wind_speed_10mMax"
-		| "wind_speed_180mMin"
-		| "wind_speed_180mMax"
-	> {
-	date: Date;
-}
+export type { OpenMeteoResponse } from "./open-meteo-schema";
 
 export class OpenMeteoClient {
 	private static fetchWeatherData = async (
@@ -43,21 +26,29 @@ export class OpenMeteoClient {
 			"hourly",
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
-		url.searchParams.set("past_days", "7");
+		url.searchParams.set("past_days", WEATHER_HISTORY_DAYS.toString());
+		url.searchParams.set("forecast_days", "0");
 
-		const response = await fetch(url.toString());
+		const response = await fetch(url.toString(), {
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+		});
 		if (!response.ok) {
 			console.error(`Failed to fetch weather data: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
 		}
 
-		return response.json();
+		return parseOpenMeteoResponse(response);
 	};
 
 	private static fetchWeatherForecast = async (
 		latitude: number,
 		longitude: number,
+		allowPlaywrightMock: boolean,
 	): Promise<OpenMeteoResponse> => {
+		if (allowPlaywrightMock && isPlaywrightEnv()) {
+			return buildMockOpenMeteoResponse(WEATHER_FORECAST_DAYS);
+		}
+
 		const url = new URL("https://api.open-meteo.com/v1/forecast");
 		url.searchParams.set("latitude", latitude.toString());
 		url.searchParams.set("longitude", longitude.toString());
@@ -65,13 +56,15 @@ export class OpenMeteoClient {
 			"hourly",
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
-		url.searchParams.set("forecast_days", "3");
-		const response = await fetch(url.toString());
+		url.searchParams.set("forecast_days", WEATHER_FORECAST_DAYS.toString());
+		const response = await fetch(url.toString(), {
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+		});
 		if (!response.ok) {
 			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
 		}
-		return response.json();
+		return parseOpenMeteoResponse(response);
 	};
 
 	public static computeDailyWeatherData = (
@@ -87,9 +80,11 @@ export class OpenMeteoClient {
 				continue;
 			}
 
-			const dateKey = dateTime.toISOString().split("T")[0];
-			const dateOnly = new Date(dateKey);
-			dateOnly.setHours(0, 0, 0, 0);
+			// Use the calendar date from the API string (local to the coordinates),
+			// not toISOString() which shifts buckets near timezone boundaries.
+			const dateKey = timestamp.slice(0, 10);
+			const [year, month, day] = dateKey.split("-").map(Number);
+			const dateOnly = new Date(Date.UTC(year, month - 1, day));
 
 			if (!dailyMap.has(dateKey)) {
 				dailyMap.set(dateKey, {
@@ -215,13 +210,12 @@ export class OpenMeteoClient {
 		);
 		const hourlyData = weatherDataResponse.hourly;
 
-		const now = new Date();
-		const sevenDaysAgo = new Date(now);
-		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+		const todayStart = getStartOfUtcDay(new Date());
+		const historyStart = subtractUtcDays(todayStart, WEATHER_HISTORY_DAYS);
 
 		const dailyData = OpenMeteoClient.computeDailyWeatherData(
 			hourlyData,
-			(dateTime) => dateTime < sevenDaysAgo || dateTime >= now,
+			(dateTime) => dateTime < historyStart || dateTime >= todayStart,
 		);
 
 		return Array.from(dailyData.values());
@@ -230,10 +224,12 @@ export class OpenMeteoClient {
 	public static getForecastWeatherData = async (
 		latitude: number,
 		longitude: number,
+		options?: { allowPlaywrightMock?: boolean },
 	): Promise<DailyWeatherData[]> => {
 		const forecastResponse = await OpenMeteoClient.fetchWeatherForecast(
 			latitude,
 			longitude,
+			options?.allowPlaywrightMock ?? false,
 		);
 		const now = new Date();
 		const dailyData = OpenMeteoClient.computeDailyWeatherData(

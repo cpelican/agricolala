@@ -1,3 +1,4 @@
+import { ParcelMapSkeleton } from "@/components/parcels/parcel-map-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ParcelDetailSkeleton() {
@@ -49,9 +50,7 @@ export function ParcelDetailSkeleton() {
 				</div>
 			</div>
 
-			<div className="h-64">
-				<Skeleton className="h-full w-full rounded-lg" />
-			</div>
+			<ParcelMapSkeleton />
 		</div>
 	);
 }

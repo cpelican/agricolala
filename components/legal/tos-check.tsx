@@ -8,33 +8,30 @@ import { useRouter } from "next/navigation";
 
 interface TosCheckProps {
 	children: React.ReactNode;
-	userEmail?: string | null;
 }
 
-export function TosCheck({ children, userEmail }: TosCheckProps) {
+export function TosCheck({ children }: TosCheckProps) {
 	const [showTosDialog, setShowTosDialog] = useState(false);
 	const [isChecking, setIsChecking] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
 		const checkTosAcceptance = async () => {
-			if (userEmail) {
-				try {
-					const result = await getTosStatus();
+			try {
+				const result = await getTosStatus();
 
-					if (result.success && !result.tosAccepted) {
-						setShowTosDialog(true);
-					}
-				} catch (error) {
-					console.error("Error checking ToS status:", error);
+				if (result.success && !result.tosAccepted) {
+					setShowTosDialog(true);
 				}
+			} catch (error) {
+				console.error("Error checking ToS status:", error);
 			}
 
 			setIsChecking(false);
 		};
 
 		checkTosAcceptance();
-	}, [userEmail]);
+	}, []);
 
 	const handleAcceptTos = async () => {
 		try {

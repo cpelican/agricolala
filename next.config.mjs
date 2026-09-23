@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	// For trying on a real mobile
+	allowedDevOrigins: process.env.VERCEL_ENV !== "production" ? ['192.168.126.59'] : undefined,
+	devIndicators: process.env.PLAYWRIGHT ? false : undefined,
 	experimental: {
-		taint: process.env.NODE_ENV !== "production",
+		taint: true,
+		staleTimes: {
+			dynamic: 60,
+			static: 300,
+		},
 		serverActions: {
 			allowedOrigins: ["agricolala-eta.vercel.app", "*.agricolala-eta.vercel.app"],
 		},
@@ -17,7 +24,25 @@ const nextConfig = {
 	},
 	serverExternalPackages: ["@prisma/client"],
 	images: {
-		domains: ["lh3.googleusercontent.com"],
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "lh3.googleusercontent.com",
+			},
+		],
+	},
+	async headers() {
+		return [
+			{
+				source: "/:path*",
+				headers: [
+					{
+						key: "Permissions-Policy",
+						value: "geolocation=(self)",
+					},
+				],
+			},
+		];
 	},
 };
 

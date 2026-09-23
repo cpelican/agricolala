@@ -6,7 +6,6 @@ import {
 	getCachedParcelSubstanceAggregations,
 	getCachedSubstances,
 	getParcelDetail,
-	type ParcelDetailType,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
@@ -14,6 +13,7 @@ import { type Locale } from "@/lib/translations-helpers";
 import { Header } from "@/components/misc/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
+import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -23,13 +23,12 @@ export type PageProps<T extends Record<string, string>> = {
 export default async function ParcelPage({
 	params,
 }: PageProps<{ lang: Locale; parcelId: string }>) {
-	const { parcelId, lang } = await params;
-	const session = await requireAuth();
-	let parcel: ParcelDetailType;
-	try {
-		parcel = await getParcelDetail(parcelId, session.user.id);
-	} catch (error) {
-		console.error("Error fetching parcel detail", error);
+	const [{ parcelId, lang }, session] = await Promise.all([
+		params,
+		requireAuth(),
+	]);
+	const parcel = await getParcelDetail(parcelId, session.user.id);
+	if (!parcel) {
 		notFound();
 	}
 
@@ -39,11 +38,10 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	const substanceData = await getCachedParcelSubstanceAggregations(
-		parcelId,
-		currentYear,
-	);
-	const substances = await getCachedSubstances();
+	const [substanceData, substances] = await Promise.all([
+		getCachedParcelSubstanceAggregations(parcelId, currentYear),
+		getCachedSubstances(),
+	]);
 
 	const now = new Date();
 	const upcomingTreatments = currentYearTreatments.filter(
@@ -67,7 +65,7 @@ export default async function ParcelPage({
 		<>
 			<Header
 				title={`${parcel.name}`}
-				subtitle={`${parcel.type} - ${parcel.width}m x ${parcel.height}m`}
+				subtitle={`${parcel.type} - ${formatParcelAreaDisplay(parcel)}`}
 			>
 				<DeleteParcelButton
 					parcelId={parcel.id}
@@ -85,12 +83,7 @@ export default async function ParcelPage({
 					>
 						<Applicability parcelId={parcel.id} locale={lang} />
 					</ParcelDetail>
-					<div className="h-64">
-						<ParcelMapWrapper
-							parcels={[parcel]}
-							highlightParcelId={parcel.id}
-						/>
-					</div>
+					<ParcelMapWrapper parcels={[parcel]} highlightParcelId={parcel.id} />
 				</div>
 			</Suspense>
 		</>

@@ -26,7 +26,7 @@ export async function updateUserAggregations(
 					totalUsedOfPureActiveSubstance:
 						substance.totalUsedOfPureActiveSubstance,
 					totalUsedOfPureActiveSubstancePerHa:
-						substance.totalUsedOfPureActiveSubstancePerHa,
+						substance.totalUsedOfPureActiveSubstancePerHaGrams,
 					monthlyData: substance.monthlyData,
 					applicationCount: substance.applicationCount,
 				},
@@ -59,7 +59,7 @@ export async function updateParcelAggregations(
 					totalUsedOfPureActiveSubstance:
 						substance.totalUsedOfPureActiveSubstance,
 					totalUsedOfPureActiveSubstancePerHa:
-						substance.totalUsedOfPureActiveSubstancePerHa,
+						substance.totalUsedOfPureActiveSubstancePerHaGrams,
 					monthlyData: substance.monthlyData,
 					applicationCount: substance.applicationCount,
 				},

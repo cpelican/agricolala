@@ -1,17 +1,23 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { taintUtils } from "@/lib/taint-utils";
 import { defaultLocale, getLanguageAsLocale } from "@/lib/translations-helpers";
-import { Errors, INVALID_SESSION_ID } from "@/lib/constants";
+import { INVALID_SESSION_ID } from "@/lib/constants";
 
 taintUtils.taintOAuthSecrets();
 
-if (!process.env.GOOGLE_CLIENT_ID) {
+const isTestEnv =
+	!!process.env.TEST_USER_EMAIL &&
+	!!process.env.TEST_USER_PASSWORD &&
+	process.env.VERCEL_ENV !== "production";
+
+if (!process.env.GOOGLE_CLIENT_ID && !isTestEnv) {
 	throw new Error("GOOGLE_CLIENT_ID environment variable is required");
 }
 
-if (!process.env.GOOGLE_CLIENT_SECRET) {
+if (!process.env.GOOGLE_CLIENT_SECRET && !isTestEnv) {
 	throw new Error("GOOGLE_CLIENT_SECRET environment variable is required");
 }
 
@@ -19,16 +25,63 @@ if (!process.env.NEXTAUTH_SECRET) {
 	throw new Error("NEXTAUTH_SECRET environment variable is required");
 }
 
-export const authOptions: NextAuthOptions = {
-	session: {
-		strategy: "jwt",
-	},
-	providers: [
+const providers: NextAuthOptions["providers"] = [];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+	providers.push(
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 		}),
-	],
+	);
+}
+
+if (isTestEnv) {
+	providers.push(
+		CredentialsProvider({
+			name: "Test Credentials",
+			credentials: {
+				email: { label: "Email", type: "email" },
+				password: { label: "Password", type: "password" },
+			},
+			async authorize(credentials) {
+				if (!credentials?.email || !credentials?.password) {
+					return null;
+				}
+				if (
+					credentials.email === process.env.TEST_USER_EMAIL &&
+					credentials.password === process.env.TEST_USER_PASSWORD
+				) {
+					const user = await prisma.user.upsert({
+						where: { email: credentials.email },
+						update: { emailVerified: new Date() },
+						create: {
+							email: credentials.email,
+							name: "Test User",
+							emailVerified: new Date(),
+							isAuthorized: true,
+							locale: defaultLocale,
+						},
+					});
+					return {
+						id: user.id,
+						email: user.email,
+						name: user.name,
+						isAuthorized: user.isAuthorized,
+						locale: user.locale as "en" | "it",
+					};
+				}
+				return null;
+			},
+		}),
+	);
+}
+
+export const authOptions: NextAuthOptions = {
+	session: {
+		strategy: "jwt",
+	},
+	providers,
 	callbacks: {
 		/**
 		 * [cp] Called right after the provider (Google) authenticates
@@ -84,33 +137,42 @@ export const authOptions: NextAuthOptions = {
 		 * @param token - The JWT token object that gets encoded and sent to the client
 		 * @param user - Present only during initial sign-in, contains OAuth provider user data
 		 *
-		 * Note: Changes to isAuthorized or user deletion won't be reflected until the token
-		 * expires or the user signs in again. This is the trade-off for stateless JWT performance.
+		 * Re-resolves `token.id` from the database by email on each call so a JWT
+		 * survives DB resets/migrations without breaking foreign keys.
 		 */
 		async jwt({ token, user }) {
-			// Initial sign-in: populate token with user data from database
-			if (user?.email) {
-				try {
-					const dbUser = await prisma.user.findUniqueOrThrow({
-						where: { email: user.email },
-						select: {
-							id: true,
-							isAuthorized: true,
-							locale: true,
-						},
-					});
+			const email =
+				typeof user?.email === "string"
+					? user.email
+					: typeof token.email === "string"
+						? token.email
+						: null;
 
-					token.id = dbUser.id;
-					token.isAuthorized = dbUser.isAuthorized;
-					token.locale = getLanguageAsLocale(dbUser.locale);
-				} catch (error) {
-					console.error("Error fetching user in JWT callback:", error);
-					throw new Error(Errors.ACCESS_DENIED);
-				}
+			if (!email) {
+				return token;
 			}
 
-			// Subsequent requests: return token as-is (no database query)
-			// This is the performance benefit of JWT - stateless and fast
+			token.email = email;
+
+			try {
+				const dbUser = await prisma.user.findUniqueOrThrow({
+					where: { email },
+					select: {
+						id: true,
+						isAuthorized: true,
+						locale: true,
+					},
+				});
+
+				token.id = dbUser.id;
+				token.isAuthorized = dbUser.isAuthorized;
+				token.locale = getLanguageAsLocale(dbUser.locale);
+			} catch (error) {
+				console.error("Error fetching user in JWT callback:", error);
+				token.id = undefined;
+				token.isAuthorized = false;
+			}
+
 			return token;
 		},
 		/**

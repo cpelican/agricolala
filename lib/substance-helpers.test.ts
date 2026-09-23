@@ -1,11 +1,15 @@
-import { ProductDoseUnit, SubstanceLimitUnit } from "@prisma/client";
-import { calculateSubstanceData } from "./substance-helpers";
+import {
+	calculateSubstanceData,
+	dedupeDiseaseEntries,
+	getDiseaseIdsForProducts,
+} from "./substance-helpers";
 import { describe, test, expect } from "vitest";
 
 const treatments = [
 	{
 		id: "1",
 		appliedDate: new Date("2025-04-10"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -26,6 +30,7 @@ const treatments = [
 	{
 		id: "2",
 		appliedDate: new Date("2025-04-18"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -46,6 +51,7 @@ const treatments = [
 	{
 		id: "3",
 		appliedDate: new Date("2025-04-18"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -66,6 +72,7 @@ const treatments = [
 	{
 		id: "4",
 		appliedDate: new Date("2025-04-24"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -86,6 +93,7 @@ const treatments = [
 	{
 		id: "5",
 		appliedDate: new Date("2025-04-29"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -106,6 +114,7 @@ const treatments = [
 	{
 		id: "6",
 		appliedDate: new Date("2025-05-08"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -126,6 +135,7 @@ const treatments = [
 	{
 		id: "7",
 		appliedDate: new Date("2025-05-20"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -146,6 +156,7 @@ const treatments = [
 	{
 		id: "8",
 		appliedDate: new Date("2025-05-23"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -166,6 +177,7 @@ const treatments = [
 	{
 		id: "9",
 		appliedDate: new Date("2025-05-25"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -186,6 +198,7 @@ const treatments = [
 	{
 		id: "10",
 		appliedDate: new Date("2025-05-27"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -206,6 +219,7 @@ const treatments = [
 	{
 		id: "11",
 		appliedDate: new Date("2025-06-07"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -226,6 +240,7 @@ const treatments = [
 	{
 		id: "12",
 		appliedDate: new Date("2025-06-15"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -246,6 +261,7 @@ const treatments = [
 	{
 		id: "13",
 		appliedDate: new Date("2025-06-22"),
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		parcel: { width: 10, height: 10 },
 		productApplications: [
@@ -265,6 +281,7 @@ const treatments = [
 	},
 	{
 		id: "14",
+		parcelId: "parcel-1",
 		parcelName: "Parcel 1",
 		appliedDate: new Date("2025-06-07"),
 		parcel: { width: 10, height: 10 },
@@ -289,16 +306,8 @@ const compositions = {
 	"1": {
 		product1: {
 			id: "1",
-			product: {
-				doseUnit: ProductDoseUnit.GRAM,
-				productLiterToKiloGramConversionRate: null,
-			},
-			substance: {
-				name: "rame",
-				maxDosage: 4,
-				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
-			},
-			dose: 25,
+			substance: { name: "rame", maxDosage: 4 },
+			dose: 25, // percentage
 			substanceId: "1",
 			productId: "product1",
 		},
@@ -308,18 +317,196 @@ const compositions = {
 const expected = [
 	{
 		name: "rame",
-		totalDoseOfProduct: 275,
-		totalUsedOfPureActiveSubstance: 68.75,
-		totalUsedOfPureActiveSubstancePerHa: 6875,
+		totalDoseOfProduct: 275, // correct value in grams
+		totalUsedOfPureActiveSubstance: 68.75, // should be 275 * (25 / 100 (product dose of substance))
+		totalUsedOfPureActiveSubstancePerHaGrams: 6875, // (grams per hectare) this should be calculated based on the parcel size
 		maxDosage: 4,
 		monthlyData: [0, 0, 0, 25, 23.75, 20, 0, 0, 0, 0, 0, 0],
 		applicationCount: 14,
 	},
 ];
 
+const HECTARE_IN_METERS = 10_000;
+
 describe("calculateSubstanceData", () => {
+	test("should calculate substance correctly with only one treatment", () => {
+		const firstTreatment = treatments[0];
+		const substanceData = calculateSubstanceData(
+			[firstTreatment],
+			compositions,
+		);
+		const pureActiveSubstanceDoseInGr =
+			(firstTreatment.productApplications[0].dose *
+				compositions["1"].product1.dose) /
+			100;
+		const parcelSizeInM2 =
+			firstTreatment.parcel.width * firstTreatment.parcel.height;
+
+		expect(substanceData).toEqual([
+			{
+				name: "rame",
+				totalDoseOfProduct: firstTreatment.productApplications[0].dose,
+				totalUsedOfPureActiveSubstance: pureActiveSubstanceDoseInGr,
+				totalUsedOfPureActiveSubstancePerHaGrams:
+					(pureActiveSubstanceDoseInGr * HECTARE_IN_METERS) / parcelSizeInM2,
+				applicationCount: 1,
+				monthlyData: [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+				maxDosage: 4,
+			},
+		]);
+	});
+
+	test("should calculate substance data correctly with 2 treatments on one parcel", () => {
+		const twoTreatments = treatments.slice(0, 2);
+		const substanceData = calculateSubstanceData(twoTreatments, compositions);
+		const parcelSizeInM2 =
+			twoTreatments[0].parcel.width * twoTreatments[0].parcel.height;
+		expect(parcelSizeInM2).toEqual(100);
+
+		const substanceDataSnapshot = substanceData[0];
+		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40);
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10);
+		expect(
+			substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHaGrams,
+		).toEqual(1000);
+		expect(substanceDataSnapshot.applicationCount).toEqual(2);
+	});
+
+	test("should calculate substance data correctly with 2 treatments on 2 parcels", () => {
+		// Add total product on the total parcel size
+		const twoTreatments = [
+			treatments[0],
+			{
+				...treatments[1],
+				parcelId: "parcel-2",
+				parcelName: "Parcel 2",
+				parcel: { width: 20, height: 20 },
+			},
+		];
+		const substanceData = calculateSubstanceData(twoTreatments, compositions);
+		const parcelSizeInM2 =
+			twoTreatments[0].parcel.width * twoTreatments[0].parcel.height +
+			twoTreatments[1].parcel.width * twoTreatments[1].parcel.height;
+
+		expect(parcelSizeInM2).toEqual(500);
+
+		const substanceDataSnapshot = substanceData[0];
+		expect(substanceDataSnapshot.totalDoseOfProduct).toEqual(40); // 20 + 20
+		expect(substanceDataSnapshot.totalUsedOfPureActiveSubstance).toEqual(10); // 40 * (25 / 100)
+		expect(
+			substanceDataSnapshot.totalUsedOfPureActiveSubstancePerHaGrams,
+		).toEqual(
+			200, // (10 * 10_000) / 500
+		);
+		expect(substanceDataSnapshot.applicationCount).toEqual(2);
+	});
+
+	test("should not multiply parcel area when multiple treatments share the same parcel", () => {
+		const threeTreatments = treatments.slice(0, 3);
+		const substanceData = calculateSubstanceData(threeTreatments, compositions);
+		const parcelSizeInM2 =
+			threeTreatments[0].parcel.width * threeTreatments[0].parcel.height;
+		const totalPureActiveSubstance = 15; // 3 × 20g product × 25%
+
+		expect(substanceData[0].totalUsedOfPureActiveSubstance).toEqual(
+			totalPureActiveSubstance,
+		);
+		expect(substanceData[0].totalUsedOfPureActiveSubstancePerHaGrams).toEqual(
+			(totalPureActiveSubstance * HECTARE_IN_METERS) / parcelSizeInM2,
+		);
+	});
+
 	test("should calculate substance data correctly", () => {
 		const substanceData = calculateSubstanceData(treatments, compositions);
 		expect(substanceData).toEqual(expected);
+	});
+});
+
+describe("dedupeDiseaseEntries", () => {
+	test("removes duplicate disease ids keeping first occurrence", () => {
+		expect(
+			dedupeDiseaseEntries([
+				{ diseaseId: "peronospora" },
+				{ diseaseId: "peronospora" },
+				{ diseaseId: "oidium" },
+			]),
+		).toEqual([{ diseaseId: "peronospora" }, { diseaseId: "oidium" }]);
+	});
+
+	test("collapses multiple empty rows to one", () => {
+		expect(
+			dedupeDiseaseEntries([{ diseaseId: "" }, { diseaseId: "" }]),
+		).toEqual([{ diseaseId: "" }]);
+	});
+
+	test("returns single empty row when input is empty", () => {
+		expect(dedupeDiseaseEntries([])).toEqual([{ diseaseId: "" }]);
+	});
+});
+
+describe("getDiseaseIdsForProducts", () => {
+	const productCompositions = {
+		copperProduct: {
+			copper: {
+				id: "dose1",
+				dose: 25,
+				substanceId: "copper",
+				productId: "copperProduct",
+				substance: { name: "Copper", maxDosage: 4 },
+			},
+		},
+		sulfurProduct: {
+			sulfur: {
+				id: "dose2",
+				dose: 80,
+				substanceId: "sulfur",
+				productId: "sulfurProduct",
+				substance: { name: "Sulfur", maxDosage: 10 },
+			},
+		},
+	};
+
+	const substances = [
+		{ id: "copper", diseaseIds: ["peronospora"] },
+		{ id: "sulfur", diseaseIds: ["oidium"] },
+	];
+
+	test("returns empty row when no products selected", () => {
+		expect(
+			getDiseaseIdsForProducts([], productCompositions, substances),
+		).toEqual([{ diseaseId: "" }]);
+	});
+
+	test("maps copper product to peronospora", () => {
+		expect(
+			getDiseaseIdsForProducts(
+				["copperProduct"],
+				productCompositions,
+				substances,
+			),
+		).toEqual([{ diseaseId: "peronospora" }]);
+	});
+
+	test("maps sulfur product to oidium", () => {
+		expect(
+			getDiseaseIdsForProducts(
+				["sulfurProduct"],
+				productCompositions,
+				substances,
+			),
+		).toEqual([{ diseaseId: "oidium" }]);
+	});
+
+	test("unions diseases from multiple products", () => {
+		const result = getDiseaseIdsForProducts(
+			["copperProduct", "sulfurProduct"],
+			productCompositions,
+			substances,
+		);
+		expect(result).toHaveLength(2);
+		expect(result.map((d) => d.diseaseId).sort()).toEqual([
+			"oidium",
+			"peronospora",
+		]);
 	});
 });

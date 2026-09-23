@@ -1,5 +1,5 @@
 import { Errors } from "@/lib/constants";
-import { OpenMeteoClient } from "./openMeteoClient";
+import { OpenMeteoClient } from "./open-meteo-client";
 import { prisma } from "./prisma";
 
 const average = (arr: number[]) => {

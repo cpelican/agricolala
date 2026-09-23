@@ -52,6 +52,13 @@ export const taintUtils = {
 					process.env.NEXTAUTH_SECRET,
 				);
 			}
+			if (process.env.TEST_USER_PASSWORD) {
+				experimental_taintUniqueValue(
+					"Do not pass test variables to the client.",
+					process,
+					process.env.TEST_USER_PASSWORD,
+				);
+			}
 		}
 	},
 	taintBusinessLogic: <Type extends Reference>(obj: Type) => {

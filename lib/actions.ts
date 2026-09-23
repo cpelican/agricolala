@@ -7,8 +7,16 @@ import { prisma } from "@/lib/prisma";
 import { type Locale } from "./translations-helpers";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
 import { TreatmentStatus } from "@prisma/client";
-import { productDoseEntryToGrams } from "./product-dose-to-grams";
+import { productApplicationsToGrams } from "./product-dose-to-grams";
+import { getProductDoseUnits } from "./data-fetcher-catalog";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
+import {
+	computeParcelAreaM2,
+	computeParcelCentroid,
+	parcelBoundaryToJson,
+	validateBoundary,
+	getParcelAreaM2,
+} from "./parcel-geometry";
 import { taintUtils } from "@/lib/taint-utils";
 import { generateTreatmentsExcel } from "./excel-export";
 import { Errors } from "@/lib/constants";
@@ -73,6 +81,7 @@ export async function createTreatment(formData: FormData) {
 				name: true,
 				width: true,
 				height: true,
+				areaM2: true,
 			},
 		});
 
@@ -80,31 +89,20 @@ export async function createTreatment(formData: FormData) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
 		}
 
-		const productIds = [
-			...new Set(validatedData.productApplications.map((p) => p.productId)),
-		];
-		const products = await prisma.product.findMany({
-			where: { id: { in: productIds } },
-			select: {
-				id: true,
-				doseUnit: true,
-				productLiterToKiloGramConversionRate: true,
-			},
-		});
-		const productById = new Map(products.map((p) => [p.id, p]));
-		if (productById.size !== productIds.length) {
-			throw new Error(Errors.RESOURCE_NOT_FOUND);
-		}
-		for (const app of validatedData.productApplications) {
-			const productRow = productById.get(app.productId);
-			if (!productRow || productRow.doseUnit !== app.doseUnit) {
-				throw new Error(Errors.RESOURCE_NOT_FOUND);
-			}
-		}
+		const productApplicationsInGrams = productApplicationsToGrams(
+			validatedData.productApplications,
+			await getProductDoseUnits(
+				validatedData.productApplications.map((p) => p.productId),
+			),
+		);
 
 		const totalArea = parcels.reduce(
-			(sum, parcel) => sum + parcel.width * parcel.height,
+			(sum, parcel) => sum + getParcelAreaM2(parcel),
 			0,
+		);
+
+		const diseaseIds = validatedData.diseases.map(
+			(disease) => disease.diseaseId,
 		);
 
 		const calculateDosePerParcel = (totalDose: number, parcelArea: number) => {
@@ -115,56 +113,41 @@ export async function createTreatment(formData: FormData) {
 			return result;
 		};
 
-		const createdTreatments = await Promise.all(
-			parcels.map(async (parcel) => {
-				const treatment = await prisma.treatment.create({
-					data: {
-						waterDose: validatedData.waterDose,
-						parcelId: parcel.id,
-						appliedDate: validatedData.appliedDate,
-						status: TreatmentStatus.DONE,
-						userId: session.user.id,
-						diseaseIds: validatedData.diseases.map(
-							(disease) => disease.diseaseId,
-						),
-					},
-				});
-
-				const productApplications = await Promise.all(
-					validatedData.productApplications.map(async (product) => {
-						const parcelArea = parcel.width * parcel.height;
-						const productRow = productById.get(product.productId);
-						if (!productRow) {
-							throw new Error(Errors.RESOURCE_NOT_FOUND);
-						}
-						const doseInGrams = productDoseEntryToGrams(
-							product.dose,
-							productRow,
-						);
-						const calculatedDose = calculateDosePerParcel(
-							doseInGrams,
-							parcelArea,
-						);
-
-						return prisma.productApplication.create({
-							data: {
-								dose: calculatedDose,
-								productId: product.productId,
-								treatmentId: treatment.id,
-							},
-						});
-					}),
-				);
-
-				return {
-					treatment,
-					productApplications,
-				};
-			}),
+		const parcelAreaById = new Map(
+			parcels.map((parcel) => [parcel.id, getParcelAreaM2(parcel)]),
 		);
 
+		const createdTreatments = await prisma.$transaction(async (tx) => {
+			const treatments = await tx.treatment.createManyAndReturn({
+				data: parcels.map((parcel) => ({
+					waterDose: validatedData.waterDose,
+					parcelId: parcel.id,
+					appliedDate: validatedData.appliedDate,
+					status: TreatmentStatus.DONE,
+					userId: session.user.id,
+					diseaseIds,
+				})),
+				select: { id: true, parcelId: true },
+			});
+
+			await tx.productApplication.createMany({
+				data: treatments.flatMap((treatment) => {
+					const parcelArea = parcelAreaById.get(treatment.parcelId) ?? 0;
+					return productApplicationsInGrams.map((product) => ({
+						dose: calculateDosePerParcel(product.doseInGrams, parcelArea),
+						productId: product.productId,
+						treatmentId: treatment.id,
+					}));
+				}),
+			});
+
+			return treatments;
+		});
+
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear);
+		await updateSubstanceAggregations(session.user.id, currentYear, {
+			affectedParcelIds: parcels.map((parcel) => parcel.id),
+		});
 
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
@@ -172,7 +155,7 @@ export async function createTreatment(formData: FormData) {
 
 		return {
 			success: true,
-			treatments: createdTreatments.map((t) => t.treatment.id),
+			treatments: createdTreatments.map((t) => t.id),
 			message: `Created ${createdTreatments.length} treatments across ${parcels.length} parcels`,
 		};
 	} catch (error) {
@@ -208,7 +191,9 @@ export async function deleteTreatment(treatmentId: string) {
 		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear);
+		await updateSubstanceAggregations(session.user.id, currentYear, {
+			affectedParcelIds: [treatment.parcelId],
+		});
 
 		revalidatePath("/treatments");
 		revalidatePath("/parcels");
@@ -234,24 +219,38 @@ export async function createParcel(formData: FormData) {
 
 	try {
 		const name = String(formData.get("name"));
-		const width = parseFloat(String(formData.get("width")));
-		const height = parseFloat(String(formData.get("height")));
 		const type = String(formData.get("type"));
-		const latitude = parseFloat(String(formData.get("latitude")));
-		const longitude = parseFloat(String(formData.get("longitude")));
+		const boundaryRaw = String(formData.get("boundary"));
+		const altitudeRaw = formData.get("altitude");
+		const boundary = JSON.parse(boundaryRaw);
 
 		const validatedData = createParcelSchema.parse({
 			name,
-			width,
-			height,
 			type,
-			latitude,
-			longitude,
+			boundary,
+			altitude:
+				altitudeRaw != null && String(altitudeRaw).length > 0
+					? parseFloat(String(altitudeRaw))
+					: undefined,
 		});
+
+		validateBoundary(validatedData.boundary);
+		const areaM2 = computeParcelAreaM2(validatedData.boundary);
+		const { lat: latitude, lng: longitude } = computeParcelCentroid(
+			validatedData.boundary,
+		);
 
 		const parcel = await prisma.parcel.create({
 			data: {
-				...validatedData,
+				name: validatedData.name,
+				type: validatedData.type,
+				latitude,
+				longitude,
+				altitude: validatedData.altitude,
+				boundary: parcelBoundaryToJson(validatedData.boundary),
+				areaM2,
+				width: 0,
+				height: 0,
 				userId: session.user.id,
 			},
 		});
@@ -265,6 +264,14 @@ export async function createParcel(formData: FormData) {
 		};
 	} catch (error) {
 		console.error("Error creating parcel", error);
+		if (
+			error &&
+			typeof error === "object" &&
+			"code" in error &&
+			error.code === "P2003"
+		) {
+			throw new Error(Errors.ACCESS_DENIED);
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
