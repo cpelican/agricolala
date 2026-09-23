@@ -135,7 +135,7 @@
 			"createFailed": "Impossibile creare il trattamento"
 		},
 		"warnings": {
-			"doseAdvice": "Si consiglia di non superare la dose di"
+			"doseAdvice": "Si consiglia di non superare la dose di {dose} gr"
 		},
 		"applicability": {
 			"title": "Applicabilità Trattamenti Prossimi 3 Giorni",

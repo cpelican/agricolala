@@ -135,7 +135,7 @@
 			"createFailed": "Failed to create treatment"
 		},
 		"warnings": {
-			"doseAdvice": "It is advised not to go beyond the dosage of"
+			"doseAdvice": "It is advised not to go beyond the dosage of {dose} g"
 		},
 		"applicability": {
 			"title": "Next 3 Days Treatment Applicability",

@@ -266,8 +266,12 @@ export function AddTreatmentDialogForm({
 							{advisedDosePerProduct[product.productId] &&
 							advisedDosePerProduct[product.productId] < product.dose ? (
 								<p className="text-sm text-orange-400">
-									{t("treatments.warnings.doseAdvice")}{" "}
-									{Math.round(advisedDosePerProduct[product.productId])}gr
+									{t("treatments.warnings.doseAdvice").replace(
+										"{dose}",
+										String(
+											Math.round(advisedDosePerProduct[product.productId]),
+										),
+									)}
 								</p>
 							) : null}
 						</React.Fragment>
