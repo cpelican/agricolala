@@ -102,6 +102,7 @@
 		"diseasesFromProductsHint": "Filled from selected products; you can adjust.",
 		"products": "Products",
 		"dosesInGrams": "Doses in grams (g)",
+		"doseUnit": "g",
 		"addProduct": "Add Product",
 		"selectProduct": "Select product",
 		"waterDose": "Water Dose (L)",
@@ -135,7 +136,7 @@
 			"createFailed": "Failed to create treatment"
 		},
 		"warnings": {
-			"doseAdvice": "It is advised not to go beyond the dosage of"
+			"doseAdvice": "It is advised not to go beyond the dosage of {dose} g"
 		},
 		"applicability": {
 			"title": "Next 3 Days Treatment Applicability",

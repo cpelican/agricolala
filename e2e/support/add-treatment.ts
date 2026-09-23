@@ -23,4 +23,7 @@ export async function addTreatmentFromDialog(
 
 	await dialog.getByRole("button", { name: "Create Treatment" }).click();
 	await expect(dialog).toBeHidden();
+	await expect(
+		page.getByText("Treatment added successfully", { exact: true }),
+	).toBeVisible();
 }

@@ -102,6 +102,7 @@
 		"diseasesFromProductsHint": "Compilate dai prodotti selezionati; puoi modificarle.",
 		"products": "Prodotti",
 		"dosesInGrams": "Dosi in grammi (g)",
+		"doseUnit": "g",
 		"addProduct": "Aggiungi Prodotto",
 		"selectProduct": "Seleziona prodotto",
 		"waterDose": "Dose Acqua (L)",
@@ -135,7 +136,7 @@
 			"createFailed": "Impossibile creare il trattamento"
 		},
 		"warnings": {
-			"doseAdvice": "Si consiglia di non superare la dose di"
+			"doseAdvice": "Si consiglia di non superare la dose di {dose} gr"
 		},
 		"applicability": {
 			"title": "Applicabilità Trattamenti Prossimi 3 Giorni",
