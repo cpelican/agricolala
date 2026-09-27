@@ -46,19 +46,13 @@ begin
 end;
 $$;
 
--- 3) Ensure the lint-flagged public SECURITY DEFINER function (if it exists)
---    is NOT callable by anon/public/authenticated.
+-- 3) Harden the legacy public.is_admin (if it exists) so it passes the linter even if
+--    it cannot be dropped at the end of this script: pin search_path and make it
+--    uncallable by anon/public/authenticated through /rest/v1/rpc.
 DO $$
 BEGIN
-  IF EXISTS (
-    SELECT 1
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.proname = 'is_admin'
-      AND pg_get_function_identity_arguments(p.oid) = 'user_id text'
-  ) THEN
-    -- Revoke from all public-facing roles.
+  IF to_regprocedure('public.is_admin(text)') IS NOT NULL THEN
+    ALTER FUNCTION public.is_admin(text) SET search_path = '';
     REVOKE EXECUTE ON FUNCTION public.is_admin(text) FROM anon, authenticated, public;
   END IF;
 END;
@@ -547,6 +541,9 @@ CREATE POLICY "Users can delete their own user substance aggregations or admins 
         private.is_admin((select auth.uid())::text)
     );
 
+DROP POLICY IF EXISTS "authenticated users can update rows" ON "ParcelSubstanceAggregation";
+DROP POLICY IF EXISTS "authenticated users can insert rows" ON "ParcelSubstanceAggregation";
+DROP POLICY IF EXISTS "authenticated users can delete rows" ON "ParcelSubstanceAggregation";
 DROP POLICY IF EXISTS "authenticated users can update a row" ON "ParcelSubstanceAggregation";
 DROP POLICY IF EXISTS "Authenticated users can update a row" ON "ParcelSubstanceAggregation";
 DROP POLICY IF EXISTS "authenticated users can insert a row" ON "ParcelSubstanceAggregation";
@@ -614,10 +611,38 @@ CREATE POLICY "Users can delete parcel substance aggregations for their parcels 
         )
     );
 
--- Legacy public.is_admin is obsolete (RLS uses private.is_admin). Drop it so it cannot
--- be re-granted and does not linger as a SECURITY DEFINER in public. Fails if something
--- outside this script still references public.is_admin(text)—fix that first (no CASCADE).
-DROP FUNCTION IF EXISTS public.is_admin(text);
+-- Drop any remaining always-true write policies on the aggregation tables (e.g. ones
+-- created from the dashboard under names this script doesn't know about).
+DO $$
+DECLARE
+  pol record;
+BEGIN
+  FOR pol IN
+    SELECT tablename, policyname
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename IN ('UserSubstanceAggregation', 'ParcelSubstanceAggregation')
+      AND cmd IN ('INSERT', 'UPDATE', 'DELETE', 'ALL')
+      AND (qual = 'true' OR with_check = 'true')
+  LOOP
+    RAISE NOTICE 'Dropping permissive policy "%" on "%"', pol.policyname, pol.tablename;
+    EXECUTE format('DROP POLICY %I ON public.%I', pol.policyname, pol.tablename);
+  END LOOP;
+END;
+$$;
+
+-- Legacy public.is_admin is obsolete (RLS uses private.is_admin). Drop it so it does not
+-- linger as a SECURITY DEFINER in public. If something still depends on it (e.g. a policy
+-- created in the dashboard), keep it (already hardened in step 3) and report the dependency
+-- instead of aborting the whole script.
+DO $$
+BEGIN
+  DROP FUNCTION IF EXISTS public.is_admin(text);
+EXCEPTION
+  WHEN dependent_objects_still_exist THEN
+    RAISE NOTICE 'public.is_admin(text) not dropped: %', SQLERRM;
+END;
+$$;
 
 -- Create indexes for better performance (already using IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_parcel_user_id ON "Parcel"("userId");
