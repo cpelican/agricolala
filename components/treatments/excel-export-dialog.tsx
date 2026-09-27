@@ -142,6 +142,7 @@ export function ExcelExportDialog({
 					</Button>
 					<Button
 						type="button"
+						className="bg-main-gradient hover:bg-primary-700"
 						onClick={handleDownload}
 						disabled={isDownloading}
 					>
