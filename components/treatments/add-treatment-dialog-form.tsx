@@ -115,6 +115,9 @@ export function AddTreatmentDialogForm({
 	onWaterDoseChange,
 	onAppliedDateChange,
 }: AddTreatmentDialogFormProps) {
+	const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
+	const today = new Date();
+
 	return (
 		<form
 			className="flex flex-col flex-1 min-h-0"
@@ -126,7 +129,7 @@ export function AddTreatmentDialogForm({
 			<div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-4">
 				<div>
 					<Label>{t("treatments.applicationDate")}</Label>
-					<Popover>
+					<Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
 						<PopoverTrigger asChild>
 							<Button
 								type="button"
@@ -148,11 +151,16 @@ export function AddTreatmentDialogForm({
 							<Calendar
 								mode="single"
 								selected={formData.appliedDate}
-								onSelect={(date) => date && onAppliedDateChange(date)}
-								disabled={(date) =>
-									date > new Date() || date < new Date("1900-01-01")
-								}
-								initialFocus
+								onSelect={(date) => {
+									if (date) {
+										onAppliedDateChange(date);
+									}
+									setIsDatePickerOpen(false);
+								}}
+								defaultMonth={formData.appliedDate}
+								endMonth={today}
+								disabled={{ after: today }}
+								autoFocus
 							/>
 						</PopoverContent>
 					</Popover>
