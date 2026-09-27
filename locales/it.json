@@ -101,7 +101,7 @@
 		"selectDisease": "Seleziona malattia",
 		"diseasesFromProductsHint": "Compilate dai prodotti selezionati; puoi modificarle.",
 		"products": "Prodotti",
-		"productDosesByUnit": "Inserisci ogni dose nella sua unità (g, ml o L).",
+		"productDosesByUnit": "Inserisci ogni dose nella sua unità (g, ml).",
 		"addProduct": "Aggiungi Prodotto",
 		"selectProduct": "Seleziona prodotto",
 		"doseUnitPlaceholder": "g/ml",

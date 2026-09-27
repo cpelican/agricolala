@@ -101,7 +101,7 @@
 		"selectDisease": "Select disease",
 		"diseasesFromProductsHint": "Filled from selected products; you can adjust.",
 		"products": "Products",
-		"productDosesByUnit": "Enter each product amount in its unit (g, ml, or L).",
+		"productDosesByUnit": "Enter each product amount in its unit (g, ml).",
 		"addProduct": "Add Product",
 		"selectProduct": "Select product",
 		"doseUnitPlaceholder": "g/ml",
