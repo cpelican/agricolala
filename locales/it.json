@@ -448,13 +448,12 @@
 		"of": "di",
 		"maxSuffix": "massimo",
 		"timeDecayOnly": "solo degradazione nel tempo",
-		"belowThreshold": "Sotto soglia efficacia",
-		"aboveThreshold": "Sopra soglia efficacia",
+		"belowThreshold": "Sotto soglia oggi",
+		"aboveThreshold": "Sopra soglia oggi",
 		"thresholdSuffix": "soglia",
 		"optimalSuffix": "ottimale",
 		"critical": "Critico",
 		"warning": "Attenzione",
-		"optimalBadge": "Ottimale",
 		"incompleteWeatherData": "Lo storico piogge potrebbe essere incompleto per alcuni trattamenti precedenti",
 		"yearlyLimitUsed": "del limite annuale utilizzato",
 		"headlineLabel": "Protezione",
@@ -465,6 +464,9 @@
 		"hiddenNoActiveDisease": "La protezione non è monitorata al momento: in questo periodo dell'anno non ci sono malattie attive.",
 		"hiddenNoCompletedTreatments": "Nessun trattamento completato con questa sostanza quest'anno. Segna un trattamento come completato per vedere quanta protezione rimane.",
 		"hiddenNotTracked": "Il monitoraggio della protezione non è disponibile per questa sostanza.",
-		"hiddenUnavailable": "Non è stato possibile calcolare i livelli di protezione. Riprova più tardi."
+		"hiddenUnavailable": "Non è stato possibile calcolare i livelli di protezione. Riprova più tardi.",
+		"criticalToday": "Critico oggi",
+		"warningToday": "Attenzione oggi",
+		"optimalToday": "Ottimale oggi"
 	}
 }

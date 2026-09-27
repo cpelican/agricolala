@@ -448,13 +448,12 @@
 		"of": "of",
 		"maxSuffix": "max",
 		"timeDecayOnly": "time decay only",
-		"belowThreshold": "Below efficacy threshold",
-		"aboveThreshold": "Above efficacy threshold",
+		"belowThreshold": "Below threshold today",
+		"aboveThreshold": "Above threshold today",
 		"thresholdSuffix": "threshold",
 		"optimalSuffix": "optimal",
 		"critical": "Critical",
 		"warning": "Warning",
-		"optimalBadge": "Optimal",
 		"incompleteWeatherData": "Rain history may be incomplete for some early treatments",
 		"yearlyLimitUsed": "of yearly limit used",
 		"headlineLabel": "Protection",
@@ -465,6 +464,9 @@
 		"hiddenNoActiveDisease": "Protection isn't tracked right now: no disease is active at this time of year.",
 		"hiddenNoCompletedTreatments": "No completed treatment with this substance this year. Mark a treatment as done to see how much protection is left.",
 		"hiddenNotTracked": "Protection tracking isn't available for this substance.",
-		"hiddenUnavailable": "Protection levels couldn't be calculated right now. Try again later."
+		"hiddenUnavailable": "Protection levels couldn't be calculated right now. Try again later.",
+		"criticalToday": "Critical today",
+		"warningToday": "Warning today",
+		"optimalToday": "Optimal today"
 	}
 }

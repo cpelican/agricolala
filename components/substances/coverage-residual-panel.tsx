@@ -75,8 +75,8 @@ export function getCoverageStatus(
 		const isBelow =
 			coverage.leafSurfaceMgPerM2 < COPPER_EFFICACY_THRESHOLD_MG_M2;
 		return isBelow
-			? { level: "critical", label: t("coverage.critical") }
-			: { level: "optimal", label: t("coverage.optimalBadge") };
+			? { level: "critical", label: t("coverage.criticalToday") }
+			: { level: "optimal", label: t("coverage.optimalToday") };
 	}
 	if (coverage.fullDoseGPerHa != null) {
 		const rawPercent =
@@ -84,10 +84,10 @@ export function getCoverageStatus(
 		const level = doseStatusLevel(rawPercent);
 		const label =
 			level === "critical"
-				? t("coverage.critical")
+				? t("coverage.criticalToday")
 				: level === "warning"
-					? t("coverage.warning")
-					: t("coverage.optimalBadge");
+					? t("coverage.warningToday")
+					: t("coverage.optimalToday");
 		return { level, label };
 	}
 	return null;
