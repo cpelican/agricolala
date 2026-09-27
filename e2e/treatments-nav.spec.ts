@@ -24,9 +24,9 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 	const main = page.getByRole("main");
 	const chart = getDashboardChart(main);
 	const summaryBefore = await getChartSummary(chart);
-	expect(getCopperDataset(summaryBefore)?.data).toEqual([
-		...expectedCopperChartKg,
-	]);
+	expect(getCopperDataset(summaryBefore)?.data).toEqual(
+		expectedCopperChartKg(),
+	);
 
 	await goToTreatmentsAndAddTreatment(page);
 

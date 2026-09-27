@@ -45,7 +45,7 @@ const totalCopperGrams =
 	totalCopperProductDoseGrams * COPPER_PRODUCT_COPPER_FRACTION;
 const totalCopperPerHaGrams = (totalCopperGrams * 10_000) / PARCEL_AREA_M2;
 
-export const expectedCopperChartKg = [
+const monthlyCopperChartKg = [
 	0,
 	0,
 	0,
@@ -64,12 +64,24 @@ export const additionalTreatmentProductGrams = 50;
 const additionalTreatmentPureCopperGrams =
 	additionalTreatmentProductGrams * COPPER_PRODUCT_COPPER_FRACTION;
 
+// The chart plots null for months after the current one (no data yet).
+function hideFutureMonths(values: readonly number[]): (number | null)[] {
+	const currentMonth = new Date().getMonth();
+	return values.map((value, index) => (index > currentMonth ? null : value));
+}
+
+export function expectedCopperChartKg() {
+	return hideFutureMonths(monthlyCopperChartKg);
+}
+
 export function expectedCopperChartKgAfterAdditionalTreatment() {
 	const monthIndex = new Date().getMonth();
 	const additionalKg = additionalTreatmentPureCopperGrams / 1_000;
 
-	return expectedCopperChartKg.map((value, index) =>
-		index === monthIndex ? value + additionalKg : value,
+	return hideFutureMonths(
+		monthlyCopperChartKg.map((value, index) =>
+			index === monthIndex ? value + additionalKg : value,
+		),
 	);
 }
 

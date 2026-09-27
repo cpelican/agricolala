@@ -41,7 +41,7 @@ function getChartSummary(data: ChartData<"line">) {
 		datasets: data.datasets.map((dataset) => ({
 			label: String(dataset.label ?? ""),
 			data: dataset.data.map((value) =>
-				typeof value === "number" ? value : Number(value),
+				value === null || typeof value === "number" ? value : Number(value),
 			),
 		})),
 	};

@@ -44,11 +44,17 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 		return acc;
 	}, {});
 
+	// Months after the current one have no data yet: null stops the line there
+	// instead of drawing a misleading 0.
+	const currentMonth = new Date().getMonth();
+
 	const chartData: ChartData<"line"> = {
 		labels: months,
 		datasets: data.map((substance) => ({
 			label: substance.name,
-			data: substance.monthlyData.map((grams) => grams / GRAMS_PER_KILOGRAM),
+			data: substance.monthlyData.map((grams, monthIndex) =>
+				monthIndex > currentMonth ? null : grams / GRAMS_PER_KILOGRAM,
+			),
 			borderColor: colors[substance.name],
 			backgroundColor: colors[substance.name],
 			tension: 0.1,

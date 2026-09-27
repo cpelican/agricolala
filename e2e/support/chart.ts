@@ -2,7 +2,7 @@ import { expect, type Locator } from "@playwright/test";
 
 export interface ChartDatasetSummary {
 	label: string;
-	data: number[];
+	data: (number | null)[];
 }
 
 export interface ChartSummary {
