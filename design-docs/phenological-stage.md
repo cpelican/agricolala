@@ -1,0 +1,217 @@
+# Design doc — Issue #66 & phenology-based disease sensitivity
+
+27 Sep 2026 · living version: [Claude doc](https://claude.ai/code/artifact/01967489-de78-4e7c-a3b4-c41dc6ad499f)
+
+## Context
+
+Let growers record each parcel's phenological stage (e.g. "flowering") so the app knows when vines are most susceptible to disease. Source: [cpelican/agricolala#66](https://github.com/cpelican/agricolala/issues/66) — "The user should inform the system about the phenological stage" (open, no comments).
+
+What the issue asks for:
+
+- An entry point **inside the treatment modal**.
+- A choice between **simple, visual stage summaries** of how the grapes look ("blossom", etc.), each mapped to a precise phenological stage.
+- A stored record of **parcel · stage · date**.
+- Goal: give the system better knowledge of the vine's sensitivity to diseases.
+
+## Current state
+
+Today the app has no notion of vine development: disease risk is a fixed calendar window, and coverage assumes a fully grown canopy all season.
+
+| Area | Where | What it does today | Phenology gap |
+| --- | --- | --- | --- |
+| Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering" |
+| Treatment suggestions | `app/api/cron/suggest-treatments/route.ts` + `getCurrentDiseases` | Re-proposes last products once `daysBetweenApplications` has elapsed, if the disease month window is active | Same cadence at bud break and at flowering, although risk differs a lot |
+| Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | LAI is ~0.5–1 around bud break and ~3–4 after bunch closure; new leaves grown since the spray are unprotected |
+| Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | Advice is the same whether the vine is at a low-risk or a critical stage |
+| Treatment modal | `components/treatments/add-treatment-dialog-form.tsx`, `createTreatmentSchema` in `lib/actions-schemas.ts` | Date, parcels, products + doses, diseases, water dose | No stage field |
+| Treatment window | `lib/applicability.ts` | Hard-coded months 3–10 plus wind and rain checks | Could start at bud break instead of March |
+
+## Proposed design for #66
+
+Add an optional, picture-based "How do your vines look?" step to the treatment modal that writes one `PhenologyObservation` (parcel · stage · date) per selected parcel.
+
+### Goals and non-goals
+
+- **Goal:** record the stage in under 5 seconds, without knowing the BBCH scale.
+- **Goal:** keep stage history per parcel, so any feature can ask "what stage was parcel X at on date D?".
+- **Goal:** store the precise BBCH code behind each simple choice, so later features can reason on it.
+- **Non-goal (v1):** predicting the stage automatically from temperature (see Propositions, P5).
+- **Non-goal (v1):** per-grape-variety sensitivity.
+
+### Simple stages shown to the user
+
+Eight choices, each an illustration + one plain label. The BBCH range is stored in code, not shown.
+
+| Enum value | Label shown (en) | What the grower sees | BBCH |
+| --- | --- | --- | --- |
+| `BUD_BREAK` | Buds opening | Green tip visible through the wool | 05–09 |
+| `LEAVES_UNFOLDING` | First leaves | 2–6 leaves spread out, shoots < 20 cm | 11–16 |
+| `FLOWER_CLUSTERS` | Flower clusters visible | Clusters separated, flowers still closed | 53–57 |
+| `FLOWERING` | Flowering | Caps (calyptras) falling, pollen visible | 60–69 |
+| `FRUIT_SET` | Small berries | Berries set, up to pea size | 71–75 |
+| `BUNCH_CLOSURE` | Bunch closing | Berries touch each other | 77–79 |
+| `VERAISON` | Colour change | Berries soften and change colour | 81–85 |
+| `RIPE` | Ripe / harvested | Ready for harvest or picked | 89–91 |
+
+Dormancy (BBCH 00–03) is implied when no observation exists for the current season.
+
+### Data model
+
+A separate model rather than a column on `Treatment`: the stage belongs to the parcel at a date, a grower can observe it without treating, and one treatment can cover several parcels.
+
+```prisma
+enum PhenologicalStage {
+  BUD_BREAK
+  LEAVES_UNFOLDING
+  FLOWER_CLUSTERS
+  FLOWERING
+  FRUIT_SET
+  BUNCH_CLOSURE
+  VERAISON
+  RIPE
+}
+
+model PhenologyObservation {
+  id          String            @id @default(cuid())
+  parcelId    String
+  userId      String
+  stage       PhenologicalStage
+  observedAt  DateTime
+  treatmentId String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  parcel      Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  treatment   Treatment?        @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+
+  @@index([parcelId, observedAt])
+}
+```
+
+Generate the migration with `npx prisma migrate dev --name add_phenology_observation` (no hand-written SQL). Add a `PHENOLOGY_STAGE_BBCH` record in `lib/phenology.ts` that maps each enum value to its BBCH range and illustration.
+
+### UX in the treatment modal
+
+1. New optional block after the date: "How do your vines look?" with a horizontal row of 8 illustrated cards.
+2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion.
+3. "Skip" is always possible; the treatment is saved without an observation.
+4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
+5. Later (v1.1): a "Update stage" action on the parcel card, for observations without a treatment.
+
+### Server changes
+
+- `createTreatmentSchema`: add `phenologicalStage: z.nativeEnum(PhenologicalStage).optional()`.
+- `createTreatment` in `lib/actions.ts`: inside the existing write, create one observation per `parcelIds` entry with `observedAt = appliedDate` and the new `treatmentId`.
+- New fetcher `getStageByParcel(userId, date)` in `lib/data-fetcher.ts`: latest observation with `observedAt <= date` per parcel, cached like the other fetchers. Types derived from `Prisma.PhenologyObservationGetPayload`, not a hand-written interface.
+- i18n: stage labels and descriptions in `locales/en.json` and `locales/it.json`.
+
+### Testing
+
+- Vitest: schema accepts/omits the stage; `lib/phenology.ts` helpers (stage ordering, "next stage", staleness).
+- Integration: `createTreatment` with 2 parcels writes 2 observations linked to the treatment.
+- E2e (UX change, per `e2e/TESTING.md`): pick a stage in the modal, save, reopen — the stage is pre-selected.
+
+## Research: disease sensitivity by phenological stage
+
+The literature agrees on one window: bunches are most at risk from about 2 weeks before bloom to 3–4 weeks after it, for downy mildew, powdery mildew and black rot alike ([UMD Extension](https://extension.umd.edu/resource/pre-bloom-post-bloom-disease-management)). Outside that window, fruit gains ontogenic (age-related) resistance, while leaves stay partly susceptible all season.
+
+### Findings per disease
+
+- **Downy mildew (Peronospora, *Plasmopara viticola*).** Berries were infected and sporulated until 2 weeks after bloom; pedicels stayed susceptible until 4 weeks after bloom ([Kennelly et al. 2005, *Phytopathology*](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:18943556%20OR%20EXT_ID:18942976&resultType=core&format=json)). Young leaves, shoot tips and young inflorescences are the most attacked tissues; berries become less susceptible as they mature, but rachis infections can still reach older berries ([UC IPM — Downy mildew](https://ipm.ucanr.edu/agriculture/grape/downy-mildew/)). Primary infections are commonly modelled with the "3×10 rule": shoots ≥ 10 cm (about BBCH 13), ≥ 10 mm rain in 24–48 h, mean temperature ≥ 10 °C ([downy mildew warning system, *Electronics*](https://www.mdpi.com/2079-9292/11/3/356) — page blocked to fetching, rule quoted from its abstract).
+- **Powdery mildew (Oidium, *Erysiphe necator*).** Only clusters inoculated within 2 weeks of bloom developed severe disease ([Gadoury et al. 2003, *Phytopathology*](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:18943556%20OR%20EXT_ID:18942976&resultType=core&format=json)). Berries are highly susceptible 1–2 weeks after set and strongly resistant about 3–4 weeks after bloom; leaves are most susceptible when half expanded and never become immune ([Gadoury et al. 2012 review, *Mol. Plant Pathol.*](https://pmc.ncbi.nlm.nih.gov/articles/PMC6638670/)). Leaf removal 2 weeks after bloom reduced disease; at 5 weeks it no longer helped (same review, citing Austin & Wilcox 2011).
+- **Black rot (*Guignardia bidwellii*).** Inflorescences can be infected before bloom; highest berry susceptibility runs from fruit set to the start of bunch closure; infections succeed until the end of bunch closure; resistance appears clearly before veraison ([Molitor & Berkelmann-Löhnertz 2011, *Crop Protection*](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Simulating%20the%20susceptibility%20of%20clusters%20to%20grape%20black%20rot%22&resultType=core&format=json)). Not in the app's catalogue today.
+- **Botrytis bunch rot (*Botrytis cinerea*).** Flowers are infected through the stigma and receptacle scars and the infection stays latent until ripening; susceptibility rises again from veraison, especially above 92 % relative humidity with wet fruit; key sprays are bloom, pre-bunch closure, veraison and pre-harvest ([UC IPM — Botrytis](https://ipm.ucanr.edu/agriculture/grape/botrytis-bunch-rot/)). Not in the app's catalogue today.
+
+### Sensitivity matrix (app stages)
+
+Qualitative synthesis of the sources above, mapped to the 8 stages proposed for #66. "Fruit" and "leaves" differ for the mildews, so the level shown is for the bunch; leaf risk is noted where it matters. BBCH codes follow [Lorenz et al. 1995](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1755-0238.1995.tb00085.x).
+
+| Stage (BBCH) | Downy mildew | Powdery mildew | Black rot | Botrytis |
+| --- | --- | --- | --- | --- |
+| Buds opening (05–09) | None — shoots < 10 cm | Low | Low | None |
+| First leaves (11–16) | Medium — primary infections once shoots ≥ 10 cm | Medium (leaves) | Medium (leaves) | None |
+| Flower clusters visible (53–57) | High | Medium–High | Medium | Low |
+| Flowering (60–69) | Very high | Very high | High | High (latent infections) |
+| Small berries (71–75) | Very high until ~2 weeks post-bloom; pedicels until ~4 weeks | Very high 1–2 weeks after set, then falling | Very high | Low |
+| Bunch closing (77–79) | Low–Medium: berries resist, but brown rot (rot brun) via pedicels/rachis until veraison; leaves at risk | Low for berries, leaves still at risk | Medium — ends at end of closure | Medium–High (last pre-closure spray) |
+| Colour change (81–85) | Low (late leaf infections possible) | Low | None | High |
+| Ripe / harvested (89–91) | Low | Low | None | Very high if rain or wounds |
+
+### Cross-check with French and Italian sources
+
+French (IFV) and Italian (ARSAC, Terra e Vita) sources confirm flowering → fruit set as the peak, but give longer tails than the English trials: bunch risk is described "until veraison" for both mildews.
+
+| Claim (English sources) | French sources | Italian sources | Verdict |
+| --- | --- | --- | --- |
+| Flowering → fruit set is the most critical window for the mildews (UMD, Kennelly 2005, Gadoury 2003) | Powdery: peak at "fin floraison – début nouaison" ([IFV — Oïdium](https://www.vignevin.com/publications/fiches-pratiques/oidium/)) | Flowering and fruit set are the critical moment for both mildews ([Terra e Vita, 2021](https://terraevita.edagricole.it/agrofarmaci-difesa/vite-fioritura-oidio-peronospora/)); bunch vulnerable from pre-flowering through fruit set ([ARSAC — Peronospora, 2023](https://www.arsacweb.it/peronospora-della-vite-consigli-controllo-avversita/)) | Confirmed |
+| Downy: primary infections need shoots ≥ 10 cm, ≥ 10 mm rain, ≥ 10 °C (3×10 rule) | Oospores germinate from a mean of 11 °C; incubation 10–20 days ([IFV Occitanie — Mildiou](https://www.vignevin-occitanie.com/le-mildiou-de-la-vigne/)) | Same rule: mean 24 h temperature ~10 °C, shoots ≥ 10 cm, ≥ 10 mm rain in 1–2 days ([ARSAC, 2023](https://www.arsacweb.it/peronospora-della-vite-consigli-controllo-avversita/)) | Confirmed; French threshold is 11 °C |
+| Downy: berries resist ~2 weeks after bloom, pedicels ~4 weeks (Kennelly 2005) | Young berries show "rot gris"; after fruit set, "rot brun"; berries no longer receptive after veraison ([IFV Occitanie](https://www.vignevin-occitanie.com/le-mildiou-de-la-vigne/)) | After fruit set, infection enters via the peduncle or the stomata of small berries ([ARSAC, 2023](https://www.arsacweb.it/peronospora-della-vite-consigli-controllo-avversita/)) | Consistent: rot brun = late entry via pedicels; bunch risk tail runs to veraison (matrix updated) |
+| Powdery: berries resistant ~3–4 weeks after bloom (Gadoury 2003, 2012) | Much less sensitive after veraison ([IFV — Oïdium](https://www.vignevin.com/publications/fiches-pratiques/oidium/)) | Maximum sensitivity pre-flowering, post-flowering and until veraison ([ARSAC — Oidio, 2020](https://www.arsacweb.it/oidio-della-vite-conoscere-lavversita-per-poterla-controllare/)) | Partly diverges: extension guidance is more conservative (existing colonies keep growing, leaves stay susceptible). Keep "Low" for new berry infections but keep sulfur suggestions until veraison |
+| Black rot and Botrytis timings (Molitor 2011, UC IPM) | Not checked | Not checked | Not in the app catalogue; no FR/IT cross-check done |
+
+### What this means for the current calendar windows
+
+- Seeded windows (Peronospora months 3–7, Oidium months 4–8) roughly bracket the critical period, but bloom can move by 2–3 weeks between years and sites, so a month cannot tell "pre-bloom" from "4 weeks post-bloom".
+- Downy mildew cannot infect before shoots reach ~10 cm, so March is often too early; late-summer leaf infections after July are not covered by month 7.
+- The coverage model's fixed leaf area (LAI = 4, `COPPER_LEAF_AREA_FACTOR`) fits a full canopy; around bud break the canopy is several times smaller (approximate, typical values LAI < 1), and every new leaf since the last spray is unprotected.
+
+## Propositions
+
+Once the stage is known, the biggest wins are making the substance cards say *when* protection matters (P1, P2) and replacing month windows with stage windows (P4, P6). Ordered by suggested priority.
+
+| # | Proposition | Where in the code | What the grower gets |
+| --- | --- | --- | --- |
+| P1 | **Stage-aware protection pill.** Show the parcel's stage and a "Critical period" chip in the substance card header when a disease the substance targets is High/Very high. During critical stages, advise "Re-treat soon" earlier (e.g. when the 3-day projection drops below 75 % of the full dose instead of the threshold). | `getRetreatAdvice` / `getCoverageHeadline` in `components/substances/coverage-headline.tsx`; `Substance.diseases` gives the link | Same residual dose reads "fine" at bud break but "act now" at flowering |
+| P2 | **Risk timeline strip in each substance card.** A thin band of the 8 stages, coloured by the sensitivity matrix for that substance's diseases, with a marker at the current stage and dots for past treatments. | New component next to `coverage-residual-panel.tsx`; data from `getStageByParcel` + treatments | Sees at a glance whether sprays landed in the critical window |
+| P3 | **Canopy-aware copper readout.** Replace the fixed LAI = 4 in `COPPER_LEAF_AREA_FACTOR` with a per-stage LAI, and add a "new growth" dilution term during fast shoot growth (first leaves → bunch closing). | `lib/coverage-helpers.ts` (`calculateCoverageData`, forecast projection) | Early-season mg/m² no longer under-reported; mid-season decay reflects unprotected new leaves |
+| P4 | **Stage-driven treatment suggestions.** Filter active diseases by stage instead of month; in Very-high stages, suggest the next treatment at the shortest label interval; stop suggesting sulfur for bunches after bunch closure. | `app/api/cron/suggest-treatments/route.ts`, `getCurrentDiseases` | Fewer pointless reminders early and late, tighter reminders around bloom |
+| P5 | **Stage estimate from temperature.** Use the daily temperatures already stored in `WeatherHistory` to accumulate thermal time and predict the next stage, then ask "Your vines are probably flowering — confirm?". Phenology models such as GFV/GSR ([Parker et al., via Europe PMC](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Grapevine%20Flowering%20Veraison%20model%22%20OR%20%22Grapevine%20Sugar%20Ripeness%22&resultType=core&format=json&pageSize=5)) are based on thermal time. | New `lib/phenology-estimate.ts` + weather cron `app/api/cron/fetch-weather-history` | Stage stays current even when the grower forgets to update it |
+| P6 | **Stage-based disease catalogue.** Add a `DiseaseStageSensitivity` table (disease · stage · level), seeded from the matrix above; keep the month fields as fallback when no stage is known. | `prisma/schema.prisma`, `prisma/seed.ts`, `lib/data-fetcher-catalog.ts` | One source of truth for P1, P2, P4 |
+| P7 | **Copper budget pacing.** In the cumulated-dose section, show how much of the yearly copper limit (4 kg/ha) is left for the flowering → bunch-closure window. | `components/substances/cumulated-dose-section.tsx` | Avoids exhausting the copper allowance before the critical window |
+| P8 | **Treatment window from bud break.** Start the applicability check at the first observed "Buds opening" instead of month 3. | `lib/applicability.ts` (`MIN_MONTH_FOR_TREATMENT`) | No spray-weather widget in a dormant vineyard |
+| P9 | **Stage in the Excel export.** Add a "Phenological stage" column to exported treatments. | `lib/excel-export.ts` | Field-register (quaderno di campagna) readiness and traceability |
+
+### Suggested rollout
+
+1. v1 — #66 as designed (observation model + modal picker) and P9.
+2. v2 — P6 catalogue, then P1 and P2 on the substance cards.
+3. v3 — P4 and P8 in the crons; P3 once per-stage LAI values are sourced.
+4. v4 — P5 estimation, reusing the confirmations from v1–v3 to check its accuracy.
+
+## Open questions and risks
+
+- [ ] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
+- [ ] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
+- [ ] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
+- [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
+
+- **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day staleness hint in the modal, later P5 estimation.
+- **Risk — false precision:** the sensitivity matrix is a qualitative synthesis; the UI should say "higher risk" rather than show numbers, and keep the "experimental" label used for coverage.
+- **Risk — variety and climate:** timing of ontogenic resistance varies with climate and cultivar (Kennelly et al. 2005), so levels are guidance, not rules.
+
+## Sources
+
+Pages opened for this doc (as of 27 Sep 2026):
+
+1. [cpelican/agricolala#66 — The user should inform the system about the phenological stage](https://github.com/cpelican/agricolala/issues/66)
+2. [Kennelly, Gadoury, Wilcox, Magarey, Seem (2005) — Seasonal development of ontogenic resistance to downy mildew in grape berries and rachises; and Gadoury, Seem, Ficke, Wilcox (2003) — Ontogenic resistance to powdery mildew in grape berries, *Phytopathology* (Europe PMC records)](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID:18943556%20OR%20EXT_ID:18942976&resultType=core&format=json)
+3. [Gadoury et al. (2012) — Grapevine powdery mildew (*Erysiphe necator*): a fascinating system…, *Molecular Plant Pathology* (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC6638670/)
+4. [Molitor & Berkelmann-Löhnertz (2011) — Simulating the susceptibility of clusters to grape black rot infections depending on their phenological development, *Crop Protection* 30(12) (Europe PMC record)](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Simulating%20the%20susceptibility%20of%20clusters%20to%20grape%20black%20rot%22&resultType=core&format=json)
+5. [University of Maryland Extension — Pre-bloom to post-bloom disease management](https://extension.umd.edu/resource/pre-bloom-post-bloom-disease-management)
+6. [UC IPM — Grape downy mildew](https://ipm.ucanr.edu/agriculture/grape/downy-mildew/)
+7. [UC IPM — Botrytis bunch rot](https://ipm.ucanr.edu/agriculture/grape/botrytis-bunch-rot/)
+8. [Parker et al. and others — GFV / GSR thermal-time phenology models (Europe PMC search)](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Grapevine%20Flowering%20Veraison%20model%22%20OR%20%22Grapevine%20Sugar%20Ripeness%22&resultType=core&format=json&pageSize=5)
+
+French and Italian sources, opened for the cross-check:
+
+1. [IFV — Fiche pratique Oïdium](https://www.vignevin.com/publications/fiches-pratiques/oidium/)
+2. [IFV Occitanie — Le mildiou de la vigne](https://www.vignevin-occitanie.com/le-mildiou-de-la-vigne/)
+3. [Triple Performance — Mildiou sur vigne, grappe et inflorescence](https://wiki.tripleperformance.fr/wiki/Mildiou_sur_vigne_%E2%80%93_grappe_et_inflorescence)
+4. [ARSAC Calabria (Leto, Maione, Zavaglia, 2023) — Peronospora della vite](https://www.arsacweb.it/peronospora-della-vite-consigli-controllo-avversita/)
+5. [ARSAC Calabria (Leto, Maione, 2020) — Oidio della vite](https://www.arsacweb.it/oidio-della-vite-conoscere-lavversita-per-poterla-controllare/)
+6. [Terra e Vita (2021) — Difendere la vite in fioritura da oidio e peronospora](https://terraevita.edagricole.it/agrofarmaci-difesa/vite-fioritura-oidio-peronospora/)
+
+Cited but not opened (blocked to fetching; reference only):
+
+- [Lorenz et al. (1995) — Phenological growth stages of the grapevine, extended BBCH scale, *Aust. J. Grape Wine Res.*](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1755-0238.1995.tb00085.x)
+- [Grapevine downy mildew warning system based on NB-IoT, *Electronics* 11(3):356 (2022)](https://www.mdpi.com/2079-9292/11/3/356) — source of the 3×10 rule wording
