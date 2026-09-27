@@ -6,16 +6,18 @@ import {
 } from "@/lib/data-fetcher";
 import { calculateCoverageData } from "@/lib/coverage-helpers";
 import { OpenMeteoClient } from "@/lib/open-meteo-client";
-import { type CoverageWidgetData } from "@/components/types";
+import { type CoverageResult } from "@/components/types";
 
 export async function getCoverageWidgetData(
 	userId: string,
-): Promise<CoverageWidgetData | null> {
+): Promise<CoverageResult> {
 	try {
 		const activeDiseases = await getCurrentDiseases();
 
 		// Hide coverage data entirely outside disease season (e.g. December)
-		if (activeDiseases.length === 0) return null;
+		if (activeDiseases.length === 0) {
+			return { status: "hidden", reason: "noActiveDisease" };
+		}
 
 		const [parcels, compositions, substances] = await Promise.all([
 			getTreatmentsWithParcelWeather(userId),
@@ -53,9 +55,11 @@ export async function getCoverageWidgetData(
 			forecastDays,
 		);
 
-		return data.substances.length > 0 ? data : null;
+		return data.substances.length > 0
+			? { status: "available", data }
+			: { status: "hidden", reason: "noCompletedTreatments" };
 	} catch (err) {
 		console.error("[CoverageWidget] failed to load coverage data:", err);
-		return null;
+		return { status: "hidden", reason: "unavailable" };
 	}
 }

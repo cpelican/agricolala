@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/card";
 import { SubstanceChart } from "./substance-chart";
 import { SubstanceYearlyChart } from "./substance-yearly-chart";
-import { type SubstanceData, type CoverageWidgetData } from "../types";
+import { type SubstanceData, type CoverageResult } from "../types";
 import { SubstanceCard } from "./substance-card";
+import { CoverageHiddenNote } from "./coverage-headline";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,18 +22,25 @@ interface SubstanceUsageSectionProps {
 	title?: string;
 	description?: string;
 	allYearsData?: Awaited<ReturnType<typeof getAllYearsSubstanceAggregations>>;
-	coverageDataPromise?: Promise<CoverageWidgetData | null>;
+	coverageResultPromise?: Promise<CoverageResult>;
 }
 
-function IncompleteWeatherBanner({
-	coverageDataPromise,
+// Season-wide coverage notices, shown once above the substance cards.
+function CoverageNotice({
+	coverageResultPromise,
 }: {
-	coverageDataPromise: Promise<CoverageWidgetData | null>;
+	coverageResultPromise: Promise<CoverageResult>;
 }) {
-	const coverageData = use(coverageDataPromise);
+	const result = use(coverageResultPromise);
 	const { t } = useTranslations();
 
-	if (!coverageData?.hasIncompleteWeatherHistory) return null;
+	if (result.status === "hidden") {
+		// Per-substance reason: each card explains it itself.
+		if (result.reason === "noCompletedTreatments") return null;
+		return <CoverageHiddenNote reason={result.reason} />;
+	}
+
+	if (!result.data.hasIncompleteWeatherHistory) return null;
 
 	return (
 		<p className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">
@@ -46,7 +54,7 @@ export function SubstanceUsageSection({
 	title,
 	description,
 	allYearsData,
-	coverageDataPromise,
+	coverageResultPromise,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const hasSubstanceData = substanceData.length > 0;
@@ -73,18 +81,16 @@ export function SubstanceUsageSection({
 					<div className="grid gap-4">
 						<h2 className="text-lg font-semibold">{t("substances.details")}</h2>
 
-						{coverageDataPromise && (
+						{coverageResultPromise && (
 							<Suspense fallback={null}>
-								<IncompleteWeatherBanner
-									coverageDataPromise={coverageDataPromise}
-								/>
+								<CoverageNotice coverageResultPromise={coverageResultPromise} />
 							</Suspense>
 						)}
 						{substanceData.map((substance) => (
 							<SubstanceCard
 								key={substance.name}
 								substance={substance}
-								coverageDataPromise={coverageDataPromise}
+								coverageResultPromise={coverageResultPromise}
 							/>
 						))}
 					</div>
