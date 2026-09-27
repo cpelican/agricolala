@@ -1,6 +1,11 @@
 "use client";
 
-import type { Disease, Product, Substance } from "@prisma/client";
+import {
+	ProductDoseUnit,
+	type Disease,
+	type Product,
+	type Substance,
+} from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -29,6 +34,7 @@ import {
 	AddTreatmentDialogForm,
 	type AddTreatmentDialogFormData,
 	type AddTreatmentDialogFormErrors,
+	isProductDoseUnit,
 } from "./add-treatment-dialog-form";
 
 interface AddTreatmentDialogProps {
@@ -37,7 +43,7 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications">[];
+	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
 	substances: Array<
 		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
 	>;
@@ -56,7 +62,9 @@ function buildDefaultFormData(parcelId?: string): AddTreatmentDialogFormData {
 	return {
 		appliedDate: new Date(),
 		diseases: [{ diseaseId: "" }],
-		productApplications: [{ productId: "", dose: 0 }],
+		productApplications: [
+			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
+		],
 		waterDose: 10,
 		parcelIds: parcelId ? [parcelId] : [""],
 	};
@@ -137,13 +145,13 @@ export function AddTreatmentDialog({
 			...prev,
 			productApplications: [
 				...prev.productApplications,
-				{ productId: "", dose: 0 },
+				{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
 			],
 		}));
 	};
 
 	const syncDiseasesFromProducts = (
-		productApplications: { productId: string; dose: number }[],
+		productApplications: AddTreatmentDialogFormData["productApplications"],
 	) =>
 		getDiseaseIdsForProducts(
 			productApplications.map((p) => p.productId),
@@ -166,13 +174,28 @@ export function AddTreatmentDialog({
 
 	const updateProduct = (
 		index: number,
-		field: "productId" | "dose",
+		field: "productId" | "dose" | "doseUnit",
 		value: string | number,
 	) => {
 		setFormData((prev) => {
-			const productApplications = prev.productApplications.map((product, i) =>
-				i === index ? { ...product, [field]: value } : product,
-			);
+			const productApplications = prev.productApplications.map((product, i) => {
+				if (i !== index) {
+					return product;
+				}
+				if (field === "productId" && typeof value === "string") {
+					// Liquid products are entered in ml, solids in g: follow the product's unit.
+					const doseUnit =
+						products.find((p) => p.id === value)?.doseUnit ??
+						ProductDoseUnit.GRAM;
+					return { ...product, productId: value, doseUnit };
+				}
+				if (field === "doseUnit") {
+					return isProductDoseUnit(value)
+						? { ...product, doseUnit: value }
+						: product;
+				}
+				return { ...product, [field]: value };
+			});
 			if (field === "productId") {
 				return {
 					...prev,

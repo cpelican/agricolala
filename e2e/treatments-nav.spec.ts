@@ -4,11 +4,16 @@ import {
 	getChartSummary,
 	getCopperDataset,
 	getDashboardChart,
+	getDataset,
 } from "./support/chart";
 import {
+	additionalTreatmentOrangeOilMl,
 	expectedCopperChartKg,
 	expectedCopperChartKgAfterAdditionalTreatment,
 	expectedDashboardCopperLabelsAfterAdditionalTreatment,
+	expectedDashboardOrangeOilLabelsAfterTreatment,
+	expectedOrangeOilChartTotalKg,
+	orangeOilProduct,
 } from "./support/e2e-data";
 import { expectDashboardLoaded } from "./support/assertions";
 import { clickMobileNavLink } from "./support/navigation";
@@ -47,6 +52,42 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 	).toBeVisible();
 	await expect(
 		main.getByText("Active substance", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.activeSubstanceValue, { exact: true }),
+	).toBeVisible();
+});
+
+test("adds liquid product in ml and converts to grams of pure substance", async ({
+	page,
+}) => {
+	await goToTreatmentsAndAddTreatment(page, {
+		productName: orangeOilProduct.name,
+		dose: additionalTreatmentOrangeOilMl,
+		expectedUnit: "ml",
+	});
+
+	await clickMobileNavLink(page, "Home");
+	await expectDashboardLoaded(page);
+
+	const main = page.getByRole("main");
+	const summary = await getChartSummary(getDashboardChart(main));
+	// Sum over months so the check does not depend on the run date.
+	const orangeOilKg =
+		getDataset(summary, orangeOilProduct.substanceName)?.data ?? [];
+	expect(orangeOilKg.reduce((sum, kg) => sum + kg, 0)).toBeCloseTo(
+		expectedOrangeOilChartTotalKg,
+	);
+	// Copper untouched by the orange oil treatment.
+	expect(getCopperDataset(summary)?.data).toEqual([...expectedCopperChartKg]);
+
+	// 100 ml → 90 g of product; 20% of it → 18 g pure, i.e. 450 g/ha on 400 m².
+	const labels = expectedDashboardOrangeOilLabelsAfterTreatment();
+	await expect(
+		main.getByRole("heading", { name: orangeOilProduct.substanceLabel }),
+	).toBeVisible();
+	await expect(
+		main.getByText(labels.productValue, { exact: true }),
 	).toBeVisible();
 	await expect(
 		main.getByText(labels.activeSubstanceValue, { exact: true }),
