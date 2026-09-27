@@ -90,12 +90,8 @@ const orangeOilProductGrams =
 const orangeOilPureGrams =
 	orangeOilProductGrams * orangeOilProduct.pureSubstanceFraction;
 
-export function expectedOrangeOilChartKgAfterTreatment() {
-	const monthIndex = new Date().getMonth();
-	return Array.from({ length: 12 }, (_, index) =>
-		index === monthIndex ? orangeOilPureGrams / 1_000 : 0,
-	);
-}
+/** Yearly total on the chart (kg of pure substance, not of product). */
+export const expectedOrangeOilChartTotalKg = orangeOilPureGrams / 1_000;
 
 // Mirrors CumulatedDoseSection's formatNumber: "en" locale, up to 2 decimals,
 // thousands separators, trailing zeros stripped.

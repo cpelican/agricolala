@@ -12,7 +12,7 @@ import {
 	expectedCopperChartKgAfterAdditionalTreatment,
 	expectedDashboardCopperLabelsAfterAdditionalTreatment,
 	expectedDashboardOrangeOilLabelsAfterTreatment,
-	expectedOrangeOilChartKgAfterTreatment,
+	expectedOrangeOilChartTotalKg,
 	orangeOilProduct,
 } from "./support/e2e-data";
 import { expectDashboardLoaded } from "./support/assertions";
@@ -72,8 +72,11 @@ test("adds liquid product in ml and converts to grams of pure substance", async 
 
 	const main = page.getByRole("main");
 	const summary = await getChartSummary(getDashboardChart(main));
-	expect(getDataset(summary, orangeOilProduct.substanceName)?.data).toEqual(
-		expectedOrangeOilChartKgAfterTreatment(),
+	// Sum over months so the check does not depend on the run date.
+	const orangeOilKg =
+		getDataset(summary, orangeOilProduct.substanceName)?.data ?? [];
+	expect(orangeOilKg.reduce((sum, kg) => sum + kg, 0)).toBeCloseTo(
+		expectedOrangeOilChartTotalKg,
 	);
 	// Copper untouched by the orange oil treatment.
 	expect(getCopperDataset(summary)?.data).toEqual([...expectedCopperChartKg]);
