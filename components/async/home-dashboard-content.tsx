@@ -21,7 +21,7 @@ export async function HomeDashboardContent({
 
 	// Not awaited here: streamed into SubstanceUsageSection via Suspense so a
 	// slow weather API doesn't block the rest of the dashboard's first render.
-	const coverageDataPromise = getCoverageWidgetData(userId);
+	const coverageResultPromise = getCoverageWidgetData(userId);
 
 	const [currentYearData, allYearsData, substances] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
@@ -48,7 +48,7 @@ export async function HomeDashboardContent({
 				substanceData={enrichedSubstanceData}
 				description={dict.substances.trackApplicationsHome}
 				allYearsData={hasMultipleYears ? allYearsData : undefined}
-				coverageDataPromise={coverageDataPromise}
+				coverageResultPromise={coverageResultPromise}
 			/>
 		</div>
 	);

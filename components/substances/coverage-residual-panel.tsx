@@ -8,7 +8,13 @@ import {
 	COPPER_LEAF_AREA_FACTOR,
 } from "@/lib/coverage-helpers";
 import { formatNumber } from "@/lib/utils";
-import { AlertTriangle, CheckCircle2, CloudRain } from "lucide-react";
+import {
+	AlertTriangle,
+	CheckCircle2,
+	CloudRain,
+	ShieldCheck,
+} from "lucide-react";
+import { CardSectionHeader } from "./card-section-header";
 
 // Presentation-only scale for the leaf-residual gauge (copper). Not a business threshold.
 const LEAF_GAUGE_MAX_MG_M2 = 7;
@@ -32,14 +38,14 @@ const DOSE_GAUGE_GRADIENT = [
 	{ pos: 0, color: "#f59e0b" },
 	{ pos: 50, color: "#4ade80" },
 	{ pos: 70, color: "#22c55e" },
-	{ pos: 90, color: "#4ade80" },
-	{ pos: 100, color: "#f59e0b" },
+	{ pos: 100, color: "#4ade80" },
+	{ pos: 110, color: "#f59e0b" },
 	{ pos: 120, color: "#ef4444" },
 ];
 
 export type StatusLevel = "critical" | "warning" | "optimal";
 
-const STATUS_BADGE_STYLES: Record<StatusLevel, string> = {
+export const STATUS_BADGE_STYLES: Record<StatusLevel, string> = {
 	critical: "bg-red-50 border-red-200 text-red-600",
 	warning: "bg-orange-50 border-orange-200 text-orange-700",
 	optimal: "bg-green-50 border-green-200 text-green-700",
@@ -51,11 +57,11 @@ const STATUS_TEXT_COLOR: Record<StatusLevel, string> = {
 	optimal: "text-green-700",
 };
 
-// Status of the dose-residual gauge (non-copper substances): full anchor dose ± an optimal
-// band. Below the band is under-protected, above 100% of the anchor is over-application.
+// Status of the dose-residual gauge (non-copper substances): 50–100% of the full anchor
+// dose is optimal. Below is under-protected, above 100% of the anchor is over-application.
 function doseStatusLevel(percent: number): StatusLevel {
 	if (percent > 100) return "critical";
-	if (percent >= 50 && percent <= 90) return "optimal";
+	if (percent >= 50) return "optimal";
 	return "warning";
 }
 
@@ -69,8 +75,8 @@ export function getCoverageStatus(
 		const isBelow =
 			coverage.leafSurfaceMgPerM2 < COPPER_EFFICACY_THRESHOLD_MG_M2;
 		return isBelow
-			? { level: "critical", label: t("coverage.critical") }
-			: { level: "optimal", label: t("coverage.optimalBadge") };
+			? { level: "critical", label: t("coverage.criticalToday") }
+			: { level: "optimal", label: t("coverage.optimalToday") };
 	}
 	if (coverage.fullDoseGPerHa != null) {
 		const rawPercent =
@@ -78,10 +84,10 @@ export function getCoverageStatus(
 		const level = doseStatusLevel(rawPercent);
 		const label =
 			level === "critical"
-				? t("coverage.critical")
+				? t("coverage.criticalToday")
 				: level === "warning"
-					? t("coverage.warning")
-					: t("coverage.optimalBadge");
+					? t("coverage.warningToday")
+					: t("coverage.optimalToday");
 		return { level, label };
 	}
 	return null;
@@ -291,13 +297,15 @@ export function ResidualPanel({
 
 	return (
 		<div className="border-t pt-4 space-y-3">
-			<div>
-				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-					{t("coverage.title")}
-					{titleSuffix}
-				</p>
-				<p className="text-xs text-muted-foreground">{explanation}</p>
-			</div>
+			<CardSectionHeader
+				icon={ShieldCheck}
+				title={`${t("coverage.title")}${titleSuffix}`}
+				subtitle={explanation}
+				experimental
+			/>
+			<p className="text-xs italic text-muted-foreground">
+				{t("coverage.experimentalDisclaimer")}
+			</p>
 
 			<Gauge {...gauge} />
 
@@ -325,11 +333,7 @@ export function getResidualPanelProps(
 
 	if (leafSurfaceMgPerM2 !== undefined && status) {
 		return {
-			titleSuffix: ` · ${
-				hasWeatherData
-					? t("coverage.residualOnLeaves")
-					: t("coverage.timeDecayOnly")
-			}`,
+			titleSuffix: !hasWeatherData ? ` · ${t("coverage.timeDecayOnly")}` : "",
 			explanation: t("coverage.leafExplanation"),
 			gauge: {
 				value: leafSurfaceMgPerM2,

@@ -4,6 +4,8 @@ import { type SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
 import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import { formatNumber } from "@/lib/utils";
+import { CalendarRange } from "lucide-react";
+import { CardSectionHeader } from "./card-section-header";
 
 export function CumulatedDoseSection({
 	substance,
@@ -25,14 +27,11 @@ export function CumulatedDoseSection({
 
 	return (
 		<div className="border-t pt-4 space-y-3">
-			<div>
-				<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-					{t("coverage.cumulatedDose")}
-				</p>
-				<p className="text-xs text-muted-foreground">
-					{t("coverage.cumulatedDoseSubtitle")}
-				</p>
-			</div>
+			<CardSectionHeader
+				icon={CalendarRange}
+				title={t("coverage.cumulatedDose")}
+				subtitle={t("coverage.cumulatedDoseSubtitle")}
+			/>
 			<div className="grid grid-cols-2 gap-3">
 				<div className="rounded-lg bg-muted p-3">
 					<p className="text-xs text-muted-foreground">
@@ -69,10 +68,11 @@ export function CumulatedDoseSection({
 				<div className="flex justify-between items-baseline text-xs text-muted-foreground">
 					<span>0</span>
 					<span className="font-semibold" style={{ color: substanceColor }}>
-						{dosePct}% {t("coverage.of")} {substance.maxDosage} kg/ha{" "}
-						{t("coverage.maxSuffix")}
+						{dosePct}% {t("coverage.yearlyLimitUsed")}
 					</span>
-					<span>{substance.maxDosage} kg/ha</span>
+					<span>
+						{substance.maxDosage} kg/ha {t("coverage.maxSuffix")}
+					</span>
 				</div>
 			</div>
 		</div>

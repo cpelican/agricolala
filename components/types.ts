@@ -44,3 +44,14 @@ export interface CoverageWidgetData {
 	hasWeatherData: boolean;
 	hasIncompleteWeatherHistory: boolean;
 }
+
+// Why coverage has nothing to show for any substance. Substance-specific reasons
+// (e.g. no completed treatment with that substance) are derived in the card.
+export type CoverageHiddenReason =
+	| "noActiveDisease"
+	| "noCompletedTreatments"
+	| "unavailable";
+
+export type CoverageResult =
+	| { status: "available"; data: CoverageWidgetData }
+	| { status: "hidden"; reason: CoverageHiddenReason };
