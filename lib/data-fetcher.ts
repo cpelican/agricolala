@@ -13,6 +13,8 @@ const productApplicationsSelect = {
 			id: true,
 			name: true,
 			brand: true,
+			doseUnit: true,
+			productLiterToKiloGramConversionRate: true,
 			composition: {
 				select: {
 					dose: true,

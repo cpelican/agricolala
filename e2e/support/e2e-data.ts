@@ -73,6 +73,26 @@ export function expectedCopperChartKgAfterAdditionalTreatment() {
 	);
 }
 
+// Liquid product: seeded "Olio essenziale di arancio dolce" is entered in ml,
+// weighs 0.9 kg/L and contains 20% pure sweet orange essential oil.
+export const orangeOilProduct = {
+	name: "Olio essenziale di arancio dolce",
+	substanceName: "Olio essenziale di arancio dolce",
+	substanceLabel: "Sweet orange essential oil",
+	kgPerLiter: 0.9,
+	pureSubstanceFraction: 0.2,
+} as const;
+
+export const additionalTreatmentOrangeOilMl = 100;
+// 100 ml × 0.9 g/ml = 90 g of product → 90 g × 20% = 18 g of pure orange oil.
+const orangeOilProductGrams =
+	additionalTreatmentOrangeOilMl * orangeOilProduct.kgPerLiter;
+const orangeOilPureGrams =
+	orangeOilProductGrams * orangeOilProduct.pureSubstanceFraction;
+
+/** Yearly total on the chart (kg of pure substance, not of product). */
+export const expectedOrangeOilChartTotalKg = orangeOilPureGrams / 1_000;
+
 // Mirrors CumulatedDoseSection's formatNumber: "en" locale, up to 2 decimals,
 // thousands separators, trailing zeros stripped.
 function formatGramsPerHa(value: number): string {
@@ -87,6 +107,15 @@ export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
 
 	return {
 		productValue: `${formatGramsPerHa(productGrams)} g`,
+		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
+	};
+}
+
+export function expectedDashboardOrangeOilLabelsAfterTreatment() {
+	const pureGramsPerHa = (orangeOilPureGrams * 10_000) / PARCEL_AREA_M2;
+
+	return {
+		productValue: `${formatGramsPerHa(orangeOilProductGrams)} g`,
 		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
 	};
 }

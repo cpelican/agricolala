@@ -1,4 +1,4 @@
-import { CultureType } from "@prisma/client";
+import { CultureType, ProductDoseUnit } from "@prisma/client";
 import z from "zod";
 import { parcelBoundarySchema } from "./parcel-geometry";
 
@@ -8,6 +8,14 @@ export const createParcelSchema = z
 		type: z.nativeEnum(CultureType),
 		boundary: parcelBoundarySchema,
 		altitude: z.number().min(-500).max(9000).optional(),
+	})
+	.strict();
+
+export const createTreatmentProductApplicationSchema = z
+	.object({
+		productId: z.string().min(1, "Product is required"),
+		dose: z.number().min(0.1, "Dose must be at least 0.1"),
+		doseUnit: z.nativeEnum(ProductDoseUnit),
 	})
 	.strict();
 
@@ -50,12 +58,7 @@ export const createTreatmentSchema = z
 			.min(0.1, "Water dose must be at least 0.1L")
 			.default(10),
 		productApplications: z
-			.array(
-				z.object({
-					productId: z.string().min(1, "Product is required"),
-					dose: z.number().min(0.1, "Dose must be at least 0.1g"),
-				}),
-			)
+			.array(createTreatmentProductApplicationSchema)
 			.min(1, "At least one product is required")
 			.refine(
 				(applications) =>

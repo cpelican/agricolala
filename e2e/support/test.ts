@@ -11,16 +11,25 @@ export function demoVideoSlugFromTestInfo(testInfo: TestInfo) {
 	return fileSlug;
 }
 
-export const test = base;
+// Auto fixtures, not top-level beforeEach/afterEach: hooks declared in a shared
+// module only attach to the first spec file that imports it in a worker, so
+// later files would skip the DB reset and see leftover treatments.
+export const test = base.extend<{ resetE2eDb: void; demoVideo: void }>({
+	resetE2eDb: [
+		async ({}, use) => {
+			await seedE2eData();
+			await use();
+		},
+		{ auto: true },
+	],
+	demoVideo: [
+		async ({ page }, use, testInfo) => {
+			await use();
+			if (recordDemo) {
+				await saveDemoVideo(page, demoVideoSlugFromTestInfo(testInfo));
+			}
+		},
+		{ auto: true },
+	],
+});
 export { expect };
-
-test.beforeEach(async () => {
-	await seedE2eData();
-});
-
-test.afterEach(async ({ page }, testInfo) => {
-	if (!recordDemo) {
-		return;
-	}
-	await saveDemoVideo(page, demoVideoSlugFromTestInfo(testInfo));
-});
