@@ -22,6 +22,10 @@ export async function getChartSummary(chart: Locator) {
 	return JSON.parse(chartSummary ?? "{}") as ChartSummary;
 }
 
+export function getDataset(summary: ChartSummary, label: string) {
+	return summary.datasets.find((dataset) => dataset.label === label);
+}
+
 export function getCopperDataset(summary: ChartSummary) {
-	return summary.datasets.find((dataset) => dataset.label === "Copper");
+	return getDataset(summary, "Copper");
 }

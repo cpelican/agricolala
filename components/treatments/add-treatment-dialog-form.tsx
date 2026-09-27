@@ -78,7 +78,11 @@ const doseUnits = Object.values(ProductDoseUnit);
 const doseUnitsSet = new Set(doseUnits);
 
 export function isProductDoseUnit(value: unknown): value is ProductDoseUnit {
-	return value != null && typeof value === "string" && doseUnitsSet.has(value as ProductDoseUnit);
+	return (
+		value != null &&
+		typeof value === "string" &&
+		doseUnitsSet.has(value as ProductDoseUnit)
+	);
 }
 
 // Stop Enter in number inputs from submitting the form (mobile "next"/"done" keys).

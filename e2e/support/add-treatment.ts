@@ -1,9 +1,22 @@
 import { expect, type Page } from "@playwright/test";
 import { additionalTreatmentProductGrams, seededParcel } from "./e2e-data";
 
+interface TreatmentProductEntry {
+	productName: string;
+	dose: number;
+	/** Unit label the dialog should pick from the product ("g" or "ml"). */
+	expectedUnit: "g" | "ml";
+}
+
+const defaultProductEntry: TreatmentProductEntry = {
+	productName: "Pasta cafaro",
+	dose: additionalTreatmentProductGrams,
+	expectedUnit: "g",
+};
+
 export async function addTreatmentFromDialog(
 	page: Page,
-	productDoseGrams = additionalTreatmentProductGrams,
+	{ productName, dose, expectedUnit } = defaultProductEntry,
 ) {
 	await page.getByRole("button", { name: "Add Treatment" }).click();
 
@@ -18,8 +31,14 @@ export async function addTreatmentFromDialog(
 	await dialog.getByText("Select disease").click();
 	await page.getByRole("option", { name: "Peronospora" }).click();
 	await dialog.getByText("Select product").click();
-	await page.getByRole("option", { name: "Pasta cafaro" }).click();
-	await dialog.getByPlaceholder("g").fill(String(productDoseGrams));
+	await page.getByRole("option", { name: productName }).click();
+	// The unit select follows the chosen product's dose unit.
+	await expect(
+		dialog
+			.getByRole("combobox")
+			.filter({ hasText: new RegExp(`^${expectedUnit}$`) }),
+	).toBeVisible();
+	await dialog.getByPlaceholder("g/ml").fill(String(dose));
 
 	await dialog.getByRole("button", { name: "Create Treatment" }).click();
 	await expect(dialog).toBeHidden();

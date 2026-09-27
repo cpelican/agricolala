@@ -4,11 +4,14 @@ import { expectDashboardLoaded } from "../support/assertions";
 import { clickMobileNavLink } from "../support/navigation";
 
 /** Home → Treatments → add treatment (stays on Treatments, list updated). */
-export async function goToTreatmentsAndAddTreatment(page: Page) {
+export async function goToTreatmentsAndAddTreatment(
+	page: Page,
+	productEntry?: Parameters<typeof addTreatmentFromDialog>[1],
+) {
 	await page.goto("/en");
 	await clickMobileNavLink(page, "Treatments");
 	await expect(page.getByRole("heading", { name: "Treatments" })).toBeVisible();
-	await addTreatmentFromDialog(page);
+	await addTreatmentFromDialog(page, productEntry);
 	await expect(
 		page.getByRole("heading", { name: "5 Completed" }),
 	).toBeVisible();

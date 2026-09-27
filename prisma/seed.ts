@@ -120,7 +120,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 	});
 
 	const MAX_APPS_ORANGE = 6;
-	await db.product.create({
+	const orangeOilProduct = await db.product.create({
 		data: {
 			name: "Olio essenziale di arancio dolce",
 			brand: "Olio essenziale di arancio dolce",
@@ -128,7 +128,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			productLiterToKiloGramConversionRate: 0.9,
 			maxApplications: MAX_APPS_ORANGE,
 			composition: {
-				create: [{ substanceId: orangeOil.id, dose: 100 }],
+				// Commercial formulation: 20% sweet orange essential oil.
+				create: [{ substanceId: orangeOil.id, dose: 20 }],
 			},
 		},
 	});
@@ -136,6 +137,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 	return {
 		copper,
 		orangeOil,
+		orangeOilProduct,
 		copperProduct,
 		oidium,
 		peronospora,
