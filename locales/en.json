@@ -467,6 +467,8 @@
 		"hiddenUnavailable": "Protection levels couldn't be calculated right now. Try again later.",
 		"criticalToday": "Critical today",
 		"warningToday": "Warning today",
-		"optimalToday": "Optimal today"
+		"optimalToday": "Optimal today",
+		"experimental": "Experimental",
+		"experimentalDisclaimer": "Experimental estimate based on weather data and a simplified wash-off model. Use it as a guide and check your product label and vineyard before deciding."
 	}
 }

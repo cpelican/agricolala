@@ -301,7 +301,11 @@ export function ResidualPanel({
 				icon={ShieldCheck}
 				title={`${t("coverage.title")}${titleSuffix}`}
 				subtitle={explanation}
+				experimental
 			/>
+			<p className="text-xs italic text-muted-foreground">
+				{t("coverage.experimentalDisclaimer")}
+			</p>
 
 			<Gauge {...gauge} />
 

@@ -79,7 +79,11 @@ function CoverageSection({
 
 	return (
 		<div className="border-t pt-4 space-y-2">
-			<CardSectionHeader icon={ShieldCheck} title={t("coverage.title")} />
+			<CardSectionHeader
+				icon={ShieldCheck}
+				title={t("coverage.title")}
+				experimental
+			/>
 			<CoverageHiddenNote
 				reason={state.kind === "hidden" ? state.reason : "notTracked"}
 			/>

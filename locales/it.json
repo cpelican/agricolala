@@ -467,6 +467,8 @@
 		"hiddenUnavailable": "Non è stato possibile calcolare i livelli di protezione. Riprova più tardi.",
 		"criticalToday": "Critico oggi",
 		"warningToday": "Attenzione oggi",
-		"optimalToday": "Ottimale oggi"
+		"optimalToday": "Ottimale oggi",
+		"experimental": "Sperimentale",
+		"experimentalDisclaimer": "Stima sperimentale basata sui dati meteo e su un modello semplificato di dilavamento. Usala come indicazione e verifica l'etichetta del prodotto e il vigneto prima di decidere."
 	}
 }
