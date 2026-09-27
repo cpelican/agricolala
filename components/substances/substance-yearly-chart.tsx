@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
 import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
+import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import type { ChartData, ChartOptions } from "chart.js";
 import { ChartSkeleton } from "./chart-wrapper";
 
@@ -17,18 +18,7 @@ const ChartWrapper = dynamic(
 );
 
 interface SubstanceYearlyChartProps {
-	allYearsData: Record<
-		number,
-		Record<
-			string,
-			{
-				totalDoseOfProduct: number;
-				totalUsedOfPureActiveSubstance: number;
-				totalUsedOfPureActiveSubstancePerHaGrams: number;
-				year: number;
-			}
-		>
-	>;
+	allYearsData: Awaited<ReturnType<typeof getAllYearsSubstanceAggregations>>;
 }
 
 export function SubstanceYearlyChart({

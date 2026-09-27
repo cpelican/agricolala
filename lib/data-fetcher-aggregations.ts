@@ -22,6 +22,14 @@ export const getCachedSubstanceAggregations = cache(
 	},
 );
 
+const sum = (values: number[]) => values.reduce((acc, value) => acc + value, 0);
+
+/**
+ * Usage per year, restricted to the same period (Jan 1 → end of the current
+ * month) so past seasons compare fairly with the ongoing one.
+ * Per-ha values are scaled by the share of pure active substance applied in
+ * that period, as `monthlyData` is stored in grams, not grams per ha.
+ */
 export const getAllYearsSubstanceAggregations = cache(
 	async (userId: string) => {
 		const aggregations = await prisma.userSubstanceAggregation.findMany({
@@ -29,13 +37,15 @@ export const getAllYearsSubstanceAggregations = cache(
 			orderBy: [{ year: "asc" }, { substanceName: "asc" }],
 		});
 
+		const lastMonthIndex = new Date().getMonth();
+
 		const yearData: Record<
 			number,
 			Record<
 				string,
 				Pick<
 					UserSubstanceAggregation,
-					"totalDoseOfProduct" | "totalUsedOfPureActiveSubstance" | "year"
+					"totalUsedOfPureActiveSubstance" | "year"
 				> & {
 					totalUsedOfPureActiveSubstancePerHaGrams: number;
 				}
@@ -46,11 +56,14 @@ export const getAllYearsSubstanceAggregations = cache(
 			if (!yearData[agg.year]) {
 				yearData[agg.year] = {};
 			}
+			const yearTotal = sum(agg.monthlyData);
+			const samePeriodTotal = sum(agg.monthlyData.slice(0, lastMonthIndex + 1));
+			const samePeriodShare = yearTotal > 0 ? samePeriodTotal / yearTotal : 0;
+
 			yearData[agg.year][agg.substanceName] = {
-				totalDoseOfProduct: agg.totalDoseOfProduct,
-				totalUsedOfPureActiveSubstance: agg.totalUsedOfPureActiveSubstance,
+				totalUsedOfPureActiveSubstance: samePeriodTotal,
 				totalUsedOfPureActiveSubstancePerHaGrams:
-					agg.totalUsedOfPureActiveSubstancePerHa,
+					agg.totalUsedOfPureActiveSubstancePerHa * samePeriodShare,
 				year: agg.year,
 			};
 		}

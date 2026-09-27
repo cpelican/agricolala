@@ -211,7 +211,7 @@
 		"noTreatmentData": "No treatment data available for this year",
 		"yearlyComparison": "Yearly Substance Usage Comparison",
 		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
-		"yearlyUsageTitle": "Cumulated substance use per hectare by year",
+		"yearlyUsageTitle": "Cumulated substance use per hectare, Jan 1 to this month, by year",
 		"year": "Year"
 	},
 	"deleteTreatment": {
