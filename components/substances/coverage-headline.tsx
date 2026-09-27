@@ -7,7 +7,7 @@ import {
 	COPPER_LEAF_AREA_FACTOR,
 	FULL_DOSE_G_PER_HA,
 } from "@/lib/coverage-helpers";
-import { AlertTriangle, Info, ShieldCheck } from "lucide-react";
+import { AlertTriangle, FlaskConical, Info, ShieldCheck } from "lucide-react";
 import {
 	STATUS_BADGE_STYLES,
 	type StatusLevel,
@@ -114,6 +114,10 @@ export function ProtectionPill({
 			<span className="font-bold">{value}</span>
 			<span aria-hidden>·</span>
 			<span className="font-medium">{t(ADVICE_KEYS[advice])}</span>
+			<span title={t("coverage.experimental")} className="text-purple-700">
+				<FlaskConical className="h-3.5 w-3.5 shrink-0" aria-hidden />
+				<span className="sr-only">{t("coverage.experimental")}</span>
+			</span>
 		</span>
 	);
 }
