@@ -34,7 +34,7 @@ test("dashboard shows April treatment data in the line chart", async ({
 	]);
 
 	const copperDataset = getCopperDataset(summary);
-	expect(copperDataset?.data).toEqual([...expectedCopperChartKg]);
+	expect(copperDataset?.data).toEqual(expectedCopperChartKg());
 	await expect(
 		main.getByText("Product applied", { exact: true }),
 	).toBeVisible();

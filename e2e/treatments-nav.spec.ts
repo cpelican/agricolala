@@ -29,9 +29,9 @@ test("adds treatment via nav and updates dashboard on return home", async ({
 	const main = page.getByRole("main");
 	const chart = getDashboardChart(main);
 	const summaryBefore = await getChartSummary(chart);
-	expect(getCopperDataset(summaryBefore)?.data).toEqual([
-		...expectedCopperChartKg,
-	]);
+	expect(getCopperDataset(summaryBefore)?.data).toEqual(
+		expectedCopperChartKg(),
+	);
 
 	await goToTreatmentsAndAddTreatment(page);
 
@@ -75,11 +75,11 @@ test("adds liquid product in ml and converts to grams of pure substance", async 
 	// Sum over months so the check does not depend on the run date.
 	const orangeOilKg =
 		getDataset(summary, orangeOilProduct.substanceName)?.data ?? [];
-	expect(orangeOilKg.reduce((sum, kg) => sum + kg, 0)).toBeCloseTo(
-		expectedOrangeOilChartTotalKg,
-	);
+	expect(
+		orangeOilKg.reduce<number>((sum, kg) => sum + (kg ?? 0), 0),
+	).toBeCloseTo(expectedOrangeOilChartTotalKg);
 	// Copper untouched by the orange oil treatment.
-	expect(getCopperDataset(summary)?.data).toEqual([...expectedCopperChartKg]);
+	expect(getCopperDataset(summary)?.data).toEqual(expectedCopperChartKg());
 
 	// 100 ml → 90 g of product; 20% of it → 18 g pure, i.e. 450 g/ha on 400 m².
 	const labels = expectedDashboardOrangeOilLabelsAfterTreatment();
