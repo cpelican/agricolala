@@ -211,7 +211,7 @@
 		"noTreatmentData": "Nessun dato di trattamento disponibile per quest'anno",
 		"yearlyComparison": "Confronto Uso Sostanze Annuale",
 		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
-		"yearlyUsageTitle": "Uso cumulato per ettaro per anno",
+		"yearlyUsageTitle": "Uso cumulato per ettaro dal 1° gennaio a questo mese, per anno",
 		"year": "Anno"
 	},
 	"deleteTreatment": {
