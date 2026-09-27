@@ -1,5 +1,9 @@
 import { describe, test, expect, beforeEach } from "vitest";
-import { type PrismaClient, TreatmentStatus } from "@prisma/client";
+import {
+	type PrismaClient,
+	ProductDoseUnit,
+	TreatmentStatus,
+} from "@prisma/client";
 import {
 	cleanDatabase,
 	OIDIUM_SENSITIVITY_MONTH_MAX,
@@ -9,6 +13,7 @@ import {
 } from "../../../../test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
 import { getCurrentDiseases } from "@/lib/data-fetcher";
+import { DEFAULT_DAYS_BETWEEN_APPLICATIONS } from "@/lib/coverage-helpers";
 
 // HTTP tests hit Next on :3001 (separate process). Use x-cron-as-of (CRON_ALLOW_AS_OF)
 // so the server evaluates seed sensitivity months on a fixed date, not the wall clock.
@@ -132,6 +137,63 @@ describe("[Integration] Suggest Treatments", () => {
 		);
 		expect(createdTreatment.dateMax?.toISOString().slice(0, 10)).toBe(
 			expectedDateMax.toISOString().slice(0, 10),
+		);
+	});
+
+	test("should create a TODO treatment using the default interval when the product has no daysBetweenApplications", async () => {
+		const { pastTreatment, copper, testParcel, testUser } = testData;
+		const liquidProduct = await testPrisma.product.create({
+			data: {
+				name: "Test Liquid Copper Product",
+				brand: "Test Brand",
+				maxApplications: 6,
+				doseUnit: ProductDoseUnit.MILLILITER,
+				composition: {
+					create: [{ substanceId: copper.id, dose: 10.0 }],
+				},
+			},
+		});
+		const lastTreatmentDate = localMidnightDaysAgo(
+			CRON_AS_OF_IN_SEASON,
+			DEFAULT_DAYS_BETWEEN_APPLICATIONS + 2,
+		);
+
+		await testPrisma.treatment.delete({ where: { id: pastTreatment.id } });
+		await testPrisma.treatment.create({
+			data: {
+				parcelId: testParcel.id,
+				userId: testUser.id,
+				status: TreatmentStatus.DONE,
+				appliedDate: lastTreatmentDate,
+				waterDose: 10,
+				diseaseIds: [testData.peronospora.id],
+				productApplications: {
+					create: [{ productId: liquidProduct.id, dose: 20 }],
+				},
+			},
+		});
+
+		const response = await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(data.message).toBe(`Created 1 suggested treatments`);
+
+		const createdTreatments = await testPrisma.treatment.findMany({
+			where: { status: TreatmentStatus.TODO },
+			include: { productApplications: true },
+		});
+		expect(createdTreatments.length).toBe(1);
+		expect(createdTreatments[0].productApplications).toEqual([
+			expect.objectContaining({ productId: liquidProduct.id, dose: 20 }),
+		]);
+
+		const { dateMin: expectedDateMin } = expectedSuggestedDateRange(
+			lastTreatmentDate,
+			DEFAULT_DAYS_BETWEEN_APPLICATIONS,
+		);
+		expect(createdTreatments[0].dateMin?.toISOString().slice(0, 10)).toBe(
+			expectedDateMin.toISOString().slice(0, 10),
 		);
 	});
 

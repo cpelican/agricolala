@@ -4,6 +4,7 @@ import { TreatmentStatus } from "@prisma/client";
 
 import { getCachedCompositions, getCurrentDiseases } from "@/lib/data-fetcher";
 import { Errors } from "@/lib/constants";
+import { DEFAULT_DAYS_BETWEEN_APPLICATIONS } from "@/lib/coverage-helpers";
 
 /** Vitest/CI only: x-cron-as-of when CRON_ALLOW_AS_OF=true and not Vercel production. */
 function isCronAsOfOverrideAllowed(): boolean {
@@ -145,7 +146,9 @@ export async function GET(request: NextRequest) {
 				for (const diseaseId of filteredDiseaseIds) {
 					const substances = substancesByDiseaseId[diseaseId];
 					for (const substanceId of substances) {
-						for (const productId of Object.keys(compositions[substanceId])) {
+						for (const productId of Object.keys(
+							compositions[substanceId] ?? {},
+						)) {
 							productIdsCurrentlyValidToApply.add(productId);
 						}
 					}
@@ -157,27 +160,25 @@ export async function GET(request: NextRequest) {
 				}
 				// productIdsCurrentlyValidToApply contains only products already previously used by the user:
 				// this means the app cannot propose new products to use as the disease become active,
-				// since several products can be available for one disease and it is not for the app to choose
-				const isProductsUsedInLastTreatmentAndValidToApply = (
-					pa: (typeof lastTreatment.productApplications)[number],
-				): pa is {
-					product: { id: string; daysBetweenApplications: number };
-					dose: number;
-				} => {
-					return (
-						productIdsCurrentlyValidToApply.has(pa.product.id) &&
-						pa.product.daysBetweenApplications !== null &&
-						daysSinceLastTreatment >= pa.product.daysBetweenApplications
-					);
-				};
-
+				// since several products can be available for one disease and it is not for the app to choose.
+				// Products without a label interval (e.g. liquid products) use the same fallback as the coverage widget.
 				const productsUsedInLastTreatmentAndValidToApply =
-					lastTreatment.productApplications.filter(
-						isProductsUsedInLastTreatmentAndValidToApply,
-					);
+					lastTreatment.productApplications
+						.map((pa) => ({
+							dose: pa.dose,
+							productId: pa.product.id,
+							daysBetweenApplications:
+								pa.product.daysBetweenApplications ??
+								DEFAULT_DAYS_BETWEEN_APPLICATIONS,
+						}))
+						.filter(
+							(pa) =>
+								productIdsCurrentlyValidToApply.has(pa.productId) &&
+								daysSinceLastTreatment >= pa.daysBetweenApplications,
+						);
 				const minDaysBetweenApplications = Math.min(
 					...productsUsedInLastTreatmentAndValidToApply.map(
-						(el) => el.product.daysBetweenApplications,
+						(el) => el.daysBetweenApplications,
 					),
 				);
 				const suggestedDate = new Date(lastTreatment.appliedDate);
@@ -204,7 +205,7 @@ export async function GET(request: NextRequest) {
 						productApplications: {
 							create: productsUsedInLastTreatmentAndValidToApply.map((el) => ({
 								dose: el.dose,
-								productId: el.product.id,
+								productId: el.productId,
 							})),
 						},
 					},
