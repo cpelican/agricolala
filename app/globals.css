@@ -79,6 +79,14 @@
   );
 }
 
+@utility bg-solid-gradient {
+  background: linear-gradient(
+    45deg,
+    var(--color-primary-700) 0%,
+    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
+  );
+}
+
 @utility bg-hsl {
   background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
 }

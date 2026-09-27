@@ -32,10 +32,10 @@ export const AddTreatmentButton = ({
 				aria-label={t("treatments.addTreatment")}
 				onClick={() => setIsAddTreatmentOpen(true)}
 				style={{ bottom: 100 }}
-				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-main-gradient hover:bg-primary-700"
+				className="z-10 fixed right-6 h-16 w-16 rounded-full shadow-lg bg-solid-gradient transition hover:brightness-110 focus-visible:brightness-110 active:scale-95 [&_svg]:size-8"
 				size="icon"
 			>
-				<Plus className="h-6 w-6" />
+				<Plus />
 			</Button>
 			<AddTreatmentDialog
 				open={isAddTreatmentOpen}
