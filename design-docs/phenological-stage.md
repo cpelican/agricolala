@@ -69,6 +69,12 @@ Eight choices, each an illustration + one plain label. The BBCH range is stored 
 
 Dormancy (BBCH 00–03) is implied when no observation exists for the current season.
 
+Picture options (drawn in the [living doc](https://claude.ai/code/artifact/01967489-de78-4e7c-a3b4-c41dc6ad499f)); all are kept small so the modal does not need much scrolling:
+
+- **A · Outline pictograms**: monochrome line drawings (~40 px), same style as the app's icons; two rows of 4 on a phone.
+- **B · Coloured pictograms**: green shoots, yellow flowers, berries turning green to purple (~40 px); two rows of 4 on a phone.
+- **C · Compact stepper**: one line of 8 dots; only the picked stage shows its picture and name.
+
 ### Data model
 
 A separate model rather than a column on `Treatment`: the stage belongs to the parcel at a date, a grower can observe it without treating, and one treatment can cover several parcels.
