@@ -6,6 +6,8 @@ interface TreatmentProductEntry {
 	dose: number;
 	/** Unit label the dialog should pick from the product ("g" or "ml"). */
 	expectedUnit: "g" | "ml";
+	/** Stage label to pick in "How do your vines look?" (left untouched if unset). */
+	stageLabel?: string;
 }
 
 const defaultProductEntry: TreatmentProductEntry = {
@@ -16,7 +18,7 @@ const defaultProductEntry: TreatmentProductEntry = {
 
 export async function addTreatmentFromDialog(
 	page: Page,
-	{ productName, dose, expectedUnit } = defaultProductEntry,
+	{ productName, dose, expectedUnit, stageLabel } = defaultProductEntry,
 ) {
 	await page.getByRole("button", { name: "Add Treatment" }).click();
 
@@ -39,6 +41,10 @@ export async function addTreatmentFromDialog(
 			.filter({ hasText: new RegExp(`^${expectedUnit}$`) }),
 	).toBeVisible();
 	await dialog.getByPlaceholder("g/ml").fill(String(dose));
+	if (stageLabel) {
+		await dialog.getByRole("radio", { name: stageLabel }).click();
+		await expect(dialog.getByRole("radio", { name: stageLabel })).toBeChecked();
+	}
 
 	await dialog.getByRole("button", { name: "Create Treatment" }).click();
 	await expect(dialog).toBeHidden();

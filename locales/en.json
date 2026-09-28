@@ -470,5 +470,54 @@
 		"optimalToday": "Optimal today",
 		"experimental": "Experimental",
 		"experimentalDisclaimer": "Experimental estimate based on weather data and a simplified wash-off model. Use it as a guide and check your product label and vineyard before deciding."
+	},
+	"phenology": {
+		"title": "How do your vines look?",
+		"optional": "Optional, one stage for all selected parcels",
+		"skip": "Skip",
+		"suggested": "Suggested",
+		"suggestedHint": "Your last stage is over 14 days old: is it time for the next one?",
+		"earlierWarning": "Earlier than what you recorded on {date}: correct?",
+		"unknown": "Stage unknown",
+		"updateStage": "Update stage",
+		"updateStageDescription": "What do the vines of {parcel} look like today?",
+		"save": "Save",
+		"cancel": "Cancel",
+		"saved": "Stage updated",
+		"saveFailed": "Could not update the stage",
+		"stages": {
+			"BUD_BREAK": {
+				"label": "Buds opening",
+				"description": "Green tip visible through the wool"
+			},
+			"LEAVES_UNFOLDING": {
+				"label": "First leaves",
+				"description": "2–6 leaves spread out, shoots under 20 cm"
+			},
+			"FLOWER_CLUSTERS": {
+				"label": "Flower clusters",
+				"description": "Clusters separated, flowers still closed"
+			},
+			"FLOWERING": {
+				"label": "Flowering",
+				"description": "Caps falling, pollen visible"
+			},
+			"FRUIT_SET": {
+				"label": "Small berries",
+				"description": "Berries set, up to pea size"
+			},
+			"BUNCH_CLOSURE": {
+				"label": "Bunch closing",
+				"description": "Berries touch each other"
+			},
+			"VERAISON": {
+				"label": "Colour change",
+				"description": "Berries soften and change colour"
+			},
+			"RIPE": {
+				"label": "Ripe",
+				"description": "Ready for harvest or picked"
+			}
+		}
 	}
 }

@@ -6,6 +6,8 @@ import { SubstanceUsageSection } from "../substances/substance-usage-section";
 import { type SubstanceData } from "../types";
 import { TreatmentCard } from "../treatments/treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
+import type { CurrentParcelStage } from "@/lib/phenology-observations";
+import { ParcelStageRow } from "../phenology/parcel-stage-row";
 import { AddTreatmentButton } from "../treatments/add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
@@ -18,6 +20,7 @@ interface ParcelDetailProps {
 	upcomingTreatments: ParcelDetailType["treatments"];
 	pastTreatments: ParcelDetailType["treatments"];
 	substanceData: SubstanceData[];
+	currentStage: CurrentParcelStage | null;
 	children: React.ReactNode;
 }
 
@@ -26,6 +29,7 @@ export function ParcelDetail({
 	upcomingTreatments,
 	pastTreatments,
 	substanceData,
+	currentStage,
 	children,
 }: ParcelDetailProps) {
 	const { t } = useTranslations();
@@ -35,7 +39,20 @@ export function ParcelDetail({
 	return (
 		<div className="p-4 space-y-4">
 			<div className="grid gap-4">
-				<AddTreatmentButton parcelId={parcel.id} parcels={[]} />
+				<AddTreatmentButton
+					parcelId={parcel.id}
+					parcels={[]}
+					stages={currentStage ? [currentStage] : []}
+				/>
+				<Card>
+					<CardContent className="p-4">
+						<ParcelStageRow
+							parcelId={parcel.id}
+							parcelName={parcel.name}
+							observation={currentStage}
+						/>
+					</CardContent>
+				</Card>
 				{children}
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>
