@@ -213,7 +213,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 - [x] Leaf area per stage for P3: the copper mg/m² readout divides the dose by the leaf area and always assumes a full canopy (LAI = 4). Before P3 changes that formula, find a trusted source (e.g. an IFV or Italian extension table) giving the leaf area at each stage; one study with rough seasonal ranges is not enough.
 - [x] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
 
-- **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day hint to move to the next stage, 21-day expiry after which the parcel has no stage and calculations fall back to month windows; later P5 estimation.
+- **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day staleness hint in the modal, 21-day expiry after which the parcel has no stage and calculations fall back to month windows; later P5 estimation.
 - **Risk — false precision:** the sensitivity matrix is a qualitative synthesis; the UI should say "higher risk" rather than show numbers, and keep the "experimental" label used for coverage.
 - **Risk — variety and climate:** timing of ontogenic resistance varies with climate and cultivar (Kennelly et al. 2005), so levels are guidance, not rules.
 
