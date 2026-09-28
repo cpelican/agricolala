@@ -1,7 +1,5 @@
 # Design doc — Issue #66 & phenology-based disease sensitivity
 
-27 Sep 2026 · living version: [Claude doc](https://claude.ai/code/artifact/01967489-de78-4e7c-a3b4-c41dc6ad499f)
-
 ## Context
 
 Let growers record each parcel's phenological stage (e.g. "flowering") so the app knows when vines are most susceptible to disease. Source: [cpelican/agricolala#66](https://github.com/cpelican/agricolala/issues/66) — "The user should inform the system about the phenological stage" (open, no comments).
@@ -21,7 +19,7 @@ Today the app has no notion of vine development: disease risk is a fixed calenda
 | --- | --- | --- | --- |
 | Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering" |
 | Treatment suggestions | `app/api/cron/suggest-treatments/route.ts` + `getCurrentDiseases` | Re-proposes last products once `daysBetweenApplications` has elapsed, if the disease month window is active | Same cadence at bud break and at flowering, although risk differs a lot |
-| Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | LAI is ~0.5–1 around bud break and ~3–4 after bunch closure; new leaves grown since the spray are unprotected |
+| Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | Measured LAI in 4 California vineyards ran from 0.7–1.0 early in the season to 2.4–4.0 at full canopy around veraison ([Kang et al. 2022, Irrigation Science](https://pmc.ncbi.nlm.nih.gov/articles/PMC9509311/)); leaves grown after a spray carry no deposit |
 | Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | Advice is the same whether the vine is at a low-risk or a critical stage |
 | Treatment modal | `components/treatments/add-treatment-dialog-form.tsx`, `createTreatmentSchema` in `lib/actions-schemas.ts` | Date, parcels, products + doses, diseases, water dose | No stage field |
 | Treatment window | `lib/applicability.ts` | Hard-coded months 3–10 plus wind and rain checks | Could start at bud break instead of March |
