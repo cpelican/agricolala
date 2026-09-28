@@ -194,7 +194,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 - [x] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
 - [x] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
 - [x] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
-- [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
+- [ ] Leaf area per stage for P3: the copper mg/m² readout divides the dose by the leaf area and always assumes a full canopy (LAI = 4). Before P3 changes that formula, find a trusted source (e.g. an IFV or Italian extension table) giving the leaf area at each stage; one study with rough seasonal ranges is not enough.
 - [x] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
 
 - **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day hint to move to the next stage, 21-day expiry after which the parcel has no stage and calculations fall back to month windows; later P5 estimation.
