@@ -4,7 +4,7 @@ import { cleanDatabase, seedTestData } from "@/test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
 import { Errors } from "@/lib/constants";
 import {
-	createObservationsForTreatments,
+	createObservationsForParcels,
 	createStandaloneObservation,
 	getCurrentStagesByParcel,
 } from "./phenology-observations";
@@ -27,7 +27,7 @@ describe("[Integration] phenology observations", () => {
 		testData = await seedTestData();
 	});
 
-	async function createSecondParcel(userId: string) {
+	async function createParcel(userId: string) {
 		return testPrisma.parcel.create({
 			data: {
 				name: "Second Vineyard",
@@ -41,58 +41,34 @@ describe("[Integration] phenology observations", () => {
 		});
 	}
 
-	test("creates one observation per treatment, linked to its parcel and treatment", async () => {
-		const { testUser, testParcel } = testData;
-		const secondParcel = await createSecondParcel(testUser.id);
-		const treatments = await testPrisma.treatment.createManyAndReturn({
-			data: [testParcel, secondParcel].map((parcel) => ({
-				parcelId: parcel.id,
-				userId: testUser.id,
-				status: "DONE" as const,
-				appliedDate: daysAgo(1),
-			})),
-			select: { id: true, parcelId: true },
+	async function createOtherUser() {
+		return testPrisma.user.create({
+			data: { email: "other@example.com", isAuthorized: true },
 		});
+	}
 
-		await createObservationsForTreatments(testPrisma, {
-			userId: testUser.id,
+	test("creates one observation per treated parcel", async () => {
+		const { testUser, testParcel } = testData;
+		const secondParcel = await createParcel(testUser.id);
+		const observedAt = daysAgo(1);
+
+		await createObservationsForParcels(testPrisma, {
+			parcelIds: [testParcel.id, secondParcel.id],
 			stage: PhenologicalStage.FLOWERING,
-			observedAt: daysAgo(1),
-			treatments,
+			observedAt,
 		});
 
 		const observations = await testPrisma.phenologyObservation.findMany({
-			where: { userId: testUser.id },
-			select: { parcelId: true, treatmentId: true, stage: true },
+			select: { parcelId: true, stage: true, observedAt: true },
 			orderBy: { parcelId: "asc" },
 		});
 		expect(observations).toEqual(
-			treatments
-				.map((t) => ({
-					parcelId: t.parcelId,
-					treatmentId: t.id,
-					stage: PhenologicalStage.FLOWERING,
-				}))
-				.sort((a, b) => a.parcelId.localeCompare(b.parcelId)),
+			[testParcel.id, secondParcel.id].sort().map((parcelId) => ({
+				parcelId,
+				stage: PhenologicalStage.FLOWERING,
+				observedAt,
+			})),
 		);
-	});
-
-	test("keeps the observation when its treatment is deleted", async () => {
-		const { testUser, testParcel, pastTreatment } = testData;
-		await createObservationsForTreatments(testPrisma, {
-			userId: testUser.id,
-			stage: PhenologicalStage.FRUIT_SET,
-			observedAt: daysAgo(1),
-			treatments: [{ id: pastTreatment.id, parcelId: testParcel.id }],
-		});
-
-		await testPrisma.treatment.delete({ where: { id: pastTreatment.id } });
-
-		const observation = await testPrisma.phenologyObservation.findFirstOrThrow({
-			where: { parcelId: testParcel.id },
-		});
-		expect(observation.treatmentId).toBeNull();
-		expect(observation.stage).toBe(PhenologicalStage.FRUIT_SET);
 	});
 
 	test("records a standalone observation on the user's own parcel", async () => {
@@ -105,17 +81,12 @@ describe("[Integration] phenology observations", () => {
 		});
 
 		expect(observation.parcelId).toBe(testParcel.id);
-		const stored = await testPrisma.phenologyObservation.findUniqueOrThrow({
-			where: { id: observation.id },
-		});
-		expect(stored.treatmentId).toBeNull();
+		expect(observation.stage).toBe(PhenologicalStage.BUD_BREAK);
 	});
 
 	test("refuses a standalone observation on another user's parcel", async () => {
 		const { testParcel } = testData;
-		const otherUser = await testPrisma.user.create({
-			data: { email: "other@example.com", isAuthorized: true },
-		});
+		const otherUser = await createOtherUser();
 
 		await expect(
 			createStandaloneObservation(testPrisma, {
@@ -130,41 +101,36 @@ describe("[Integration] phenology observations", () => {
 
 	test("returns the latest non-expired stage per parcel", async () => {
 		const { testUser, testParcel } = testData;
-		const secondParcel = await createSecondParcel(testUser.id);
-		const thirdParcel = await createSecondParcel(testUser.id);
+		const secondParcel = await createParcel(testUser.id);
+		const thirdParcel = await createParcel(testUser.id);
 
 		await testPrisma.phenologyObservation.createMany({
 			data: [
 				// First parcel: older then newer observation → newer wins
 				{
-					userId: testUser.id,
 					parcelId: testParcel.id,
 					stage: PhenologicalStage.FLOWER_CLUSTERS,
 					observedAt: daysAgo(10),
 				},
 				{
-					userId: testUser.id,
 					parcelId: testParcel.id,
 					stage: PhenologicalStage.FLOWERING,
 					observedAt: daysAgo(2),
 				},
 				// Observation after the reference date is ignored
 				{
-					userId: testUser.id,
 					parcelId: testParcel.id,
 					stage: PhenologicalStage.FRUIT_SET,
 					observedAt: new Date(NOW.getTime() + MS_PER_DAY),
 				},
 				// Second parcel: only an expired observation → no current stage
 				{
-					userId: testUser.id,
 					parcelId: secondParcel.id,
 					stage: PhenologicalStage.BUD_BREAK,
 					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1),
 				},
 				// Third parcel: exactly at the expiry limit still counts
 				{
-					userId: testUser.id,
 					parcelId: thirdParcel.id,
 					stage: PhenologicalStage.LEAVES_UNFOLDING,
 					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS),
@@ -183,15 +149,12 @@ describe("[Integration] phenology observations", () => {
 		});
 	});
 
-	test("ignores other users' observations", async () => {
+	test("ignores observations on other users' parcels", async () => {
 		const { testUser } = testData;
-		const otherUser = await testPrisma.user.create({
-			data: { email: "other@example.com", isAuthorized: true },
-		});
-		const otherParcel = await createSecondParcel(otherUser.id);
+		const otherUser = await createOtherUser();
+		const otherParcel = await createParcel(otherUser.id);
 		await testPrisma.phenologyObservation.create({
 			data: {
-				userId: otherUser.id,
 				parcelId: otherParcel.id,
 				stage: PhenologicalStage.FLOWERING,
 				observedAt: daysAgo(1),

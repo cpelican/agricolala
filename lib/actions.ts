@@ -10,7 +10,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { productApplicationsToGrams } from "./product-dose-to-grams";
 import { getProductDoseUnits } from "./data-fetcher-catalog";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
-import { createObservationsForTreatments } from "./phenology-observations";
+import { createObservationsForParcels } from "./phenology-observations";
 import {
 	computeParcelAreaM2,
 	computeParcelCentroid,
@@ -121,11 +121,10 @@ export async function createTreatment(formData: FormData) {
 			});
 
 			if (validatedData.phenologicalStage) {
-				await createObservationsForTreatments(tx, {
-					userId: session.user.id,
+				await createObservationsForParcels(tx, {
+					parcelIds: parcels.map((parcel) => parcel.id),
 					stage: validatedData.phenologicalStage,
 					observedAt: validatedData.appliedDate,
-					treatments,
 				});
 			}
 

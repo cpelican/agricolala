@@ -56,7 +56,6 @@ model User {
   parcels       Parcel[]
   sessions      Session[]
   treatments    Treatment[]
-  phenologyObservations PhenologyObservation[]
 }
 
 model VerificationToken {
@@ -102,7 +101,6 @@ model Treatment {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   productApplications ProductApplication[]
-  phenologyObservations PhenologyObservation[]
   parcel              Parcel               @relation(fields: [parcelId], references: [id], onDelete: Cascade)
   user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -228,21 +226,15 @@ enum PhenologicalStage {
 
 /// A grower's observation of a parcel's stage on a date, recorded with a treatment or on its own.
 model PhenologyObservation {
-  id          String            @id @default(cuid())
-  parcelId    String
-  userId      String
-  stage       PhenologicalStage
-  observedAt  DateTime
-  treatmentId String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  parcel      Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  treatment   Treatment?        @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+  id         String            @id @default(cuid())
+  parcelId   String
+  stage      PhenologicalStage
+  observedAt DateTime
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  parcel     Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
 
   @@index([parcelId, observedAt])
-  @@index([userId])
-  @@index([treatmentId])
 }
 
 enum CultureType {

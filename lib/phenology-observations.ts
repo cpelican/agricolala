@@ -8,29 +8,21 @@ import { getStageExpiryCutoff } from "./phenology";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
-// One observation per treatment row: createTreatment creates one Treatment per parcel.
-export async function createObservationsForTreatments(
+// Stage observed on each treated parcel when a treatment is recorded.
+export async function createObservationsForParcels(
 	db: DbClient,
 	{
-		userId,
+		parcelIds,
 		stage,
 		observedAt,
-		treatments,
 	}: {
-		userId: string;
+		parcelIds: string[];
 		stage: PhenologicalStage;
 		observedAt: Date;
-		treatments: { id: string; parcelId: string }[];
 	},
 ) {
 	return db.phenologyObservation.createMany({
-		data: treatments.map((treatment) => ({
-			userId,
-			parcelId: treatment.parcelId,
-			treatmentId: treatment.id,
-			stage,
-			observedAt,
-		})),
+		data: parcelIds.map((parcelId) => ({ parcelId, stage, observedAt })),
 	});
 }
 
@@ -58,13 +50,13 @@ export async function createStandaloneObservation(
 	}
 
 	return db.phenologyObservation.create({
-		data: { userId, parcelId, stage, observedAt },
+		data: { parcelId, stage, observedAt },
 		select: { id: true, parcelId: true, stage: true, observedAt: true },
 	});
 }
 
-// Latest non-expired observation per parcel at `date`. Parcels without one have no
-// current stage and are left out.
+// Latest non-expired observation per parcel of the user at `date`. Parcels without
+// one have no current stage and are left out.
 export async function getCurrentStagesByParcel(
 	db: DbClient,
 	userId: string,
@@ -72,7 +64,7 @@ export async function getCurrentStagesByParcel(
 ) {
 	return db.phenologyObservation.findMany({
 		where: {
-			userId,
+			parcel: { userId },
 			observedAt: { lte: date, gte: getStageExpiryCutoff(date) },
 		},
 		orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
