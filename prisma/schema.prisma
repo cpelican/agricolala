@@ -56,6 +56,7 @@ model User {
   parcels       Parcel[]
   sessions      Session[]
   treatments    Treatment[]
+  phenologyObservations PhenologyObservation[]
 }
 
 model VerificationToken {
@@ -85,6 +86,7 @@ model Parcel {
   weatherHistories WeatherHistory[] @relation("WeatherHistoryParcels")
   @@index([userId], map: "idx_parcel_user_id")
   weatherHistoryTasks WeatherHistoryTask[] @relation("WeatherHistoryTasksParcels")
+  phenologyObservations PhenologyObservation[]
 }
 
 model Treatment {
@@ -100,6 +102,7 @@ model Treatment {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   productApplications ProductApplication[]
+  phenologyObservations PhenologyObservation[]
   parcel              Parcel               @relation(fields: [parcelId], references: [id], onDelete: Cascade)
   user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -209,6 +212,37 @@ model ParcelSubstanceAggregation {
 
   @@unique([parcelId, substanceId, year])
   @@index([parcelId, year])
+}
+
+/// Simplified phenological stage picked by the grower; BBCH ranges live in lib/phenology.ts.
+enum PhenologicalStage {
+  BUD_BREAK
+  LEAVES_UNFOLDING
+  FLOWER_CLUSTERS
+  FLOWERING
+  FRUIT_SET
+  BUNCH_CLOSURE
+  VERAISON
+  RIPE
+}
+
+/// A grower's observation of a parcel's stage on a date, recorded with a treatment or on its own.
+model PhenologyObservation {
+  id          String            @id @default(cuid())
+  parcelId    String
+  userId      String
+  stage       PhenologicalStage
+  observedAt  DateTime
+  treatmentId String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  parcel      Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  treatment   Treatment?        @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+
+  @@index([parcelId, observedAt])
+  @@index([userId])
+  @@index([treatmentId])
 }
 
 enum CultureType {
