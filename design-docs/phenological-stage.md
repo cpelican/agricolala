@@ -81,7 +81,7 @@ Decision: option B, coloured pictograms (drawn in-house as small SVG icons).
 
 ### Data model
 
-A separate model rather than a column on `Treatment`: the stage belongs to the parcel at a date, a grower can observe it without treating, and one treatment can cover several parcels.
+A separate model rather than a column on `Treatment`: the stage belongs to the parcel at a date, a grower can observe it without treating, and one treatment can cover several parcels. It holds only parcel, stage and date (decided in review of #69): the owner comes from the parcel, and the stage at a treatment is the parcel's latest observation on or before the treatment date.
 
 ```prisma
 enum PhenologicalStage {
@@ -96,17 +96,13 @@ enum PhenologicalStage {
 }
 
 model PhenologyObservation {
-  id          String            @id @default(cuid())
-  parcelId    String
-  userId      String
-  stage       PhenologicalStage
-  observedAt  DateTime
-  treatmentId String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  parcel      Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  treatment   Treatment?        @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+  id         String            @id @default(cuid())
+  parcelId   String
+  stage      PhenologicalStage
+  observedAt DateTime
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  parcel     Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
 
   @@index([parcelId, observedAt])
 }
@@ -120,19 +116,19 @@ Generate the migration with `npx prisma migrate dev --name add_phenology_observa
 2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion. After 21 days without a new observation the stage expires: the parcel shows "Stage unknown" and the picker has no pre-selection.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
-5. Also in v1: an "Update stage" action on the parcel card, with the same picker, for observations without a treatment (new server action `recordPhenologyObservation(parcelId, stage, observedAt)`, `treatmentId` left empty).
+5. Also in v1: an "Update stage" action on the parcel card, with the same picker, for observations without a treatment (new server action `recordPhenologyObservation(parcelId, stage, observedAt)`).
 
 ### Server changes
 
 - `createTreatmentSchema`: add `phenologicalStage: z.nativeEnum(PhenologicalStage).optional()`.
-- `createTreatment` in `lib/actions.ts`: inside the existing write, create one observation per `parcelIds` entry with `observedAt = appliedDate` and the new `treatmentId`.
+- `createTreatment` in `lib/actions.ts`: inside the existing write, create one observation per `parcelIds` entry with `observedAt = appliedDate`.
 - New fetcher `getStageByParcel(userId, date)` in `lib/data-fetcher.ts`: latest observation with `observedAt <= date` per parcel, cached like the other fetchers. An observation older than 21 days (a constant, easy to tune) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows. Types derived from `Prisma.PhenologyObservationGetPayload`, not a hand-written interface.
 - i18n: stage labels and descriptions in `locales/en.json` and `locales/it.json`.
 
 ### Testing
 
 - Vitest: schema accepts/omits the stage; `lib/phenology.ts` helpers (stage ordering, "next stage", staleness).
-- Integration: `createTreatment` with 2 parcels writes 2 observations linked to the treatment.
+- Integration: `createTreatment` with 2 parcels writes one observation per parcel.
 - E2e (UX change, per `e2e/TESTING.md`): pick a stage in the modal, save, reopen — the stage is pre-selected.
 
 ## Research: disease sensitivity by phenological stage
