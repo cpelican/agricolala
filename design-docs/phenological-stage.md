@@ -113,7 +113,7 @@ Generate the migration with `npx prisma migrate dev --name add_phenology_observa
 ### UX in the treatment modal
 
 1. New optional block after the date: "How do your vines look?" with a horizontal row of 8 illustrated cards. One stage per treatment, recorded for every selected parcel (decided).
-2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion.
+2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion. After 21 days without a new observation the stage expires: the parcel shows "Stage unknown" and the picker has no pre-selection.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
 5. Also in v1: an "Update stage" action on the parcel card, with the same picker, for observations without a treatment (new server action `recordPhenologyObservation(parcelId, stage, observedAt)`, `treatmentId` left empty).
@@ -122,7 +122,7 @@ Generate the migration with `npx prisma migrate dev --name add_phenology_observa
 
 - `createTreatmentSchema`: add `phenologicalStage: z.nativeEnum(PhenologicalStage).optional()`.
 - `createTreatment` in `lib/actions.ts`: inside the existing write, create one observation per `parcelIds` entry with `observedAt = appliedDate` and the new `treatmentId`.
-- New fetcher `getStageByParcel(userId, date)` in `lib/data-fetcher.ts`: latest observation with `observedAt <= date` per parcel, cached like the other fetchers. Types derived from `Prisma.PhenologyObservationGetPayload`, not a hand-written interface.
+- New fetcher `getStageByParcel(userId, date)` in `lib/data-fetcher.ts`: latest observation with `observedAt <= date` per parcel, cached like the other fetchers. An observation older than 21 days (a constant, easy to tune) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows. Types derived from `Prisma.PhenologyObservationGetPayload`, not a hand-written interface.
 - i18n: stage labels and descriptions in `locales/en.json` and `locales/it.json`.
 
 ### Testing
@@ -195,7 +195,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 - [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
 - [x] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
 
-- **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day staleness hint in the modal, later P5 estimation.
+- **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day hint to move to the next stage, 21-day expiry after which the parcel has no stage and calculations fall back to month windows; later P5 estimation.
 - **Risk — false precision:** the sensitivity matrix is a qualitative synthesis; the UI should say "higher risk" rather than show numbers, and keep the "experimental" label used for coverage.
 - **Risk — variety and climate:** timing of ontogenic resistance varies with climate and cultivar (Kennelly et al. 2005), so levels are guidance, not rules.
 
