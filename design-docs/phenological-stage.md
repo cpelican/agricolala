@@ -165,6 +165,22 @@ Qualitative synthesis of the sources above, mapped to the 8 stages proposed for 
 - Downy mildew cannot infect before shoots reach ~10 cm, so March is often too early; late-summer leaf infections after July are not covered by month 7.
 - The coverage model's fixed leaf area (LAI = 4, `COPPER_LEAF_AREA_FACTOR`) fits a full canopy; around bud break the canopy is several times smaller (approximate, typical values LAI < 1), and every new leaf since the last spray is unprotected.
 
+### Leaf area by stage
+
+Measured leaf area stays well under the app's fixed LAI = 4 until veraison. Swiss dosing guidance scales fungicide doses to about 38 % of the full-canopy dose at the first sprays, 75 % at flowering and 100 % after flowering.
+
+| App stage (BBCH) | Measured LAI, Italy ([Orlando et al. 2016](https://pmc.ncbi.nlm.nih.gov/articles/PMC5190985/)) | Dose vs full canopy, Switzerland ([Agridea 2011, after Viret & Siegfried, Agroscope](https://www.bonnepratiqueagricole.ch/fileadmin/Viticulture/Maladies/Dosage_des_fongicides_en_fonction_du_stade_phenologique.pdf)) |
+| --- | --- | --- |
+| First leaves (11–16) | Not measured | 38 % (first spray, "1er rougeot") |
+| Flower clusters visible (53–57) | 0.13–0.61 (BBCH 56), 0.16–0.75 (BBCH 57) | 50–63 % (1st and 2nd pre-flowering sprays) |
+| Flowering (60–69) | 0.22–1.09 (BBCH 61) | 75 % |
+| Small berries (71–75) | 0.30–1.24 (BBCH 74) | 100 % (post-flowering) |
+| Bunch closing (77–79) | 0.45–1.41 (BBCH 77) | 100 % |
+| Colour change (81–85) | 0.64–1.41, one vigorous plot 2.84 (BBCH 81) | 100 % |
+
+- Orlando et al. measured Barbera and Chardonnay near Pavia (Italy); full-canopy LAI in the Agridea table reaches 2.57, and California vineyards reached 2.4–4.0 ([Kang et al. 2022](https://pmc.ncbi.nlm.nih.gov/articles/PMC9509311/)). So LAI = 4 is the top of the measured range, not a typical value.
+- Italian and French practice confirm the early-season gap: leaf-wall-area dosing lets the first downy mildew sprays cut the per-hectare dose by more than half ([Terra e Vita, 2022](https://terraevita.edagricole.it/agrofarmaci-difesa/peronospora-prodotti-dosati-sulla-base-dellarea-fogliare/)), and IFV's Optidose tool adapts doses to stage and leaf area ([Ephytia — INRAE](http://ephytia.inra.fr/fr/C/24093/Vigne-Adaptation-des-doses-a-la-vegetation-a-proteger)).
+
 ## Propositions
 
 Once the stage is known, the biggest wins are making the substance cards say *when* protection matters (P1, P2) and replacing month windows with stage windows (P4, P6). Ordered by suggested priority. Every stage-based risk readout uses words ("higher risk", "critical period"), never numbers, and carries the same "experimental" label as coverage. The reminder that timing varies with grape variety and climate lives in that label's tooltip (one sentence), not as extra text on the card, so the UI stays short and readable.
@@ -173,7 +189,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 | --- | --- | --- | --- |
 | P1 | **Stage-aware protection pill.** Show the parcel's stage and a "Critical period" chip in the substance card header when a disease the substance targets is High/Very high. During critical stages, advise "Re-treat soon" earlier (e.g. when the 3-day projection drops below 75 % of the full dose instead of the threshold). | `getRetreatAdvice` / `getCoverageHeadline` in `components/substances/coverage-headline.tsx`; `Substance.diseases` gives the link | Same residual dose reads "fine" at bud break but "act now" at flowering |
 | P2 | **Risk timeline strip in each substance card.** A thin band of the 8 stages, coloured by the sensitivity matrix for that substance's diseases, with a marker at the current stage and dots for past treatments. | New component next to `coverage-residual-panel.tsx`; data from `getStageByParcel` + treatments | Sees at a glance whether sprays landed in the critical window |
-| P3 | **Canopy-aware copper readout.** Replace the fixed LAI = 4 in `COPPER_LEAF_AREA_FACTOR` with a per-stage LAI, and add a "new growth" dilution term during fast shoot growth (first leaves → bunch closing). | `lib/coverage-helpers.ts` (`calculateCoverageData`, forecast projection) | Early-season mg/m² no longer under-reported; mid-season decay reflects unprotected new leaves |
+| P3 | **Canopy-aware copper readout.** Scale the fixed LAI = 4 by the Swiss stage fractions (38 % first leaves → 75 % flowering → 100 % after flowering, see "Leaf area by stage") in `COPPER_LEAF_AREA_FACTOR`, and add a "new growth" dilution term during fast shoot growth (first leaves → bunch closing). | `lib/coverage-helpers.ts` (`calculateCoverageData`, forecast projection) | Early-season mg/m² no longer under-reported; mid-season decay reflects unprotected new leaves |
 | P4 | **Stage-driven treatment suggestions.** Filter active diseases by stage instead of month; in Very-high stages, suggest the next treatment at the shortest label interval, aiming for just before flowering starts (during flowering, only bee-compatible fungicides, see P10); stop suggesting sulfur for bunches after bunch closure. | `app/api/cron/suggest-treatments/route.ts`, `getCurrentDiseases` | Fewer pointless reminders early and late, tighter reminders around bloom |
 | P5 | **Stage estimate from temperature.** Use the daily temperatures already stored in `WeatherHistory` to accumulate thermal time and predict the next stage, then ask "Your vines are probably flowering — confirm?". Phenology models such as GFV/GSR ([Parker et al., via Europe PMC](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Grapevine%20Flowering%20Veraison%20model%22%20OR%20%22Grapevine%20Sugar%20Ripeness%22&resultType=core&format=json&pageSize=5)) are based on thermal time. | New `lib/phenology-estimate.ts` + weather cron `app/api/cron/fetch-weather-history` | Stage stays current even when the grower forgets to update it |
 | P6 | **Stage-based disease catalogue.** Add a `DiseaseStageSensitivity` table (disease · stage · level), seeded from the matrix above; keep the month fields as fallback when no stage is known. | `prisma/schema.prisma`, `prisma/seed.ts`, `lib/data-fetcher-catalog.ts` | One source of truth for P1, P2, P4 |
@@ -194,7 +210,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 - [x] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
 - [x] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
 - [x] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
-- [ ] Leaf area per stage for P3: the copper mg/m² readout divides the dose by the leaf area and always assumes a full canopy (LAI = 4). Before P3 changes that formula, find a trusted source (e.g. an IFV or Italian extension table) giving the leaf area at each stage; one study with rough seasonal ranges is not enough.
+- [x] Leaf area per stage for P3: the copper mg/m² readout divides the dose by the leaf area and always assumes a full canopy (LAI = 4). Before P3 changes that formula, find a trusted source (e.g. an IFV or Italian extension table) giving the leaf area at each stage; one study with rough seasonal ranges is not enough.
 - [x] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
 
 - **Risk — stale stages:** a stage entered in April is wrong by June. Mitigation: 14-day hint to move to the next stage, 21-day expiry after which the parcel has no stage and calculations fall back to month windows; later P5 estimation.
@@ -223,6 +239,10 @@ Pages opened for this doc (as of 27 Sep 2026):
 16. [Vitisphere (29 Apr 2026) — Protection des pollinisateurs lors de la floraison de la vigne](https://www.vitisphere.com/actualite-106518--le-point-sur-la-protection-des-pollinisateurs-lors-de-la-floraison.html)
 17. [Regione Valle d'Aosta — Divieto di trattamenti durante la fioritura (L. 313/2004)](https://www.regione.vda.it/agricoltura/per_gli_agricoltori/apicoltura/divieto_trattamenti_in_fioritura_i.aspx)
 18. [Italiafruit News (2018) — Trattamenti in fioritura, ecco cosa fare](https://www.italiafruit.net/trattamenti-in-fioritura-ecco-cosa-fare)
+19. [Orlando et al. (2016) — Estimating Leaf Area Index in vineyards using the PocketLAI smart-app, *Sensors* (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5190985/)
+20. [Agridea (2011), after Viret & Siegfried (Agroscope) — Dosage des fongicides en fonction du stade phénologique](https://www.bonnepratiqueagricole.ch/fileadmin/Viticulture/Maladies/Dosage_des_fongicides_en_fonction_du_stade_phenologique.pdf)
+21. [Terra e Vita (Crivelli, 2022) — Peronospora, prodotti dosati sulla base dell'area fogliare](https://terraevita.edagricole.it/agrofarmaci-difesa/peronospora-prodotti-dosati-sulla-base-dellarea-fogliare/)
+22. [Ephytia (INRAE) — Vigne : adaptation des doses à la végétation à protéger (Optidose)](http://ephytia.inra.fr/fr/C/24093/Vigne-Adaptation-des-doses-a-la-vegetation-a-proteger)
 
 Cited but not opened (blocked to fetching; reference only):
 
