@@ -1,6 +1,7 @@
 import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
+import { getCurrentStagesByParcel } from "./phenology-observations";
 
 export * from "./data-fetcher-aggregations";
 export * from "./data-fetcher-catalog";
@@ -151,6 +152,11 @@ export const getTreatments = cache(async (userId: string) => {
 		select: treatmentSelect,
 		orderBy: [{ appliedDate: "desc" as const }, { dateMin: "desc" as const }],
 	});
+});
+
+// Current (non-expired) phenological stage per parcel, as of now.
+export const getStageByParcel = cache(async (userId: string) => {
+	return await getCurrentStagesByParcel(prisma, userId, new Date());
 });
 
 export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];

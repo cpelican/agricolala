@@ -1,4 +1,8 @@
-import { CultureType, ProductDoseUnit } from "@prisma/client";
+import {
+	CultureType,
+	PhenologicalStage,
+	ProductDoseUnit,
+} from "@prisma/client";
 import z from "zod";
 import { parcelBoundarySchema } from "./parcel-geometry";
 
@@ -53,6 +57,7 @@ export const createTreatmentSchema = z
 					)
 					.min(1, "At least one disease is required"),
 			),
+		phenologicalStage: z.nativeEnum(PhenologicalStage).optional(),
 		waterDose: z
 			.number()
 			.min(0.1, "Water dose must be at least 0.1L")
@@ -67,5 +72,15 @@ export const createTreatmentSchema = z
 					message: "All products must have a valid dose",
 				},
 			),
+	})
+	.strict();
+
+export const recordPhenologyObservationSchema = z
+	.object({
+		parcelId: z.string().min(1, "Parcel ID is required"),
+		stage: z.nativeEnum(PhenologicalStage),
+		observedAt: z
+			.union([z.string().transform((str) => new Date(str)), z.date()])
+			.default(() => new Date()),
 	})
 	.strict();

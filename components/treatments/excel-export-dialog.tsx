@@ -20,7 +20,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { downloadTreatmentsExcel } from "@/lib/actions";
+import { downloadTreatmentsExcel } from "@/lib/actions-export";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 

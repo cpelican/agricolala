@@ -10,6 +10,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { productApplicationsToGrams } from "./product-dose-to-grams";
 import { getProductDoseUnits } from "./data-fetcher-catalog";
 import { createTreatmentSchema, createParcelSchema } from "./actions-schemas";
+import { createObservationsForParcels } from "./phenology-observations";
 import {
 	computeParcelAreaM2,
 	computeParcelCentroid,
@@ -18,33 +19,7 @@ import {
 	getParcelAreaM2,
 } from "./parcel-geometry";
 import { taintUtils } from "@/lib/taint-utils";
-import { generateTreatmentsExcel } from "./excel-export";
 import { Errors } from "@/lib/constants";
-
-export async function downloadTreatmentsExcel(year: number) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
-		throw new Error(Errors.ACCESS_DENIED);
-	}
-
-	taintUtils.taintUserSession(session.user);
-
-	try {
-		const excelBuffer = await generateTreatmentsExcel(session.user.id, year);
-
-		// Return the Excel file as a base64 string for client-side download
-		const base64Data = excelBuffer.toString("base64");
-
-		return {
-			success: true,
-			data: base64Data,
-			filename: `treatments-${year}-${session.user.email}.xlsx`,
-		};
-	} catch (error) {
-		console.error("Error generating Excel file", error);
-		throw new Error(Errors.INTERNAL_SERVER);
-	}
-}
 
 export async function createTreatment(formData: FormData) {
 	const session = await getServerSession(authOptions);
@@ -62,6 +37,7 @@ export async function createTreatment(formData: FormData) {
 			String(formData.get("productApplications")),
 		);
 		const waterDose = parseFloat(String(formData.get("waterDose")));
+		const phenologicalStage = formData.get("phenologicalStage");
 
 		const validatedData = createTreatmentSchema.parse({
 			appliedDate: appliedDate ? new Date(appliedDate) : new Date(),
@@ -69,6 +45,9 @@ export async function createTreatment(formData: FormData) {
 			diseases,
 			productApplications,
 			waterDose,
+			phenologicalStage: phenologicalStage
+				? String(phenologicalStage)
+				: undefined,
 		});
 
 		const parcels = await prisma.parcel.findMany({
@@ -140,6 +119,14 @@ export async function createTreatment(formData: FormData) {
 					}));
 				}),
 			});
+
+			if (validatedData.phenologicalStage) {
+				await createObservationsForParcels(tx, {
+					parcelIds: parcels.map((parcel) => parcel.id),
+					stage: validatedData.phenologicalStage,
+					observedAt: validatedData.appliedDate,
+				});
+			}
 
 			return treatments;
 		});
