@@ -1,5 +1,21 @@
 # Design doc — Issue #66 & phenology-based disease sensitivity
 
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| LAI (Leaf Area Index) | Leaf surface (one side) per unit of ground surface, in m²/m². LAI = 4 means 4 m² of leaves above each m² of soil. The app uses it to turn a copper dose in g/ha into a deposit in mg/m² of leaf. |
+| Phenological stage | A visible step in the vine's yearly cycle (bud break, flowering, veraison…). |
+| BBCH scale | Standard two-digit code for phenological stages (00 = dormant bud, 65 = full flowering, 81 = start of ripening, 89 = ripe). |
+| Fruit set (nouaison, allegagione) | Flowers turn into small berries after flowering. |
+| Bunch closure | Berries grow until they touch each other and the bunch closes. |
+| Veraison (véraison, invaiatura) | Berries soften and change colour; ripening starts. |
+| Ontogenic resistance | Resistance that a tissue gains with age, e.g. berries become hard to infect a few weeks after bloom. |
+| Rachis / pedicel | The bunch's main stem / the small stalk of each berry. |
+| Primary infection | The first infections of the season, from spores that overwintered in the soil or on the wood. |
+| 3×10 rule | Rule of thumb for the first downy mildew infections: shoots ≥ 10 cm, ≥ 10 mm rain, about 10 °C. |
+| Wash-off | Share of the fungicide deposit removed by rain. |
+
 ## Context
 
 Let growers record each parcel's phenological stage (e.g. "flowering") so the app knows when vines are most susceptible to disease. Source: [cpelican/agricolala#66](https://github.com/cpelican/agricolala/issues/66) — "The user should inform the system about the phenological stage" (open, no comments).
