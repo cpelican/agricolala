@@ -75,6 +75,8 @@ Picture options (drawn in the [living doc](https://claude.ai/code/artifact/01967
 - **B · Coloured pictograms**: green shoots, yellow flowers, berries turning green to purple (~40 px); two rows of 4 on a phone.
 - **C · Compact stepper**: one line of 8 dots; only the picked stage shows its picture and name.
 
+Decision: option B, coloured pictograms (drawn in-house as small SVG icons).
+
 ### Data model
 
 A separate model rather than a column on `Treatment`: the stage belongs to the parcel at a date, a grower can observe it without treating, and one treatment can cover several parcels.
@@ -191,7 +193,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 - [x] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
 - [x] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
-- [ ] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
+- [x] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
 - [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
 - [x] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
 
