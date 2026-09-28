@@ -200,12 +200,25 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 | P9 | **Stage in the Excel export.** Add a "Phenological stage" column to exported treatments. | `lib/excel-export.ts` | Field-register (quaderno di campagna) readiness and traceability |
 | P10 | **Bee-protection rules at flowering.** When a parcel is at "Flowering", show a reminder in the treatment modal and never suggest insecticides/acaricides. Italy (L. 313/2004 + regional laws): insecticides and acaricides are banned from flower opening to petal fall; fungicides are allowed only without a bee-hazard label, and some regions add conditions. France (arrêté of 20 Nov 2021; vines classed as attractive to bees since the Conseil d'État decision of 26 Apr 2024): every product, fungicides included, only from 2 h before to 3 h after sunset, unless strong disease pressure justifies it and the reason is logged in the spray register. Decision: the app applies the strictest combination everywhere: during flowering, no insecticides/acaricides, only fungicides without a bee-hazard label, and the spray-weather widget only proposes the window from 2 h before to 3 h after sunset. | `add-treatment-dialog-form.tsx`, suggest-treatments cron, `lib/applicability.ts` (evening window) | Stays compliant while protecting the bunch at its most sensitive stage |
 
-### Suggested rollout
+### Delivery phases
 
-1. v1 — #66 as designed (observation model + picker in the treatment modal and on the parcel card) and P9.
-2. v2 — P6 catalogue, then P1 and P2 on the substance cards.
-3. v3 — P4 and P8 in the crons; P3 once per-stage LAI values are sourced.
-4. v4 — P5 estimation, reusing the confirmations from v1–v3 to check its accuracy.
+Four phases, each usable on its own and built on the previous one. The PRs below are planned, not opened yet.
+
+1. **v1 — Capture the stage** (issue #66). Nothing uses the stage yet; we start collecting data.
+    1. PR: `PhenologyObservation` model + migration, `lib/phenology.ts` (stage ↔ BBCH, ordering, next stage, 21-day expiry), `getStageByParcel`, stage saved by `createTreatment` and by a new `recordPhenologyObservation` action; Vitest + integration tests.
+    2. PR: stage picker with the option B pictograms in the treatment modal and "Update stage" on the parcel card; en/it labels; e2e test.
+    3. PR: "Phenological stage" column in the Excel export (P9).
+2. **v2 — Use the stage on the substance cards.**
+    1. PR: `DiseaseStageSensitivity` table seeded from the sensitivity matrix (P6).
+    2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
+    3. PR: risk timeline strip in each substance card (P2).
+3. **v3 — Use the stage in the background jobs and rules.**
+    1. PR: stage-driven treatment suggestions plus bee rules at flowering in the suggestions and the modal reminder (P4, P10).
+    2. PR: treatment window from bud break and evening-only window at flowering (P8, P10).
+    3. PR: copper readout scaled by the stage leaf-area fractions (P3).
+    4. PR: copper budget pacing in the cumulated-dose section (P7).
+4. **v4 — Estimate the stage automatically.**
+    1. PR: thermal-time stage estimate from `WeatherHistory` with a "Your vines are probably … — confirm?" prompt, checked against the stages growers entered in v1–v3 (P5).
 
 ## Open questions and risks
 
