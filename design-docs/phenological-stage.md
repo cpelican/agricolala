@@ -106,7 +106,7 @@ Generate the migration with `npx prisma migrate dev --name add_phenology_observa
 
 ### UX in the treatment modal
 
-1. New optional block after the date: "How do your vines look?" with a horizontal row of 8 illustrated cards.
+1. New optional block after the date: "How do your vines look?" with a horizontal row of 8 illustrated cards. One stage per treatment, recorded for every selected parcel (decided).
 2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
@@ -183,7 +183,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 ## Open questions and risks
 
-- [ ] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
+- [x] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
 - [ ] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
 - [ ] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
 - [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
