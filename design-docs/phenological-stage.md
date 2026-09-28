@@ -165,7 +165,7 @@ Qualitative synthesis of the sources above, mapped to the 8 stages proposed for 
 
 ## Propositions
 
-Once the stage is known, the biggest wins are making the substance cards say *when* protection matters (P1, P2) and replacing month windows with stage windows (P4, P6). Ordered by suggested priority.
+Once the stage is known, the biggest wins are making the substance cards say *when* protection matters (P1, P2) and replacing month windows with stage windows (P4, P6). Ordered by suggested priority. Every stage-based risk readout uses words ("higher risk", "critical period"), never numbers, and carries the same "experimental" label as coverage.
 
 | # | Proposition | Where in the code | What the grower gets |
 | --- | --- | --- | --- |
