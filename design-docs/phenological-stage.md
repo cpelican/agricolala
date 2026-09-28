@@ -110,7 +110,7 @@ Generate the migration with `npx prisma migrate dev --name add_phenology_observa
 2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
-5. Later (v1.1): a "Update stage" action on the parcel card, for observations without a treatment.
+5. Also in v1: an "Update stage" action on the parcel card, with the same picker, for observations without a treatment (new server action `recordPhenologyObservation(parcelId, stage, observedAt)`, `treatmentId` left empty).
 
 ### Server changes
 
@@ -176,7 +176,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 ### Suggested rollout
 
-1. v1 — #66 as designed (observation model + modal picker) and P9.
+1. v1 — #66 as designed (observation model + picker in the treatment modal and on the parcel card) and P9.
 2. v2 — P6 catalogue, then P1 and P2 on the substance cards.
 3. v3 — P4 and P8 in the crons; P3 once per-stage LAI values are sourced.
 4. v4 — P5 estimation, reusing the confirmations from v1–v3 to check its accuracy.
@@ -184,7 +184,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 ## Open questions and risks
 
 - [x] Is one stage per treatment enough, or do growers need a different stage per parcel in the same treatment (early vs late parcels)?
-- [ ] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
+- [x] Should the stage picker live only in the modal (as the issue says), or also on the parcel card from v1?
 - [ ] Who draws the 8 stage illustrations, and do we reuse open BBCH drawings or commission new ones?
 - [ ] Per-stage LAI values for P3 need a proper source before the copper formula changes.
 - [ ] Which region's bee rules apply to our users (e.g. Liguria's regional law), and do our copper/sulfur products carry any bee-hazard label?
