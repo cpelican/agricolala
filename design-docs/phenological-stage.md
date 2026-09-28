@@ -69,7 +69,9 @@ Eight choices, each an illustration + one plain label. The BBCH range is stored 
 
 Dormancy (BBCH 00–03) is implied when no observation exists for the current season.
 
-Picture options (drawn in the [living doc](https://claude.ai/code/artifact/01967489-de78-4e7c-a3b4-c41dc6ad499f)); all are kept small so the modal does not need much scrolling:
+Picture options; all are kept small so the modal does not need much scrolling:
+
+![Three compact ways to show the 8 vine stages: A outline pictograms, B coloured pictograms (chosen), C compact stepper](images/phenological-stage-pictures.svg)
 
 - **A · Outline pictograms**: monochrome line drawings (~40 px), same style as the app's icons; two rows of 4 on a phone.
 - **B · Coloured pictograms**: green shoots, yellow flowers, berries turning green to purple (~40 px); two rows of 4 on a phone.
