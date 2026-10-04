@@ -27,6 +27,8 @@ export class OpenMeteoClient {
 			if (!isRetryableStatus(response.status)) {
 				return response;
 			}
+			// Release the connection held by the unread body before retrying
+			await response.body?.cancel();
 			console.warn(`Open-Meteo responded ${response.status}, retrying once`);
 		} catch (error) {
 			// fetch only rejects on timeout/abort or network errors: all transient
