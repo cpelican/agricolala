@@ -18,6 +18,7 @@ ALTER TABLE IF EXISTS "ProductApplication" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Substance" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "SubstanceDose" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Disease" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "DiseaseStageSensitivity" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "AdminUser" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "UserSubstanceAggregation" ENABLE ROW LEVEL SECURITY;
@@ -400,6 +401,13 @@ CREATE POLICY "Authenticated users can view diseases" ON "Disease"
         (select auth.uid()) IS NOT NULL
     );
 
+DROP POLICY IF EXISTS "Authenticated users can view disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Authenticated users can view disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
+    );
+
 DROP POLICY IF EXISTS "Authenticated users can view substance doses" ON "SubstanceDose";
 CREATE POLICY "Authenticated users can view substance doses" ON "SubstanceDose"
     FOR SELECT USING (
@@ -454,6 +462,19 @@ CREATE POLICY "Only admins can update diseases" ON "Disease"
 
 DROP POLICY IF EXISTS "Only admins can delete diseases" ON "Disease";
 CREATE POLICY "Only admins can delete diseases" ON "Disease"
+    FOR DELETE USING (private.is_admin((select auth.uid())::text));
+
+-- DiseaseStageSensitivity modification policies
+DROP POLICY IF EXISTS "Only admins can insert disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can insert disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR INSERT WITH CHECK (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can update disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can update disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR UPDATE USING (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can delete disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can delete disease stage sensitivities" ON "DiseaseStageSensitivity"
     FOR DELETE USING (private.is_admin((select auth.uid())::text));
 
 -- SubstanceDose modification policies

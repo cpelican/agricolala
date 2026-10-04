@@ -171,9 +171,10 @@ model Disease {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   substances  Substance[] @relation("SubstanceDiseases")
-  // Months of disease presence, between 1 and 12
+  // Months of disease presence, between 1 and 12; fallback when a parcel has no current stage
   sensitivityMonthMin Int?
   sensitivityMonthMax Int?
+  stageSensitivities  DiseaseStageSensitivity[]
 }
 
 model UserSubstanceAggregation {
@@ -235,6 +236,28 @@ model PhenologyObservation {
   parcel     Parcel            @relation(fields: [parcelId], references: [id], onDelete: Cascade)
 
   @@index([parcelId, observedAt])
+}
+
+/// Qualitative risk level of a disease at a stage, from the sensitivity matrix in design-docs/phenological-stage.md.
+enum DiseaseSensitivityLevel {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+/// How sensitive the vine is to a disease at each phenological stage.
+model DiseaseStageSensitivity {
+  id        String                  @id @default(cuid())
+  diseaseId String
+  stage     PhenologicalStage
+  level     DiseaseSensitivityLevel
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  disease   Disease                 @relation(fields: [diseaseId], references: [id], onDelete: Cascade)
+
+  @@unique([diseaseId, stage])
 }
 
 enum CultureType {

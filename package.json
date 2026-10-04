@@ -27,6 +27,7 @@
 		"prepare": "husky",
 		"seed": "npx tsx prisma/seed.ts",
 		"studio": "npx prisma studio",
+		"seed:stage-sensitivities": "npx tsx scripts/seed-disease-stage-sensitivities.ts",
 		"populate-aggregations": "npx tsx scripts/update-substance-aggregations.ts",
 		"knip": "knip"
 	},

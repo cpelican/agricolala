@@ -3,6 +3,7 @@ import {
 	ProductDoseUnit,
 	SubstanceLimitUnit,
 } from "@prisma/client";
+import { getStageSensitivityRows } from "../lib/disease-stage-sensitivity";
 
 interface ReferenceDataClient {
 	disease: PrismaClient["disease"];
@@ -29,6 +30,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				description: "Powdery mildew, a fungal disease affecting grapevines",
 				sensitivityMonthMin: 4,
 				sensitivityMonthMax: 8,
+				stageSensitivities: { create: getStageSensitivityRows("Oidium") },
 			},
 		}),
 		db.disease.create({
@@ -37,6 +39,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				description: "Downy mildew, a fungal disease affecting grapevines",
 				sensitivityMonthMin: 3,
 				sensitivityMonthMax: 7,
+				stageSensitivities: { create: getStageSensitivityRows("Peronospora") },
 			},
 		}),
 	]);

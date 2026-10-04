@@ -29,22 +29,23 @@ What the issue asks for:
 
 ## Status
 
-As of 4 Oct 2026. v1 is almost done: growers can record the stage, but nothing uses it yet.
+As of 4 Oct 2026. v1 is done: growers record the stage and it shows in the Excel export. v2 has started: the per-stage disease levels are stored (P6), but no screen or job reads them yet.
 
 | Phase | PR | State |
 | --- | --- | --- |
 | v1 · PR 1 — model, helpers, actions | [cpelican/agricolala#69](https://github.com/cpelican/agricolala/pull/69) | Merged 28 Sep 2026 |
-| v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 28 Sep 2026 |
-| v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | [cpelican/agricolala#72](https://github.com/cpelican/agricolala/pull/72) | In review |
-| v2 – v4 | — | Not started |
+| v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 4 Oct 2026 |
+| v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | [cpelican/agricolala#72](https://github.com/cpelican/agricolala/pull/72) | Merged 4 Oct 2026 |
+| v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | v2 PR 1 | In review |
+| v2 · PR 2 – v4 | — | Not started |
 
 ## Current state
 
-Since #69 and #70 the app records each parcel's stage, but nothing uses it yet: disease risk is still a fixed calendar window, and coverage still assumes a fully grown canopy all season.
+Since #69, #70 and #72 the app records each parcel's stage and exports it. v2 PR 1 stores each disease's level per stage, but nothing reads it yet: disease risk is still a fixed calendar window, and coverage still assumes a fully grown canopy all season.
 
 | Area | Where | What it does today | Phenology gap |
 | --- | --- | --- | --- |
-| Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering" |
+| Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering". v2 PR 1 adds `DiseaseStageSensitivity` and `isDiseaseActive`; the month fields stay as fallback |
 | Treatment suggestions | `app/api/cron/suggest-treatments/route.ts` + `getCurrentDiseases` | Re-proposes last products once `daysBetweenApplications` has elapsed, if the disease month window is active | Same cadence at bud break and at flowering, although risk differs a lot |
 | Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | Measured LAI in 4 California vineyards ran from 0.7–1.0 early in the season to 2.4–4.0 at full canopy around veraison ([Kang et al. 2022, Irrigation Science](https://pmc.ncbi.nlm.nih.gov/articles/PMC9509311/)); leaves grown after a spray carry no deposit |
 | Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | Advice is the same whether the vine is at a low-risk or a critical stage |
@@ -53,7 +54,7 @@ Since #69 and #70 the app records each parcel's stage, but nothing uses it yet: 
 
 ## Proposed design for #66
 
-Shipped in #69 and #70; the subsections below describe what was built, with the changes made during review.
+Shipped in #69, #70 and #72; the subsections below describe what was built, with the changes made during review.
 
 Add an optional, picture-based "How do your vines look?" step to the treatment modal that writes one `PhenologyObservation` (parcel · stage · date) per selected parcel.
 
@@ -208,11 +209,35 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 | P3 | **Canopy-aware copper readout.** Scale the fixed LAI = 4 by the Swiss stage fractions (38 % first leaves → 75 % flowering → 100 % after flowering, see "Leaf area by stage") in `COPPER_LEAF_AREA_FACTOR`, and add a "new growth" dilution term during fast shoot growth (first leaves → bunch closing). | `lib/coverage-helpers.ts` (`calculateCoverageData`, forecast projection) | Early-season mg/m² no longer under-reported; mid-season decay reflects unprotected new leaves |
 | P4 | **Stage-driven treatment suggestions.** Filter active diseases by stage instead of month; in Very-high stages, suggest the next treatment at the shortest label interval, aiming for just before flowering starts (during flowering, only bee-compatible fungicides, see P10); stop suggesting sulfur for bunches after bunch closure. | `app/api/cron/suggest-treatments/route.ts`, `getCurrentDiseases` | Fewer pointless reminders early and late, tighter reminders around bloom |
 | P5 | **Stage estimate from temperature.** Use the daily temperatures already stored in `WeatherHistory` to accumulate thermal time and predict the next stage, then ask "Your vines are probably flowering — confirm?". Phenology models such as GFV/GSR ([Parker et al., via Europe PMC](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%22Grapevine%20Flowering%20Veraison%20model%22%20OR%20%22Grapevine%20Sugar%20Ripeness%22&resultType=core&format=json&pageSize=5)) are based on thermal time. | New `lib/phenology-estimate.ts` + weather cron `app/api/cron/fetch-weather-history` | Stage stays current even when the grower forgets to update it |
-| P6 | **Stage-based disease catalogue.** Add a `DiseaseStageSensitivity` table (disease · stage · level), seeded from the matrix above; keep the month fields as fallback when no stage is known. | `prisma/schema.prisma`, `prisma/seed.ts`, `lib/data-fetcher-catalog.ts` | One source of truth for P1, P2, P4 |
+| P6 | **Stage-based disease catalogue** (v2 PR 1, see [below](#stage-based-disease-catalogue-p6)). Add a `DiseaseStageSensitivity` table (disease · stage · level), seeded from the matrix above; keep the month fields as fallback when no stage is known. | `prisma/schema.prisma`, `prisma/seed.ts`, `lib/data-fetcher-catalog.ts` | One source of truth for P1, P2, P4 |
 | P7 | **Copper budget pacing.** In the cumulated-dose section, show how much of the yearly copper limit (4 kg/ha) is left for the flowering → bunch-closure window. | `components/substances/cumulated-dose-section.tsx` | Avoids exhausting the copper allowance before the critical window |
 | P8 | **Treatment window from bud break.** Start the applicability check at the first observed "Buds opening" instead of month 3. | `lib/applicability.ts` (`MIN_MONTH_FOR_TREATMENT`) | No spray-weather widget in a dormant vineyard |
 | P9 | **Stage in the Excel export.** Add a "Phenological stage" column to exported treatments. | `lib/excel-export.ts` | Field-register (quaderno di campagna) readiness and traceability |
 | P10 | **Bee-protection rules at flowering.** When a parcel is at "Flowering", show a reminder in the treatment modal and never suggest insecticides/acaricides. Italy (L. 313/2004 + regional laws): insecticides and acaricides are banned from flower opening to petal fall; fungicides are allowed only without a bee-hazard label, and some regions add conditions. France (arrêté of 20 Nov 2021; vines classed as attractive to bees since the Conseil d'État decision of 26 Apr 2024): every product, fungicides included, only from 2 h before to 3 h after sunset, unless strong disease pressure justifies it and the reason is logged in the spray register. Decision: the app applies the strictest combination everywhere: during flowering, no insecticides/acaricides, only fungicides without a bee-hazard label, and the spray-weather widget only proposes the window from 2 h before to 3 h after sunset. | `add-treatment-dialog-form.tsx`, suggest-treatments cron, `lib/applicability.ts` (evening window) | Stays compliant while protecting the bunch at its most sensitive stage |
+
+### Stage-based disease catalogue (P6)
+
+Built in v2 PR 1. Nothing calls it yet; P1, P2 and P4 will.
+
+- **Schema:** enum `DiseaseSensitivityLevel` (`NONE`, `LOW`, `MEDIUM`, `HIGH`, `VERY_HIGH`) and model `DiseaseStageSensitivity` (disease · stage · level, unique per disease and stage, deleted with the disease). Migration generated with `npx prisma migrate dev`; read-for-authenticated and admin-only write policies added to `scripts/supabase-setup.sql`.
+- **Matrix in code:** `DISEASE_STAGE_SENSITIVITY_MATRIX` in `lib/disease-stage-sensitivity.ts`, for Peronospora and Oidium only (black rot and botrytis are not in the catalogue). It is used by `prisma/seed.ts`, by the Vitest seed, and by `npm run seed:stage-sensitivities`. That script upserts the rows for the diseases already in the database without wiping anything, so it can run on production.
+- **Rounding:** when the matrix gives a range ("Low–Medium"), the level is rounded up, and where it notes leaf risk the level is the higher of bunch and leaf. So both mildews are `MEDIUM` at bunch closing, and sulfur stays suggested until veraison, as the field guides advise.
+
+| Stage | Peronospora | Oidium |
+| --- | --- | --- |
+| Buds opening | None | Low |
+| First leaves | Medium | Medium |
+| Flower clusters visible | High | High |
+| Flowering | Very high | Very high |
+| Small berries | Very high | Very high |
+| Bunch closing | Medium | Medium |
+| Colour change | Low | Low |
+| Ripe / harvested | Low | Low |
+
+- **Thresholds:** a disease counts as **active** from `MEDIUM` (`ACTIVE_FROM_LEVEL`, for P4), and a stage is a **critical period** from `HIGH` (`CRITICAL_FROM_LEVEL`, for the P1 chip).
+- **Helpers:** `getSensitivityLevel` gives a disease's level at a stage. `isDiseaseActive(disease, sensitivities, stage, date)` uses the stage level when the parcel has a current stage, and otherwise falls back to the month window. That covers an unknown or expired stage and a disease without rows.
+- **Fetcher:** `getCachedDiseaseStageSensitivities()` in `lib/data-fetcher-catalog.ts` (diseaseId, stage, level).
+- **Tests:** `lib/disease-stage-sensitivity.test.ts` checks the level order, that every stage is covered, and the stage-vs-month fallback. The integration test `lib/data-fetcher-catalog.test.ts` checks the fetcher returns the seeded rows.
 
 ### Delivery phases
 
@@ -221,9 +246,9 @@ Four phases, each usable on its own and built on the previous one. Progress is t
 1. **v1 — Capture the stage** (issue #66). Nothing uses the stage yet; we start collecting data.
     1. ✅ PR [#69](https://github.com/cpelican/agricolala/pull/69): `PhenologyObservation` model + migration, `lib/phenology.ts` (stage ↔ BBCH, ordering, next stage, 21-day expiry), `getStageByParcel`, stage saved by `createTreatment` and by a new `recordPhenologyObservation` action; Vitest + integration tests.
     2. ✅ PR [#70](https://github.com/cpelican/agricolala/pull/70): stage picker with the option B pictograms in the treatment modal, stage tiles and "Mark next stage" on the parcel pages; en/it labels; e2e test.
-    3. 🔄 PR [#72](https://github.com/cpelican/agricolala/pull/72) (in review): "Phenological stage" column in the Excel export (P9).
+    3. ✅ PR [#72](https://github.com/cpelican/agricolala/pull/72): "Phenological stage" column in the Excel export (P9).
 2. **v2 — Use the stage on the substance cards.**
-    1. PR: `DiseaseStageSensitivity` table seeded from the sensitivity matrix (P6).
+    1. 🔄 v2 PR 1 (in review): `DiseaseStageSensitivity` table seeded from the sensitivity matrix, `isDiseaseActive` with month fallback (P6).
     2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
     3. PR: risk timeline strip in each substance card (P2).
 3. **v3 — Use the stage in the background jobs and rules.**
