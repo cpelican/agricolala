@@ -40,12 +40,12 @@ export function StagePicker({
 							title={t(`phenology.stages.${stage}.description`)}
 							onClick={() => onChange(isSelected ? null : stage)}
 							className={cn(
-								"flex flex-col items-center gap-0.5 rounded-md border p-1 text-[11px] leading-tight transition-colors",
+								"flex flex-col items-center gap-0.5 rounded-lg border p-1 text-[11px] leading-tight transition-colors",
 								isSelected
 									? "border-primary bg-primary/10 font-medium"
 									: isSuggested
 										? "border-dashed border-primary hover:bg-muted"
-										: "border-transparent hover:bg-muted",
+										: "border-border/60 hover:bg-muted",
 							)}
 						>
 							<StageIcon stage={stage} className="h-9 w-9" />

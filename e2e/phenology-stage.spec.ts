@@ -58,4 +58,29 @@ test("updates the stage from the parcel card", async ({ page }) => {
 	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
 	await expect(main.getByText("Flowering", { exact: true })).toBeVisible();
 	await expect(main.getByText("Stage unknown")).toBeHidden();
+
+	// One tap marks the next stage.
+	await main.getByRole("button", { name: "Mark Small berries" }).click();
+	await expect(main.getByText("Small berries", { exact: true })).toBeVisible();
+	await expect(
+		main.getByRole("button", { name: "Mark Bunch closing" }),
+	).toBeVisible();
+});
+
+test("marks a stage from the parcel detail tiles", async ({ page }) => {
+	await page.goto("/en/parcels");
+	await page
+		.getByRole("main")
+		.getByRole("link", { name: new RegExp(seededParcel.name) })
+		.click();
+
+	const main = page.getByRole("main");
+	await expect(main.getByText("Growth stage")).toBeVisible();
+	const tile = main.getByRole("button", { name: "Mark Colour change" });
+	await expect(tile).toHaveAttribute("aria-pressed", "false");
+	await tile.click();
+
+	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
+	await expect(tile).toHaveAttribute("aria-pressed", "true");
+	await expect(main.getByText("Set today")).toBeVisible();
 });

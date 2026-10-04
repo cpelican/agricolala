@@ -7,7 +7,7 @@ import { type SubstanceData } from "../types";
 import { TreatmentCard } from "../treatments/treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
-import { ParcelStageRow } from "../phenology/parcel-stage-row";
+import { ParcelStageCard } from "../phenology/parcel-stage-card";
 import { AddTreatmentButton } from "../treatments/add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
@@ -44,15 +44,7 @@ export function ParcelDetail({
 					parcels={[]}
 					stages={currentStage ? [currentStage] : []}
 				/>
-				<Card>
-					<CardContent className="p-4">
-						<ParcelStageRow
-							parcelId={parcel.id}
-							parcelName={parcel.name}
-							observation={currentStage}
-						/>
-					</CardContent>
-				</Card>
+				<ParcelStageCard parcelId={parcel.id} observation={currentStage} />
 				{children}
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>

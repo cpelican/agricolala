@@ -1,7 +1,6 @@
 "use client";
 
 import type { PhenologicalStage } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,9 +13,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useTranslations } from "@/contexts/translations-context";
-import { useToast } from "@/hooks/use-toast";
-import { recordPhenologyObservation } from "@/lib/actions-phenology";
 import { StagePicker } from "./stage-picker";
+import { useRecordStage } from "./use-record-stage";
 
 interface UpdateStageDialogProps {
 	open: boolean;
@@ -35,29 +33,13 @@ export function UpdateStageDialog({
 	parcelName,
 	initialStage,
 }: UpdateStageDialogProps) {
-	const router = useRouter();
 	const { t } = useTranslations();
-	const { toast } = useToast();
+	const { recordStage, isSubmitting } = useRecordStage(parcelId);
 	const [stage, setStage] = useState(initialStage);
-	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSave = async () => {
-		if (!stage || isSubmitting) {
-			return;
-		}
-		setIsSubmitting(true);
-		const submitData = new FormData();
-		submitData.append("parcelId", parcelId);
-		submitData.append("stage", stage);
-		try {
-			await recordPhenologyObservation(submitData);
+		if (stage && (await recordStage(stage))) {
 			onOpenChange(false);
-			router.refresh();
-			toast({ title: t("phenology.saved") });
-		} catch {
-			toast({ variant: "destructive", title: t("phenology.saveFailed") });
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
