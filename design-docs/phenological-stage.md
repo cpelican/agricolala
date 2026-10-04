@@ -217,7 +217,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 ### Stage-based disease catalogue (P6)
 
-Built in v2 PR 1. Nothing calls it yet; P1, P2 and P4 will.
+Built in [#73](https://github.com/cpelican/agricolala/pull/73). Nothing calls it yet; P1, P2 and P4 will.
 
 - **Schema:** enum `DiseaseSensitivityLevel` (`NONE`, `LOW`, `MEDIUM`, `HIGH`, `VERY_HIGH`) and model `DiseaseStageSensitivity` (disease · stage · level, unique per disease and stage, deleted with the disease). Migration generated with `npx prisma migrate dev`; read-for-authenticated and admin-only write policies added to `scripts/supabase-setup.sql`.
 - **Matrix in code:** `DISEASE_STAGE_SENSITIVITY_MATRIX` in `lib/disease-stage-sensitivity.ts`, for Peronospora and Oidium only (black rot and botrytis are not in the catalogue). It is used by `prisma/seed.ts`, by the Vitest seed, and by `npm run seed:stage-sensitivities`. That script upserts the rows for the diseases already in the database without wiping anything, so it can run on production.
@@ -248,7 +248,7 @@ Four phases, each usable on its own and built on the previous one. Progress is t
     2. ✅ PR [#70](https://github.com/cpelican/agricolala/pull/70): stage picker with the option B pictograms in the treatment modal, stage tiles and "Mark next stage" on the parcel pages; en/it labels; e2e test.
     3. ✅ PR [#72](https://github.com/cpelican/agricolala/pull/72): "Phenological stage" column in the Excel export (P9).
 2. **v2 — Use the stage on the substance cards.**
-    1. 🔄 v2 PR 1 (in review): `DiseaseStageSensitivity` table seeded from the sensitivity matrix, `isDiseaseActive` with month fallback (P6).
+    1. 🔄 PR [#73](https://github.com/cpelican/agricolala/pull/73) (in review): `DiseaseStageSensitivity` table seeded from the sensitivity matrix, `isDiseaseActive` with month fallback (P6).
     2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
     3. PR: risk timeline strip in each substance card (P2).
 3. **v3 — Use the stage in the background jobs and rules.**
