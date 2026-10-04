@@ -77,3 +77,18 @@ export function getSuggestedStage(
 export function getStageExpiryCutoff(date: Date): Date {
 	return new Date(date.getTime() - STAGE_EXPIRES_AFTER_DAYS * MS_PER_DAY);
 }
+
+// Stage of a parcel at `date`: its latest observation on or before that date, unless
+// expired. `observations` belong to one parcel, oldest first (later entries win ties).
+export function getStageAt(
+	observations: { stage: PhenologicalStage; observedAt: Date }[],
+	date: Date,
+): PhenologicalStage | null {
+	const latest = observations.findLast(
+		(observation) => observation.observedAt <= date,
+	);
+	if (!latest || isObservationExpired(latest.observedAt, date)) {
+		return null;
+	}
+	return latest.stage;
+}

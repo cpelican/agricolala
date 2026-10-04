@@ -7,6 +7,7 @@ import {
 	STAGE_HINT_NEXT_AFTER_DAYS,
 	compareStages,
 	getNextStage,
+	getStageAt,
 	getStageExpiryCutoff,
 	getSuggestedStage,
 	isObservationExpired,
@@ -113,6 +114,52 @@ describe("expiry and suggestions", () => {
 					stage: PhenologicalStage.FLOWERING,
 					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1),
 				},
+				NOW,
+			),
+		).toBeNull();
+	});
+});
+
+describe("getStageAt", () => {
+	const observations = [
+		{ stage: PhenologicalStage.FLOWER_CLUSTERS, observedAt: daysAgo(10) },
+		{ stage: PhenologicalStage.FLOWERING, observedAt: daysAgo(2) },
+		{ stage: PhenologicalStage.FRUIT_SET, observedAt: daysAgo(-3) },
+	];
+
+	test("returns the latest observation on or before the date", () => {
+		expect(getStageAt(observations, NOW)).toBe(PhenologicalStage.FLOWERING);
+		expect(getStageAt(observations, daysAgo(2))).toBe(
+			PhenologicalStage.FLOWERING,
+		);
+		expect(getStageAt(observations, daysAgo(5))).toBe(
+			PhenologicalStage.FLOWER_CLUSTERS,
+		);
+	});
+
+	test("lets the later entry win when two share the same date", () => {
+		expect(
+			getStageAt(
+				[
+					{ stage: PhenologicalStage.FLOWERING, observedAt: daysAgo(1) },
+					{ stage: PhenologicalStage.FRUIT_SET, observedAt: daysAgo(1) },
+				],
+				NOW,
+			),
+		).toBe(PhenologicalStage.FRUIT_SET);
+	});
+
+	test("returns null before the first observation or once it expired", () => {
+		expect(getStageAt(observations, daysAgo(11))).toBeNull();
+		expect(getStageAt([], NOW)).toBeNull();
+		expect(
+			getStageAt(
+				[
+					{
+						stage: PhenologicalStage.FLOWERING,
+						observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1),
+					},
+				],
 				NOW,
 			),
 		).toBeNull();

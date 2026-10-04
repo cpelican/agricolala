@@ -27,9 +27,20 @@ What the issue asks for:
 - A stored record of **parcel · stage · date**.
 - Goal: give the system better knowledge of the vine's sensitivity to diseases.
 
+## Status
+
+As of 4 Oct 2026. v1 is almost done: growers can record the stage, but nothing uses it yet.
+
+| Phase | PR | State |
+| --- | --- | --- |
+| v1 · PR 1 — model, helpers, actions | [cpelican/agricolala#69](https://github.com/cpelican/agricolala/pull/69) | Merged 28 Sep 2026 |
+| v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 28 Sep 2026 |
+| v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | `feature/phenology-excel-export` | In review |
+| v2 – v4 | — | Not started |
+
 ## Current state
 
-Today the app has no notion of vine development: disease risk is a fixed calendar window, and coverage assumes a fully grown canopy all season.
+Since #69 and #70 the app records each parcel's stage, but nothing uses it yet: disease risk is still a fixed calendar window, and coverage still assumes a fully grown canopy all season.
 
 | Area | Where | What it does today | Phenology gap |
 | --- | --- | --- | --- |
@@ -37,10 +48,12 @@ Today the app has no notion of vine development: disease risk is a fixed calenda
 | Treatment suggestions | `app/api/cron/suggest-treatments/route.ts` + `getCurrentDiseases` | Re-proposes last products once `daysBetweenApplications` has elapsed, if the disease month window is active | Same cadence at bud break and at flowering, although risk differs a lot |
 | Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | Measured LAI in 4 California vineyards ran from 0.7–1.0 early in the season to 2.4–4.0 at full canopy around veraison ([Kang et al. 2022, Irrigation Science](https://pmc.ncbi.nlm.nih.gov/articles/PMC9509311/)); leaves grown after a spray carry no deposit |
 | Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | Advice is the same whether the vine is at a low-risk or a critical stage |
-| Treatment modal | `components/treatments/add-treatment-dialog-form.tsx`, `createTreatmentSchema` in `lib/actions-schemas.ts` | Date, parcels, products + doses, diseases, water dose | No stage field |
+| Treatment modal | `components/treatments/add-treatment-dialog-form.tsx`, `createTreatmentSchema` in `lib/actions-schemas.ts` | Date, parcels, products + doses, diseases, water dose | Done in #70: optional stage field (`treatment-stage-field.tsx`) |
 | Treatment window | `lib/applicability.ts` | Hard-coded months 3–10 plus wind and rain checks | Could start at bud break instead of March |
 
 ## Proposed design for #66
+
+Shipped in #69 and #70; the subsections below describe what was built, with the changes made during review.
 
 Add an optional, picture-based "How do your vines look?" step to the treatment modal that writes one `PhenologyObservation` (parcel · stage · date) per selected parcel.
 
@@ -108,28 +121,33 @@ model PhenologyObservation {
 }
 ```
 
-Generate the migration with `npx prisma migrate dev --name add_phenology_observation` (no hand-written SQL). Add a `PHENOLOGY_STAGE_BBCH` record in `lib/phenology.ts` that maps each enum value to its BBCH range and illustration.
+Migration generated with `npx prisma migrate dev` (no hand-written SQL). `lib/phenology.ts` holds the stage order, `PHENOLOGY_STAGE_BBCH` (enum → BBCH range), the 14-day hint and 21-day expiry rules, and `getStageAt` (stage of a parcel at a date). The pictograms live in `components/phenology/stage-icon.tsx`.
 
 ### UX in the treatment modal
 
-1. New optional block after the date: "How do your vines look?" with a horizontal row of 8 illustrated cards. One stage per treatment, recorded for every selected parcel (decided).
-2. Pre-select the parcel's last known stage; if older than 14 days, highlight the next stage as a suggestion. After 21 days without a new observation the stage expires: the parcel shows "Stage unknown" and the picker has no pre-selection.
+1. New optional block after the date: "How do your vines look?" with 2 rows of 4 illustrated tiles. One stage per treatment, recorded for every selected parcel (decided).
+2. Nothing is selected by default (changed in #70): the selected parcels' last stage, as of the treatment date, is only **suggested** with a dashed outline. If it is older than 14 days, the next stage is suggested instead; after 21 days the stage expires, the parcel shows "Stage unknown" and nothing is suggested. A stage is saved only when the grower taps it, so an untouched picker never re-records a stage and a backdated treatment does not get today's stage.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
-5. Also in v1: an "Update stage" action on the parcel card, with the same picker, for observations without a treatment (new server action `recordPhenologyObservation(parcelId, stage, observedAt)`).
+5. Parcel pages, for observations without a treatment (server action `recordPhenologyObservation` in `lib/actions-phenology.ts`):
+    - List card: current stage or "Stage unknown", plus a dashed **Mark <next stage>** pill; when the stage is unknown or ripe, the pill opens the full **Update stage** picker.
+    - Detail page: "Growth stage" with "Set N days ago" and the 8 stages as tiles.
+    - Tapping a tile or the pill opens a confirmation dialog (picture, description, current stage); only **Confirm** records it. A newer observation also corrects a wrong one.
 
 ### Server changes
 
-- `createTreatmentSchema`: add `phenologicalStage: z.nativeEnum(PhenologicalStage).optional()`.
-- `createTreatment` in `lib/actions.ts`: inside the existing write, create one observation per `parcelIds` entry with `observedAt = appliedDate`.
-- New fetcher `getStageByParcel(userId, date)` in `lib/data-fetcher.ts`: latest observation with `observedAt <= date` per parcel, cached like the other fetchers. An observation older than 21 days (a constant, easy to tune) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows. Types derived from `Prisma.PhenologyObservationGetPayload`, not a hand-written interface.
+- `createTreatmentSchema`: optional `phenologicalStage`.
+- `createTreatment` in `lib/actions.ts`: in the same transaction, one observation per `parcelIds` entry with `observedAt = appliedDate`.
+- DB queries in `lib/phenology-observations.ts`: observations for a treatment, a standalone observation (own parcels only), the current stage per parcel, and the observations for a period (used by the export).
+- Fetcher `getStageByParcel(userId)` in `lib/data-fetcher.ts`: latest non-expired observation per parcel as of now, cached like the other fetchers. An observation older than 21 days (`STAGE_EXPIRES_AFTER_DAYS`) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows. Types derived from the query (`Awaited<ReturnType<…>>`), not a hand-written interface.
+- Excel export (`lib/excel-export.ts`, v1 PR 3): "Product Applications" sheet gets a `phenologicalStage` column, e.g. "Flowering (BBCH 60–69)": the parcel's stage on the treatment date, by the same rule (latest observation on or before the date, empty if none or expired). English labels, like the rest of the export.
 - i18n: stage labels and descriptions in `locales/en.json` and `locales/it.json`.
 
 ### Testing
 
-- Vitest: schema accepts/omits the stage; `lib/phenology.ts` helpers (stage ordering, "next stage", staleness).
-- Integration: `createTreatment` with 2 parcels writes one observation per parcel.
-- E2e (UX change, per `e2e/TESTING.md`): pick a stage in the modal, save, reopen — the stage is pre-selected.
+- Vitest: schema accepts/omits the stage; `lib/phenology.test.ts` (stage ordering, next stage, staleness, `getStageAt`).
+- Integration (`lib/phenology-observations.test.ts`): one observation per treated parcel, other users' parcels refused, latest vs expired vs future observations, observations for an export period.
+- E2e (`e2e/phenology-stage.spec.ts`): a stage picked in the modal is suggested (not saved) next time; Update stage then Mark next stage from the parcel card; detail tile with Cancel then Confirm.
 
 ## Research: disease sensitivity by phenological stage
 
@@ -198,12 +216,12 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 ### Delivery phases
 
-Four phases, each usable on its own and built on the previous one. The PRs below are planned, not opened yet.
+Four phases, each usable on its own and built on the previous one. Progress is tracked in [Status](#status); unmarked PRs are planned, not opened yet.
 
 1. **v1 — Capture the stage** (issue #66). Nothing uses the stage yet; we start collecting data.
-    1. PR: `PhenologyObservation` model + migration, `lib/phenology.ts` (stage ↔ BBCH, ordering, next stage, 21-day expiry), `getStageByParcel`, stage saved by `createTreatment` and by a new `recordPhenologyObservation` action; Vitest + integration tests.
-    2. PR: stage picker with the option B pictograms in the treatment modal and "Update stage" on the parcel card; en/it labels; e2e test.
-    3. PR: "Phenological stage" column in the Excel export (P9).
+    1. ✅ PR [#69](https://github.com/cpelican/agricolala/pull/69): `PhenologyObservation` model + migration, `lib/phenology.ts` (stage ↔ BBCH, ordering, next stage, 21-day expiry), `getStageByParcel`, stage saved by `createTreatment` and by a new `recordPhenologyObservation` action; Vitest + integration tests.
+    2. ✅ PR [#70](https://github.com/cpelican/agricolala/pull/70): stage picker with the option B pictograms in the treatment modal, stage tiles and "Mark next stage" on the parcel pages; en/it labels; e2e test.
+    3. 🔄 PR (in review): "Phenological stage" column in the Excel export (P9).
 2. **v2 — Use the stage on the substance cards.**
     1. PR: `DiseaseStageSensitivity` table seeded from the sensitivity matrix (P6).
     2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).

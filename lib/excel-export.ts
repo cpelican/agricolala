@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import type { PhenologicalStage } from "@prisma/client";
 import { prisma } from "./prisma";
 import {
 	getCachedSubstances,
@@ -8,6 +9,9 @@ import {
 } from "./data-fetcher";
 import { GRAMS_PER_KILOGRAM } from "./constants";
 import { calculateSubstanceData } from "./substance-helpers";
+import { PHENOLOGY_STAGE_BBCH, getStageAt } from "./phenology";
+import { getObservationsForPeriod } from "./phenology-observations";
+import en from "@/locales/en.json";
 
 interface ProductApplicationExportData {
 	treatmentId: string;
@@ -17,6 +21,7 @@ interface ProductApplicationExportData {
 	brand: string;
 	dose: number;
 	substances: string;
+	phenologicalStage: string;
 }
 
 interface SubstanceUsageExportData {
@@ -28,30 +33,49 @@ interface SubstanceUsageExportData {
 	monthlyUsage: string;
 }
 
+// e.g. "Flowering (BBCH 60–69)"; empty when the parcel had no current stage.
+function formatStage(stage: PhenologicalStage | null): string {
+	if (!stage) {
+		return "";
+	}
+	const { min, max } = PHENOLOGY_STAGE_BBCH[stage];
+	return `${en.phenology.stages[stage].label} (BBCH ${min}–${max})`;
+}
+
 export async function generateTreatmentsExcel(userId: string, year: number) {
-	const [treatments, substances, compositions, parcels] = await Promise.all([
-		prisma.treatment.findMany({
-			where: {
-				userId,
-				appliedDate: {
-					gte: new Date(year, 0, 1),
-					lte: new Date(year, 11, 31),
+	const yearStart = new Date(year, 0, 1);
+	const yearEnd = new Date(year, 11, 31);
+	const [treatments, substances, compositions, parcels, observations] =
+		await Promise.all([
+			prisma.treatment.findMany({
+				where: {
+					userId,
+					appliedDate: {
+						gte: yearStart,
+						lte: yearEnd,
+					},
 				},
-			},
-			select: treatmentSelect,
-			orderBy: {
-				appliedDate: "desc",
-			},
-		}),
-		getCachedSubstances(),
-		getCachedCompositions(),
-		getParcels(userId),
-	]);
+				select: treatmentSelect,
+				orderBy: {
+					appliedDate: "desc",
+				},
+			}),
+			getCachedSubstances(),
+			getCachedCompositions(),
+			getParcels(userId),
+			getObservationsForPeriod(prisma, userId, yearStart, yearEnd),
+		]);
 
 	const productApplicationsData: ProductApplicationExportData[] = [];
 	const substanceUsageData: SubstanceUsageExportData[] = [];
 
 	treatments.forEach((treatment) => {
+		const stage = treatment.appliedDate
+			? getStageAt(
+					observations.filter((o) => o.parcelId === treatment.parcel.id),
+					treatment.appliedDate,
+				)
+			: null;
 		treatment.productApplications.forEach((application) => {
 			const substances = application.product.composition
 				.map((comp) => {
@@ -71,6 +95,7 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 				brand: application.product.brand,
 				dose: application.dose,
 				substances,
+				phenologicalStage: formatStage(stage),
 			});
 		});
 	});
