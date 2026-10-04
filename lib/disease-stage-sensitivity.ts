@@ -23,6 +23,8 @@ export const CRITICAL_FROM_LEVEL = DiseaseSensitivityLevel.HIGH;
 // Sensitivity matrix from design-docs/phenological-stage.md, for the diseases in the
 // catalogue, keyed by disease name. Ranges in the matrix ("Low–Medium") are rounded
 // up, and the level is the higher of bunch and leaf risk where the matrix notes it.
+// Only used when a parcel has a current stage: with no stage (never set, or expired
+// after STAGE_EXPIRES_AFTER_DAYS) it is ignored and the month windows apply.
 export const DISEASE_STAGE_SENSITIVITY_MATRIX = {
 	Peronospora: {
 		BUD_BREAK: DiseaseSensitivityLevel.NONE,
