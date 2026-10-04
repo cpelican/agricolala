@@ -76,3 +76,21 @@ export async function getCurrentStagesByParcel(
 export type CurrentParcelStage = Awaited<
 	ReturnType<typeof getCurrentStagesByParcel>
 >[number];
+
+// Every observation of the user's parcels that can give a stage to a date in
+// [from, to], i.e. including the expiry window before `from`. Oldest first.
+export async function getObservationsForPeriod(
+	db: DbClient,
+	userId: string,
+	from: Date,
+	to: Date,
+) {
+	return db.phenologyObservation.findMany({
+		where: {
+			parcel: { userId },
+			observedAt: { gte: getStageExpiryCutoff(from), lte: to },
+		},
+		orderBy: [{ observedAt: "asc" }, { createdAt: "asc" }],
+		select: { parcelId: true, stage: true, observedAt: true },
+	});
+}

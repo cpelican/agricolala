@@ -7,6 +7,7 @@ import {
 	createObservationsForParcels,
 	createStandaloneObservation,
 	getCurrentStagesByParcel,
+	getObservationsForPeriod,
 } from "./phenology-observations";
 import { STAGE_EXPIRES_AFTER_DAYS } from "./phenology";
 
@@ -164,5 +165,58 @@ describe("[Integration] phenology observations", () => {
 		expect(
 			await getCurrentStagesByParcel(testPrisma, testUser.id, NOW),
 		).toEqual([]);
+	});
+
+	test("lists the user's observations for a period, oldest first", async () => {
+		const { testUser, testParcel } = testData;
+		const otherUser = await createOtherUser();
+		const otherParcel = await createParcel(otherUser.id);
+		const from = daysAgo(30);
+
+		await testPrisma.phenologyObservation.createMany({
+			data: [
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.FLOWERING,
+					observedAt: daysAgo(2),
+				},
+				// Within the expiry window before `from`: still gives a stage at `from`
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.BUD_BREAK,
+					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS),
+				},
+				// Too old to matter for the period
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.BUD_BREAK,
+					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS + 1),
+				},
+				// After the period
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.FRUIT_SET,
+					observedAt: new Date(NOW.getTime() + MS_PER_DAY),
+				},
+				// Another user's parcel
+				{
+					parcelId: otherParcel.id,
+					stage: PhenologicalStage.FLOWERING,
+					observedAt: daysAgo(1),
+				},
+			],
+		});
+
+		const observations = await getObservationsForPeriod(
+			testPrisma,
+			testUser.id,
+			from,
+			NOW,
+		);
+
+		expect(observations.map((o) => o.stage)).toEqual([
+			PhenologicalStage.BUD_BREAK,
+			PhenologicalStage.FLOWERING,
+		]);
 	});
 });
