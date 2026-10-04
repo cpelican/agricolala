@@ -1,13 +1,16 @@
 "use client";
 
+import type { PhenologicalStage } from "@prisma/client";
+import { useState } from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslations } from "@/contexts/translations-context";
 import { PHENOLOGICAL_STAGES } from "@/lib/phenology";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
 import { cn } from "@/lib/utils";
+import { ConfirmStageDialog } from "./confirm-stage-dialog";
 import { StageIcon } from "./stage-icon";
 import { formatStageSetAgo } from "./stage-set-ago";
-import { useRecordStage } from "./use-record-stage";
 
 interface ParcelStageCardProps {
 	parcelId: string;
@@ -16,13 +19,15 @@ interface ParcelStageCardProps {
 }
 
 // Parcel detail: the season as 8 tiles, the current stage highlighted. Tapping
-// another tile records it as today's stage.
+// another tile asks for confirmation, then records it as today's stage.
 export function ParcelStageCard({
 	parcelId,
 	observation,
 }: ParcelStageCardProps) {
 	const { t } = useTranslations();
-	const { recordStage, isSubmitting } = useRecordStage(parcelId);
+	const [pendingStage, setPendingStage] = useState<PhenologicalStage | null>(
+		null,
+	);
 	const current = observation?.stage ?? null;
 
 	return (
@@ -56,10 +61,9 @@ export function ParcelStageCard({
 								title={label}
 								aria-label={t("phenology.markStage").replace("{stage}", label)}
 								aria-pressed={isCurrent}
-								disabled={isSubmitting}
 								onClick={() => {
 									if (!isCurrent) {
-										void recordStage(stage);
+										setPendingStage(stage);
 									}
 								}}
 								className={cn(
@@ -74,6 +78,12 @@ export function ParcelStageCard({
 						);
 					})}
 				</div>
+				<ConfirmStageDialog
+					parcelId={parcelId}
+					stage={pendingStage}
+					currentStage={current}
+					onClose={() => setPendingStage(null)}
+				/>
 			</CardContent>
 		</Card>
 	);

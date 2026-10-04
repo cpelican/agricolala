@@ -59,8 +59,12 @@ test("updates the stage from the parcel card", async ({ page }) => {
 	await expect(main.getByText("Flowering", { exact: true })).toBeVisible();
 	await expect(main.getByText("Stage unknown")).toBeHidden();
 
-	// One tap marks the next stage.
+	// The pill marks the next stage after a confirmation showing its description.
 	await main.getByRole("button", { name: "Mark Small berries" }).click();
+	const confirm = page.getByRole("dialog", { name: "Mark Small berries?" });
+	await expect(confirm.getByText("Berries set, up to pea size")).toBeVisible();
+	await confirm.getByRole("button", { name: "Confirm" }).click();
+	await expect(confirm).toBeHidden();
 	await expect(main.getByText("Small berries", { exact: true })).toBeVisible();
 	await expect(
 		main.getByRole("button", { name: "Mark Bunch closing" }),
@@ -80,6 +84,17 @@ test("marks a stage from the parcel detail tiles", async ({ page }) => {
 	await expect(tile).toHaveAttribute("aria-pressed", "false");
 	await tile.click();
 
+	// Cancel leaves the stage unchanged.
+	const confirm = page.getByRole("dialog", { name: "Mark Colour change?" });
+	await expect(
+		confirm.getByText("Berries soften and change colour"),
+	).toBeVisible();
+	await confirm.getByRole("button", { name: "Cancel" }).click();
+	await expect(confirm).toBeHidden();
+	await expect(tile).toHaveAttribute("aria-pressed", "false");
+
+	await tile.click();
+	await confirm.getByRole("button", { name: "Confirm" }).click();
 	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
 	await expect(tile).toHaveAttribute("aria-pressed", "true");
 	await expect(main.getByText("Set today")).toBeVisible();
