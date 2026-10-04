@@ -470,5 +470,63 @@
 		"optimalToday": "Ottimale oggi",
 		"experimental": "Sperimentale",
 		"experimentalDisclaimer": "Stima sperimentale basata sui dati meteo e su un modello semplificato di dilavamento. Usala come indicazione e verifica l'etichetta del prodotto e il vigneto prima di decidere."
+	},
+	"phenology": {
+		"title": "Come sono le tue viti?",
+		"optional": "Facoltativo, una fase per tutte le parcelle selezionate",
+		"skip": "Salta",
+		"suggested": "Suggerita",
+		"suggestion": "Suggerita: {stage}. Toccala per registrarla con questo trattamento.",
+		"suggestedHint": "L'ultima fase ha più di 14 giorni: è ora della successiva?",
+		"earlierWarning": "Precedente a quella registrata il {date}: è corretto?",
+		"growthStage": "Fase di crescita",
+		"setToday": "Impostata oggi",
+		"setYesterday": "Impostata ieri",
+		"setDaysAgo": "Impostata {days} giorni fa",
+		"markStage": "Segna {stage}",
+		"confirmTitle": "Segnare {stage}?",
+		"confirmCurrent": "Attuale: {stage}",
+		"confirm": "Conferma",
+		"unknown": "Fase sconosciuta",
+		"updateStage": "Aggiorna fase",
+		"updateStageDescription": "Come sono oggi le viti di {parcel}?",
+		"save": "Salva",
+		"cancel": "Annulla",
+		"saved": "Fase aggiornata",
+		"saveFailed": "Impossibile aggiornare la fase",
+		"stages": {
+			"BUD_BREAK": {
+				"label": "Germogliamento",
+				"description": "Punta verde visibile attraverso la lanugine"
+			},
+			"LEAVES_UNFOLDING": {
+				"label": "Prime foglie",
+				"description": "2–6 foglie distese, germogli sotto i 20 cm"
+			},
+			"FLOWER_CLUSTERS": {
+				"label": "Grappoli visibili",
+				"description": "Grappoli separati, fiori ancora chiusi"
+			},
+			"FLOWERING": {
+				"label": "Fioritura",
+				"description": "Cappucci che cadono, polline visibile"
+			},
+			"FRUIT_SET": {
+				"label": "Allegagione",
+				"description": "Acini formati, fino a grandezza pisello"
+			},
+			"BUNCH_CLOSURE": {
+				"label": "Chiusura grappolo",
+				"description": "Gli acini si toccano"
+			},
+			"VERAISON": {
+				"label": "Invaiatura",
+				"description": "Gli acini si ammorbidiscono e cambiano colore"
+			},
+			"RIPE": {
+				"label": "Maturazione",
+				"description": "Pronta per la vendemmia o raccolta"
+			}
+		}
 	}
 }

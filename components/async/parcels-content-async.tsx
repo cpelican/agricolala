@@ -1,4 +1,4 @@
-import { getParcels } from "@/lib/data-fetcher";
+import { getParcels, getStageByParcel } from "@/lib/data-fetcher";
 import { ParcelsContent } from "../parcels/parcels-content";
 
 interface ParcelsContentAsyncProps {
@@ -8,6 +8,9 @@ interface ParcelsContentAsyncProps {
 export async function ParcelsContentAsync({
 	userId,
 }: ParcelsContentAsyncProps) {
-	const parcels = await getParcels(userId);
-	return <ParcelsContent parcels={parcels} />;
+	const [parcels, stages] = await Promise.all([
+		getParcels(userId),
+		getStageByParcel(userId),
+	]);
+	return <ParcelsContent parcels={parcels} stages={stages} />;
 }

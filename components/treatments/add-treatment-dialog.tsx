@@ -20,6 +20,7 @@ import {
 import { useTranslations } from "@/contexts/translations-context";
 import { useToast } from "@/hooks/use-toast";
 import { createTreatment } from "@/lib/actions";
+import type { CurrentParcelStage } from "@/lib/phenology-observations";
 import type {
 	ParcelWithTreatments,
 	getCachedCompositions,
@@ -36,6 +37,15 @@ import {
 	type AddTreatmentDialogFormErrors,
 	isProductDoseUnit,
 } from "./add-treatment-dialog-form";
+import {
+	buildDefaultFormData,
+	defaultErrors,
+	validateTreatmentForm,
+} from "./add-treatment-form-state";
+import {
+	TreatmentStageField,
+	useTreatmentStage,
+} from "./treatment-stage-field";
 
 interface AddTreatmentDialogProps {
 	open: boolean;
@@ -48,26 +58,8 @@ interface AddTreatmentDialogProps {
 		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
 	>;
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
-}
-
-const defaultErrors: AddTreatmentDialogFormErrors = {
-	appliedDate: [],
-	parcelIds: [],
-	diseases: [],
-	productApplications: [],
-	waterDose: [],
-};
-
-function buildDefaultFormData(parcelId?: string): AddTreatmentDialogFormData {
-	return {
-		appliedDate: new Date(),
-		diseases: [{ diseaseId: "" }],
-		productApplications: [
-			{ productId: "", dose: 0, doseUnit: ProductDoseUnit.GRAM },
-		],
-		waterDose: 10,
-		parcelIds: parcelId ? [parcelId] : [""],
-	};
+	// Current stage of the user's parcels, to pre-select the picker.
+	stages: CurrentParcelStage[];
 }
 
 export function AddTreatmentDialog({
@@ -79,6 +71,7 @@ export function AddTreatmentDialog({
 	products,
 	substances,
 	compositions,
+	stages,
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const { t } = useTranslations();
@@ -215,35 +208,18 @@ export function AddTreatmentDialog({
 		parcels || [],
 	);
 
+	const selectedParcelIds = parcelId
+		? [parcelId]
+		: formData.parcelIds.filter(Boolean);
+	const stageState = useTreatmentStage(
+		stages,
+		selectedParcelIds,
+		formData.appliedDate,
+		formData.phenologicalStage,
+	);
+
 	const validateForm = () => {
-		const nextErrors: AddTreatmentDialogFormErrors = {
-			appliedDate: [],
-			parcelIds: [],
-			diseases: [],
-			productApplications: [],
-			waterDose: [],
-		};
-
-		if (!formData.appliedDate) {
-			nextErrors.appliedDate.push(
-				t("treatments.errors.applicationDateRequired"),
-			);
-		}
-		if (formData.parcelIds.filter(Boolean).length === 0) {
-			nextErrors.parcelIds.push(t("treatments.errors.parcelRequired"));
-		}
-		if (!formData.diseases.some((d) => d.diseaseId)) {
-			nextErrors.diseases.push(t("treatments.errors.diseaseRequired"));
-		}
-		if (!formData.productApplications.some((p) => p.productId && p.dose > 0)) {
-			nextErrors.productApplications.push(
-				t("treatments.errors.productRequired"),
-			);
-		}
-		if (formData.waterDose <= 0) {
-			nextErrors.waterDose.push(t("treatments.errors.waterDoseRequired"));
-		}
-
+		const nextErrors = validateTreatmentForm(formData, t);
 		setErrors(nextErrors);
 		return Object.values(nextErrors).flat().length === 0;
 	};
@@ -265,9 +241,7 @@ export function AddTreatmentDialog({
 			"appliedDate",
 			format(formData.appliedDate, "yyyy-MM-dd"),
 		);
-		(parcelId ? [parcelId] : formData.parcelIds.filter(Boolean)).forEach((id) =>
-			submitData.append("parcelIds", id),
-		);
+		selectedParcelIds.forEach((id) => submitData.append("parcelIds", id));
 		submitData.append(
 			"diseases",
 			JSON.stringify(dedupeDiseaseEntries(formData.diseases)),
@@ -277,6 +251,9 @@ export function AddTreatmentDialog({
 			JSON.stringify(formData.productApplications),
 		);
 		submitData.append("waterDose", formData.waterDose.toString());
+		if (stageState.value) {
+			submitData.append("phenologicalStage", stageState.value);
+		}
 
 		// Close and reset right away for a fast feel; keep a snapshot so the
 		// user's input can be restored if the server rejects the treatment.
@@ -341,6 +318,15 @@ export function AddTreatmentDialog({
 					}
 					onAppliedDateChange={(value) =>
 						setFormData((prev) => ({ ...prev, appliedDate: value }))
+					}
+					stageField={
+						<TreatmentStageField
+							t={t}
+							{...stageState}
+							onChange={(stage) =>
+								setFormData((prev) => ({ ...prev, phenologicalStage: stage }))
+							}
+						/>
 					}
 				/>
 			</DialogContent>

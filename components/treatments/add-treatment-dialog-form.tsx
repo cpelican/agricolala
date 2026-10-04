@@ -1,6 +1,11 @@
 "use client";
 
-import { ProductDoseUnit, type Disease, type Product } from "@prisma/client";
+import {
+	ProductDoseUnit,
+	type Disease,
+	type PhenologicalStage,
+	type Product,
+} from "@prisma/client";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import React from "react";
 import { format } from "date-fns";
@@ -36,6 +41,8 @@ export interface AddTreatmentDialogFormData {
 	}[];
 	waterDose: number;
 	parcelIds: string[];
+	// Only a stage the grower tapped; unset means no observation is saved.
+	phenologicalStage?: PhenologicalStage | null;
 }
 
 export interface AddTreatmentDialogFormErrors {
@@ -72,6 +79,8 @@ interface AddTreatmentDialogFormProps {
 	onUpdateDisease: (index: number, diseaseId: string) => void;
 	onWaterDoseChange: (value: number) => void;
 	onAppliedDateChange: (value: Date) => void;
+	// "How do your vines look?" block, shown right after the date.
+	stageField: React.ReactNode;
 }
 
 const doseUnits = Object.values(ProductDoseUnit);
@@ -114,6 +123,7 @@ export function AddTreatmentDialogForm({
 	onUpdateDisease,
 	onWaterDoseChange,
 	onAppliedDateChange,
+	stageField,
 }: AddTreatmentDialogFormProps) {
 	const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
 	const today = new Date();
@@ -171,6 +181,8 @@ export function AddTreatmentDialogForm({
 						</p>
 					))}
 				</div>
+
+				{stageField}
 
 				{!!parcels?.length && (
 					<div className="space-y-4">
