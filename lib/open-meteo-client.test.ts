@@ -42,6 +42,28 @@ const mockOpenMeteoFetch = (response: unknown) => {
 	return requestedUrls;
 };
 
+type FetchOutcome = { status: number; body?: unknown } | Error;
+
+const mockOpenMeteoFetchSequence = (outcomes: FetchOutcome[]) => {
+	const fetchMock = vi.fn(async () => {
+		const outcome = outcomes.shift();
+		if (!outcome) {
+			throw new Error("Unexpected extra fetch call");
+		}
+		if (outcome instanceof Error) {
+			throw outcome;
+		}
+		return new Response(JSON.stringify(outcome.body ?? {}), {
+			status: outcome.status,
+		});
+	});
+	vi.stubGlobal("fetch", fetchMock);
+	return fetchMock;
+};
+
+const timeoutError = () =>
+	new DOMException("The operation was aborted due to timeout", "TimeoutError");
+
 describe("OpenMeteoClient", () => {
 	afterEach(() => {
 		vi.useRealTimers();
@@ -151,5 +173,92 @@ describe("OpenMeteoClient", () => {
 		await expect(
 			OpenMeteoClient.getHistoryWeatherData(44.0998, 9.7387),
 		).rejects.toThrow(Errors.INTERNAL_SERVER);
+	});
+	describe("retry on transient failures", () => {
+		const forecastBody = createOpenMeteoResponse([
+			"2026-06-01T09:00Z",
+			"2026-06-02T00:00Z",
+		]);
+
+		const setup = () => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date("2026-06-01T08:16:00Z"));
+			vi.spyOn(console, "warn").mockImplementation(() => undefined);
+			vi.spyOn(console, "error").mockImplementation(() => undefined);
+		};
+
+		test.each([
+			["a timeout", timeoutError()],
+			["a network error", new TypeError("fetch failed")],
+			["a 503 response", { status: 503 }],
+			["a 429 response", { status: 429 }],
+		])("succeeds on the second attempt after %s", async (_, firstOutcome) => {
+			setup();
+			const fetchMock = mockOpenMeteoFetchSequence([
+				firstOutcome,
+				{ status: 200, body: forecastBody },
+			]);
+
+			const promise = OpenMeteoClient.getForecastWeatherData(44.0998, 9.7387);
+			await vi.advanceTimersByTimeAsync(500);
+			const dailyData = await promise;
+
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+			expect(dailyData).toHaveLength(2);
+		});
+
+		test("retries history requests too", async () => {
+			setup();
+			const fetchMock = mockOpenMeteoFetchSequence([
+				timeoutError(),
+				{ status: 200, body: createOpenMeteoResponse([]) },
+			]);
+
+			const promise = OpenMeteoClient.getHistoryWeatherData(44.0998, 9.7387);
+			await vi.advanceTimersByTimeAsync(500);
+			await promise;
+
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
+
+		test("does not retry on a non-429 4xx response", async () => {
+			setup();
+			const fetchMock = mockOpenMeteoFetchSequence([{ status: 400 }]);
+
+			await expect(
+				OpenMeteoClient.getForecastWeatherData(44.0998, 9.7387),
+			).rejects.toThrow(Errors.ACCESS_DENIED);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+		});
+
+		test("throws when the retry also fails with a 5xx", async () => {
+			setup();
+			const fetchMock = mockOpenMeteoFetchSequence([
+				{ status: 500 },
+				{ status: 502 },
+			]);
+
+			const assertion = expect(
+				OpenMeteoClient.getForecastWeatherData(44.0998, 9.7387),
+			).rejects.toThrow(Errors.ACCESS_DENIED);
+			await vi.advanceTimersByTimeAsync(500);
+			await assertion;
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
+
+		test("rethrows the timeout when the retry also times out", async () => {
+			setup();
+			const fetchMock = mockOpenMeteoFetchSequence([
+				timeoutError(),
+				timeoutError(),
+			]);
+
+			const assertion = expect(
+				OpenMeteoClient.getForecastWeatherData(44.0998, 9.7387),
+			).rejects.toThrow("The operation was aborted due to timeout");
+			await vi.advanceTimersByTimeAsync(500);
+			await assertion;
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
 	});
 });

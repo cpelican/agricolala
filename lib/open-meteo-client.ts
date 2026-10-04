@@ -14,7 +14,28 @@ import {
 
 export type { OpenMeteoResponse } from "./open-meteo-schema";
 
+const RETRY_DELAY_MS = 500;
+
+const isRetryableStatus = (status: number) => status === 429 || status >= 500;
+
 export class OpenMeteoClient {
+	private static fetchWithRetry = async (url: string): Promise<Response> => {
+		const fetchOnce = () =>
+			fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+		try {
+			const response = await fetchOnce();
+			if (!isRetryableStatus(response.status)) {
+				return response;
+			}
+			console.warn(`Open-Meteo responded ${response.status}, retrying once`);
+		} catch (error) {
+			// fetch only rejects on timeout/abort or network errors: all transient
+			console.warn("Open-Meteo request failed, retrying once", error);
+		}
+		await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+		return fetchOnce();
+	};
+
 	private static fetchWeatherData = async (
 		latitude: number,
 		longitude: number,
@@ -29,9 +50,7 @@ export class OpenMeteoClient {
 		url.searchParams.set("past_days", WEATHER_HISTORY_DAYS.toString());
 		url.searchParams.set("forecast_days", "0");
 
-		const response = await fetch(url.toString(), {
-			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-		});
+		const response = await OpenMeteoClient.fetchWithRetry(url.toString());
 		if (!response.ok) {
 			console.error(`Failed to fetch weather data: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
@@ -57,9 +76,7 @@ export class OpenMeteoClient {
 			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
 		);
 		url.searchParams.set("forecast_days", WEATHER_FORECAST_DAYS.toString());
-		const response = await fetch(url.toString(), {
-			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-		});
+		const response = await OpenMeteoClient.fetchWithRetry(url.toString());
 		if (!response.ok) {
 			console.error(`Failed to fetch weather forecast: ${response.statusText}`);
 			throw new Error(Errors.ACCESS_DENIED);
