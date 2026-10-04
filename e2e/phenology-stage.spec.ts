@@ -8,7 +8,7 @@ import { clickMobileNavLink } from "./support/navigation";
 
 test.describe.configure({ mode: "serial" });
 
-test("stage picked in the treatment modal is pre-selected next time", async ({
+test("stage picked in the treatment modal is suggested, not saved, next time", async ({
 	page,
 }) => {
 	await goToTreatmentsAndAddTreatment(page, {
@@ -21,7 +21,7 @@ test("stage picked in the treatment modal is pre-selected next time", async ({
 	await page.getByRole("button", { name: "Add Treatment" }).click();
 	const dialog = page.getByRole("dialog", { name: "Add Treatment" });
 	await expect(dialog).toBeVisible();
-	// No parcel selected yet: nothing to pre-select from.
+	// No parcel selected yet: nothing to suggest.
 	await expect(dialog.getByRole("radio", { checked: true })).toHaveCount(0);
 
 	await dialog.getByText("Select parcel").click();
@@ -29,8 +29,15 @@ test("stage picked in the treatment modal is pre-selected next time", async ({
 		.getByRole("option", { name: new RegExp(seededParcel.name) })
 		.click();
 	await expect(
+		dialog.getByText("Suggested: Small berries", { exact: false }),
+	).toBeVisible();
+	// The suggestion is only highlighted: it is saved only if the grower taps it.
+	await expect(dialog.getByRole("radio", { checked: true })).toHaveCount(0);
+	await dialog.getByRole("radio", { name: "Small berries" }).click();
+	await expect(
 		dialog.getByRole("radio", { name: "Small berries" }),
 	).toBeChecked();
+	await expect(dialog.getByText("Suggested: Small berries")).toBeHidden();
 });
 
 test("updates the stage from the parcel card", async ({ page }) => {

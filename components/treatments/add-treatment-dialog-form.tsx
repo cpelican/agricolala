@@ -41,7 +41,7 @@ export interface AddTreatmentDialogFormData {
 	}[];
 	waterDose: number;
 	parcelIds: string[];
-	// Undefined until the grower touches the picker: the suggestion is used instead.
+	// Only a stage the grower tapped; unset means no observation is saved.
 	phenologicalStage?: PhenologicalStage | null;
 }
 

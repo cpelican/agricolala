@@ -1,7 +1,7 @@
 "use client";
 
 import type { PhenologicalStage } from "@prisma/client";
-import { format } from "date-fns";
+import { endOfDay, format } from "date-fns";
 
 import { StagePicker } from "@/components/phenology/stage-picker";
 import { Button } from "@/components/ui/button";
@@ -11,22 +11,29 @@ import { compareStages, getSuggestedStage } from "@/lib/phenology";
 
 interface TreatmentStageFieldProps {
 	t: (key: string) => string;
+	// Stage the grower picked; null until they tap one.
 	value: PhenologicalStage | null;
-	// Latest current observation among the selected parcels, if any.
+	// Highlighted only, never saved unless the grower taps it.
+	suggestedStage: PhenologicalStage | null;
+	// Latest observation on or before the treatment date among the selected parcels.
 	lastObservation: CurrentParcelStage | null;
-	// True when `value` is the next stage suggested after a stale observation.
+	// True when the suggestion is the next stage after a stale observation.
 	isNextStageSuggestion: boolean;
-	appliedDate: Date;
 	onChange: (stage: PhenologicalStage | null) => void;
 }
 
-// Most recent current observation among the given parcels.
+// Most recent observation among the given parcels made by the end of `date`.
 function getLatestObservation(
 	stages: CurrentParcelStage[],
 	parcelIds: string[],
+	date: Date,
 ): CurrentParcelStage | null {
+	const dayEnd = endOfDay(date);
 	return stages
-		.filter((stage) => parcelIds.includes(stage.parcelId))
+		.filter(
+			(stage) =>
+				parcelIds.includes(stage.parcelId) && stage.observedAt <= dayEnd,
+		)
 		.reduce<CurrentParcelStage | null>(
 			(latest, stage) =>
 				!latest || stage.observedAt > latest.observedAt ? stage : latest,
@@ -34,39 +41,38 @@ function getLatestObservation(
 		);
 }
 
-// Stage shown in the picker: the grower's choice once they touched it (`chosen`
-// is then a stage or null for "Skip"), else the suggestion from the parcels' stages.
+// The picked stage plus a suggestion as of the treatment date. Only a stage the
+// grower taps is saved, so an untouched picker never records or advances a stage.
 export function useTreatmentStage(
 	stages: CurrentParcelStage[],
 	parcelIds: string[],
+	appliedDate: Date,
 	chosen: PhenologicalStage | null | undefined,
 ) {
-	const lastObservation = getLatestObservation(stages, parcelIds);
-	const suggestedStage = getSuggestedStage(lastObservation, new Date());
-	const isUntouched = chosen === undefined;
+	const lastObservation = getLatestObservation(stages, parcelIds, appliedDate);
+	const suggestedStage = getSuggestedStage(lastObservation, appliedDate);
 	return {
-		value: isUntouched ? suggestedStage : chosen,
+		value: chosen ?? null,
+		suggestedStage,
 		lastObservation,
 		isNextStageSuggestion:
-			isUntouched &&
-			suggestedStage !== null &&
-			suggestedStage !== lastObservation?.stage,
+			suggestedStage !== null && suggestedStage !== lastObservation?.stage,
 	};
 }
 
 export function TreatmentStageField({
 	t,
 	value,
+	suggestedStage,
 	lastObservation,
 	isNextStageSuggestion,
-	appliedDate,
 	onChange,
 }: TreatmentStageFieldProps) {
 	const isEarlierThanLast =
 		value !== null &&
 		lastObservation !== null &&
-		lastObservation.observedAt <= appliedDate &&
 		compareStages(value, lastObservation.stage) < 0;
+	const showSuggestion = value === null && suggestedStage !== null;
 
 	return (
 		<div className="space-y-2">
@@ -88,9 +94,20 @@ export function TreatmentStageField({
 					</Button>
 				) : null}
 			</div>
-			<StagePicker t={t} value={value} onChange={onChange} />
-			{isNextStageSuggestion ? (
-				<p className="text-xs text-primary">{t("phenology.suggestedHint")}</p>
+			<StagePicker
+				t={t}
+				value={value}
+				suggested={suggestedStage}
+				onChange={onChange}
+			/>
+			{showSuggestion ? (
+				<p className="text-xs text-primary">
+					{t("phenology.suggestion").replace(
+						"{stage}",
+						t(`phenology.stages.${suggestedStage}.label`),
+					)}
+					{isNextStageSuggestion ? ` ${t("phenology.suggestedHint")}` : null}
+				</p>
 			) : null}
 			{isEarlierThanLast && lastObservation ? (
 				<p className="text-sm text-orange-400">

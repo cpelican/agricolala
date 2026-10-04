@@ -476,6 +476,7 @@
 		"optional": "Facoltativo, una fase per tutte le parcelle selezionate",
 		"skip": "Salta",
 		"suggested": "Suggerita",
+		"suggestion": "Suggerita: {stage}. Toccala per registrarla con questo trattamento.",
 		"suggestedHint": "L'ultima fase ha più di 14 giorni: è ora della successiva?",
 		"earlierWarning": "Precedente a quella registrata il {date}: è corretto?",
 		"unknown": "Fase sconosciuta",

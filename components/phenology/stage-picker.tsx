@@ -9,11 +9,18 @@ import { StageIcon } from "./stage-icon";
 interface StagePickerProps {
 	t: (key: string) => string;
 	value: PhenologicalStage | null;
+	// Outlined with a dashed border while nothing is selected.
+	suggested?: PhenologicalStage | null;
 	onChange: (stage: PhenologicalStage | null) => void;
 }
 
 // Two rows of 4 small pictograms; tapping the selected stage again clears it.
-export function StagePicker({ t, value, onChange }: StagePickerProps) {
+export function StagePicker({
+	t,
+	value,
+	suggested,
+	onChange,
+}: StagePickerProps) {
 	return (
 		<div className="space-y-1">
 			<div
@@ -23,6 +30,7 @@ export function StagePicker({ t, value, onChange }: StagePickerProps) {
 			>
 				{PHENOLOGICAL_STAGES.map((stage) => {
 					const isSelected = stage === value;
+					const isSuggested = value === null && stage === suggested;
 					return (
 						<button
 							key={stage}
@@ -35,7 +43,9 @@ export function StagePicker({ t, value, onChange }: StagePickerProps) {
 								"flex flex-col items-center gap-0.5 rounded-md border p-1 text-[11px] leading-tight transition-colors",
 								isSelected
 									? "border-primary bg-primary/10 font-medium"
-									: "border-transparent hover:bg-muted",
+									: isSuggested
+										? "border-dashed border-primary hover:bg-muted"
+										: "border-transparent hover:bg-muted",
 							)}
 						>
 							<StageIcon stage={stage} className="h-9 w-9" />

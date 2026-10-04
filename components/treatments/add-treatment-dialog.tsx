@@ -214,6 +214,7 @@ export function AddTreatmentDialog({
 	const stageState = useTreatmentStage(
 		stages,
 		selectedParcelIds,
+		formData.appliedDate,
 		formData.phenologicalStage,
 	);
 
@@ -322,7 +323,6 @@ export function AddTreatmentDialog({
 						<TreatmentStageField
 							t={t}
 							{...stageState}
-							appliedDate={formData.appliedDate}
 							onChange={(stage) =>
 								setFormData((prev) => ({ ...prev, phenologicalStage: stage }))
 							}
