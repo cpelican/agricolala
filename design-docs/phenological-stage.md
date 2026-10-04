@@ -35,7 +35,7 @@ As of 4 Oct 2026. v1 is almost done: growers can record the stage, but nothing u
 | --- | --- | --- |
 | v1 · PR 1 — model, helpers, actions | [cpelican/agricolala#69](https://github.com/cpelican/agricolala/pull/69) | Merged 28 Sep 2026 |
 | v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 28 Sep 2026 |
-| v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | `feature/phenology-excel-export` | In review |
+| v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | [cpelican/agricolala#72](https://github.com/cpelican/agricolala/pull/72) | In review |
 | v2 – v4 | — | Not started |
 
 ## Current state
@@ -221,7 +221,7 @@ Four phases, each usable on its own and built on the previous one. Progress is t
 1. **v1 — Capture the stage** (issue #66). Nothing uses the stage yet; we start collecting data.
     1. ✅ PR [#69](https://github.com/cpelican/agricolala/pull/69): `PhenologyObservation` model + migration, `lib/phenology.ts` (stage ↔ BBCH, ordering, next stage, 21-day expiry), `getStageByParcel`, stage saved by `createTreatment` and by a new `recordPhenologyObservation` action; Vitest + integration tests.
     2. ✅ PR [#70](https://github.com/cpelican/agricolala/pull/70): stage picker with the option B pictograms in the treatment modal, stage tiles and "Mark next stage" on the parcel pages; en/it labels; e2e test.
-    3. 🔄 PR (in review): "Phenological stage" column in the Excel export (P9).
+    3. 🔄 PR [#72](https://github.com/cpelican/agricolala/pull/72) (in review): "Phenological stage" column in the Excel export (P9).
 2. **v2 — Use the stage on the substance cards.**
     1. PR: `DiseaseStageSensitivity` table seeded from the sensitivity matrix (P6).
     2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
