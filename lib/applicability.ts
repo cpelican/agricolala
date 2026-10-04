@@ -22,6 +22,7 @@ const getNext3DaysRain = async (parcelId: string) => {
 	return await OpenMeteoClient.getForecastWeatherData(
 		parcel.latitude,
 		parcel.longitude,
+		{ allowPlaywrightMock: true },
 	);
 };
 
