@@ -42,7 +42,10 @@ const mockOpenMeteoFetch = (response: unknown) => {
 	return requestedUrls;
 };
 
-type FetchOutcome = { status: number; body?: unknown } | Error;
+// A response to return, or an error for fetch to reject with. Errors are told
+// apart by the missing `status`, not `instanceof Error`: under jsdom, DOMException
+// (used for timeouts) does not extend Error.
+type FetchOutcome = { status: number; body?: unknown } | Error | DOMException;
 
 const mockOpenMeteoFetchSequence = (outcomes: FetchOutcome[]) => {
 	const fetchMock = vi.fn(async () => {
@@ -50,7 +53,7 @@ const mockOpenMeteoFetchSequence = (outcomes: FetchOutcome[]) => {
 		if (!outcome) {
 			throw new Error("Unexpected extra fetch call");
 		}
-		if (outcome instanceof Error) {
+		if (!("status" in outcome)) {
 			throw outcome;
 		}
 		return new Response(JSON.stringify(outcome.body ?? {}), {
