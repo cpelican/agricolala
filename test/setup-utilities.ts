@@ -1,3 +1,4 @@
+import { getStageSensitivityRows } from "../lib/disease-stage-sensitivity";
 import { getTestPrisma } from "./test-prisma-client";
 
 export async function cleanDatabase() {
@@ -76,6 +77,7 @@ export async function seedTestData() {
 			description: "Powdery mildew, a fungal disease affecting grapevines",
 			sensitivityMonthMin: OIDIUM_SENSITIVITY_MONTH_MIN,
 			sensitivityMonthMax: OIDIUM_SENSITIVITY_MONTH_MAX,
+			stageSensitivities: { create: getStageSensitivityRows("Oidium") },
 		},
 	});
 
@@ -85,6 +87,7 @@ export async function seedTestData() {
 			description: "Downy mildew, a fungal disease affecting grapevines",
 			sensitivityMonthMin: PERONOSPORA_SENSITIVITY_MONTH_MIN,
 			sensitivityMonthMax: PERONOSPORA_SENSITIVITY_MONTH_MAX,
+			stageSensitivities: { create: getStageSensitivityRows("Peronospora") },
 		},
 	});
 
