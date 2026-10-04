@@ -10,8 +10,17 @@ const Applicability = async ({
 	parcelId: string;
 	locale: Locale;
 }) => {
-	const next3DaysApplicability =
-		await getNext3DaysTreatmentApplicability(parcelId);
+	let next3DaysApplicability: Awaited<
+		ReturnType<typeof getNext3DaysTreatmentApplicability>
+	>;
+	try {
+		next3DaysApplicability = await getNext3DaysTreatmentApplicability(parcelId);
+	} catch (error) {
+		// The forecast comes from an external API: if it fails or times out, hide
+		// this block instead of letting the error take down the parcel page.
+		console.error("Treatment applicability unavailable", error);
+		return null;
+	}
 
 	if (next3DaysApplicability.length === 0) {
 		return null;
