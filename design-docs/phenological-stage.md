@@ -36,7 +36,7 @@ As of 4 Oct 2026. v1 is done: growers record the stage and it shows in the Excel
 | v1 · PR 1 — model, helpers, actions | [cpelican/agricolala#69](https://github.com/cpelican/agricolala/pull/69) | Merged 28 Sep 2026 |
 | v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 4 Oct 2026 |
 | v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | [cpelican/agricolala#72](https://github.com/cpelican/agricolala/pull/72) | Merged 4 Oct 2026 |
-| v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | v2 PR 1 | In review |
+| v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | [cpelican/agricolala#73](https://github.com/cpelican/agricolala/pull/73) | In review |
 | v2 · PR 2 – v4 | — | Not started |
 
 ## Current state
