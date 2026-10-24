@@ -7,7 +7,7 @@ import {
 	compareSensitivityLevels,
 	getSensitivityLevel,
 	getStageSensitivityRows,
-	getSubstanceRiskTimeline,
+	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 	isCriticalLevel,
 	isDiseaseActive,
@@ -242,14 +242,13 @@ describe("getSubstanceStageRisk", () => {
 	});
 });
 
-describe("getSubstanceRiskTimeline", () => {
-	test("is null when no disease has a matrix row", () => {
-		expect(getSubstanceRiskTimeline(["unknown"], sensitivities, {})).toBeNull();
-		expect(getSubstanceRiskTimeline([], sensitivities, {})).toBeNull();
+describe("getDiseaseRiskTimeline", () => {
+	test("is null when the disease has no matrix row", () => {
+		expect(getDiseaseRiskTimeline("unknown", sensitivities, {})).toBeNull();
 	});
 
 	test("lists every stage in season order with its level and treatment days", () => {
-		const timeline = getSubstanceRiskTimeline([peronospora.id], sensitivities, {
+		const timeline = getDiseaseRiskTimeline(peronospora.id, sensitivities, {
 			[PhenologicalStage.FLOWERING]: 2,
 		});
 		expect(timeline?.map(({ stage }) => stage)).toEqual(PHENOLOGICAL_STAGES);
@@ -265,18 +264,5 @@ describe("getSubstanceRiskTimeline", () => {
 			level: DiseaseSensitivityLevel.VERY_HIGH,
 			treatmentDays: 2,
 		});
-	});
-
-	test("takes the highest level among the substance's diseases", () => {
-		const oidiumSensitivities = getStageSensitivityRows("Oidium").map(
-			(row) => ({ ...row, diseaseId: "oidium" }),
-		);
-		const timeline = getSubstanceRiskTimeline(
-			[peronospora.id, "oidium"],
-			[...sensitivities, ...oidiumSensitivities],
-			{},
-		);
-		// Peronospora is None at bud break, Oidium Low.
-		expect(timeline?.[0].level).toBe(DiseaseSensitivityLevel.LOW);
 	});
 });

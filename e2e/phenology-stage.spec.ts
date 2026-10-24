@@ -120,31 +120,28 @@ async function markStageFromDetail(page: Page, stageLabel: string) {
 	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
 }
 
-test("substance cards show the stage and flag its critical period", async ({
+test("disease risk section shows the stage; substance cards flag its critical period", async ({
 	page,
 }) => {
 	const main = page.getByRole("main");
-	const stageRisk = main
-		.getByTestId("substance-stage-risk")
+	const diseaseRisk = main.getByTestId("disease-risk-section");
+	// Copper is the first substance card.
+	const copperDiseases = main
+		.getByTestId("substance-diseases")
 		.filter({ visible: true })
 		.first();
 
-	const riskTimeline = main
-		.getByTestId("substance-risk-timeline")
-		.filter({ visible: true })
-		.first();
-
-	// No stage recorded: the cards show no stage line and no risk strip.
+	// No stage recorded: no disease risk section; the card still names its disease.
 	await page.goto("/en");
 	await expect(main.getByRole("heading", { name: "Copper" })).toBeVisible();
-	await expect(stageRisk).toHaveCount(0);
-	await expect(riskTimeline).toHaveCount(0);
+	await expect(diseaseRisk).toHaveCount(0);
+	await expect(copperDiseases.getByText("Downy Mildew")).toBeVisible();
 
-	// Colour change is low risk for both mildews: stage only, no badge.
+	// Colour change is low risk for both mildews: stage shown, no critical chip.
 	await markStageFromDetail(page, "Colour change");
 	await page.goto("/en");
 	await expect(
-		stageRisk.getByText("Colour change", { exact: true }),
+		diseaseRisk.getByText("Colour change", { exact: true }).first(),
 	).toBeVisible();
 	await expect(
 		main.getByRole("button", { name: /Critical period/ }),
@@ -152,13 +149,15 @@ test("substance cards show the stage and flag its critical period", async ({
 
 	await markStageFromDetail(page, "Flowering");
 	await page.goto("/en");
-	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
+	await expect(
+		diseaseRisk.getByText("Flowering", { exact: true }),
+	).toBeVisible();
 	// Copper targets downy mildew, which is very high at flowering.
-	const chip = stageRisk.getByRole("button", { name: /Critical period/ });
+	const chip = copperDiseases.getByRole("button", { name: /Critical period/ });
 	// The badge names the disease; "Critical period" is only in its popover.
 	await expect(chip).toContainText("Downy Mildew");
 	await expect(chip).not.toContainText("Critical period");
-	await expect(stageRisk.getByText("Experimental")).toBeVisible();
+	await expect(copperDiseases.getByText("Experimental")).toBeVisible();
 	await chip.click();
 	await expect(
 		page.getByText("Flowering is a critical period for Downy Mildew", {
@@ -172,16 +171,15 @@ test("substance cards show the stage and flag its critical period", async ({
 	).toBeVisible();
 	await page.keyboard.press("Escape");
 
-	// The risk strip marks the current stage and lists each stage's level on tap.
+	// One row per disease, the current stage ringed; tapping it lists each level.
+	const downyMildew = diseaseRisk.getByRole("button", {
+		name: "Downy Mildew: risk by stage",
+	});
 	await expect(
-		riskTimeline.locator('[data-stage="FLOWERING"][data-current="true"]'),
+		downyMildew.locator('[data-stage="FLOWERING"][data-current="true"]'),
 	).toBeVisible();
-	await riskTimeline
-		.getByRole("button", { name: "Disease risk by stage" })
-		.click();
-	const timelinePopover = page.getByRole("dialog");
-	await expect(timelinePopover.getByText("Flowering · now")).toBeVisible();
-	await expect(
-		timelinePopover.getByText("Very high risk").first(),
-	).toBeVisible();
+	await downyMildew.click();
+	const rowPopover = page.getByRole("dialog");
+	await expect(rowPopover.getByText("Flowering · now")).toBeVisible();
+	await expect(rowPopover.getByText("Very high risk").first()).toBeVisible();
 });

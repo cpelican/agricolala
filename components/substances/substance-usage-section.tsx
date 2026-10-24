@@ -16,10 +16,7 @@ import { CoverageHiddenNote } from "./coverage-headline";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {
-	type SubstanceRiskTimeline,
-	type SubstanceStageRisk,
-} from "@/lib/disease-stage-sensitivity";
+import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -27,10 +24,8 @@ interface SubstanceUsageSectionProps {
 	description?: string;
 	allYearsData?: Awaited<ReturnType<typeof getAllYearsSubstanceAggregations>>;
 	coverageResultPromise?: Promise<CoverageResult>;
-	// Keyed by substance name; a substance without an entry shows no stage line.
+	// Keyed by substance name; a substance without an entry has no critical chip.
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
-	// Keyed by substance name; a substance without an entry shows no risk strip.
-	riskTimelineBySubstance?: Record<string, SubstanceRiskTimeline>;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
@@ -64,7 +59,6 @@ export function SubstanceUsageSection({
 	allYearsData,
 	coverageResultPromise,
 	stageRiskBySubstance,
-	riskTimelineBySubstance,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const hasSubstanceData = substanceData.length > 0;
@@ -102,7 +96,6 @@ export function SubstanceUsageSection({
 								substance={substance}
 								coverageResultPromise={coverageResultPromise}
 								stageRisk={stageRiskBySubstance?.[substance.name]}
-								riskTimeline={riskTimelineBySubstance?.[substance.name]}
 							/>
 						))}
 					</div>

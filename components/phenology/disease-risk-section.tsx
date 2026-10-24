@@ -4,17 +4,22 @@ import {
 	DiseaseSensitivityLevel,
 	type PhenologicalStage,
 } from "@prisma/client";
+import { AlertTriangle } from "lucide-react";
 import { StageIcon } from "@/components/phenology/stage-icon";
+import {
+	ExperimentalLabel,
+	useDiseaseLabel,
+} from "@/components/substances/disease-badges";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTranslations } from "@/contexts/translations-context";
-import { type SubstanceRiskTimeline } from "@/lib/disease-stage-sensitivity";
+import { type DiseaseRiskTimeline } from "@/lib/disease-stage-sensitivity";
 import { PHENOLOGICAL_STAGES } from "@/lib/phenology";
 import { cn } from "@/lib/utils";
-import { ExperimentalLabel } from "./stage-risk-chips";
 
 const LEVEL_COLORS: Record<DiseaseSensitivityLevel, string> = {
 	[DiseaseSensitivityLevel.NONE]: "bg-slate-200",
@@ -23,7 +28,7 @@ const LEVEL_COLORS: Record<DiseaseSensitivityLevel, string> = {
 	[DiseaseSensitivityLevel.HIGH]: "bg-orange-400",
 	[DiseaseSensitivityLevel.VERY_HIGH]: "bg-red-500",
 };
-// Stage with no matrix row for the substance's diseases.
+// Stage with no matrix row for the disease.
 const UNKNOWN_LEVEL_COLOR = "bg-muted";
 // Dots drawn under a stage before switching to a count.
 const MAX_DOTS = 3;
@@ -46,39 +51,45 @@ function TreatmentDots({ count }: { count: number }) {
 	);
 }
 
-// Thin band of the 8 stages coloured by the substance's highest disease level, with
-// the current stage's pictogram above it and one dot per treatment day below. Tapping
-// it lists each stage's level in words (a popover, so it also works on phones).
-export function RiskTimelineStrip({
+// One disease: its name, a thin band of the 8 stages coloured by its level with the
+// current stage ringed, and one dot per day treated against it below. Tapping it
+// lists each stage's level in words (a popover, so it also works on phones).
+function DiseaseRiskRow({
+	diseaseId,
 	timeline,
 	currentStage,
-	showExperimentalLabel,
+	isCritical,
 }: {
-	timeline: SubstanceRiskTimeline;
+	diseaseId: string;
+	timeline: DiseaseRiskTimeline;
 	currentStage: PhenologicalStage | null;
-	// Off when the "Critical period" chip above already shows the label.
-	showExperimentalLabel: boolean;
+	isCritical: boolean;
 }) {
 	const { t } = useTranslations();
-	const title = t("phenology.riskTimeline");
+	const name = useDiseaseLabel()(diseaseId) ?? diseaseId;
 	const levelLabel = (level: DiseaseSensitivityLevel | null) =>
 		level ? t(`phenology.levels.${level}`) : t("phenology.levelUnknown");
 
 	return (
-		<div className="space-y-1" data-testid="substance-risk-timeline">
-			<div className="flex flex-wrap items-center gap-2">
-				<span className="text-xs font-medium text-muted-foreground">
-					{title}
-				</span>
-				{showExperimentalLabel && <ExperimentalLabel />}
-			</div>
+		<li data-testid="disease-risk-row">
 			<Popover>
 				<PopoverTrigger asChild>
 					<button
 						type="button"
-						className="block w-full space-y-0.5 rounded-sm text-left"
-						aria-label={title}
+						className="block w-full space-y-1 rounded-sm text-left"
+						aria-label={t("phenology.riskByStage").replace("{disease}", name)}
 					>
+						<span
+							className={cn(
+								"flex items-center gap-1 text-sm font-medium",
+								isCritical && "text-red-600",
+							)}
+						>
+							{isCritical && (
+								<AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+							)}
+							{name}
+						</span>
 						<ol className="grid grid-cols-8 gap-0.5">
 							{timeline.map(({ stage, level, treatmentDays }) => (
 								<li
@@ -87,11 +98,6 @@ export function RiskTimelineStrip({
 									data-stage={stage}
 									data-current={stage === currentStage || undefined}
 								>
-									<span className="flex h-5 items-end">
-										{stage === currentStage && (
-											<StageIcon stage={stage} className="h-5 w-5" />
-										)}
-									</span>
 									<span
 										className={cn(
 											"h-2 w-full",
@@ -106,18 +112,27 @@ export function RiskTimelineStrip({
 								</li>
 							))}
 						</ol>
-						<span className="flex justify-between text-[10px] text-muted-foreground">
-							<span>
-								{t(`phenology.stages.${PHENOLOGICAL_STAGES[0]}.label`)}
-							</span>
-							<span>
-								{t(`phenology.stages.${PHENOLOGICAL_STAGES[7]}.label`)}
-							</span>
-						</span>
 					</button>
 				</PopoverTrigger>
 				<PopoverContent className="w-72 space-y-2 p-3 text-xs">
-					<p className="text-sm font-semibold">{title}</p>
+					<p
+						className={cn(
+							"flex items-center gap-1.5 text-sm font-semibold",
+							isCritical && "text-red-600",
+						)}
+					>
+						{isCritical && (
+							<AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
+						)}
+						{name}
+					</p>
+					{isCritical && currentStage && (
+						<p>
+							{t("phenology.criticalPeriodExplanation")
+								.replace("{stage}", t(`phenology.stages.${currentStage}.label`))
+								.replace("{diseases}", name)}
+						</p>
+					)}
 					<ul className="space-y-1">
 						{timeline.map(({ stage, level, treatmentDays }) => (
 							<li
@@ -154,10 +169,59 @@ export function RiskTimelineStrip({
 						{t("phenology.riskTimelineDots")}
 					</p>
 					<p className="text-muted-foreground">
-						{t("phenology.criticalPeriodTooltip")}
+						{t("phenology.riskTimelineTooltip")}
 					</p>
 				</PopoverContent>
 			</Popover>
-		</div>
+		</li>
+	);
+}
+
+// Top of the dashboard: the vines' stage (the riskiest among the parcels' current
+// stages) and, per disease, its risk across the season with the days treated
+// against it. The substance cards only name the diseases they target.
+export function DiseaseRiskSection({
+	stage,
+	criticalDiseaseIds,
+	rows,
+}: {
+	stage: PhenologicalStage | null;
+	criticalDiseaseIds: string[];
+	rows: { diseaseId: string; timeline: DiseaseRiskTimeline }[];
+}) {
+	const { t } = useTranslations();
+
+	return (
+		<Card data-testid="disease-risk-section">
+			<CardHeader className="space-y-2 pb-3">
+				<div className="flex flex-wrap items-center gap-2">
+					<CardTitle>{t("phenology.diseaseRisk")}</CardTitle>
+					<ExperimentalLabel />
+				</div>
+				<p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+					{stage && <StageIcon stage={stage} className="h-5 w-5" />}
+					{stage
+						? t(`phenology.stages.${stage}.label`)
+						: t("phenology.unknown")}
+				</p>
+			</CardHeader>
+			<CardContent className="space-y-1">
+				<ul className="space-y-3">
+					{rows.map(({ diseaseId, timeline }) => (
+						<DiseaseRiskRow
+							key={diseaseId}
+							diseaseId={diseaseId}
+							timeline={timeline}
+							currentStage={stage}
+							isCritical={criticalDiseaseIds.includes(diseaseId)}
+						/>
+					))}
+				</ul>
+				<p className="flex justify-between text-[10px] text-muted-foreground">
+					<span>{t(`phenology.stages.${PHENOLOGICAL_STAGES[0]}.label`)}</span>
+					<span>{t(`phenology.stages.${PHENOLOGICAL_STAGES[7]}.label`)}</span>
+				</p>
+			</CardContent>
+		</Card>
 	);
 }

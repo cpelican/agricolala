@@ -22,14 +22,10 @@ import {
 	getCoverageHeadline,
 	isCoverageTracked,
 } from "./coverage-headline";
-import { StageRiskChips } from "./stage-risk-chips";
-import { RiskTimelineStrip } from "./risk-timeline-strip";
+import { DiseaseBadges } from "./disease-badges";
 import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
-import {
-	type SubstanceRiskTimeline,
-	type SubstanceStageRisk,
-} from "@/lib/disease-stage-sensitivity";
+import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 import { ShieldCheck } from "lucide-react";
 
 type SubstanceCoverageState =
@@ -122,21 +118,18 @@ interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
 	stageRisk?: SubstanceStageRisk;
-	riskTimeline?: SubstanceRiskTimeline;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
 	stageRisk,
-	riskTimeline,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
 	const translatedName = getSubstanceTranslation(substance.name);
-	const substanceColor =
-		substances.find((s) => s.name === substance.name)?.color ||
-		"rgb(182, 182, 182)";
+	const substanceMeta = substances.find((s) => s.name === substance.name);
+	const substanceColor = substanceMeta?.color || "rgb(182, 182, 182)";
 
 	return (
 		<Card>
@@ -156,14 +149,10 @@ export function SubstanceCard({
 						</Suspense>
 					)}
 				</div>
-				{stageRisk && <StageRiskChips risk={stageRisk} />}
-				{riskTimeline && (
-					<RiskTimelineStrip
-						timeline={riskTimeline}
-						currentStage={stageRisk?.stage ?? null}
-						showExperimentalLabel={!stageRisk?.isCritical}
-					/>
-				)}
+				<DiseaseBadges
+					diseaseIds={substanceMeta?.diseaseIds ?? []}
+					risk={stageRisk}
+				/>
 
 				{coverageResultPromise && (
 					<Suspense
