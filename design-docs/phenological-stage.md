@@ -39,7 +39,7 @@ As of 24 Oct 2026. v1 is done: growers record the stage and it shows in the Exce
 | v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | [cpelican/agricolala#73](https://github.com/cpelican/agricolala/pull/73) | Merged 24 Oct 2026 |
 | v2 · PR 2 — stage-aware protection pill and "Critical period" chip (P1) | [cpelican/agricolala#79](https://github.com/cpelican/agricolala/pull/79) | Merged 24 Oct 2026 |
 | v2 · PR 3 — disease risk section on the dashboard (P2) | [cpelican/agricolala#80](https://github.com/cpelican/agricolala/pull/80) | Merged 24 Oct 2026 |
-| v3 · PR 1 — stage-driven treatment suggestions and bee rules at flowering (P4, P10) | [cpelican/agricolala#PRNUM](https://github.com/cpelican/agricolala/pull/PRNUM) | In review |
+| v3 · PR 1 — stage-driven treatment suggestions and bee rules at flowering (P4, P10) | [cpelican/agricolala#83](https://github.com/cpelican/agricolala/pull/83) | In review |
 | v3 · PR 2 – v4 | — | Not started |
 
 ## Current state
@@ -231,7 +231,7 @@ Four phases, each usable on its own and built on the previous one. Progress is t
     2. ✅ PR [#79](https://github.com/cpelican/agricolala/pull/79): stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
     3. ✅ PR [#80](https://github.com/cpelican/agricolala/pull/80): disease risk section at the top of the dashboard, one row per disease with a per-stage popover; substance cards keep only their disease badges (P2, revises P1's stage line).
 3. **v3 — Use the stage in the background jobs and rules.**
-    1. 🔄 PR [#PRNUM](https://github.com/cpelican/agricolala/pull/PRNUM) (in review): stage-driven treatment suggestions plus bee rules at flowering in the suggestions and the modal reminder (P4, P10).
+    1. 🔄 PR [#83](https://github.com/cpelican/agricolala/pull/83) (in review): stage-driven treatment suggestions plus bee rules at flowering in the suggestions and the modal reminder (P4, P10).
     2. PR: treatment window from bud break and evening-only window at flowering (P8, P10).
     3. PR: copper readout scaled by the stage leaf-area fractions (P3).
     4. PR: copper budget pacing in the cumulated-dose section (P7).
