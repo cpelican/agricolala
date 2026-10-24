@@ -329,6 +329,14 @@ export async function seedE2eData() {
 	});
 }
 
+/** Puts the e2e user back in the "waiting for access" state (the seed re-authorizes it). */
+export async function revokeE2eUserAccess() {
+	await prisma.user.update({
+		where: { email: e2eUser.email },
+		data: { isAuthorized: false },
+	});
+}
+
 export async function disconnectE2ePrisma() {
 	await prisma.$disconnect();
 }

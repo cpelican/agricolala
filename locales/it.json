@@ -172,9 +172,23 @@
 		"email": "Email",
 		"password": "Password",
 		"signInWithGoogle": "Accedi con Google",
-		"unauthorizedMessage": "Questa app è ancora in fase di sviluppo, quindi preferiamo sapere un po' chi la userà. Contatta l'amministratore per sbloccare il tuo account.",
 		"title": "Agricolala",
-		"description": "Gestisci i trattamenti e i campi della tua vigna"
+		"description": "Gestisci i trattamenti e i campi della tua vigna",
+		"newAccountNote": "Sei nuovo? Accedendo con Google crei anche il tuo account. Per tenere lontani i bot apriamo ogni account a mano, quindi la prima volta ti chiederemo di presentarti.",
+		"pending": {
+			"title": "Ci siamo quasi!",
+			"why": "Agricolala è un progetto di una sola persona. Per tenere lontani i bot, ogni nuovo account viene aperto a mano. Mandaci un breve messaggio per presentarti: saremo felicissimi di darti accesso.",
+			"requestTitle": "Presentati",
+			"requestText": "Apri una breve richiesta su GitHub e raccontaci chi sei e qualcosa del tuo vigneto. Serve un account GitHub gratuito. Le richieste sono pubbliche, quindi non scrivere la tua email né altri dati personali: il codice del tuo account è già nella richiesta ed è tutto ciò che ci serve per trovarlo.",
+			"requestCta": "Chiedi l’accesso su GitHub",
+			"opensInNewTab": "(si apre in una nuova scheda)",
+			"nextTitle": "Cosa succede dopo",
+			"nextText": "Di solito apriamo gli account entro pochi giorni. Quando il tuo sarà aperto, torna qui e accedi di nuovo.",
+			"signedInAs": "Hai effettuato l’accesso come",
+			"issueTitle": "Richiesta di accesso {code}",
+			"issueBody": "Ciao! Vorrei usare Agricolala.\n\nCodice account: {code}\n\nChi sono e il mio vigneto:\n\n",
+			"accountCode": "Il codice del tuo account"
+		}
 	},
 	"errors": {
 		"page": {
@@ -555,7 +569,7 @@
 			"titleHighlight": "vigneto.",
 			"lead": "Disegna i campi. Registra i trattamenti. Resta sotto il limite annuale di rame.",
 			"cta": "Apri il tuo quaderno",
-			"note": "Gratuito e open source."
+			"note": "Gratuito e open source, fatto da una sola persona. Per tenere lontani i bot, i nuovi account vengono aperti a mano: accedi, presentati e ti faremo entrare."
 		},
 		"illustration": {
 			"parcelName": "Campo Nord",

@@ -22,10 +22,10 @@
 	},
 	"parcels": {
 		"title": "Parcels",
-		"description": "Manage your wineyard parcels",
+		"description": "Manage your vineyard parcels",
 		"addParcel": "Add Parcel",
 		"addNewParcel": "Add New Parcel",
-		"addNewParcelDescription": "Add a new parcel to your wineyard management system",
+		"addNewParcelDescription": "Add a new parcel to your vineyard management system",
 		"parcelName": "Parcel Name",
 		"parcelNamePlaceholder": "e.g., North Field",
 		"parcelType": "Parcel Type",
@@ -41,7 +41,7 @@
 		"altitudePlaceholder": "50",
 		"widthPlaceholder": "100",
 		"heightPlaceholder": "50",
-		"wineyard": "Wineyard",
+		"wineyard": "Vineyard",
 		"peaches": "Peaches",
 		"noParcels": "No parcels found",
 		"deleteParcel": "Delete Parcel",
@@ -87,7 +87,7 @@
 	},
 	"treatments": {
 		"title": "Treatments",
-		"description": "Manage your wineyard treatments",
+		"description": "Manage your vineyard treatments",
 		"addTreatment": "Add Treatment",
 		"addTreatmentDescription": "Add a new treatment for this parcel. Fill in the details below.",
 		"addTreatmentFormDescription": "Record a treatment: choose parcel, disease, product, and dose.",
@@ -164,17 +164,31 @@
 		"actions": "Actions",
 		"accountManagement": "Account management options",
 		"aboutAgricolala": "About Agricolala",
-		"aboutDescription": "Agricolala helps you manage your wineyard treatments and track substance usage to ensure compliance with agricultural regulations."
+		"aboutDescription": "Agricolala helps you manage your vineyard treatments and track substance usage to ensure compliance with agricultural regulations."
 	},
 	"auth": {
 		"title": "Agricolala",
-		"description": "Manage your wineyard treatments and parcels",
+		"description": "Manage your vineyard treatments and parcels",
 		"signIn": "Sign In",
 		"signOut": "Sign Out",
 		"email": "Email",
 		"password": "Password",
 		"signInWithGoogle": "Sign in with Google",
-		"unauthorizedMessage": "This app is still a work in progress, so we prefer to know a bit who will use it. Please contact the admin to unlock your account."
+		"newAccountNote": "New here? Signing in with Google also creates your account. To keep bots out, we open every account by hand, so the first time we’ll ask you to say hello.",
+		"pending": {
+			"title": "Almost there!",
+			"why": "Agricolala is a one-person project. To keep bots out, every new account is opened by hand. Just send us a short message to introduce yourself: we’ll be more than happy to give you access.",
+			"requestTitle": "Introduce yourself",
+			"requestText": "Open a short request on GitHub and tell us who you are and a little about your vineyard. You’ll need a free GitHub account. Requests are public, so don’t write your email or other personal details: your account code is already in the request, and it’s all we need to find your account.",
+			"requestCta": "Request access on GitHub",
+			"opensInNewTab": "(opens in a new tab)",
+			"nextTitle": "What happens next",
+			"nextText": "We usually open accounts within a few days. Once yours is open, just come back and sign in again.",
+			"signedInAs": "Signed in as",
+			"issueTitle": "Access request {code}",
+			"issueBody": "Hi! I’d like to use Agricolala.\n\nAccount code: {code}\n\nAbout me and my vineyard:\n\n",
+			"accountCode": "Your account code"
+		}
 	},
 	"errors": {
 		"page": {
@@ -555,7 +569,7 @@
 			"titleHighlight": "notebook.",
 			"lead": "Map parcels. Log treatments. Stay under the yearly copper limit.",
 			"cta": "Start your notebook",
-			"note": "Free and open source."
+			"note": "Free and open source, made by one person. To keep bots out, new accounts are opened by hand: sign in, say hello, and we’ll let you in."
 		},
 		"illustration": {
 			"parcelName": "North Field",

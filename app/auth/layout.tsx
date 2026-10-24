@@ -12,7 +12,7 @@ import { getLocaleFromAcceptLanguage } from "@/lib/accept-language";
 export const metadata: Metadata = {
 	...rootMetadata,
 	title: "Agricolala - Sign In",
-	description: "Sign in to manage your wineyard treatments and parcels",
+	description: "Sign in to manage your vineyard treatments and parcels",
 };
 export const viewport = rootViewport;
 

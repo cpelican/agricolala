@@ -12,7 +12,7 @@ import {
 	getLocaleFromPathname,
 	defaultLocale,
 	getLanguageAsLocale,
-	appLanguages,
+	languageIsLocale,
 	type Locale,
 } from "@/lib/translations-helpers";
 import type { TranslationType } from "@/lib/translations-server-only";
@@ -101,8 +101,13 @@ export const getLocaleFromBrowser = (): Locale => {
 	if (typeof navigator === "undefined") {
 		return defaultLocale;
 	}
-	const browserLang =
-		navigator.language ||
-		navigator.languages?.find((lang) => lang in appLanguages);
-	return getLanguageAsLocale(browserLang);
+	// Browsers report regional tags ("it-IT"): match on the base language, in the user's
+	// order of preference, like the Accept-Language negotiation on the server.
+	const preferred = navigator.languages?.length
+		? navigator.languages
+		: [navigator.language];
+	const supported = preferred
+		.map((tag) => tag.split("-")[0]?.toLowerCase())
+		.find((language) => languageIsLocale(language));
+	return getLanguageAsLocale(supported);
 };

@@ -130,6 +130,9 @@ export const SignInContent = ({
 							</Button>
 						</form>
 					)}
+					<p className="pt-2 text-center text-sm leading-relaxed text-muted-foreground">
+						{authDicts[lang].newAccountNote}
+					</p>
 				</CardContent>
 			</Card>
 		</div>

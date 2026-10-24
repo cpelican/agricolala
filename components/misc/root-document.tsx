@@ -8,8 +8,8 @@ import type { Locale } from "@/lib/translations-helpers";
 // defaults they share live here.
 export const rootMetadata: Metadata = {
 	metadataBase: siteUrl,
-	title: "Agricolala - Wineyard Management",
-	description: "Manage your wineyard treatments and parcels",
+	title: "Agricolala - Vineyard Management",
+	description: "Manage your vineyard treatments and parcels",
 };
 
 export const rootViewport: Viewport = {

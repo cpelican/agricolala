@@ -138,7 +138,7 @@ export function ProfileContent({ user, tosStatus }: ProfileContentProps) {
 					<CardDescription>{t("profile.accountManagement")}</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<SignOutButton />
+					<SignOutButton label={t("auth.signOut")} />
 				</CardContent>
 			</Card>
 
