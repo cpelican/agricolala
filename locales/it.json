@@ -553,7 +553,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala: il quaderno dei trattamenti del tuo vigneto",
-			"description": "App gratuita e open source per viticoltori. Disegna i tuoi campi, registra ogni trattamento alla fase in cui è stato fatto e resta sotto il limite annuale di rame."
+			"description": "App gratuita e open source per viticoltori. Disegna i tuoi campi, registra ogni trattamento alla fase in cui è stato fatto e usane il meno possibile."
 		},
 		"skipToContent": "Vai al contenuto",
 		"homeLink": "Agricolala, pagina iniziale",
@@ -567,7 +567,7 @@
 		"hero": {
 			"titleStart": "Il quaderno dei trattamenti del tuo",
 			"titleHighlight": "vigneto.",
-			"lead": "Disegna i campi. Registra i trattamenti. Resta sotto il limite annuale di rame.",
+			"lead": "Disegna i campi. Registra i trattamenti. Usane il meno possibile.",
 			"cta": "Apri il tuo quaderno",
 			"note": "Gratuito e open source, fatto da una sola persona. Per tenere lontani i bot, i nuovi account vengono aperti a mano: accedi, presentati e ti faremo entrare."
 		},

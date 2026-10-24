@@ -553,7 +553,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala: your vineyard’s treatment notebook",
-			"description": "Free, open-source app for winegrowers. Map your parcels, log every treatment at the growth stage it happened, and stay under the yearly copper limit."
+			"description": "Free, open-source app for winegrowers. Map your parcels, log every treatment at the growth stage it happened, and use as few treatments as you can."
 		},
 		"skipToContent": "Skip to content",
 		"homeLink": "Agricolala, home",
@@ -567,7 +567,7 @@
 		"hero": {
 			"titleStart": "Your vineyard’s treatment",
 			"titleHighlight": "notebook.",
-			"lead": "Map parcels. Log treatments. Stay under the yearly copper limit.",
+			"lead": "Map parcels. Log treatments. Use as few as you can.",
 			"cta": "Start your notebook",
 			"note": "Free and open source, made by one person. To keep bots out, new accounts are opened by hand: sign in, say hello, and we’ll let you in."
 		},
