@@ -13,6 +13,7 @@ ALTER TABLE IF EXISTS "WeatherHistory" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryParcels" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryTasksParcels" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Treatment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "PhenologyObservation" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Product" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "ProductApplication" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Substance" ENABLE ROW LEVEL SECURITY;
@@ -194,6 +195,49 @@ CREATE POLICY "Users can delete their own product applications or admins can del
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+-- Create RLS policies for PhenologyObservation table (owned through its parcel)
+DROP POLICY IF EXISTS "Owners or admins can view phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can view phenology observations" ON "PhenologyObservation"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can insert phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can insert phenology observations" ON "PhenologyObservation"
+    FOR INSERT WITH CHECK (
+        (select auth.role()) = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can update phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can update phenology observations" ON "PhenologyObservation"
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can delete phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can delete phenology observations" ON "PhenologyObservation"
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
         )
     );
 
