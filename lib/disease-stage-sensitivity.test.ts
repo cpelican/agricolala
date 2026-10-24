@@ -7,6 +7,7 @@ import {
 	compareSensitivityLevels,
 	getSensitivityLevel,
 	getStageSensitivityRows,
+	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 	isCriticalLevel,
 	isDiseaseActive,
@@ -238,5 +239,21 @@ describe("getSubstanceStageRisk", () => {
 				allSensitivities,
 			)?.stage,
 		).toBe(PhenologicalStage.FRUIT_SET);
+	});
+});
+
+describe("getDiseaseRiskTimeline", () => {
+	test("is null when the disease has no matrix row", () => {
+		expect(getDiseaseRiskTimeline("unknown", sensitivities)).toBeNull();
+	});
+
+	test("lists every stage in season order with its level", () => {
+		const timeline = getDiseaseRiskTimeline(peronospora.id, sensitivities);
+		expect(timeline?.map(({ stage }) => stage)).toEqual(PHENOLOGICAL_STAGES);
+		expect(timeline?.[0].level).toBe(DiseaseSensitivityLevel.NONE);
+		expect(
+			timeline?.find(({ stage }) => stage === PhenologicalStage.FLOWERING)
+				?.level,
+		).toBe(DiseaseSensitivityLevel.VERY_HIGH);
 	});
 });

@@ -489,6 +489,18 @@
 		"criticalPeriod": "Periodo critico",
 		"criticalPeriodTooltip": "Rischio di malattia più alto in questa fase, da una sintesi qualitativa della ricerca; i tempi variano con il vitigno e il clima.",
 		"criticalPeriodExplanation": "{stage} è un periodo critico per {diseases}: ora le viti sono più a rischio, quindi mantienile protette e ripeti il trattamento prima del solito.",
+		"diseaseRisk": "Rischio malattie",
+		"riskByStage": "{disease}: rischio per fase",
+		"riskTimelineTooltip": "I livelli vengono da una sintesi qualitativa della ricerca; i tempi variano con il vitigno e il clima.",
+		"now": "ora",
+		"levelUnknown": "Sconosciuto",
+		"levels": {
+			"NONE": "Nessun rischio",
+			"LOW": "Rischio basso",
+			"MEDIUM": "Rischio medio",
+			"HIGH": "Rischio alto",
+			"VERY_HIGH": "Rischio molto alto"
+		},
 		"stages": {
 			"BUD_BREAK": {
 				"label": "Germogliamento",
