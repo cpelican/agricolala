@@ -110,29 +110,42 @@ export function isDiseaseActive(
 }
 
 // Highest risk a substance's diseases reach across the parcels' current stages: the
-// stage shown on the substance card and whether it is a critical period. Parcels are
-// in the order of `getCurrentStagesByParcel` (latest observation first), which breaks
-// ties. Null when no parcel has a current stage or no disease has a matrix row for it,
-// so the card falls back to the plain, month-based readout.
+// stage shown on the substance card, whether it is a critical period, and for which of
+// the substance's diseases. Parcels are in the order of `getCurrentStagesByParcel`
+// (latest observation first), which breaks ties. Null when no parcel has a current
+// stage or no disease has a matrix row for it, so the card falls back to the plain,
+// month-based readout.
 export function getSubstanceStageRisk(
 	diseaseIds: string[],
 	parcelStages: { stage: PhenologicalStage }[],
 	sensitivities: StageSensitivity[],
 ) {
-	let risk: {
+	let riskiest: {
 		stage: PhenologicalStage;
 		level: DiseaseSensitivityLevel;
-		isCritical: boolean;
 	} | null = null;
 	for (const { stage } of parcelStages) {
 		for (const diseaseId of diseaseIds) {
 			const level = getSensitivityLevel(sensitivities, diseaseId, stage);
-			if (level && (!risk || compareSensitivityLevels(level, risk.level) > 0)) {
-				risk = { stage, level, isCritical: isCriticalLevel(level) };
+			if (
+				level &&
+				(!riskiest || compareSensitivityLevels(level, riskiest.level) > 0)
+			) {
+				riskiest = { stage, level };
 			}
 		}
 	}
-	return risk;
+	if (!riskiest) return null;
+	const { stage } = riskiest;
+	const criticalDiseaseIds = diseaseIds.filter((diseaseId) => {
+		const level = getSensitivityLevel(sensitivities, diseaseId, stage);
+		return level !== null && isCriticalLevel(level);
+	});
+	return {
+		...riskiest,
+		isCritical: criticalDiseaseIds.length > 0,
+		criticalDiseaseIds,
+	};
 }
 
 export type SubstanceStageRisk = NonNullable<

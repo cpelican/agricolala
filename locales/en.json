@@ -496,6 +496,7 @@
 		"saveFailed": "Could not update the stage",
 		"criticalPeriod": "Critical period",
 		"criticalPeriodTooltip": "Higher disease risk at this stage, from a qualitative summary of research; timing varies with grape variety and climate.",
+		"criticalPeriodExplanation": "{stage} is a critical period for {diseases}: the vines are most at risk now, so keep them protected and re-treat sooner than usual.",
 		"stages": {
 			"BUD_BREAK": {
 				"label": "Buds opening",

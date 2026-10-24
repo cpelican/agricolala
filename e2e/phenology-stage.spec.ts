@@ -123,9 +123,16 @@ test("substance cards show the stage and flag its critical period", async ({
 
 	await page.goto("/en");
 	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
-	await expect(stageRisk.getByText("Critical period")).toBeVisible();
-	// The experimental label explains, on tap, that timing varies.
-	await stageRisk.getByRole("button", { name: "Experimental" }).click();
+	// Copper targets downy mildew, which is very high at flowering.
+	const chip = stageRisk.getByRole("button", { name: /Critical period/ });
+	await expect(chip).toContainText("Downy Mildew");
+	await expect(stageRisk.getByText("Experimental")).toBeVisible();
+	await chip.click();
+	await expect(
+		page.getByText("Flowering is a critical period for Downy Mildew", {
+			exact: false,
+		}),
+	).toBeVisible();
 	await expect(
 		page.getByText("timing varies with grape variety and climate", {
 			exact: false,

@@ -179,6 +179,7 @@ describe("getSubstanceStageRisk", () => {
 			stage: PhenologicalStage.FLOWERING,
 			level: DiseaseSensitivityLevel.VERY_HIGH,
 			isCritical: true,
+			criticalDiseaseIds: [peronospora.id],
 		});
 		expect(
 			getSubstanceStageRisk(
@@ -190,7 +191,18 @@ describe("getSubstanceStageRisk", () => {
 			stage: PhenologicalStage.VERAISON,
 			level: DiseaseSensitivityLevel.LOW,
 			isCritical: false,
+			criticalDiseaseIds: [],
 		});
+	});
+
+	test("lists every disease of the substance critical at the stage", () => {
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id, "oidium"],
+				[{ stage: PhenologicalStage.FLOWERING }],
+				allSensitivities,
+			)?.criticalDiseaseIds,
+		).toEqual([peronospora.id, "oidium"]);
 	});
 
 	test("takes the riskiest disease of the substance", () => {
