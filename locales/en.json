@@ -311,13 +311,6 @@
 						"Decisions made based on the information provided by the Service"
 					]
 				}
-			},
-			"links": {
-				"title": "📄 Read Full Legal Documents",
-				"description": "Important: For complete legal information, please read the full documents:",
-				"termsOfService": "Full Terms of Service",
-				"privacyPolicy": "Full Privacy Policy",
-				"note": "💡 These links will open in a new tab so you can read the full documents while keeping this dialog open."
 			}
 		},
 		"privacy": {
@@ -415,13 +408,12 @@
 					"title": "11. Contact Us",
 					"content": "If you have questions about this Privacy Policy or want to exercise your data rights, please contact us through the application or at the email address provided in your account settings."
 				}
-			},
-			"links": {
-				"title": "📄 Read Full Legal Documents",
-				"description": "Important: For complete legal information, please read the full documents:",
-				"privacyPolicy": "Full Privacy Policy",
-				"note": "💡 This link will open in a new tab so you can read the full document while keeping this dialog open."
 			}
+		},
+		"backToHome": "Back to Agricolala",
+		"meta": {
+			"privacyDescription": "How Agricolala collects, uses and protects your account and vineyard data, and the rights you have over it.",
+			"termsDescription": "The terms for using Agricolala, the free vineyard treatment notebook: your responsibilities, who owns your data and the limits of liability."
 		}
 	},
 	"home": {

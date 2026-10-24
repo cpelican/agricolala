@@ -1,21 +1,35 @@
 import type { MetadataRoute } from "next";
-import { siteUrl, welcomeAlternates, welcomePath } from "@/lib/site-url";
+import {
+	localizedAlternates,
+	localizedPath,
+	PUBLIC_PAGES,
+	type PublicPage,
+	siteUrl,
+} from "@/lib/site-url";
 import { appLanguages } from "@/lib/translations-helpers";
 
 const absolute = (path: string) => new URL(path, siteUrl).toString();
 
-export default function sitemap(): MetadataRoute.Sitemap {
-	const languages = Object.fromEntries(
-		Object.entries(welcomeAlternates).map(([language, path]) => [
-			language,
-			absolute(path),
-		]),
-	);
+const PRIORITIES = {
+	[PUBLIC_PAGES.welcome]: 1,
+	[PUBLIC_PAGES.privacyPolicy]: 0.3,
+	[PUBLIC_PAGES.termsOfService]: 0.3,
+} satisfies Record<PublicPage, number>;
 
-	return Object.values(appLanguages).map((locale) => ({
-		url: absolute(welcomePath(locale)),
-		changeFrequency: "monthly",
-		priority: 1,
-		alternates: { languages },
-	}));
+export default function sitemap(): MetadataRoute.Sitemap {
+	return Object.values(PUBLIC_PAGES).flatMap((page) => {
+		const languages = Object.fromEntries(
+			Object.entries(localizedAlternates(page)).map(([language, path]) => [
+				language,
+				absolute(path),
+			]),
+		);
+
+		return Object.values(appLanguages).map((locale) => ({
+			url: absolute(localizedPath(locale, page)),
+			changeFrequency: "monthly" as const,
+			priority: PRIORITIES[page],
+			alternates: { languages },
+		}));
+	});
 }

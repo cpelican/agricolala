@@ -16,7 +16,8 @@ import {
 import {
 	GITHUB_REPOSITORY_URL,
 	siteUrl,
-	welcomeAlternates,
+	localizedAlternates,
+	PUBLIC_PAGES,
 	welcomePath,
 } from "@/lib/site-url";
 import { appLanguages, languageIsLocale } from "@/lib/translations-helpers";
@@ -46,7 +47,7 @@ export async function generateMetadata({
 		applicationName: "Agricolala",
 		alternates: {
 			canonical: welcomePath(lang),
-			languages: welcomeAlternates,
+			languages: localizedAlternates(PUBLIC_PAGES.welcome),
 		},
 		openGraph: {
 			type: "website",

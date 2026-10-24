@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Code } from "lucide-react";
-import { GITHUB_REPOSITORY_URL } from "@/lib/site-url";
+import {
+	GITHUB_REPOSITORY_URL,
+	localizedPath,
+	PUBLIC_PAGES,
+} from "@/lib/site-url";
 import type { TranslationType } from "@/lib/translations-server-only";
 import type { Locale } from "@/lib/translations-helpers";
 import {
@@ -83,7 +87,7 @@ export function WelcomeFooter({
 				<ul className="m-0 flex list-none flex-wrap gap-x-5 p-0 text-[13px] leading-5">
 					<li>
 						<Link
-							href={`/${locale}/legal/privacy-policy`}
+							href={localizedPath(locale, PUBLIC_PAGES.privacyPolicy)}
 							className="inline-block py-3 text-neutral-600 underline underline-offset-2 hover:text-neutral-900"
 						>
 							{dict.legal.privacyPolicy}
@@ -91,7 +95,7 @@ export function WelcomeFooter({
 					</li>
 					<li>
 						<Link
-							href={`/${locale}/legal/terms-of-service`}
+							href={localizedPath(locale, PUBLIC_PAGES.termsOfService)}
 							className="inline-block py-3 text-neutral-600 underline underline-offset-2 hover:text-neutral-900"
 						>
 							{dict.legal.termsOfService}

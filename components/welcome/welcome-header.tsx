@@ -1,7 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { appLanguages, type Locale } from "@/lib/translations-helpers";
-import { welcomePath } from "@/lib/site-url";
+import {
+	localizedPath,
+	PUBLIC_PAGES,
+	type PublicPage,
+	welcomePath,
+} from "@/lib/site-url";
 import type { WelcomeDictionary } from "./types";
 import styles from "./welcome.module.css";
 
@@ -13,9 +18,12 @@ const LANGUAGE_CODES = {
 export function WelcomeHeader({
 	locale,
 	t,
+	page = PUBLIC_PAGES.welcome,
 }: {
 	locale: Locale;
 	t: WelcomeDictionary;
+	// The page the language links switch between.
+	page?: PublicPage;
 }) {
 	return (
 		<header className="relative z-10 mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 min-[900px]:h-20 min-[900px]:px-6">
@@ -53,7 +61,7 @@ export function WelcomeHeader({
 								</span>
 							)}
 							<Link
-								href={welcomePath(language)}
+								href={localizedPath(language, page)}
 								hrefLang={language}
 								lang={language}
 								aria-current={language === locale ? "page" : undefined}

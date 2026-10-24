@@ -19,6 +19,8 @@ import type { TranslationType } from "@/lib/translations-server-only";
 
 interface TranslationsContextType {
 	t: (key: string) => string;
+	// The whole dictionary, for components that read nested values with their real types.
+	translations: TranslationType | null;
 	getArray: (key: string) => string[];
 	locale: string;
 	getSubstanceTranslation: (substanceName: string) => string;
@@ -73,6 +75,7 @@ export function TranslationsProvider({ children }: { children: ReactNode }) {
 		<TranslationsContext.Provider
 			value={{
 				t,
+				translations,
 				getArray,
 				locale,
 				getSubstanceTranslation,

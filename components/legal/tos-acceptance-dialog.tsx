@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { FileText } from "lucide-react";
 import { TosContent } from "./tos-content";
 import { PrivacyContent } from "./privacy-content";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface TosAcceptanceDialogProps {
 	open: boolean;
@@ -28,12 +29,17 @@ export function TosAcceptanceDialog({
 	onDecline,
 }: TosAcceptanceDialogProps) {
 	const [accepted, setAccepted] = useState(false);
+	const { translations } = useTranslations();
 
 	const handleAccept = () => {
 		if (accepted) {
 			onAccept();
 		}
 	};
+
+	if (!translations) {
+		return null;
+	}
 
 	return (
 		<Dialog open={open} onOpenChange={() => {}}>
@@ -53,12 +59,12 @@ export function TosAcceptanceDialog({
 					<div className="pr-4 space-y-6">
 						<div>
 							<h3 className="text-lg font-semibold mb-4">Terms of Service</h3>
-							<TosContent showLinks={false} />
+							<TosContent legal={translations.legal} headingLevel="h4" />
 						</div>
 
 						<div className="border-t pt-6">
 							<h3 className="text-lg font-semibold mb-4">Privacy Policy</h3>
-							<PrivacyContent showLinks={false} />
+							<PrivacyContent legal={translations.legal} headingLevel="h4" />
 						</div>
 					</div>
 				</div>

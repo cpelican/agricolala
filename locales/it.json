@@ -311,13 +311,6 @@
 						"Decisioni prese sulla base delle informazioni fornite dal Servizio"
 					]
 				}
-			},
-			"links": {
-				"title": "📄 Leggi i Documenti Legali Completi",
-				"description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
-				"termsOfService": "Termini di Servizio Completi",
-				"privacyPolicy": "Informativa Privacy Completa",
-				"note": "💡 Questi link si apriranno in una nuova scheda così puoi leggere i documenti completi mantenendo aperta questa finestra."
 			}
 		},
 		"privacy": {
@@ -415,13 +408,12 @@
 					"title": "11. Contattaci",
 					"content": "Se hai domande su questa Informativa Privacy o vuoi esercitare i tuoi diritti sui dati, contattaci attraverso l'applicazione o all'indirizzo email fornito nelle impostazioni del tuo account."
 				}
-			},
-			"links": {
-				"title": "📄 Leggi i Documenti Legali Completi",
-				"description": "Importante: Per informazioni legali complete, leggi i documenti completi:",
-				"privacyPolicy": "Informativa Privacy Completa",
-				"note": "💡 Questo link si aprirà in una nuova scheda così puoi leggere il documento completo mantenendo aperta questa finestra."
 			}
+		},
+		"backToHome": "Torna ad Agricolala",
+		"meta": {
+			"privacyDescription": "Come Agricolala raccoglie, usa e protegge i dati del tuo account e del tuo vigneto, e i diritti che hai su di essi.",
+			"termsDescription": "I termini d’uso di Agricolala, il quaderno gratuito dei trattamenti del vigneto: le tue responsabilità, a chi appartengono i dati e i limiti di responsabilità."
 		}
 	},
 	"home": {

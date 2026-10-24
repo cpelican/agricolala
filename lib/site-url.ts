@@ -9,14 +9,30 @@ export const siteUrl = new URL(
 			: "http://localhost:3000"),
 );
 
-export const welcomePath = (locale: Locale) => `/${locale}/welcome`;
+// Public pages, by their path without the locale prefix.
+export const PUBLIC_PAGES = {
+	welcome: "/welcome",
+	privacyPolicy: "/legal/privacy-policy",
+	termsOfService: "/legal/terms-of-service",
+} as const;
 
-// hreflang map for the public welcome page, x-default pointing at English.
-export const welcomeAlternates = {
+export type PublicPage = (typeof PUBLIC_PAGES)[keyof typeof PUBLIC_PAGES];
+
+export const localizedPath = (locale: Locale, page: PublicPage) =>
+	`/${locale}${page}`;
+
+export const welcomePath = (locale: Locale) =>
+	localizedPath(locale, PUBLIC_PAGES.welcome);
+
+// hreflang map for a public page, x-default pointing at English.
+export const localizedAlternates = (page: PublicPage) => ({
 	...Object.fromEntries(
-		Object.values(appLanguages).map((locale) => [locale, welcomePath(locale)]),
+		Object.values(appLanguages).map((locale) => [
+			locale,
+			localizedPath(locale, page),
+		]),
 	),
-	"x-default": welcomePath(appLanguages.en),
-};
+	"x-default": localizedPath(appLanguages.en, page),
+});
 
 export const GITHUB_REPOSITORY_URL = "https://github.com/cpelican/agricolala";

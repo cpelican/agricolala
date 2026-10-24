@@ -23,12 +23,14 @@ const PUBLIC_ROUTES = [
 	"/api/cron",
 	...SEO_FILES,
 ];
-// The public welcome page, with or without its locale prefix (e.g. /it/welcome, /welcome).
-const welcomeRegex = new RegExp(`^(/(${locales.join("|")}))?/welcome(/|$)`);
+// Public pages (welcome, legal), with or without their locale prefix (e.g. /it/welcome, /legal/privacy-policy).
+const publicPageRegex = new RegExp(
+	`^(/(${locales.join("|")}))?/(welcome|legal)(/|$)`,
+);
 
 const isPublicRoute = (pathname: string) =>
 	pathname === "/" ||
-	welcomeRegex.test(pathname) ||
+	publicPageRegex.test(pathname) ||
 	PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
 function getLocaleFromHeaders(request: Request): Locale {
@@ -87,12 +89,25 @@ export const proxy = withAuth(
 			return response;
 		}
 
-		// Root path "/" or "/welcome" without a session
+		// Root path "/" without a session
 		// Action: Send visitors to the public welcome page in the browser's language
-		if (pathname === "/" || pathname === "/welcome") {
+		if (pathname === "/") {
 			const locale = getLocaleFromHeaders(req);
 			const response = NextResponse.redirect(
 				new URL(`/${locale}/welcome`, req.url),
+			);
+			response.headers.set(LOCALE_HEADER, locale);
+
+			return response;
+		}
+
+		// Public page without locale prefix
+		// Example: /welcome, /legal/privacy-policy
+		// Action: Add the user's (or browser's) locale, like protected routes below
+		if (publicPageRegex.test(pathname)) {
+			const locale = token?.locale || getLocaleFromHeaders(req);
+			const response = NextResponse.redirect(
+				new URL(`/${locale}${pathname}`, req.url),
 			);
 			response.headers.set(LOCALE_HEADER, locale);
 

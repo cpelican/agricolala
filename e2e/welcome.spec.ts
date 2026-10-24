@@ -37,3 +37,30 @@ test("shows the public welcome page to signed-out visitors", async ({
 	await expect(guestPage).toHaveURL(/\/auth\/signin/);
 	await guestContext.close();
 });
+
+test("lets signed-out visitors read the privacy policy", async ({
+	browser,
+}) => {
+	const guestContext = await browser.newContext({
+		...mobileUse,
+		storageState: { cookies: [], origins: [] },
+	});
+	const guestPage = await guestContext.newPage();
+
+	await guestPage.goto("/en/welcome");
+	await guestPage
+		.getByRole("contentinfo")
+		.getByRole("link", { name: "Privacy Policy" })
+		.click();
+	await expect(guestPage).toHaveURL(/\/en\/legal\/privacy-policy$/);
+	await expect(
+		guestPage.getByRole("heading", { level: 1, name: "Privacy Policy" }),
+	).toBeVisible();
+	await expect(
+		guestPage.getByRole("heading", {
+			level: 2,
+			name: "1. Information We Collect",
+		}),
+	).toBeVisible();
+	await guestContext.close();
+});
