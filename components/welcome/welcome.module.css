@@ -125,7 +125,8 @@
 	position: absolute;
 	inset: 0;
 	transform-origin: 56% 96%;
-	animation: sway 9s ease-in-out infinite;
+	/* Slow and slight on purpose: the leaf should barely seem to breathe. */
+	animation: sway 24s ease-in-out infinite;
 }
 
 /* Strips of masking tape holding the leaf on the page. */
@@ -374,10 +375,10 @@
 @keyframes sway {
 	0%,
 	100% {
-		transform: rotate(-1.3deg);
+		transform: rotate(-0.5deg);
 	}
 	50% {
-		transform: rotate(1.5deg);
+		transform: rotate(0.5deg);
 	}
 }
 
