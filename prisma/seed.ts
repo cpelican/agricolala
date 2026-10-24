@@ -3,6 +3,10 @@ import {
 	ProductDoseUnit,
 	SubstanceLimitUnit,
 } from "@prisma/client";
+import {
+	DISEASE_STAGE_SENSITIVITY_MATRIX,
+	getStageSensitivityRows,
+} from "../lib/disease-stage-sensitivity";
 
 interface ReferenceDataClient {
 	disease: PrismaClient["disease"];
@@ -29,6 +33,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				description: "Powdery mildew, a fungal disease affecting grapevines",
 				sensitivityMonthMin: 4,
 				sensitivityMonthMax: 8,
+				stageSensitivities: { create: getStageSensitivityRows("Oidium") },
 			},
 		}),
 		db.disease.create({
@@ -37,6 +42,7 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				description: "Downy mildew, a fungal disease affecting grapevines",
 				sensitivityMonthMin: 3,
 				sensitivityMonthMax: 7,
+				stageSensitivities: { create: getStageSensitivityRows("Peronospora") },
 			},
 		}),
 	]);
@@ -146,8 +152,42 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 	};
 }
 
+// Writes the sensitivity matrix for the diseases already in the database without
+// wiping anything, so it can run on a database with real treatments (production).
+async function upsertDiseaseStageSensitivities(prisma: PrismaClient) {
+	for (const name of ["Peronospora", "Oidium"] as const) {
+		const disease = await prisma.disease.findUnique({
+			where: { name },
+			select: { id: true },
+		});
+		if (!disease) {
+			console.warn(`Disease ${name} not found, skipped`);
+			continue;
+		}
+		for (const { stage, level } of getStageSensitivityRows(name)) {
+			await prisma.diseaseStageSensitivity.upsert({
+				where: { diseaseId_stage: { diseaseId: disease.id, stage } },
+				create: { diseaseId: disease.id, stage, level },
+				update: { level },
+			});
+		}
+		console.log(
+			`${name}: ${Object.keys(DISEASE_STAGE_SENSITIVITY_MATRIX[name]).length} stages written`,
+		);
+	}
+}
+
 async function main() {
 	const prisma = new PrismaClient();
+
+	if (process.argv.includes("--stage-sensitivities-only")) {
+		try {
+			await upsertDiseaseStageSensitivities(prisma);
+		} finally {
+			await prisma.$disconnect();
+		}
+		return;
+	}
 
 	// Delete existing data
 	console.log("Deleting existing data...");

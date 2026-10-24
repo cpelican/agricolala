@@ -8,6 +8,13 @@ export const getCachedDiseases = cache(async () => {
 	});
 });
 
+// Level of each disease at each stage; see lib/disease-stage-sensitivity.ts for lookups.
+export const getCachedDiseaseStageSensitivities = cache(async () => {
+	return prisma.diseaseStageSensitivity.findMany({
+		select: { diseaseId: true, stage: true, level: true },
+	});
+});
+
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
 		select: { id: true, name: true, maxApplications: true, doseUnit: true },

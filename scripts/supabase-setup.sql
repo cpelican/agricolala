@@ -13,11 +13,13 @@ ALTER TABLE IF EXISTS "WeatherHistory" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryParcels" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryTasksParcels" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Treatment" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "PhenologyObservation" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Product" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "ProductApplication" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Substance" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "SubstanceDose" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Disease" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "DiseaseStageSensitivity" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "AdminUser" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "UserSubstanceAggregation" ENABLE ROW LEVEL SECURITY;
@@ -193,6 +195,49 @@ CREATE POLICY "Users can delete their own product applications or admins can del
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
             AND (t."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+-- Create RLS policies for PhenologyObservation table (owned through its parcel)
+DROP POLICY IF EXISTS "Owners or admins can view phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can view phenology observations" ON "PhenologyObservation"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can insert phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can insert phenology observations" ON "PhenologyObservation"
+    FOR INSERT WITH CHECK (
+        (select auth.role()) = 'service_role' OR
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can update phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can update phenology observations" ON "PhenologyObservation"
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+        )
+    );
+
+DROP POLICY IF EXISTS "Owners or admins can delete phenology observations" ON "PhenologyObservation";
+CREATE POLICY "Owners or admins can delete phenology observations" ON "PhenologyObservation"
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM "Parcel" p
+            WHERE p.id = "PhenologyObservation"."parcelId"
+            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -400,6 +445,13 @@ CREATE POLICY "Authenticated users can view diseases" ON "Disease"
         (select auth.uid()) IS NOT NULL
     );
 
+DROP POLICY IF EXISTS "Authenticated users can view disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Authenticated users can view disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid()) IS NOT NULL
+    );
+
 DROP POLICY IF EXISTS "Authenticated users can view substance doses" ON "SubstanceDose";
 CREATE POLICY "Authenticated users can view substance doses" ON "SubstanceDose"
     FOR SELECT USING (
@@ -454,6 +506,19 @@ CREATE POLICY "Only admins can update diseases" ON "Disease"
 
 DROP POLICY IF EXISTS "Only admins can delete diseases" ON "Disease";
 CREATE POLICY "Only admins can delete diseases" ON "Disease"
+    FOR DELETE USING (private.is_admin((select auth.uid())::text));
+
+-- DiseaseStageSensitivity modification policies
+DROP POLICY IF EXISTS "Only admins can insert disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can insert disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR INSERT WITH CHECK (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can update disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can update disease stage sensitivities" ON "DiseaseStageSensitivity"
+    FOR UPDATE USING (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can delete disease stage sensitivities" ON "DiseaseStageSensitivity";
+CREATE POLICY "Only admins can delete disease stage sensitivities" ON "DiseaseStageSensitivity"
     FOR DELETE USING (private.is_admin((select auth.uid())::text));
 
 -- SubstanceDose modification policies
