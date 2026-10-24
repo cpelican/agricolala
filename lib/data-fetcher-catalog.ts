@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
+import { productFloweringSelect } from "./treatment-suggestions";
 
 export const getCachedDiseases = cache(async () => {
 	return prisma.disease.findMany({
@@ -22,7 +23,7 @@ export const getCachedProducts = cache(async () => {
 			name: true,
 			maxApplications: true,
 			doseUnit: true,
-			restrictedAtFlowering: true,
+			composition: productFloweringSelect,
 		},
 		orderBy: { name: "asc" },
 	});

@@ -503,8 +503,8 @@
 		"now": "now",
 		"noActiveDisease": "No disease is active at this stage, so protection isn't tracked right now.",
 		"floweringReminderTitle": "Flowering: protect the bees",
-		"floweringReminder": "No insecticides or acaricides, and only fungicides without a bee-hazard label. Spray from 2 hours before to 3 hours after sunset.",
-		"restrictedAtFlowering": "Not allowed during flowering: insecticide, acaricide or bee-hazard label.",
+		"floweringReminder": "Flowering only lasts a few days: if you can, avoid treating. Never use insecticides or acaricides, and avoid copper; use only fungicides without a bee-hazard label, from 2 hours before to 3 hours after sunset.",
+		"restrictedAtFlowering": "Best avoided during flowering: it contains copper or an insecticide.",
 		"levelUnknown": "Unknown",
 		"levels": {
 			"NONE": "No risk",

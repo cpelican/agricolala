@@ -34,7 +34,11 @@ function product(
 	daysBetweenApplications: number | null,
 	restrictedAtFlowering = false,
 ) {
-	return { id, daysBetweenApplications, restrictedAtFlowering };
+	return {
+		id,
+		daysBetweenApplications,
+		composition: [{ substance: { restrictedAtFlowering } }],
+	};
 }
 
 // Last treatment with copper (7 days, downy mildew) and sulfur (8 days, powdery mildew).
@@ -73,7 +77,7 @@ function suggest(
 
 describe("isProductAllowedAtStage", () => {
 	test("restricted products are left out only at flowering", () => {
-		const restricted = { restrictedAtFlowering: true };
+		const restricted = product("copper", 7, true);
 		expect(
 			isProductAllowedAtStage(restricted, PhenologicalStage.FLOWERING),
 		).toBe(false);
@@ -83,10 +87,22 @@ describe("isProductAllowedAtStage", () => {
 		expect(isProductAllowedAtStage(restricted, null)).toBe(true);
 		expect(
 			isProductAllowedAtStage(
-				{ restrictedAtFlowering: false },
+				product("sulfur", 8),
 				PhenologicalStage.FLOWERING,
 			),
 		).toBe(true);
+	});
+
+	test("a mix is restricted when one of its substances is", () => {
+		const mix = {
+			composition: [
+				{ substance: { restrictedAtFlowering: true } },
+				{ substance: { restrictedAtFlowering: false } },
+			],
+		};
+		expect(isProductAllowedAtStage(mix, PhenologicalStage.FLOWERING)).toBe(
+			false,
+		);
 	});
 });
 
@@ -166,19 +182,19 @@ describe("buildTreatmentSuggestion", () => {
 
 	test("restricted products are not suggested at flowering", () => {
 		const treatment = lastTreatment(10, [
-			product("copper", 7),
-			product("orangeOil", 7, true),
+			product("copper", 7, true),
+			product("sulfur", 8),
 		]);
 		expect(
 			suggest(treatment, PhenologicalStage.FLOWERING)?.productApplications.map(
 				(p) => p.productId,
 			),
-		).toEqual(["copper"]);
+		).toEqual(["sulfur"]);
 		expect(
 			suggest(treatment, PhenologicalStage.FRUIT_SET)?.productApplications.map(
 				(p) => p.productId,
 			),
-		).toEqual(["copper", "orangeOil"]);
+		).toEqual(["copper", "sulfur"]);
 	});
 
 	test("products without a label interval use the default one", () => {

@@ -4,7 +4,6 @@ import {
 	ProductDoseUnit,
 	type Disease,
 	type PhenologicalStage,
-	type Product,
 } from "@prisma/client";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import React from "react";
@@ -28,7 +27,10 @@ import {
 } from "@/components/ui/select";
 import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { ParcelWithTreatments } from "@/lib/data-fetcher";
+import type {
+	ParcelWithTreatments,
+	getCachedProducts,
+} from "@/lib/data-fetcher";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 import { isProductAllowedAtStage } from "@/lib/treatment-suggestions";
 
@@ -58,10 +60,7 @@ interface AddTreatmentDialogFormProps {
 	t: (key: string) => string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<
-		Product,
-		"id" | "name" | "maxApplications" | "doseUnit" | "restrictedAtFlowering"
-	>[];
+	products: Awaited<ReturnType<typeof getCachedProducts>>;
 	// Stage the bee rules go by; flowering flags restricted products.
 	stageAtTreatment: PhenologicalStage | null;
 	advisedDosePerProduct: Record<string, number>;

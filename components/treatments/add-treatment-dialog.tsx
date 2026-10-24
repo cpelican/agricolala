@@ -1,11 +1,6 @@
 "use client";
 
-import {
-	ProductDoseUnit,
-	type Disease,
-	type Product,
-	type Substance,
-} from "@prisma/client";
+import { ProductDoseUnit, type Disease, type Substance } from "@prisma/client";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -24,6 +19,7 @@ import type { CurrentParcelStage } from "@/lib/phenology-observations";
 import type {
 	ParcelWithTreatments,
 	getCachedCompositions,
+	getCachedProducts,
 } from "@/lib/data-fetcher";
 import {
 	calculateAdvisedDosePerProduct,
@@ -53,10 +49,7 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<
-		Product,
-		"id" | "name" | "maxApplications" | "doseUnit" | "restrictedAtFlowering"
-	>[];
+	products: Awaited<ReturnType<typeof getCachedProducts>>;
 	substances: Array<
 		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
 	>;

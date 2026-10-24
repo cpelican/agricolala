@@ -503,8 +503,8 @@
 		"now": "ora",
 		"noActiveDisease": "In questa fase non ci sono malattie attive, quindi la protezione non è monitorata al momento.",
 		"floweringReminderTitle": "Fioritura: proteggi le api",
-		"floweringReminder": "Niente insetticidi né acaricidi, e solo fungicidi senza indicazione di pericolo per le api. Tratta da 2 ore prima a 3 ore dopo il tramonto.",
-		"restrictedAtFlowering": "Non ammesso in fioritura: insetticida, acaricida o pericoloso per le api.",
+		"floweringReminder": "La fioritura dura pochi giorni: se puoi, evita di trattare. Mai insetticidi né acaricidi, ed evita il rame; usa solo fungicidi senza indicazione di pericolo per le api, da 2 ore prima a 3 ore dopo il tramonto.",
+		"restrictedAtFlowering": "Da evitare in fioritura: contiene rame o un insetticida.",
 		"levelUnknown": "Sconosciuto",
 		"levels": {
 			"NONE": "Nessun rischio",

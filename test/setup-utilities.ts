@@ -96,6 +96,7 @@ export async function seedTestData() {
 		data: {
 			name: "Copper",
 			maxDosage: 4,
+			restrictedAtFlowering: true,
 			diseases: {
 				connect: [{ id: peronospora.id }],
 			},

@@ -3,7 +3,7 @@ import {
 	PhenologicalStage,
 	type DiseaseStageSensitivity,
 	type Prisma,
-	type Product,
+	type Substance,
 } from "@prisma/client";
 import { DEFAULT_DAYS_BETWEEN_APPLICATIONS } from "./coverage-helpers";
 import { getSensitivityLevel } from "./disease-stage-sensitivity";
@@ -14,6 +14,11 @@ import { getNextStage } from "./phenology";
 export const CRITICAL_SUGGESTION_WINDOW_DAYS = 3;
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+// A product's substances, enough to tell whether it is restricted at flowering.
+export const productFloweringSelect = {
+	select: { substance: { select: { restrictedAtFlowering: true } } },
+} satisfies Prisma.Product$compositionArgs;
 
 // Last treatment of a parcel, as the suggest-treatments cron reads it.
 export const lastTreatmentSelect = {
@@ -28,7 +33,7 @@ export const lastTreatmentSelect = {
 				select: {
 					id: true,
 					daysBetweenApplications: true,
-					restrictedAtFlowering: true,
+					composition: productFloweringSelect,
 				},
 			},
 		},
@@ -39,14 +44,18 @@ type LastTreatment = Prisma.TreatmentGetPayload<{
 	select: typeof lastTreatmentSelect;
 }>;
 
-// Insecticides, acaricides and bee-hazard products are banned from flower opening to
-// petal fall (Italy, L. 313/2004); the app applies it everywhere.
+// Products with a substance best avoided while the vines flower (copper, as good
+// practice; insecticides and acaricides, banned from flower opening to petal fall by
+// L. 313/2004) are not suggested then. Flowering lasts only a few days.
 export function isProductAllowedAtStage(
-	product: Pick<Product, "restrictedAtFlowering">,
+	product: {
+		composition: { substance: Pick<Substance, "restrictedAtFlowering"> }[];
+	},
 	stage: PhenologicalStage | null,
 ): boolean {
 	return !(
-		stage === PhenologicalStage.FLOWERING && product.restrictedAtFlowering
+		stage === PhenologicalStage.FLOWERING &&
+		product.composition.some(({ substance }) => substance.restrictedAtFlowering)
 	);
 }
 

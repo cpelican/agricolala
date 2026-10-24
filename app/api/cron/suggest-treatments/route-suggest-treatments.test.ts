@@ -291,9 +291,9 @@ describe("[Integration] Suggest Treatments", () => {
 			});
 		}
 
-		test("the stage overrides the month window: flowering in January is suggested", async () => {
+		test("the stage overrides the month window: small berries in January is suggested", async () => {
 			await setLastTreatmentDaysAgo(CRON_AS_OF_OUT_OF_SEASON, 10);
-			await recordStage(PhenologicalStage.FLOWERING, CRON_AS_OF_OUT_OF_SEASON);
+			await recordStage(PhenologicalStage.FRUIT_SET, CRON_AS_OF_OUT_OF_SEASON);
 
 			const response = await fetchSuggestTreatments(CRON_AS_OF_OUT_OF_SEASON);
 			const data = await response.json();
@@ -325,14 +325,14 @@ describe("[Integration] Suggest Treatments", () => {
 			);
 		});
 
-		test("at flowering, every product comes back at the shortest interval within a short window", async () => {
+		test("at small berries, every product comes back at the shortest interval within a short window", async () => {
 			const { COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } = testData;
 			// Copper's interval (7 days) has elapsed, sulfur's (8 days) has not.
 			const appliedDate = await setLastTreatmentDaysAgo(
 				CRON_AS_OF_IN_SEASON,
 				COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
 			);
-			await recordStage(PhenologicalStage.FLOWERING, CRON_AS_OF_IN_SEASON);
+			await recordStage(PhenologicalStage.FRUIT_SET, CRON_AS_OF_IN_SEASON);
 
 			await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
 
@@ -355,42 +355,16 @@ describe("[Integration] Suggest Treatments", () => {
 			);
 		});
 
-		test("at flowering, products restricted for bees are left out", async () => {
-			const { copper, pastTreatment, testParcel, testUser } = testData;
-			const insecticide = await testPrisma.product.create({
-				data: {
-					name: "Test Insecticide-Fungicide",
-					brand: "Test Brand",
-					maxApplications: 6,
-					daysBetweenApplications: 7,
-					restrictedAtFlowering: true,
-					composition: { create: [{ substanceId: copper.id, dose: 10 }] },
-				},
-			});
-			await testPrisma.treatment.delete({ where: { id: pastTreatment.id } });
-			await testPrisma.treatment.create({
-				data: {
-					parcelId: testParcel.id,
-					userId: testUser.id,
-					status: TreatmentStatus.DONE,
-					appliedDate: localMidnightDaysAgo(CRON_AS_OF_IN_SEASON, 10),
-					waterDose: 10,
-					diseaseIds: [testData.peronospora.id],
-					productApplications: {
-						create: [
-							{ productId: testData.copperProduct.id, dose: 5 },
-							{ productId: insecticide.id, dose: 20 },
-						],
-					},
-				},
-			});
+		test("at flowering, copper is left out and sulfur still suggested", async () => {
+			await setLastTreatmentDaysAgo(CRON_AS_OF_IN_SEASON, 10);
 			await recordStage(PhenologicalStage.FLOWERING, CRON_AS_OF_IN_SEASON);
 
 			await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
 
-			const [todo] = await getTodoTreatments();
-			expect(todo.productApplications.map((pa) => pa.productId)).toEqual([
-				testData.copperProduct.id,
+			const todos = await getTodoTreatments();
+			expect(todos).toHaveLength(1);
+			expect(todos[0].productApplications.map((pa) => pa.productId)).toEqual([
+				testData.sulfurProduct.id,
 			]);
 		});
 	});

@@ -184,7 +184,7 @@ test("disease risk section shows the stage; substance cards flag its critical pe
 	await expect(rowPopover.getByText("Very high risk").first()).toBeVisible();
 });
 
-test("flowering shows the bee reminder and flags restricted products in the modal", async ({
+test("flowering shows the bee reminder and flags copper in the modal", async ({
 	page,
 }) => {
 	await page.goto("/en/treatments");
@@ -197,18 +197,16 @@ test("flowering shows the bee reminder and flags restricted products in the moda
 	await dialog.getByRole("radio", { name: "Flowering" }).click();
 	await expect(reminder).toContainText("Flowering: protect the bees");
 
-	// Sweet orange oil is also an insecticide and acaricide.
+	// Copper is best avoided while the vines flower.
 	await dialog.getByText("Select product").click();
-	await page
-		.getByRole("option", { name: "Olio essenziale di arancio dolce" })
-		.click();
+	await page.getByRole("option", { name: "Pasta cafaro" }).click();
 	await expect(
-		dialog.getByText("Not allowed during flowering", { exact: false }),
+		dialog.getByText("Best avoided during flowering", { exact: false }),
 	).toBeVisible();
 
 	await dialog.getByRole("radio", { name: "Small berries" }).click();
 	await expect(reminder).toHaveCount(0);
 	await expect(
-		dialog.getByText("Not allowed during flowering", { exact: false }),
+		dialog.getByText("Best avoided during flowering", { exact: false }),
 	).toBeHidden();
 });

@@ -53,6 +53,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				name: "Copper",
 				maxDosage: 4, // kg/ha/year
 				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+				// Good practice: no copper while the vines flower.
+				restrictedAtFlowering: true,
 				diseases: {
 					connect: [{ id: peronospora.id }],
 				},
@@ -73,6 +75,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				name: "Olio essenziale di arancio dolce",
 				maxDosage: 10, // kg/ha/year
 				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+				// Also an insecticide and acaricide, banned during flowering (L. 313/2004).
+				restrictedAtFlowering: true,
 				diseases: {
 					connect: [{ id: oidium.id }, { id: peronospora.id }],
 				},
@@ -133,8 +137,6 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			doseUnit: ProductDoseUnit.MILLILITER,
 			productLiterToKiloGramConversionRate: 0.9,
 			maxApplications: MAX_APPS_ORANGE,
-			// Registered as insecticide and acaricide too, so banned during flowering.
-			restrictedAtFlowering: true,
 			composition: {
 				// Commercial formulation: 20% sweet orange essential oil.
 				create: [{ substanceId: orangeOil.id, dose: 20 }],
@@ -179,16 +181,19 @@ async function upsertDiseaseStageSensitivities(prisma: PrismaClient) {
 	}
 }
 
-// Products not allowed during flowering (insecticide/acaricide or bee-hazard label),
-// flagged by name without wiping anything, like the sensitivities above.
-const PRODUCTS_RESTRICTED_AT_FLOWERING = ["Olio essenziale di arancio dolce"];
+// Substances best avoided during flowering (copper; orange oil, an insecticide and
+// acaricide), flagged by name without wiping anything, like the sensitivities above.
+const SUBSTANCES_RESTRICTED_AT_FLOWERING = [
+	"Copper",
+	"Olio essenziale di arancio dolce",
+];
 
 async function updateFloweringRestrictions(prisma: PrismaClient) {
-	const { count } = await prisma.product.updateMany({
-		where: { name: { in: PRODUCTS_RESTRICTED_AT_FLOWERING } },
+	const { count } = await prisma.substance.updateMany({
+		where: { name: { in: SUBSTANCES_RESTRICTED_AT_FLOWERING } },
 		data: { restrictedAtFlowering: true },
 	});
-	console.log(`${count} products restricted at flowering`);
+	console.log(`${count} substances restricted at flowering`);
 }
 
 async function main() {
