@@ -29,29 +29,8 @@ const LEVEL_COLORS: Record<DiseaseSensitivityLevel, string> = {
 };
 // Stage with no matrix row for the disease.
 const UNKNOWN_LEVEL_COLOR = "bg-muted";
-// Dots drawn under a stage before switching to a count.
-const MAX_DOTS = 3;
-
-function TreatmentDots({ count }: { count: number }) {
-	if (count > MAX_DOTS) {
-		return (
-			<span className="text-[10px] font-semibold leading-none">{count}</span>
-		);
-	}
-	return (
-		<>
-			{Array.from({ length: count }, (_, index) => (
-				<span
-					key={index}
-					className="h-1.5 w-1.5 rounded-full bg-foreground/70"
-				/>
-			))}
-		</>
-	);
-}
-
 // One disease: its name, a thin band of the 8 stages coloured by its level with the
-// current stage ringed and the others faded, and one dot per day treated against it below. Tapping it
+// current stage ringed and the others faded. Tapping it
 // lists each stage's level in words (a popover, so it also works on phones).
 function DiseaseRiskRow({
 	diseaseId,
@@ -80,26 +59,19 @@ function DiseaseRiskRow({
 					>
 						<span className="block text-sm font-medium">{name}</span>
 						<ol className="grid grid-cols-8 gap-0.5">
-							{timeline.map(({ stage, level, treatmentDays }) => (
+							{timeline.map(({ stage, level }) => (
 								<li
 									key={stage}
-									className="flex flex-col items-center gap-0.5"
+									className={cn(
+										"h-2",
+										level ? LEVEL_COLORS[level] : UNKNOWN_LEVEL_COLOR,
+										stage === currentStage
+											? "ring-2 ring-foreground ring-offset-1"
+											: currentStage && "opacity-40",
+									)}
 									data-stage={stage}
 									data-current={stage === currentStage || undefined}
-								>
-									<span
-										className={cn(
-											"h-2 w-full",
-											level ? LEVEL_COLORS[level] : UNKNOWN_LEVEL_COLOR,
-											stage === currentStage
-												? "ring-2 ring-foreground ring-offset-1"
-												: currentStage && "opacity-40",
-										)}
-									/>
-									<span className="flex h-2 items-center gap-0.5">
-										<TreatmentDots count={treatmentDays} />
-									</span>
-								</li>
+								/>
 							))}
 						</ol>
 					</button>
@@ -114,7 +86,7 @@ function DiseaseRiskRow({
 						</p>
 					)}
 					<ul className="space-y-1">
-						{timeline.map(({ stage, level, treatmentDays }) => (
+						{timeline.map(({ stage, level }) => (
 							<li
 								key={stage}
 								className={cn(
@@ -134,20 +106,9 @@ function DiseaseRiskRow({
 									{stage === currentStage && ` · ${t("phenology.now")}`}
 								</span>
 								<span>{levelLabel(level)}</span>
-								{treatmentDays > 0 && (
-									<span className="text-muted-foreground">
-										{t("phenology.treatmentDays").replace(
-											"{count}",
-											String(treatmentDays),
-										)}
-									</span>
-								)}
 							</li>
 						))}
 					</ul>
-					<p className="text-muted-foreground">
-						{t("phenology.riskTimelineDots")}
-					</p>
 					<p className="text-muted-foreground">
 						{t("phenology.riskTimelineTooltip")}
 					</p>
@@ -158,8 +119,8 @@ function DiseaseRiskRow({
 }
 
 // Top of the dashboard: the vines' stage (the riskiest among the parcels' current
-// stages) and, per disease, its risk across the season with the days treated
-// against it. The substance cards only name the diseases they target.
+// stages) and, per disease, its risk across the season. The substance cards only
+// name the diseases they target.
 export function DiseaseRiskSection({
 	stage,
 	criticalDiseaseIds,

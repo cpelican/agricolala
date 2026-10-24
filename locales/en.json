@@ -499,10 +499,8 @@
 		"criticalPeriodExplanation": "{stage} is a critical period for {diseases}: the vines are most at risk now, so keep them protected and re-treat sooner than usual.",
 		"diseaseRisk": "Disease risk",
 		"riskByStage": "{disease}: risk by stage",
-		"riskTimelineDots": "Dots show the days you treated against it at each stage.",
 		"riskTimelineTooltip": "Levels come from a qualitative summary of research; timing varies with grape variety and climate.",
 		"now": "now",
-		"treatmentDays": "{count}× treated",
 		"levelUnknown": "Unknown",
 		"levels": {
 			"NONE": "No risk",

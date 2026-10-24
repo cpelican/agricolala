@@ -92,33 +92,3 @@ export function getStageAt(
 	}
 	return latest.stage;
 }
-
-// Number of days with a treatment at each stage, the stage being the treated parcel's
-// at the treatment date (getStageAt). Several parcels treated on the same day at the
-// same stage count once; treatments with no stage on their date are left out.
-// `observations` may cover several parcels, oldest first.
-export function countTreatmentDaysByStage(
-	treatments: { parcelId: string; appliedDate: Date }[],
-	observations: {
-		parcelId: string;
-		stage: PhenologicalStage;
-		observedAt: Date;
-	}[],
-): Partial<Record<PhenologicalStage, number>> {
-	const daysByStage = new Map<PhenologicalStage, Set<string>>();
-	for (const treatment of treatments) {
-		const stage = getStageAt(
-			observations.filter(
-				(observation) => observation.parcelId === treatment.parcelId,
-			),
-			treatment.appliedDate,
-		);
-		if (!stage) continue;
-		const days = daysByStage.get(stage) ?? new Set<string>();
-		days.add(treatment.appliedDate.toDateString());
-		daysByStage.set(stage, days);
-	}
-	return Object.fromEntries(
-		[...daysByStage].map(([stage, days]) => [stage, days.size]),
-	);
-}

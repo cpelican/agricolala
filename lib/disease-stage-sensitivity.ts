@@ -152,18 +152,15 @@ export type SubstanceStageRisk = NonNullable<
 	ReturnType<typeof getSubstanceStageRisk>
 >;
 
-// Row of the dashboard's disease risk section: for each stage in season order, the
-// disease's level and how many days it was treated against at that stage. Null when
-// the disease has no matrix row.
+// Row of the dashboard's disease risk section: the disease's level at each stage, in
+// season order. Null when the disease has no matrix row.
 export function getDiseaseRiskTimeline(
 	diseaseId: string,
 	sensitivities: StageSensitivity[],
-	treatmentDaysByStage: Partial<Record<PhenologicalStage, number>>,
 ) {
 	const timeline = PHENOLOGICAL_STAGES.map((stage) => ({
 		stage,
 		level: getSensitivityLevel(sensitivities, diseaseId, stage),
-		treatmentDays: treatmentDaysByStage[stage] ?? 0,
 	}));
 	return timeline.some(({ level }) => level !== null) ? timeline : null;
 }

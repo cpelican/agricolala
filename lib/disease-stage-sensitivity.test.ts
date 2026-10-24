@@ -244,25 +244,16 @@ describe("getSubstanceStageRisk", () => {
 
 describe("getDiseaseRiskTimeline", () => {
 	test("is null when the disease has no matrix row", () => {
-		expect(getDiseaseRiskTimeline("unknown", sensitivities, {})).toBeNull();
+		expect(getDiseaseRiskTimeline("unknown", sensitivities)).toBeNull();
 	});
 
-	test("lists every stage in season order with its level and treatment days", () => {
-		const timeline = getDiseaseRiskTimeline(peronospora.id, sensitivities, {
-			[PhenologicalStage.FLOWERING]: 2,
-		});
+	test("lists every stage in season order with its level", () => {
+		const timeline = getDiseaseRiskTimeline(peronospora.id, sensitivities);
 		expect(timeline?.map(({ stage }) => stage)).toEqual(PHENOLOGICAL_STAGES);
-		expect(timeline?.[0]).toEqual({
-			stage: PhenologicalStage.BUD_BREAK,
-			level: DiseaseSensitivityLevel.NONE,
-			treatmentDays: 0,
-		});
+		expect(timeline?.[0].level).toBe(DiseaseSensitivityLevel.NONE);
 		expect(
-			timeline?.find(({ stage }) => stage === PhenologicalStage.FLOWERING),
-		).toEqual({
-			stage: PhenologicalStage.FLOWERING,
-			level: DiseaseSensitivityLevel.VERY_HIGH,
-			treatmentDays: 2,
-		});
+			timeline?.find(({ stage }) => stage === PhenologicalStage.FLOWERING)
+				?.level,
+		).toBe(DiseaseSensitivityLevel.VERY_HIGH);
 	});
 });

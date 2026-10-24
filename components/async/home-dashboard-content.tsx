@@ -6,17 +6,12 @@ import {
 	getCachedDiseases,
 	getCachedDiseaseStageSensitivities,
 	getStageByParcel,
-	getTreatments,
-	getPhenologyObservationsThisYear,
 } from "@/lib/data-fetcher";
 import {
-	type DiseaseRiskTimeline,
 	type SubstanceStageRisk,
 	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 } from "@/lib/disease-stage-sensitivity";
-import { countTreatmentDaysByStage } from "@/lib/phenology";
-import { TreatmentStatus } from "@prisma/client";
 import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
@@ -44,8 +39,6 @@ export async function HomeDashboardContent({
 		diseases,
 		parcelStages,
 		sensitivities,
-		treatments,
-		observations,
 	] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
 		getAllYearsSubstanceAggregations(userId),
@@ -53,16 +46,7 @@ export async function HomeDashboardContent({
 		getCachedDiseases(),
 		getStageByParcel(userId),
 		getCachedDiseaseStageSensitivities(),
-		getTreatments(userId),
-		getPhenologyObservationsThisYear(userId),
 	]);
-
-	const doneThisYear = treatments.flatMap((treatment) =>
-		treatment.status === TreatmentStatus.DONE &&
-		treatment.appliedDate?.getFullYear() === currentYear
-			? [{ ...treatment, appliedDate: treatment.appliedDate }]
-			: [],
-	);
 
 	const stageRiskBySubstance: Record<string, SubstanceStageRisk> = {};
 	for (const substance of substances) {
@@ -74,45 +58,17 @@ export async function HomeDashboardContent({
 		if (risk) stageRiskBySubstance[substance.name] = risk;
 	}
 
-	// Disease risk section: shown once the grower uses stages, with a current stage
-	// or a treatment applied at a known stage this year. Dots come from the diseases
-	// picked in the treatment modal (pre-filled from the products).
-	const diseaseRiskRows: {
-		diseaseId: string;
-		timeline: DiseaseRiskTimeline;
-		hasTreatmentAtStage: boolean;
-	}[] = diseases.flatMap((disease) => {
-		const treatmentDaysByStage = countTreatmentDaysByStage(
-			doneThisYear
-				.filter((treatment) => treatment.diseaseIds.includes(disease.id))
-				.map((treatment) => ({
-					parcelId: treatment.parcel.id,
-					appliedDate: treatment.appliedDate,
-				})),
-			observations,
-		);
-		const timeline = getDiseaseRiskTimeline(
-			disease.id,
-			sensitivities,
-			treatmentDaysByStage,
-		);
-		if (!timeline) return [];
-		return [
-			{
-				diseaseId: disease.id,
-				timeline,
-				hasTreatmentAtStage: Object.keys(treatmentDaysByStage).length > 0,
-			},
-		];
+	// Disease risk section: one row per disease of the matrix, shown once a parcel has
+	// a current stage.
+	const diseaseRiskRows = diseases.flatMap((disease) => {
+		const timeline = getDiseaseRiskTimeline(disease.id, sensitivities);
+		return timeline ? [{ diseaseId: disease.id, timeline }] : [];
 	});
 	const vineyardStageRisk = getSubstanceStageRisk(
 		diseaseRiskRows.map(({ diseaseId }) => diseaseId),
 		parcelStages,
 		sensitivities,
 	);
-	const showDiseaseRisk =
-		vineyardStageRisk !== null ||
-		diseaseRiskRows.some(({ hasTreatmentAtStage }) => hasTreatmentAtStage);
 
 	const enrichedSubstanceData = currentYearData.map((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
@@ -129,10 +85,10 @@ export async function HomeDashboardContent({
 
 	return (
 		<div className="space-y-4 p-4">
-			{showDiseaseRisk && (
+			{vineyardStageRisk && (
 				<DiseaseRiskSection
-					stage={vineyardStageRisk?.stage ?? null}
-					criticalDiseaseIds={vineyardStageRisk?.criticalDiseaseIds ?? []}
+					stage={vineyardStageRisk.stage}
+					criticalDiseaseIds={vineyardStageRisk.criticalDiseaseIds}
 					rows={diseaseRiskRows}
 				/>
 			)}
