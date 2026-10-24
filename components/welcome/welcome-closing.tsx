@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Code } from "lucide-react";
+import { ArrowRight, Code } from "lucide-react";
 import {
 	GITHUB_REPOSITORY_URL,
 	localizedPath,
@@ -10,13 +10,12 @@ import type { TranslationType } from "@/lib/translations-server-only";
 import type { Locale } from "@/lib/translations-helpers";
 import {
 	EYEBROW,
+	PRIMARY_BUTTON,
+	PRIMARY_BUTTON_ARROW,
 	SECTION,
 	SECTION_TEXT,
 	SECTION_TITLE,
 } from "./section-styles";
-
-const PRIMARY_BUTTON =
-	"inline-flex h-12 items-center justify-center rounded-md bg-primary px-7 text-base font-medium text-primary-foreground no-underline hover:bg-primary-600";
 
 export function WelcomeOpenSource({ dict }: { dict: TranslationType }) {
 	const t = dict.welcome.openSource;
@@ -49,7 +48,7 @@ export function WelcomeCallToAction({ dict }: { dict: TranslationType }) {
 			aria-labelledby="closing-title"
 			className="mx-auto max-w-[1200px] px-4 pt-16 pb-10 min-[900px]:px-6 min-[900px]:pt-24 min-[900px]:pb-14"
 		>
-			<div className="flex flex-col gap-4 min-[900px]:flex-row min-[900px]:flex-wrap min-[900px]:items-center min-[900px]:justify-between min-[900px]:gap-x-8 min-[900px]:border-t min-[900px]:border-neutral-200 min-[900px]:pt-8">
+			<div className="flex flex-col items-start gap-4 min-[900px]:flex-row min-[900px]:flex-wrap min-[900px]:items-center min-[900px]:justify-between min-[900px]:gap-x-8 min-[900px]:border-t min-[900px]:border-neutral-200 min-[900px]:pt-8">
 				<h2
 					id="closing-title"
 					className="m-0 text-[22px] leading-[30px] font-semibold tracking-[-0.01em] text-primary-700 min-[900px]:text-2xl"
@@ -58,6 +57,7 @@ export function WelcomeCallToAction({ dict }: { dict: TranslationType }) {
 				</h2>
 				<Link href="/auth/signin" className={PRIMARY_BUTTON}>
 					{t.cta}
+					<ArrowRight aria-hidden="true" className={PRIMARY_BUTTON_ARROW} />
 				</Link>
 			</div>
 		</section>

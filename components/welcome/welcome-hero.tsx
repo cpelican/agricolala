@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Download, FileSpreadsheet, Droplet } from "lucide-react";
+import { ArrowRight, Download, FileSpreadsheet, Droplet } from "lucide-react";
 import type { Locale } from "@/lib/translations-helpers";
 import {
 	EXAMPLE_COPPER,
 	EXAMPLE_COPPER_PERCENT,
 	formatNumber,
 } from "./example-data";
+import { PRIMARY_BUTTON, PRIMARY_BUTTON_ARROW } from "./section-styles";
 import type { WelcomeDictionary } from "./types";
 import styles from "./welcome.module.css";
 
@@ -44,22 +45,23 @@ export function WelcomeHero({
 						<span className={styles.inkword}>{t.hero.titleHighlight}</span>
 					</h1>
 					<div
-						className={`${styles.body} flex flex-col gap-3 min-[900px]:gap-5`}
+						className={`${styles.body} flex flex-col gap-4 min-[900px]:gap-5`}
 					>
 						<p className="m-0 text-base text-neutral-700 min-[900px]:text-lg min-[900px]:leading-7">
 							{t.hero.lead}
 						</p>
-						<div className="flex flex-col gap-3 min-[900px]:flex-row min-[900px]:pt-1">
-							<Link
-								href="/auth/signin"
-								className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-7 text-base font-medium text-primary-foreground no-underline hover:bg-primary-600"
-							>
+						<div className="flex flex-col items-start gap-3 pt-1">
+							<Link href="/auth/signin" className={PRIMARY_BUTTON}>
 								{t.hero.cta}
+								<ArrowRight
+									aria-hidden="true"
+									className={PRIMARY_BUTTON_ARROW}
+								/>
 							</Link>
+							<p className="m-0 text-[13px] leading-5 text-neutral-600">
+								{t.hero.note}
+							</p>
 						</div>
-						<p className="m-0 text-center text-[13px] leading-5 text-neutral-600 min-[900px]:text-left">
-							{t.hero.note}
-						</p>
 					</div>
 				</div>
 
@@ -195,7 +197,10 @@ export function WelcomeHero({
 					</div>
 				</div>
 			</div>
-			<div className={styles.bleed} aria-hidden="true" />
+			<div className={styles.bleed} aria-hidden="true">
+				<div className={styles.bleedWash} />
+				<div className={styles.bleedEdge} />
+			</div>
 		</section>
 	);
 }
