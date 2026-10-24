@@ -125,7 +125,9 @@ test("substance cards show the stage and flag its critical period", async ({
 	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
 	// Copper targets downy mildew, which is very high at flowering.
 	const chip = stageRisk.getByRole("button", { name: /Critical period/ });
+	// The badge names the disease; "Critical period" is only in its popover.
 	await expect(chip).toContainText("Downy Mildew");
+	await expect(chip).not.toContainText("Critical period");
 	await expect(stageRisk.getByText("Experimental")).toBeVisible();
 	await chip.click();
 	await expect(
