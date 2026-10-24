@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/test";
 import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
 import {
@@ -100,27 +101,50 @@ test("marks a stage from the parcel detail tiles", async ({ page }) => {
 	await expect(main.getByText("Set today")).toBeVisible();
 });
 
-test("substance cards show the stage and flag its critical period", async ({
-	page,
-}) => {
-	// The previous test left the parcel at Colour change: low risk for both mildews.
-	await page.goto("/en");
-	const main = page.getByRole("main");
-	const stageRisk = main.getByTestId("substance-stage-risk").first();
-	await expect(
-		stageRisk.getByText("Colour change", { exact: true }),
-	).toBeVisible();
-	await expect(main.getByText("Critical period")).toHaveCount(0);
-
+// Records a stage from the parcel detail tiles (each test starts from a fresh seed,
+// with no stage recorded).
+async function markStageFromDetail(page: Page, stageLabel: string) {
 	await page.goto("/en/parcels");
-	await main.getByRole("link", { name: new RegExp(seededParcel.name) }).click();
-	await main.getByRole("button", { name: "Mark Flowering" }).click();
 	await page
-		.getByRole("dialog", { name: "Mark Flowering?" })
+		.getByRole("main")
+		.getByRole("link", { name: new RegExp(seededParcel.name) })
+		.click();
+	await page
+		.getByRole("main")
+		.getByRole("button", { name: `Mark ${stageLabel}` })
+		.click();
+	await page
+		.getByRole("dialog", { name: `Mark ${stageLabel}?` })
 		.getByRole("button", { name: "Confirm" })
 		.click();
 	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
+}
 
+test("substance cards show the stage and flag its critical period", async ({
+	page,
+}) => {
+	const main = page.getByRole("main");
+	const stageRisk = main
+		.getByTestId("substance-stage-risk")
+		.filter({ visible: true })
+		.first();
+
+	// No stage recorded: the cards show no stage line.
+	await page.goto("/en");
+	await expect(main.getByRole("heading", { name: "Copper" })).toBeVisible();
+	await expect(stageRisk).toHaveCount(0);
+
+	// Colour change is low risk for both mildews: stage only, no badge.
+	await markStageFromDetail(page, "Colour change");
+	await page.goto("/en");
+	await expect(
+		stageRisk.getByText("Colour change", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByRole("button", { name: /Critical period/ }),
+	).toHaveCount(0);
+
+	await markStageFromDetail(page, "Flowering");
 	await page.goto("/en");
 	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
 	// Copper targets downy mildew, which is very high at flowering.
