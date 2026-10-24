@@ -12,13 +12,15 @@ import {
 	getLocaleFromPathname,
 	defaultLocale,
 	getLanguageAsLocale,
-	appLanguages,
+	languageIsLocale,
 	type Locale,
 } from "@/lib/translations-helpers";
 import type { TranslationType } from "@/lib/translations-server-only";
 
 interface TranslationsContextType {
 	t: (key: string) => string;
+	// The whole dictionary, for components that read nested values with their real types.
+	translations: TranslationType | null;
 	getArray: (key: string) => string[];
 	locale: string;
 	getSubstanceTranslation: (substanceName: string) => string;
@@ -73,6 +75,7 @@ export function TranslationsProvider({ children }: { children: ReactNode }) {
 		<TranslationsContext.Provider
 			value={{
 				t,
+				translations,
 				getArray,
 				locale,
 				getSubstanceTranslation,
@@ -98,8 +101,13 @@ export const getLocaleFromBrowser = (): Locale => {
 	if (typeof navigator === "undefined") {
 		return defaultLocale;
 	}
-	const browserLang =
-		navigator.language ||
-		navigator.languages?.find((lang) => lang in appLanguages);
-	return getLanguageAsLocale(browserLang);
+	// Browsers report regional tags ("it-IT"): match on the base language, in the user's
+	// order of preference, like the Accept-Language negotiation on the server.
+	const preferred = navigator.languages?.length
+		? navigator.languages
+		: [navigator.language];
+	const supported = preferred
+		.map((tag) => tag.split("-")[0]?.toLowerCase())
+		.find((language) => languageIsLocale(language));
+	return getLanguageAsLocale(supported);
 };

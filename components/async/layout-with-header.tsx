@@ -1,24 +1,18 @@
 import type { ReactNode } from "react";
 import { BottomNavigation } from "../routing/bottom-navigation";
-import { UnauthorizedMessage } from "../misc/unauthorized-message";
 import { SidebarNavigation } from "../routing/sidebar-navigation";
 
 interface LayoutWithHeaderProps {
 	children: ReactNode;
 	icon: ReactNode;
 	title: string;
-	isAuthorized: boolean;
 }
 
 export const LayoutWithHeader = async ({
 	children,
 	icon,
 	title,
-	isAuthorized,
 }: LayoutWithHeaderProps) => {
-	if (!isAuthorized) {
-		return <UnauthorizedMessage />;
-	}
 	return (
 		<>
 			<div className="sm:hidden min-h-screen bg-primary-10 pb-20">
