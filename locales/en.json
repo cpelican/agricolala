@@ -494,6 +494,8 @@
 		"cancel": "Cancel",
 		"saved": "Stage updated",
 		"saveFailed": "Could not update the stage",
+		"criticalPeriod": "Critical period",
+		"criticalPeriodTooltip": "Higher disease risk at this stage, from a qualitative summary of research; timing varies with grape variety and climate.",
 		"stages": {
 			"BUD_BREAK": {
 				"label": "Buds opening",

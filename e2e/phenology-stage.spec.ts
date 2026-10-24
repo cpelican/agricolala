@@ -99,3 +99,36 @@ test("marks a stage from the parcel detail tiles", async ({ page }) => {
 	await expect(tile).toHaveAttribute("aria-pressed", "true");
 	await expect(main.getByText("Set today")).toBeVisible();
 });
+
+test("substance cards show the stage and flag its critical period", async ({
+	page,
+}) => {
+	// The previous test left the parcel at Colour change: low risk for both mildews.
+	await page.goto("/en");
+	const main = page.getByRole("main");
+	const stageRisk = main.getByTestId("substance-stage-risk").first();
+	await expect(
+		stageRisk.getByText("Colour change", { exact: true }),
+	).toBeVisible();
+	await expect(main.getByText("Critical period")).toHaveCount(0);
+
+	await page.goto("/en/parcels");
+	await main.getByRole("link", { name: new RegExp(seededParcel.name) }).click();
+	await main.getByRole("button", { name: "Mark Flowering" }).click();
+	await page
+		.getByRole("dialog", { name: "Mark Flowering?" })
+		.getByRole("button", { name: "Confirm" })
+		.click();
+	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
+
+	await page.goto("/en");
+	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
+	await expect(stageRisk.getByText("Critical period")).toBeVisible();
+	// The experimental label explains, on tap, that timing varies.
+	await stageRisk.getByRole("button", { name: "Experimental" }).click();
+	await expect(
+		page.getByText("timing varies with grape variety and climate", {
+			exact: false,
+		}),
+	).toBeVisible();
+});

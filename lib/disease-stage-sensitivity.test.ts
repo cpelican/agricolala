@@ -7,6 +7,7 @@ import {
 	compareSensitivityLevels,
 	getSensitivityLevel,
 	getStageSensitivityRows,
+	getSubstanceStageRisk,
 	isCriticalLevel,
 	isDiseaseActive,
 } from "./disease-stage-sensitivity";
@@ -141,5 +142,89 @@ describe("isDiseaseActive", () => {
 				MAY,
 			),
 		).toBe(false);
+	});
+});
+
+describe("getSubstanceStageRisk", () => {
+	const oidiumSensitivities = getStageSensitivityRows("Oidium").map((row) => ({
+		...row,
+		diseaseId: "oidium",
+	}));
+	const allSensitivities = [...sensitivities, ...oidiumSensitivities];
+
+	test("is null when no parcel has a current stage", () => {
+		expect(
+			getSubstanceStageRisk([peronospora.id], [], allSensitivities),
+		).toBeNull();
+	});
+
+	test("is null when the diseases have no rows", () => {
+		expect(
+			getSubstanceStageRisk(
+				["other"],
+				[{ stage: PhenologicalStage.FLOWERING }],
+				allSensitivities,
+			),
+		).toBeNull();
+	});
+
+	test("flags High and Very high stages as critical", () => {
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id],
+				[{ stage: PhenologicalStage.FLOWERING }],
+				allSensitivities,
+			),
+		).toEqual({
+			stage: PhenologicalStage.FLOWERING,
+			level: DiseaseSensitivityLevel.VERY_HIGH,
+			isCritical: true,
+		});
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id],
+				[{ stage: PhenologicalStage.VERAISON }],
+				allSensitivities,
+			),
+		).toEqual({
+			stage: PhenologicalStage.VERAISON,
+			level: DiseaseSensitivityLevel.LOW,
+			isCritical: false,
+		});
+	});
+
+	test("takes the riskiest disease of the substance", () => {
+		// At bud break downy mildew is None but powdery mildew Low.
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id, "oidium"],
+				[{ stage: PhenologicalStage.BUD_BREAK }],
+				allSensitivities,
+			)?.level,
+		).toBe(DiseaseSensitivityLevel.LOW);
+	});
+
+	test("takes the riskiest parcel stage, the latest observed on ties", () => {
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id],
+				[
+					{ stage: PhenologicalStage.VERAISON },
+					{ stage: PhenologicalStage.FLOWER_CLUSTERS },
+					{ stage: PhenologicalStage.FLOWERING },
+				],
+				allSensitivities,
+			)?.stage,
+		).toBe(PhenologicalStage.FLOWERING);
+		expect(
+			getSubstanceStageRisk(
+				[peronospora.id],
+				[
+					{ stage: PhenologicalStage.FRUIT_SET },
+					{ stage: PhenologicalStage.FLOWERING },
+				],
+				allSensitivities,
+			)?.stage,
+		).toBe(PhenologicalStage.FRUIT_SET);
 	});
 });

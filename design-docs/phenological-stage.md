@@ -29,26 +29,27 @@ What the issue asks for:
 
 ## Status
 
-As of 4 Oct 2026. v1 is done: growers record the stage and it shows in the Excel export. v2 has started: the per-stage disease levels are stored (P6), but no screen or job reads them yet.
+As of 24 Oct 2026. v1 is done: growers record the stage and it shows in the Excel export. v2 is under way: the per-stage disease levels are stored (P6), and the substance cards read them to show the stage and a "Critical period" chip (P1); the background jobs still use the month windows.
 
 | Phase | PR | State |
 | --- | --- | --- |
 | v1 · PR 1 — model, helpers, actions | [cpelican/agricolala#69](https://github.com/cpelican/agricolala/pull/69) | Merged 28 Sep 2026 |
 | v1 · PR 2 — stage picker in the modal and on the parcel pages | [cpelican/agricolala#70](https://github.com/cpelican/agricolala/pull/70) | Merged 4 Oct 2026 |
 | v1 · PR 3 — "Phenological stage" column in the Excel export (P9) | [cpelican/agricolala#72](https://github.com/cpelican/agricolala/pull/72) | Merged 4 Oct 2026 |
-| v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | [cpelican/agricolala#73](https://github.com/cpelican/agricolala/pull/73) | In review |
-| v2 · PR 2 – v4 | — | Not started |
+| v2 · PR 1 — `DiseaseStageSensitivity` table seeded from the matrix (P6) | [cpelican/agricolala#73](https://github.com/cpelican/agricolala/pull/73) | Merged 24 Oct 2026 |
+| v2 · PR 2 — stage-aware protection pill and "Critical period" chip (P1) | — | In review |
+| v2 · PR 3 – v4 | — | Not started |
 
 ## Current state
 
-Since #69, #70 and #72 the app records each parcel's stage and exports it. v2 PR 1 stores each disease's level per stage, but nothing reads it yet: disease risk is still a fixed calendar window, and coverage still assumes a fully grown canopy all season.
+Since #69, #70 and #72 the app records each parcel's stage and exports it. Since #73 it stores each disease's level per stage; v2 PR 2 reads it on the substance cards only. Elsewhere disease risk is still a fixed calendar window (the coverage readout is even hidden outside the month windows, whatever the stage), and coverage still assumes a fully grown canopy all season.
 
 | Area | Where | What it does today | Phenology gap |
 | --- | --- | --- | --- |
-| Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering". v2 PR 1 adds `DiseaseStageSensitivity` and `isDiseaseActive`; the month fields stay as fallback |
+| Disease windows | `Disease.sensitivityMonthMin/Max` in `prisma/schema.prisma`; seeded in `prisma/seed.ts` | Oidium = months 4–8, Peronospora = months 3–7, same for every parcel and year | An early or late season shifts real risk by 2–4 weeks; months cannot express "flowering". #73 added `DiseaseStageSensitivity` and `isDiseaseActive` (not called yet, P4 will); the month fields stay as fallback |
 | Treatment suggestions | `app/api/cron/suggest-treatments/route.ts` + `getCurrentDiseases` | Re-proposes last products once `daysBetweenApplications` has elapsed, if the disease month window is active | Same cadence at bud break and at flowering, although risk differs a lot |
 | Coverage widget | `lib/coverage-helpers.ts` | Residual dose after rain wash-off and time decay; copper converted to mg/m² with a fixed LAI = 4 (`COPPER_LEAF_AREA_FACTOR`) | Measured LAI in 4 California vineyards ran from 0.7–1.0 early in the season to 2.4–4.0 at full canopy around veraison ([Kang et al. 2022, Irrigation Science](https://pmc.ncbi.nlm.nih.gov/articles/PMC9509311/)); leaves grown after a spray carry no deposit |
-| Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | Advice is the same whether the vine is at a low-risk or a critical stage |
+| Protection pill / advice | `components/substances/coverage-headline.tsx` | "Re-treat now / soon / protected" from thresholds + 3-day rain forecast | v2 PR 2: stage and "Critical period" chip in the card header, and "Re-treat soon" earlier during critical stages (P1) |
 | Treatment modal | `components/treatments/add-treatment-dialog-form.tsx`, `createTreatmentSchema` in `lib/actions-schemas.ts` | Date, parcels, products + doses, diseases, water dose | Done in #70: optional stage field (`treatment-stage-field.tsx`) |
 | Treatment window | `lib/applicability.ts` | Hard-coded months 3–10 plus wind and rain checks | Could start at bud break instead of March |
 
@@ -204,7 +205,7 @@ Once the stage is known, the biggest wins are making the substance cards say *wh
 
 | # | Proposition | Where in the code | What the grower gets |
 | --- | --- | --- | --- |
-| P1 | **Stage-aware protection pill.** Show the parcel's stage and a "Critical period" chip in the substance card header when a disease the substance targets is High/Very high. During critical stages, advise "Re-treat soon" earlier (e.g. when the 3-day projection drops below 75 % of the full dose instead of the threshold). | `getRetreatAdvice` / `getCoverageHeadline` in `components/substances/coverage-headline.tsx`; `Substance.diseases` gives the link | Same residual dose reads "fine" at bud break but "act now" at flowering |
+| P1 | **Stage-aware protection pill.** Show the parcel's stage and a "Critical period" chip in the substance card header when a disease the substance targets is High/Very high. During critical stages, advise "Re-treat soon" earlier: when today's dose or the 3-day projection drops below 75 % of the full dose instead of the 50 % threshold (sulfur). Copper's threshold already is its full dose (2.5 mg/m² = 100 g/ha), so it keeps a 25 % margin instead: below 2.5 / 0.75 ≈ 3.3 mg/m². The cards are for all parcels, so the stage shown is the one with the highest level among the parcels' current stages (latest observation on ties); with no current stage the card shows nothing new. The chip carries the experimental label, which opens the variety-and-climate sentence on tap (a popover, so it works on phones). | `getSubstanceStageRisk` in `lib/disease-stage-sensitivity.ts`; `getRetreatAdvice` / `getCoverageHeadline` in `components/substances/coverage-headline.tsx`; chips in `components/substances/stage-risk-chips.tsx`; `Substance.diseases` gives the link | Same residual dose reads "fine" at bud break but "act now" at flowering |
 | P2 | **Risk timeline strip in each substance card.** A thin band of the 8 stages, coloured by the sensitivity matrix for that substance's diseases, with a marker at the current stage and dots for past treatments. | New component next to `coverage-residual-panel.tsx`; data from `getStageByParcel` + treatments | Sees at a glance whether sprays landed in the critical window |
 | P3 | **Canopy-aware copper readout.** Scale the fixed LAI = 4 by the Swiss stage fractions (38 % first leaves → 75 % flowering → 100 % after flowering, see "Leaf area by stage") in `COPPER_LEAF_AREA_FACTOR`, and add a "new growth" dilution term during fast shoot growth (first leaves → bunch closing). | `lib/coverage-helpers.ts` (`calculateCoverageData`, forecast projection) | Early-season mg/m² no longer under-reported; mid-season decay reflects unprotected new leaves |
 | P4 | **Stage-driven treatment suggestions.** Filter active diseases by stage instead of month; in Very-high stages, suggest the next treatment at the shortest label interval, aiming for just before flowering starts (during flowering, only bee-compatible fungicides, see P10); stop suggesting sulfur for bunches after bunch closure. | `app/api/cron/suggest-treatments/route.ts`, `getCurrentDiseases` | Fewer pointless reminders early and late, tighter reminders around bloom |
@@ -224,8 +225,8 @@ Four phases, each usable on its own and built on the previous one. Progress is t
     2. ✅ PR [#70](https://github.com/cpelican/agricolala/pull/70): stage picker with the option B pictograms in the treatment modal, stage tiles and "Mark next stage" on the parcel pages; en/it labels; e2e test.
     3. ✅ PR [#72](https://github.com/cpelican/agricolala/pull/72): "Phenological stage" column in the Excel export (P9).
 2. **v2 — Use the stage on the substance cards.**
-    1. 🔄 PR [#73](https://github.com/cpelican/agricolala/pull/73) (in review): `DiseaseStageSensitivity` table seeded from the sensitivity matrix, `isDiseaseActive` with month fallback (P6).
-    2. PR: stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
+    1. ✅ PR [#73](https://github.com/cpelican/agricolala/pull/73): `DiseaseStageSensitivity` table seeded from the sensitivity matrix, `isDiseaseActive` with month fallback (P6).
+    2. 🔄 PR (in review): stage-aware protection pill and "Critical period" chip, with the experimental tooltip (P1).
     3. PR: risk timeline strip in each substance card (P2).
 3. **v3 — Use the stage in the background jobs and rules.**
     1. PR: stage-driven treatment suggestions plus bee rules at flowering in the suggestions and the modal reminder (P4, P10).

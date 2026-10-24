@@ -108,3 +108,33 @@ export function isDiseaseActive(
 		month <= disease.sensitivityMonthMax
 	);
 }
+
+// Highest risk a substance's diseases reach across the parcels' current stages: the
+// stage shown on the substance card and whether it is a critical period. Parcels are
+// in the order of `getCurrentStagesByParcel` (latest observation first), which breaks
+// ties. Null when no parcel has a current stage or no disease has a matrix row for it,
+// so the card falls back to the plain, month-based readout.
+export function getSubstanceStageRisk(
+	diseaseIds: string[],
+	parcelStages: { stage: PhenologicalStage }[],
+	sensitivities: StageSensitivity[],
+) {
+	let risk: {
+		stage: PhenologicalStage;
+		level: DiseaseSensitivityLevel;
+		isCritical: boolean;
+	} | null = null;
+	for (const { stage } of parcelStages) {
+		for (const diseaseId of diseaseIds) {
+			const level = getSensitivityLevel(sensitivities, diseaseId, stage);
+			if (level && (!risk || compareSensitivityLevels(level, risk.level) > 0)) {
+				risk = { stage, level, isCritical: isCriticalLevel(level) };
+			}
+		}
+	}
+	return risk;
+}
+
+export type SubstanceStageRisk = NonNullable<
+	ReturnType<typeof getSubstanceStageRisk>
+>;
