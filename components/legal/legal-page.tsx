@@ -11,11 +11,8 @@ import {
 	type PublicPage,
 	welcomePath,
 } from "@/lib/site-url";
-import { appLanguages, type Locale } from "@/lib/translations-helpers";
+import type { Locale } from "@/lib/translations-helpers";
 import type { TranslationType } from "@/lib/translations-server-only";
-
-export const legalStaticParams = () =>
-	Object.values(appLanguages).map((lang) => ({ lang }));
 
 export const legalMetadata = ({
 	locale,

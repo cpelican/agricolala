@@ -23,12 +23,8 @@ import {
 import { appLanguages, languageIsLocale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
-// Public marketing page: one static page per language.
+// Public marketing page: one static page per language (params from app/[lang]/layout.tsx).
 export const dynamicParams = false;
-
-export function generateStaticParams() {
-	return Object.values(appLanguages).map((lang) => ({ lang }));
-}
 
 const OG_LOCALES = { en: "en_GB", it: "it_IT" } as const;
 

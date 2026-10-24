@@ -5,6 +5,8 @@ const nextConfig = {
 	devIndicators: process.env.PLAYWRIGHT ? false : undefined,
 	experimental: {
 		taint: true,
+		// app/global-not-found.tsx: the app has two root layouts (app/[lang], app/auth).
+		globalNotFound: true,
 		staleTimes: {
 			dynamic: 60,
 			static: 300,

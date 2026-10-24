@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-	LegalPage,
-	legalMetadata,
-	legalStaticParams,
-} from "@/components/legal/legal-page";
+import { LegalPage, legalMetadata } from "@/components/legal/legal-page";
 import { PrivacyContent } from "@/components/legal/privacy-content";
 import { PUBLIC_PAGES } from "@/lib/site-url";
 import { languageIsLocale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 
 export const dynamicParams = false;
-export const generateStaticParams = legalStaticParams;
 
 export async function generateMetadata({
 	params,

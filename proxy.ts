@@ -1,7 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { type NextRequest, NextResponse } from "next/server";
-import { match } from "@formatjs/intl-localematcher";
-import Negotiator from "negotiator";
+import { getLocaleFromAcceptLanguage } from "@/lib/accept-language";
 import {
 	defaultLocale,
 	appLanguages,
@@ -34,17 +33,7 @@ const isPublicRoute = (pathname: string) =>
 	PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
 function getLocaleFromHeaders(request: Request): Locale {
-	const headers = {
-		"accept-language": request.headers.get("accept-language") || "",
-	};
-	const languages = new Negotiator({ headers }).languages();
-	const matchedLocale = match(languages, locales, defaultLocale);
-
-	if (!languageIsLocale(matchedLocale)) {
-		return defaultLocale;
-	}
-
-	return matchedLocale;
+	return getLocaleFromAcceptLanguage(request.headers.get("accept-language"));
 }
 
 // The language of the last localized page the visitor opened: their latest choice,

@@ -6,11 +6,6 @@ import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { LayoutMainSkeleton } from "@/components/skeletons/layout-main-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
-import { appLanguages } from "@/lib/translations-helpers";
-
-export function generateStaticParams() {
-	return Object.values(appLanguages).map((lang) => ({ lang }));
-}
 
 export default async function Layout({
 	children,

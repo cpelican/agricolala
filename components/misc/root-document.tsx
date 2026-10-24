@@ -1,30 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
 import type { ReactNode } from "react";
-import "./globals.css";
-import { defaultLocale, LOCALE_HEADER } from "@/lib/translations-helpers";
+import { inter } from "@/app/const";
 import { siteUrl } from "@/lib/site-url";
-import { inter } from "./const";
+import type { Locale } from "@/lib/translations-helpers";
 
-export const metadata: Metadata = {
+// The app has two root layouts (app/[lang] and app/auth), so the <html> shell and the
+// defaults they share live here.
+export const rootMetadata: Metadata = {
 	metadataBase: siteUrl,
 	title: "Agricolala - Wineyard Management",
 	description: "Manage your wineyard treatments and parcels",
 };
 
-export const viewport: Viewport = {
+export const rootViewport: Viewport = {
 	width: "device-width",
 	initialScale: 1,
 };
 
-export default async function RootLayout({
+export function RootDocument({
+	lang,
 	children,
 }: {
+	lang: Locale;
 	children: ReactNode;
 }) {
-	const headersList = await headers();
-	const lang = headersList.get(LOCALE_HEADER) ?? defaultLocale;
-
 	return (
 		<html lang={lang} className="agricolala">
 			<body className={inter.className}>{children}</body>
