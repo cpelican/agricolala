@@ -2,9 +2,18 @@ import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { TreatmentStatus } from "@prisma/client";
 
-import { getCachedCompositions, getCurrentDiseases } from "@/lib/data-fetcher";
+import {
+	getCachedCompositions,
+	getCachedDiseaseStageSensitivities,
+	getCachedDiseaseWindows,
+} from "@/lib/data-fetcher";
 import { Errors } from "@/lib/constants";
-import { DEFAULT_DAYS_BETWEEN_APPLICATIONS } from "@/lib/coverage-helpers";
+import { getActiveDiseaseIds } from "@/lib/disease-stage-sensitivity";
+import { getStageExpiryCutoff } from "@/lib/phenology";
+import {
+	buildTreatmentSuggestion,
+	lastTreatmentSelect,
+} from "@/lib/treatment-suggestions";
 
 /** Vitest/CI only: x-cron-as-of when CRON_ALLOW_AS_OF=true and not Vercel production. */
 function isCronAsOfOverrideAllowed(): boolean {
@@ -14,21 +23,17 @@ function isCronAsOfOverrideAllowed(): boolean {
 	);
 }
 
-function resolveCronReferenceDate(request: NextRequest): {
-	referenceDate: Date;
-	isExplicitAsOf: boolean;
-} {
-	const now = new Date();
+function resolveCronReferenceDate(request: NextRequest): Date {
 	if (isCronAsOfOverrideAllowed()) {
 		const asOf = request.headers.get("x-cron-as-of");
 		if (asOf) {
 			const parsed = new Date(asOf);
 			if (!Number.isNaN(parsed.getTime())) {
-				return { referenceDate: parsed, isExplicitAsOf: true };
+				return parsed;
 			}
 		}
 	}
-	return { referenceDate: now, isExplicitAsOf: false };
+	return new Date();
 }
 
 const getAuthorizedUsersWithLastTreatmentsData = async (
@@ -57,23 +62,19 @@ const getAuthorizedUsersWithLastTreatmentsData = async (
 							appliedDate: "desc",
 						},
 						take: 1, // Get only the most recent treatment per parcel
-						select: {
-							id: true,
-							appliedDate: true,
-							waterDose: true,
-							diseaseIds: true,
-							productApplications: {
-								select: {
-									dose: true,
-									product: {
-										select: {
-											id: true,
-											daysBetweenApplications: true,
-										},
-									},
-								},
+						select: lastTreatmentSelect,
+					},
+					// Current stage: latest observation on or before the date, unless expired.
+					phenologyObservations: {
+						where: {
+							observedAt: {
+								lte: referenceDate,
+								gte: getStageExpiryCutoff(referenceDate),
 							},
 						},
+						orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
+						take: 1,
+						select: { stage: true },
 					},
 				},
 			},
@@ -89,13 +90,12 @@ export async function GET(request: NextRequest) {
 
 	try {
 		let suggestedTreatments = 0;
-		const { referenceDate: currentDate, isExplicitAsOf } =
-			resolveCronReferenceDate(request);
+		const currentDate = resolveCronReferenceDate(request);
 
 		// Delete all TODO treatments
 		// We want a one to one type relationship for todo treatment with the parcel
 		// it is easier / simpler to re-create the todo rather than update it
-		const [, users, compositions] = await Promise.all([
+		const [, users, compositions, diseases, sensitivities] = await Promise.all([
 			prisma.treatment.deleteMany({
 				where: {
 					status: TreatmentStatus.TODO,
@@ -103,110 +103,53 @@ export async function GET(request: NextRequest) {
 			}),
 			getAuthorizedUsersWithLastTreatmentsData(currentDate),
 			getCachedCompositions(),
+			getCachedDiseaseWindows(),
+			getCachedDiseaseStageSensitivities(),
 		]);
 
-		// Filter diseaseIds to only include currently active diseases.
-		// This only depends on the reference date, not on the user/parcel being
-		// processed, so it's computed once instead of once per parcel.
-		const currentDiseases = await getCurrentDiseases(
-			isExplicitAsOf ? currentDate : undefined,
-		);
-		const { currentDiseaseIds, substancesByDiseaseId } =
-			currentDiseases.reduce<{
-				currentDiseaseIds: Set<string>;
-				substancesByDiseaseId: Record<string, string[]>;
-			}>(
-				(acc, disease) => {
-					acc.currentDiseaseIds.add(disease.id);
-					acc.substancesByDiseaseId[disease.id] = disease.substances.map(
-						(substance) => substance.id,
-					);
-					return acc;
-				},
-				{ currentDiseaseIds: new Set<string>(), substancesByDiseaseId: {} },
+		// Products that contain a substance fighting each disease.
+		const productIdsByDiseaseId: Record<string, Set<string>> = {};
+		for (const disease of diseases) {
+			productIdsByDiseaseId[disease.id] = new Set(
+				disease.substances.flatMap((substance) =>
+					Object.keys(compositions[substance.id] ?? {}),
+				),
 			);
+		}
 
 		for (const user of users) {
 			for (const parcel of user.parcels) {
-				if (parcel.treatments.length === 0) continue;
-
 				const lastTreatment = parcel.treatments[0];
+				if (!lastTreatment) continue;
 
-				if (!lastTreatment.appliedDate) continue;
-
-				const daysSinceLastTreatment = Math.floor(
-					(currentDate.getTime() - lastTreatment.appliedDate.getTime()) /
-						(1000 * 60 * 60 * 24),
-				);
-				const filteredDiseaseIds = lastTreatment.diseaseIds.filter((id) =>
-					currentDiseaseIds.has(id),
-				);
-				// Compute which products can be currently applied depending on the current diseases
-				const productIdsCurrentlyValidToApply = new Set<string>();
-				for (const diseaseId of filteredDiseaseIds) {
-					const substances = substancesByDiseaseId[diseaseId];
-					for (const substanceId of substances) {
-						for (const productId of Object.keys(
-							compositions[substanceId] ?? {},
-						)) {
-							productIdsCurrentlyValidToApply.add(productId);
-						}
-					}
-				}
-
-				// If no products can be currently applied, skip the parcel and wait for all dates to expire
-				if (productIdsCurrentlyValidToApply.size === 0) {
-					continue;
-				}
-				// productIdsCurrentlyValidToApply contains only products already previously used by the user:
-				// this means the app cannot propose new products to use as the disease become active,
-				// since several products can be available for one disease and it is not for the app to choose.
-				// Products without a label interval (e.g. liquid products) use the same fallback as the coverage widget.
-				const productsUsedInLastTreatmentAndValidToApply =
-					lastTreatment.productApplications
-						.map((pa) => ({
-							dose: pa.dose,
-							productId: pa.product.id,
-							daysBetweenApplications:
-								pa.product.daysBetweenApplications ??
-								DEFAULT_DAYS_BETWEEN_APPLICATIONS,
-						}))
-						.filter(
-							(pa) =>
-								productIdsCurrentlyValidToApply.has(pa.productId) &&
-								daysSinceLastTreatment >= pa.daysBetweenApplications,
-						);
-				const minDaysBetweenApplications = Math.min(
-					...productsUsedInLastTreatmentAndValidToApply.map(
-						(el) => el.daysBetweenApplications,
+				// Diseases are active by the parcel's stage, or by month without one.
+				const stage = parcel.phenologyObservations[0]?.stage ?? null;
+				const suggestion = buildTreatmentSuggestion({
+					lastTreatment,
+					date: currentDate,
+					stage,
+					activeDiseaseIds: getActiveDiseaseIds(
+						diseases,
+						sensitivities,
+						[stage],
+						currentDate,
 					),
-				);
-				const suggestedDate = new Date(lastTreatment.appliedDate);
-				suggestedDate.setDate(
-					suggestedDate.getDate() + minDaysBetweenApplications,
-				);
-				const newDateMax = new Date(suggestedDate);
-				newDateMax.setDate(newDateMax.getDate() + minDaysBetweenApplications);
-
-				if (productsUsedInLastTreatmentAndValidToApply.length <= 0) {
-					console.info("No products used in last treatment and valid to apply");
-					continue;
-				}
+					productIdsByDiseaseId,
+					sensitivities,
+				});
+				if (!suggestion) continue;
 
 				await prisma.treatment.create({
 					data: {
 						parcelId: parcel.id,
 						userId: user.id,
 						status: TreatmentStatus.TODO,
-						dateMin: suggestedDate,
-						dateMax: newDateMax,
+						dateMin: suggestion.dateMin,
+						dateMax: suggestion.dateMax,
 						waterDose: lastTreatment.waterDose || 10,
-						diseaseIds: lastTreatment.diseaseIds,
+						diseaseIds: suggestion.diseaseIds,
 						productApplications: {
-							create: productsUsedInLastTreatmentAndValidToApply.map((el) => ({
-								dose: el.dose,
-								productId: el.productId,
-							})),
+							create: suggestion.productApplications,
 						},
 					},
 				});

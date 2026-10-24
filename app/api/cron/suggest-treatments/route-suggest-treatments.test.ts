@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 import {
 	type PrismaClient,
+	PhenologicalStage,
 	ProductDoseUnit,
 	TreatmentStatus,
 } from "@prisma/client";
@@ -12,8 +13,13 @@ import {
 	seedTestData,
 } from "../../../../test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
-import { getCurrentDiseases } from "@/lib/data-fetcher";
+import {
+	getCachedDiseaseStageSensitivities,
+	getCachedDiseaseWindows,
+} from "@/lib/data-fetcher";
 import { DEFAULT_DAYS_BETWEEN_APPLICATIONS } from "@/lib/coverage-helpers";
+import { getActiveDiseaseIds } from "@/lib/disease-stage-sensitivity";
+import { CRITICAL_SUGGESTION_WINDOW_DAYS } from "@/lib/treatment-suggestions";
 
 // HTTP tests hit Next on :3001 (separate process). Use x-cron-as-of (CRON_ALLOW_AS_OF)
 // so the server evaluates seed sensitivity months on a fixed date, not the wall clock.
@@ -239,8 +245,127 @@ describe("[Integration] Suggest Treatments", () => {
 			["Oidium", "Peronospora"],
 		],
 		[new Date(2024, OIDIUM_SENSITIVITY_MONTH_MAX, 24, 0, 0, 0), []],
-	])("getCurrentDiseases", async (currentDate, expectedDiseases) => {
-		const diseases = await getCurrentDiseases(currentDate);
-		expect(diseases.map((d) => d.name)).toEqual(expectedDiseases);
+	])("month windows apply without a stage (%s)", async (currentDate, expectedDiseases) => {
+		const [diseases, sensitivities] = await Promise.all([
+			getCachedDiseaseWindows(),
+			getCachedDiseaseStageSensitivities(),
+		]);
+		const activeIds = getActiveDiseaseIds(
+			diseases,
+			sensitivities,
+			[],
+			currentDate,
+		);
+		expect(
+			diseases.filter((d) => activeIds.has(d.id)).map((d) => d.name),
+		).toEqual(expectedDiseases);
+	});
+
+	describe("by phenological stage", () => {
+		async function recordStage(stage: PhenologicalStage, asOf: Date) {
+			await testPrisma.phenologyObservation.create({
+				data: {
+					parcelId: testData.testParcel.id,
+					stage,
+					observedAt: localMidnightDaysAgo(asOf, 2),
+				},
+			});
+		}
+
+		async function setLastTreatmentDaysAgo(asOf: Date, days: number) {
+			const appliedDate = localMidnightDaysAgo(asOf, days);
+			await testPrisma.treatment.update({
+				where: { id: testData.pastTreatment.id },
+				data: {
+					appliedDate,
+					diseaseIds: [testData.peronospora.id, testData.oidium.id],
+				},
+			});
+			return appliedDate;
+		}
+
+		async function getTodoTreatments() {
+			return testPrisma.treatment.findMany({
+				where: { status: TreatmentStatus.TODO },
+				include: { productApplications: true },
+			});
+		}
+
+		test("the stage overrides the month window: small berries in January is suggested", async () => {
+			await setLastTreatmentDaysAgo(CRON_AS_OF_OUT_OF_SEASON, 10);
+			await recordStage(PhenologicalStage.FRUIT_SET, CRON_AS_OF_OUT_OF_SEASON);
+
+			const response = await fetchSuggestTreatments(CRON_AS_OF_OUT_OF_SEASON);
+			const data = await response.json();
+
+			expect(response.status).toBe(200);
+			expect(data.message).toBe(`Created 1 suggested treatments`);
+		});
+
+		test("no suggestion at colour change, although June is in the month windows", async () => {
+			await setLastTreatmentDaysAgo(CRON_AS_OF_IN_SEASON, 10);
+			await recordStage(PhenologicalStage.VERAISON, CRON_AS_OF_IN_SEASON);
+
+			const response = await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+			const data = await response.json();
+
+			expect(response.status).toBe(200);
+			expect(data.message).toBe(`Created 0 suggested treatments`);
+		});
+
+		test("sulfur is still suggested at bunch closing", async () => {
+			await setLastTreatmentDaysAgo(CRON_AS_OF_IN_SEASON, 10);
+			await recordStage(PhenologicalStage.BUNCH_CLOSURE, CRON_AS_OF_IN_SEASON);
+
+			await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+
+			const [todo] = await getTodoTreatments();
+			expect(todo.productApplications.map((pa) => pa.productId)).toContain(
+				testData.sulfurProduct.id,
+			);
+		});
+
+		test("at small berries, every product comes back at the shortest interval within a short window", async () => {
+			const { COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS } = testData;
+			// Copper's interval (7 days) has elapsed, sulfur's (8 days) has not.
+			const appliedDate = await setLastTreatmentDaysAgo(
+				CRON_AS_OF_IN_SEASON,
+				COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+			);
+			await recordStage(PhenologicalStage.FRUIT_SET, CRON_AS_OF_IN_SEASON);
+
+			await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+
+			const todos = await getTodoTreatments();
+			expect(todos).toHaveLength(1);
+			expect(
+				todos[0].productApplications.map((pa) => pa.productId).sort(),
+			).toEqual([testData.copperProduct.id, testData.sulfurProduct.id].sort());
+			const { dateMin } = expectedSuggestedDateRange(
+				appliedDate,
+				COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+			);
+			const dateMax = new Date(dateMin);
+			dateMax.setDate(dateMax.getDate() + CRITICAL_SUGGESTION_WINDOW_DAYS);
+			expect(todos[0].dateMin?.toISOString().slice(0, 10)).toBe(
+				dateMin.toISOString().slice(0, 10),
+			);
+			expect(todos[0].dateMax?.toISOString().slice(0, 10)).toBe(
+				dateMax.toISOString().slice(0, 10),
+			);
+		});
+
+		test("at flowering, copper is left out and sulfur still suggested", async () => {
+			await setLastTreatmentDaysAgo(CRON_AS_OF_IN_SEASON, 10);
+			await recordStage(PhenologicalStage.FLOWERING, CRON_AS_OF_IN_SEASON);
+
+			await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+
+			const todos = await getTodoTreatments();
+			expect(todos).toHaveLength(1);
+			expect(todos[0].productApplications.map((pa) => pa.productId)).toEqual([
+				testData.sulfurProduct.id,
+			]);
+		});
 	});
 });

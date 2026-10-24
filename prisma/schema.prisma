@@ -143,6 +143,8 @@ model Substance {
   name           String          @unique
   maxDosage      Float
   maxDosageUnitPerAreaUnit    SubstanceLimitUnit @default(KG_PER_HA)
+  /** Best avoided while the vines flower (copper; insecticides/acaricides, banned by L. 313/2004): products containing it are never suggested then */
+  restrictedAtFlowering Boolean       @default(false)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   substanceDoses SubstanceDose[]

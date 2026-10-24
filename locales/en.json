@@ -501,6 +501,10 @@
 		"riskByStage": "{disease}: risk by stage",
 		"riskTimelineTooltip": "Levels come from a qualitative summary of research; timing varies with grape variety and climate.",
 		"now": "now",
+		"noActiveDisease": "No disease is active at this stage, so protection isn't tracked right now.",
+		"floweringReminderTitle": "Flowering: protect the bees",
+		"floweringReminder": "Flowering only lasts a few days: if you can, avoid treating. Never use insecticides or acaricides, and avoid copper; use only fungicides without a bee-hazard label, from 2 hours before to 3 hours after sunset.",
+		"restrictedAtFlowering": "Best avoided during flowering: it contains copper or an insecticide.",
 		"levelUnknown": "Unknown",
 		"levels": {
 			"NONE": "No risk",

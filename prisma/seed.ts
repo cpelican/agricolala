@@ -53,6 +53,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				name: "Copper",
 				maxDosage: 4, // kg/ha/year
 				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+				// Good practice: no copper while the vines flower.
+				restrictedAtFlowering: true,
 				diseases: {
 					connect: [{ id: peronospora.id }],
 				},
@@ -73,6 +75,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 				name: "Olio essenziale di arancio dolce",
 				maxDosage: 10, // kg/ha/year
 				maxDosageUnitPerAreaUnit: SubstanceLimitUnit.KG_PER_HA,
+				// Also an insecticide and acaricide, banned during flowering (L. 313/2004).
+				restrictedAtFlowering: true,
 				diseases: {
 					connect: [{ id: oidium.id }, { id: peronospora.id }],
 				},
@@ -177,12 +181,36 @@ async function upsertDiseaseStageSensitivities(prisma: PrismaClient) {
 	}
 }
 
+// Substances best avoided during flowering (copper; orange oil, an insecticide and
+// acaricide), flagged by name without wiping anything, like the sensitivities above.
+const SUBSTANCES_RESTRICTED_AT_FLOWERING = [
+	"Copper",
+	"Olio essenziale di arancio dolce",
+];
+
+async function updateFloweringRestrictions(prisma: PrismaClient) {
+	const { count } = await prisma.substance.updateMany({
+		where: { name: { in: SUBSTANCES_RESTRICTED_AT_FLOWERING } },
+		data: { restrictedAtFlowering: true },
+	});
+	console.log(`${count} substances restricted at flowering`);
+}
+
 async function main() {
 	const prisma = new PrismaClient();
 
 	if (process.argv.includes("--stage-sensitivities-only")) {
 		try {
 			await upsertDiseaseStageSensitivities(prisma);
+		} finally {
+			await prisma.$disconnect();
+		}
+		return;
+	}
+
+	if (process.argv.includes("--flowering-restrictions-only")) {
+		try {
+			await updateFloweringRestrictions(prisma);
 		} finally {
 			await prisma.$disconnect();
 		}

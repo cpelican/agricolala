@@ -1,9 +1,12 @@
 import {
 	getCachedCompositions,
+	getCachedDiseaseStageSensitivities,
+	getCachedDiseaseWindows,
 	getCachedSubstances,
-	getCurrentDiseases,
+	getStageByParcel,
 	getTreatmentsWithParcelWeather,
 } from "@/lib/data-fetcher";
+import { getActiveDiseaseIds } from "@/lib/disease-stage-sensitivity";
 import { calculateCoverageData } from "@/lib/coverage-helpers";
 import { OpenMeteoClient } from "@/lib/open-meteo-client";
 import { type CoverageResult } from "@/components/types";
@@ -12,18 +15,37 @@ export async function getCoverageWidgetData(
 	userId: string,
 ): Promise<CoverageResult> {
 	try {
-		const activeDiseases = await getCurrentDiseases();
-
-		// Hide coverage data entirely outside disease season (e.g. December)
-		if (activeDiseases.length === 0) {
-			return { status: "hidden", reason: "noActiveDisease" };
-		}
-
-		const [parcels, compositions, substances] = await Promise.all([
+		const [
+			parcels,
+			compositions,
+			substances,
+			diseases,
+			sensitivities,
+			parcelStages,
+		] = await Promise.all([
 			getTreatmentsWithParcelWeather(userId),
 			getCachedCompositions(),
 			getCachedSubstances(),
+			getCachedDiseaseWindows(),
+			getCachedDiseaseStageSensitivities(),
+			getStageByParcel(userId),
 		]);
+
+		// Hide coverage data entirely when no disease is active on any parcel, by its
+		// stage or, without one, by month (e.g. December)
+		const activeDiseaseIds = getActiveDiseaseIds(
+			diseases,
+			sensitivities,
+			parcels.map(
+				(parcel) =>
+					parcelStages.find((stage) => stage.parcelId === parcel.id)?.stage ??
+					null,
+			),
+			new Date(),
+		);
+		if (activeDiseaseIds.size === 0) {
+			return { status: "hidden", reason: "noActiveDisease" };
+		}
 
 		// Fetch 3-day forecast from the first parcel that has coordinates
 		const representativeParcel = parcels.find(

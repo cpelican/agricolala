@@ -90,6 +90,7 @@ export async function HomeDashboardContent({
 					stage={vineyardStageRisk.stage}
 					criticalDiseaseIds={vineyardStageRisk.criticalDiseaseIds}
 					rows={diseaseRiskRows}
+					coverageResultPromise={coverageResultPromise}
 				/>
 			)}
 			<SubstanceUsageSection
@@ -98,6 +99,7 @@ export async function HomeDashboardContent({
 				allYearsData={hasMultipleYears ? allYearsData : undefined}
 				coverageResultPromise={coverageResultPromise}
 				stageRiskBySubstance={stageRiskBySubstance}
+				isNoActiveDiseaseShownAbove={vineyardStageRisk !== null}
 			/>
 		</div>
 	);
