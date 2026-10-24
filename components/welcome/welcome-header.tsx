@@ -60,7 +60,9 @@ export function WelcomeHeader({
 									/
 								</span>
 							)}
-							<Link
+							{/* A full page load, not a client-side Link: the root layout sets <html lang>
+							    from the request, and a soft navigation would keep the old language. */}
+							<a
 								href={localizedPath(language, page)}
 								hrefLang={language}
 								lang={language}
@@ -71,7 +73,7 @@ export function WelcomeHeader({
 							>
 								{LANGUAGE_CODES[language]}
 								<span className="sr-only"> {t.languages[language]}</span>
-							</Link>
+							</a>
 						</li>
 					))}
 				</ul>
