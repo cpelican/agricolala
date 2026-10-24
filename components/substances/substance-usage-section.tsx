@@ -24,7 +24,7 @@ interface SubstanceUsageSectionProps {
 	description?: string;
 	allYearsData?: Awaited<ReturnType<typeof getAllYearsSubstanceAggregations>>;
 	coverageResultPromise?: Promise<CoverageResult>;
-	// Keyed by substance name; a substance without an entry shows no stage line.
+	// Keyed by substance name; a substance without an entry has no critical chip.
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
 }
 

@@ -3,13 +3,16 @@ import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
 	getCachedSubstances,
+	getCachedDiseases,
 	getCachedDiseaseStageSensitivities,
 	getStageByParcel,
 } from "@/lib/data-fetcher";
 import {
 	type SubstanceStageRisk,
+	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 } from "@/lib/disease-stage-sensitivity";
+import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
@@ -33,12 +36,14 @@ export async function HomeDashboardContent({
 		currentYearData,
 		allYearsData,
 		substances,
+		diseases,
 		parcelStages,
 		sensitivities,
 	] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
 		getAllYearsSubstanceAggregations(userId),
 		getCachedSubstances(),
+		getCachedDiseases(),
 		getStageByParcel(userId),
 		getCachedDiseaseStageSensitivities(),
 	]);
@@ -52,6 +57,18 @@ export async function HomeDashboardContent({
 		);
 		if (risk) stageRiskBySubstance[substance.name] = risk;
 	}
+
+	// Disease risk section: one row per disease of the matrix, shown once a parcel has
+	// a current stage.
+	const diseaseRiskRows = diseases.flatMap((disease) => {
+		const timeline = getDiseaseRiskTimeline(disease.id, sensitivities);
+		return timeline ? [{ diseaseId: disease.id, timeline }] : [];
+	});
+	const vineyardStageRisk = getSubstanceStageRisk(
+		diseaseRiskRows.map(({ diseaseId }) => diseaseId),
+		parcelStages,
+		sensitivities,
+	);
 
 	const enrichedSubstanceData = currentYearData.map((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
@@ -68,6 +85,13 @@ export async function HomeDashboardContent({
 
 	return (
 		<div className="space-y-4 p-4">
+			{vineyardStageRisk && (
+				<DiseaseRiskSection
+					stage={vineyardStageRisk.stage}
+					criticalDiseaseIds={vineyardStageRisk.criticalDiseaseIds}
+					rows={diseaseRiskRows}
+				/>
+			)}
 			<SubstanceUsageSection
 				substanceData={enrichedSubstanceData}
 				description={dict.substances.trackApplicationsHome}

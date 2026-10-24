@@ -22,7 +22,7 @@ import {
 	getCoverageHeadline,
 	isCoverageTracked,
 } from "./coverage-headline";
-import { StageRiskChips } from "./stage-risk-chips";
+import { DiseaseBadges } from "./disease-badges";
 import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
@@ -128,9 +128,8 @@ export function SubstanceCard({
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
 	const translatedName = getSubstanceTranslation(substance.name);
-	const substanceColor =
-		substances.find((s) => s.name === substance.name)?.color ||
-		"rgb(182, 182, 182)";
+	const substanceMeta = substances.find((s) => s.name === substance.name);
+	const substanceColor = substanceMeta?.color || "rgb(182, 182, 182)";
 
 	return (
 		<Card>
@@ -150,7 +149,10 @@ export function SubstanceCard({
 						</Suspense>
 					)}
 				</div>
-				{stageRisk && <StageRiskChips risk={stageRisk} />}
+				<DiseaseBadges
+					diseaseIds={substanceMeta?.diseaseIds ?? []}
+					risk={stageRisk}
+				/>
 
 				{coverageResultPromise && (
 					<Suspense

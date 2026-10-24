@@ -497,6 +497,18 @@
 		"criticalPeriod": "Critical period",
 		"criticalPeriodTooltip": "Higher disease risk at this stage, from a qualitative summary of research; timing varies with grape variety and climate.",
 		"criticalPeriodExplanation": "{stage} is a critical period for {diseases}: the vines are most at risk now, so keep them protected and re-treat sooner than usual.",
+		"diseaseRisk": "Disease risk",
+		"riskByStage": "{disease}: risk by stage",
+		"riskTimelineTooltip": "Levels come from a qualitative summary of research; timing varies with grape variety and climate.",
+		"now": "now",
+		"levelUnknown": "Unknown",
+		"levels": {
+			"NONE": "No risk",
+			"LOW": "Low risk",
+			"MEDIUM": "Medium risk",
+			"HIGH": "High risk",
+			"VERY_HIGH": "Very high risk"
+		},
 		"stages": {
 			"BUD_BREAK": {
 				"label": "Buds opening",
