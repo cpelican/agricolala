@@ -3,7 +3,13 @@ import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
 	getCachedSubstances,
+	getCachedDiseaseStageSensitivities,
+	getStageByParcel,
 } from "@/lib/data-fetcher";
+import {
+	type SubstanceStageRisk,
+	getSubstanceStageRisk,
+} from "@/lib/disease-stage-sensitivity";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
@@ -23,11 +29,29 @@ export async function HomeDashboardContent({
 	// slow weather API doesn't block the rest of the dashboard's first render.
 	const coverageResultPromise = getCoverageWidgetData(userId);
 
-	const [currentYearData, allYearsData, substances] = await Promise.all([
+	const [
+		currentYearData,
+		allYearsData,
+		substances,
+		parcelStages,
+		sensitivities,
+	] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
 		getAllYearsSubstanceAggregations(userId),
 		getCachedSubstances(),
+		getStageByParcel(userId),
+		getCachedDiseaseStageSensitivities(),
 	]);
+
+	const stageRiskBySubstance: Record<string, SubstanceStageRisk> = {};
+	for (const substance of substances) {
+		const risk = getSubstanceStageRisk(
+			substance.diseaseIds,
+			parcelStages,
+			sensitivities,
+		);
+		if (risk) stageRiskBySubstance[substance.name] = risk;
+	}
 
 	const enrichedSubstanceData = currentYearData.map((substance) => {
 		const substanceMeta = substances.find((s) => s.name === substance.name);
@@ -49,6 +73,7 @@ export async function HomeDashboardContent({
 				description={dict.substances.trackApplicationsHome}
 				allYearsData={hasMultipleYears ? allYearsData : undefined}
 				coverageResultPromise={coverageResultPromise}
+				stageRiskBySubstance={stageRiskBySubstance}
 			/>
 		</div>
 	);

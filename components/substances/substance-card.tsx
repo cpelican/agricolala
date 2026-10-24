@@ -22,8 +22,10 @@ import {
 	getCoverageHeadline,
 	isCoverageTracked,
 } from "./coverage-headline";
+import { StageRiskChips } from "./stage-risk-chips";
 import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
+import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 import { ShieldCheck } from "lucide-react";
 
 type SubstanceCoverageState =
@@ -94,9 +96,11 @@ function CoverageSection({
 function CoverageHeadline({
 	substanceName,
 	coverageResultPromise,
+	isCriticalPeriod,
 }: {
 	substanceName: string;
 	coverageResultPromise: Promise<CoverageResult>;
+	isCriticalPeriod: boolean;
 }) {
 	const state = getSubstanceCoverageState(
 		use(coverageResultPromise),
@@ -104,7 +108,7 @@ function CoverageHeadline({
 	);
 	if (state.kind !== "available") return null;
 
-	const headline = getCoverageHeadline(state.coverage);
+	const headline = getCoverageHeadline(state.coverage, isCriticalPeriod);
 	if (!headline) return null;
 
 	return <ProtectionPill value={headline.value} advice={headline.advice} />;
@@ -113,11 +117,13 @@ function CoverageHeadline({
 interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
+	stageRisk?: SubstanceStageRisk;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
+	stageRisk,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -139,10 +145,12 @@ export function SubstanceCard({
 							<CoverageHeadline
 								substanceName={substance.name}
 								coverageResultPromise={coverageResultPromise}
+								isCriticalPeriod={stageRisk?.isCritical ?? false}
 							/>
 						</Suspense>
 					)}
 				</div>
+				{stageRisk && <StageRiskChips risk={stageRisk} />}
 
 				{coverageResultPromise && (
 					<Suspense

@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/test";
 import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
 import {
@@ -98,4 +99,69 @@ test("marks a stage from the parcel detail tiles", async ({ page }) => {
 	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
 	await expect(tile).toHaveAttribute("aria-pressed", "true");
 	await expect(main.getByText("Set today")).toBeVisible();
+});
+
+// Records a stage from the parcel detail tiles (each test starts from a fresh seed,
+// with no stage recorded).
+async function markStageFromDetail(page: Page, stageLabel: string) {
+	await page.goto("/en/parcels");
+	await page
+		.getByRole("main")
+		.getByRole("link", { name: new RegExp(seededParcel.name) })
+		.click();
+	await page
+		.getByRole("main")
+		.getByRole("button", { name: `Mark ${stageLabel}` })
+		.click();
+	await page
+		.getByRole("dialog", { name: `Mark ${stageLabel}?` })
+		.getByRole("button", { name: "Confirm" })
+		.click();
+	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
+}
+
+test("substance cards show the stage and flag its critical period", async ({
+	page,
+}) => {
+	const main = page.getByRole("main");
+	const stageRisk = main
+		.getByTestId("substance-stage-risk")
+		.filter({ visible: true })
+		.first();
+
+	// No stage recorded: the cards show no stage line.
+	await page.goto("/en");
+	await expect(main.getByRole("heading", { name: "Copper" })).toBeVisible();
+	await expect(stageRisk).toHaveCount(0);
+
+	// Colour change is low risk for both mildews: stage only, no badge.
+	await markStageFromDetail(page, "Colour change");
+	await page.goto("/en");
+	await expect(
+		stageRisk.getByText("Colour change", { exact: true }),
+	).toBeVisible();
+	await expect(
+		main.getByRole("button", { name: /Critical period/ }),
+	).toHaveCount(0);
+
+	await markStageFromDetail(page, "Flowering");
+	await page.goto("/en");
+	await expect(stageRisk.getByText("Flowering", { exact: true })).toBeVisible();
+	// Copper targets downy mildew, which is very high at flowering.
+	const chip = stageRisk.getByRole("button", { name: /Critical period/ });
+	// The badge names the disease; "Critical period" is only in its popover.
+	await expect(chip).toContainText("Downy Mildew");
+	await expect(chip).not.toContainText("Critical period");
+	await expect(stageRisk.getByText("Experimental")).toBeVisible();
+	await chip.click();
+	await expect(
+		page.getByText("Flowering is a critical period for Downy Mildew", {
+			exact: false,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByText("timing varies with grape variety and climate", {
+			exact: false,
+		}),
+	).toBeVisible();
 });

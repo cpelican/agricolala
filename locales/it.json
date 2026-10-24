@@ -494,6 +494,9 @@
 		"cancel": "Annulla",
 		"saved": "Fase aggiornata",
 		"saveFailed": "Impossibile aggiornare la fase",
+		"criticalPeriod": "Periodo critico",
+		"criticalPeriodTooltip": "Rischio di malattia più alto in questa fase, da una sintesi qualitativa della ricerca; i tempi variano con il vitigno e il clima.",
+		"criticalPeriodExplanation": "{stage} è un periodo critico per {diseases}: ora le viti sono più a rischio, quindi mantienile protette e ripeti il trattamento prima del solito.",
 		"stages": {
 			"BUD_BREAK": {
 				"label": "Germogliamento",

@@ -20,6 +20,15 @@ export function isCoverageTracked(substanceName: string): boolean {
 
 // Below this share of the full-protection dose, the dose gauge leaves its optimal band.
 const DOSE_RETREAT_BELOW_PERCENT = 50;
+// During a critical period (a targeted disease is High/Very high at the parcels' stage),
+// "Re-treat soon" fires once the 3-day projection drops below 75 % of the full dose.
+const CRITICAL_PERIOD_SHARE_OF_FULL_DOSE = 0.75;
+const CRITICAL_PERIOD_RETREAT_SOON_PERCENT =
+	CRITICAL_PERIOD_SHARE_OF_FULL_DOSE * 100;
+// Copper's threshold already is its full dose (2.5 mg/m² = 100 g/ha), so 75 % of it would
+// be below the threshold: keep the same 25 % margin above the threshold instead.
+const CRITICAL_PERIOD_COPPER_RETREAT_SOON_MG_M2 =
+	COPPER_EFFICACY_THRESHOLD_MG_M2 / CRITICAL_PERIOD_SHARE_OF_FULL_DOSE;
 
 export type RetreatAdvice =
 	| "retreatNow"
@@ -42,25 +51,30 @@ const ADVICE_KEYS: Record<RetreatAdvice, string> = {
 };
 
 // "Re-treat soon" when protection is fine today but the 3-day forecast (rain + time
-// decay) drops it below the threshold. belowThreshold matches the body's status badge:
-// copper under its efficacy threshold is critical, a low sulfur dose only a warning.
+// decay) drops it below soonBelow: the threshold, or a higher bar in a critical period.
+// belowThreshold matches the body's status badge: copper under its efficacy threshold
+// is critical, a low sulfur dose only a warning.
 function getRetreatAdvice(
 	current: number,
 	projected: number[],
 	threshold: number,
+	soonBelow: number,
 	fullDose: number | null,
 	belowThreshold: RetreatAdvice,
 ): RetreatAdvice {
 	if (current < threshold) return belowThreshold;
-	if (projected.some((value) => value < threshold)) return "retreatSoon";
+	if ([current, ...projected].some((value) => value < soonBelow)) {
+		return "retreatSoon";
+	}
 	if (fullDose !== null && current > fullDose) return "aboveFullDose";
 	return "protected";
 }
 
 // Short headline for the card header: the one number a farmer checks first, plus
-// what to do about it.
+// what to do about it. isCriticalPeriod advises re-treating earlier.
 export function getCoverageHeadline(
 	coverage: SubstanceCoverage,
+	isCriticalPeriod = false,
 ): { value: string; advice: RetreatAdvice } | null {
 	const projectedGPerHa = coverage.forecast.map(
 		(day) => day.projectedWeightedRemainingGPerHa,
@@ -72,6 +86,9 @@ export function getCoverageHeadline(
 				coverage.leafSurfaceMgPerM2,
 				projectedGPerHa.map((g) => g / COPPER_LEAF_AREA_FACTOR),
 				COPPER_EFFICACY_THRESHOLD_MG_M2,
+				isCriticalPeriod
+					? CRITICAL_PERIOD_COPPER_RETREAT_SOON_MG_M2
+					: COPPER_EFFICACY_THRESHOLD_MG_M2,
 				null,
 				"retreatNow",
 			),
@@ -87,6 +104,9 @@ export function getCoverageHeadline(
 				rawPercent,
 				projectedGPerHa.map((g) => (g / fullDoseGPerHa) * 100),
 				DOSE_RETREAT_BELOW_PERCENT,
+				isCriticalPeriod
+					? CRITICAL_PERIOD_RETREAT_SOON_PERCENT
+					: DOSE_RETREAT_BELOW_PERCENT,
 				100,
 				"retreatSoon",
 			),

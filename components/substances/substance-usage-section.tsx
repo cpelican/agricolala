@@ -16,6 +16,7 @@ import { CoverageHiddenNote } from "./coverage-headline";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -23,6 +24,8 @@ interface SubstanceUsageSectionProps {
 	description?: string;
 	allYearsData?: Awaited<ReturnType<typeof getAllYearsSubstanceAggregations>>;
 	coverageResultPromise?: Promise<CoverageResult>;
+	// Keyed by substance name; a substance without an entry shows no stage line.
+	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
@@ -55,6 +58,7 @@ export function SubstanceUsageSection({
 	description,
 	allYearsData,
 	coverageResultPromise,
+	stageRiskBySubstance,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const hasSubstanceData = substanceData.length > 0;
@@ -91,6 +95,7 @@ export function SubstanceUsageSection({
 								key={substance.name}
 								substance={substance}
 								coverageResultPromise={coverageResultPromise}
+								stageRisk={stageRiskBySubstance?.[substance.name]}
 							/>
 						))}
 					</div>
