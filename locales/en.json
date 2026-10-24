@@ -147,7 +147,8 @@
 			"avgWind": "Avg Wind",
 			"mm": "mm",
 			"kmh": "km/h"
-		}
+		},
+		"eyebrow": "Season {year}"
 	},
 	"profile": {
 		"it": "Italian",
@@ -434,7 +435,8 @@
 		"welcome": "Welcome",
 		"description": "Manage your agricultural parcels and treatments",
 		"getStarted": "Get Started",
-		"loading": "Loading dashboard"
+		"loading": "Loading dashboard",
+		"eyebrow": "Your vineyard"
 	},
 	"coverage": {
 		"title": "Protection on the vines now",

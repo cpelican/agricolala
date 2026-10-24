@@ -22,10 +22,14 @@ export default async function TreatmentsPage({
 	return (
 		<>
 			<Header
+				eyebrow={dict.treatments.eyebrow.replace(
+					"{year}",
+					String(new Date().getFullYear()),
+				)}
 				title={dict.treatments.title}
 				subtitle={dict.treatments.description}
 			>
-				<ExcelExportDialog className="top-3 right-8" />
+				<ExcelExportDialog />
 			</Header>
 			<Suspense fallback={<TreatmentsSkeleton />}>
 				<TreatmentsContentAsync

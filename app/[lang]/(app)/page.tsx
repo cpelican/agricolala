@@ -15,7 +15,7 @@ export default async function Home({
 	const dict = tServer(locale);
 	const session = await requireAuth();
 	const userId = session.user.id;
-	const welcomeTitle = `${dict?.home?.welcome} ${session?.user?.name ?? session?.user?.email}!`;
+	const welcomeTitle = `${dict.home.welcome}, ${session.user.name ?? session.user.email}`;
 
 	return (
 		<StrictMode>
@@ -28,6 +28,7 @@ export default async function Home({
 					locale={locale}
 					userId={userId}
 					welcomeTitle={welcomeTitle}
+					eyebrow={dict.home.eyebrow}
 				/>
 			</Suspense>
 		</StrictMode>
