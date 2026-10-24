@@ -14,8 +14,22 @@ import {
 
 const locales: Locale[] = Object.values(appLanguages);
 
-const ROUTES_WITHOUT_LOCALE = ["/api"];
-const PUBLIC_ROUTES = ["/auth", "/api/auth", "/api/health", "/api/cron"];
+const SEO_FILES = ["/robots.txt", "/sitemap.xml"];
+const ROUTES_WITHOUT_LOCALE = ["/api", ...SEO_FILES];
+const PUBLIC_ROUTES = [
+	"/auth",
+	"/api/auth",
+	"/api/health",
+	"/api/cron",
+	...SEO_FILES,
+];
+// The public welcome page, with or without its locale prefix (e.g. /it/welcome, /welcome).
+const welcomeRegex = new RegExp(`^(/(${locales.join("|")}))?/welcome(/|$)`);
+
+const isPublicRoute = (pathname: string) =>
+	pathname === "/" ||
+	welcomeRegex.test(pathname) ||
+	PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
 function getLocaleFromHeaders(request: Request): Locale {
 	const headers = {
@@ -61,21 +75,6 @@ export const proxy = withAuth(
 			return response;
 		}
 
-		// [cp] Public route without locale prefix
-		// Example: /auth/signin, /api/health
-		// Action: Use token locale if user is logged in, otherwise detect from browser headers
-		// This allows logged-in users to see auth pages in their preferred language
-		const isPublicRoute = PUBLIC_ROUTES.some((route) =>
-			pathname.startsWith(route),
-		);
-		if (isPublicRoute) {
-			const locale = token?.locale || getLocaleFromHeaders(req);
-			const response = NextResponse.next();
-			response.headers.set(LOCALE_HEADER, locale);
-
-			return response;
-		}
-
 		// [cp] Root path "/" with authenticated user
 		// Example: User visits "/" while logged in
 		// Action: Redirect to their preferred locale (e.g., /it or /en)
@@ -83,6 +82,30 @@ export const proxy = withAuth(
 		if (pathname === "/" && token) {
 			const locale = token.locale ?? defaultLocale;
 			const response = NextResponse.redirect(new URL(`/${locale}`, req.url));
+			response.headers.set(LOCALE_HEADER, locale);
+
+			return response;
+		}
+
+		// Root path "/" or "/welcome" without a session
+		// Action: Send visitors to the public welcome page in the browser's language
+		if (pathname === "/" || pathname === "/welcome") {
+			const locale = getLocaleFromHeaders(req);
+			const response = NextResponse.redirect(
+				new URL(`/${locale}/welcome`, req.url),
+			);
+			response.headers.set(LOCALE_HEADER, locale);
+
+			return response;
+		}
+
+		// [cp] Public route without locale prefix
+		// Example: /auth/signin, /api/health
+		// Action: Use token locale if user is logged in, otherwise detect from browser headers
+		// This allows logged-in users to see auth pages in their preferred language
+		if (isPublicRoute(pathname)) {
+			const locale = token?.locale || getLocaleFromHeaders(req);
+			const response = NextResponse.next();
 			response.headers.set(LOCALE_HEADER, locale);
 
 			return response;
@@ -103,11 +126,7 @@ export const proxy = withAuth(
 			authorized: ({ token, req }) => {
 				const { pathname } = req.nextUrl;
 
-				const isPublicRoute = PUBLIC_ROUTES.some((route) =>
-					pathname.startsWith(route),
-				);
-
-				if (isPublicRoute) {
+				if (isPublicRoute(pathname)) {
 					return true;
 				}
 

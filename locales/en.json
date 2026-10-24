@@ -531,5 +531,90 @@
 				"description": "Ready for harvest or picked"
 			}
 		}
+	},
+	"welcome": {
+		"meta": {
+			"title": "Agricolala: your vineyard’s treatment notebook",
+			"description": "Free, open-source app for winegrowers. Map your parcels, log every treatment at the growth stage it happened, and stay under the yearly copper limit."
+		},
+		"skipToContent": "Skip to content",
+		"homeLink": "Agricolala, home",
+		"accountNav": "Language and sign in",
+		"languageLabel": "Language",
+		"languages": {
+			"en": "English",
+			"it": "Italiano"
+		},
+		"signIn": "Sign in",
+		"hero": {
+			"titleStart": "Your vineyard’s treatment",
+			"titleHighlight": "notebook.",
+			"lead": "Map parcels. Log treatments. Stay under the yearly copper limit.",
+			"cta": "Start your notebook",
+			"note": "Free and open source."
+		},
+		"illustration": {
+			"parcelName": "North Field",
+			"parcelMeta": "Vineyard · 0.8 ha",
+			"treatmentName": "Pasta cafaro",
+			"treatmentTarget": "Target: Peronospora",
+			"done": "Done",
+			"copper": "Copper",
+			"usedThisYear": "Used this year",
+			"activeSubstance": "active substance",
+			"exportTitle": "Excel export",
+			"exportMeta": "Every treatment of the year"
+		},
+		"season": {
+			"title": "From the first bud to the last bunch.",
+			"description": "The vine sets the calendar, not the other way round. Follow your parcels through the eight stages of the season and see every treatment where it happened.",
+			"caption": "Example season: the treatments made at each stage.",
+			"noTreatment": "No treatment",
+			"oneTreatment": "1 treatment",
+			"manyTreatments": "{count} treatments"
+		},
+		"app": {
+			"eyebrow": "The app",
+			"title": "Your whole vineyard, in your pocket.",
+			"description": "Made for the phone you carry between the rows. Open it to see which diseases to watch at today’s growth stage, and how much of each substance you have used this year.",
+			"imageAlt": "The Agricolala home screen on a phone: disease risk at flowering and substance usage this year",
+			"features": [
+				{
+					"title": "Disease risk",
+					"description": "Powdery and downy mildew risk through the season, marked at the stage your vines are in. Still experimental."
+				},
+				{
+					"title": "Substance usage",
+					"description": "Copper, sulfur and every other active substance, month by month."
+				},
+				{
+					"title": "One tap away",
+					"description": "Parcels, treatments and your profile sit in the bottom bar."
+				}
+			]
+		},
+		"usage": {
+			"eyebrow": "Substance usage",
+			"title": "4 kg of copper per hectare, each year. Always in view.",
+			"description": "Every treatment is added up from 1 January and counted against the yearly limit, parcel by parcel and across the whole vineyard. Rain washes copper off the leaves, never off the counter.",
+			"exampleVineyard": "Example vineyard",
+			"usedThisYear": "Used this year",
+			"productApplied": "Product applied",
+			"activeSubstance": "Active substance",
+			"limitUsed": "{percent}% of yearly limit used",
+			"limitMax": "{max} kg/ha max",
+			"meterLabel": "Copper used this year, against the yearly limit"
+		},
+		"openSource": {
+			"eyebrow": "Free and open source",
+			"title": "Free for every grower. Open for everyone to read.",
+			"description": "Agricolala costs nothing, and its code is public. We believe the tools that help growers farm cleaner should belong to the people who use them: you can check how every number is calculated, suggest improvements, or run it yourself.",
+			"github": "See the code on GitHub"
+		},
+		"closing": {
+			"title": "Ready for your first parcel?",
+			"cta": "Get started"
+		},
+		"footerNav": "Legal"
 	}
 }

@@ -1,7 +1,7 @@
 import type React from "react";
 import { Suspense } from "react";
 import Image from "next/image";
-import { Providers } from "../providers";
+import { Providers } from "@/app/providers";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { LayoutMainSkeleton } from "@/components/skeletons/layout-main-skeleton";

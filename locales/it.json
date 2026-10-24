@@ -531,5 +531,90 @@
 				"description": "Pronta per la vendemmia o raccolta"
 			}
 		}
+	},
+	"welcome": {
+		"meta": {
+			"title": "Agricolala: il quaderno dei trattamenti del tuo vigneto",
+			"description": "App gratuita e open source per viticoltori. Disegna i tuoi campi, registra ogni trattamento alla fase in cui è stato fatto e resta sotto il limite annuale di rame."
+		},
+		"skipToContent": "Vai al contenuto",
+		"homeLink": "Agricolala, pagina iniziale",
+		"accountNav": "Lingua e accesso",
+		"languageLabel": "Lingua",
+		"languages": {
+			"en": "English",
+			"it": "Italiano"
+		},
+		"signIn": "Accedi",
+		"hero": {
+			"titleStart": "Il quaderno dei trattamenti del tuo",
+			"titleHighlight": "vigneto.",
+			"lead": "Disegna i campi. Registra i trattamenti. Resta sotto il limite annuale di rame.",
+			"cta": "Apri il tuo quaderno",
+			"note": "Gratuito e open source."
+		},
+		"illustration": {
+			"parcelName": "Campo Nord",
+			"parcelMeta": "Vigneto · 0,8 ha",
+			"treatmentName": "Pasta cafaro",
+			"treatmentTarget": "Bersaglio: Peronospora",
+			"done": "Fatto",
+			"copper": "Rame",
+			"usedThisYear": "Usato quest’anno",
+			"activeSubstance": "sostanza attiva",
+			"exportTitle": "Export Excel",
+			"exportMeta": "Tutti i trattamenti dell’anno"
+		},
+		"season": {
+			"title": "Dalla prima gemma all’ultimo grappolo.",
+			"description": "È la vite a dettare il calendario, non il contrario. Segui i tuoi campi nelle otto fasi della stagione e ritrova ogni trattamento là dove è stato fatto.",
+			"caption": "Stagione di esempio: i trattamenti fatti in ogni fase.",
+			"noTreatment": "Nessun trattamento",
+			"oneTreatment": "1 trattamento",
+			"manyTreatments": "{count} trattamenti"
+		},
+		"app": {
+			"eyebrow": "L’app",
+			"title": "Tutto il vigneto, in tasca.",
+			"description": "Pensata per il telefono che porti tra i filari. Aprila per vedere quali malattie tenere d’occhio nella fase di oggi e quanto hai usato di ogni sostanza quest’anno.",
+			"imageAlt": "La schermata iniziale di Agricolala su un telefono: rischio malattie in fioritura e uso delle sostanze quest’anno",
+			"features": [
+				{
+					"title": "Rischio malattie",
+					"description": "Il rischio di oidio e peronospora lungo la stagione, segnato alla fase in cui si trovano le tue viti. Ancora sperimentale."
+				},
+				{
+					"title": "Uso delle sostanze",
+					"description": "Rame, zolfo e ogni altra sostanza attiva, mese per mese."
+				},
+				{
+					"title": "A portata di tocco",
+					"description": "Campi, trattamenti e profilo sono nella barra in basso."
+				}
+			]
+		},
+		"usage": {
+			"eyebrow": "Uso delle sostanze",
+			"title": "4 kg di rame per ettaro all’anno. Sempre sotto gli occhi.",
+			"description": "Ogni trattamento viene sommato dal 1° gennaio e confrontato con il limite annuale, campo per campo e su tutto il vigneto. La pioggia lava il rame dalle foglie, mai dal contatore.",
+			"exampleVineyard": "Vigneto di esempio",
+			"usedThisYear": "Usato quest’anno",
+			"productApplied": "Prodotto applicato",
+			"activeSubstance": "Sostanza attiva",
+			"limitUsed": "{percent}% del limite annuale usato",
+			"limitMax": "max {max} kg/ha",
+			"meterLabel": "Rame usato quest’anno, rispetto al limite annuale"
+		},
+		"openSource": {
+			"eyebrow": "Gratuito e open source",
+			"title": "Gratis per ogni viticoltore. Aperto alla lettura di tutti.",
+			"description": "Agricolala non costa nulla e il suo codice è pubblico. Crediamo che gli strumenti che aiutano a coltivare in modo più pulito debbano appartenere a chi li usa: puoi verificare come viene calcolato ogni numero, proporre miglioramenti o installarlo tu stesso.",
+			"github": "Guarda il codice su GitHub"
+		},
+		"closing": {
+			"title": "Pronto per il tuo primo campo?",
+			"cta": "Inizia ora"
+		},
+		"footerNav": "Note legali"
 	}
 }

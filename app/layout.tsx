@@ -3,9 +3,11 @@ import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { defaultLocale, LOCALE_HEADER } from "@/lib/translations-helpers";
+import { siteUrl } from "@/lib/site-url";
 import { inter } from "./const";
 
 export const metadata: Metadata = {
+	metadataBase: siteUrl,
 	title: "Agricolala - Wineyard Management",
 	description: "Manage your wineyard treatments and parcels",
 };

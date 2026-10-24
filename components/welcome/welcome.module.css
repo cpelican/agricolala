@@ -1,0 +1,406 @@
+/*
+  Welcome page: the paper-like hero, its illustration and the watercolour edge.
+  Everything here is plain CSS (no SVG filters, no images) so it costs no requests.
+*/
+
+.hero {
+	position: relative;
+	isolation: isolate;
+	/* Clip the floating cards sideways without clipping the backdrop that reaches up behind the header. */
+	overflow-x: clip;
+	--header-height: 64px;
+}
+
+/* The paper: drawn behind the header and the hero, all in CSS. */
+.backdrop {
+	position: absolute;
+	inset: 0;
+	top: calc(-1 * var(--header-height));
+	z-index: -1;
+	pointer-events: none;
+	background-color: #fdfdf9;
+	--grid-size: 20px;
+	--grid-line: rgb(161 200 171 / 0.16);
+	background-image:
+		/* graph-paper grid */
+		linear-gradient(var(--grid-line) 1px, transparent 1px),
+		linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+		/* mottled watercolour wash: soft, overlapping blotches of leaf colours */
+		radial-gradient(ellipse 38% 30% at 8% 18%, hsl(76 100% 41% / 0.1), transparent 70%),
+		radial-gradient(ellipse 30% 42% at 86% 22%, hsl(98 100% 38% / 0.08), transparent 70%),
+		radial-gradient(ellipse 42% 26% at 62% 70%, hsl(60 100% 41% / 0.09), transparent 72%),
+		radial-gradient(ellipse 26% 34% at 28% 78%, hsl(76 100% 41% / 0.07), transparent 70%),
+		radial-gradient(ellipse 22% 18% at 46% 8%, hsl(98 100% 38% / 0.06), transparent 70%);
+	background-size:
+		var(--grid-size) var(--grid-size),
+		var(--grid-size) var(--grid-size),
+		auto, auto, auto, auto, auto;
+	background-position:
+		-1px -1px,
+		-1px -1px,
+		0 0, 0 0, 0 0, 0 0, 0 0;
+}
+
+/* Paper grain: two fine dot screens at co-prime pitches, so they never line up into a visible pattern. */
+.backdrop::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		radial-gradient(rgb(64 71 51 / 0.07) 0.6px, transparent 0.9px),
+		radial-gradient(rgb(64 71 51 / 0.05) 0.6px, transparent 0.9px);
+	background-size:
+		3px 3px,
+		7px 5px;
+	background-position:
+		0 0,
+		1px 2px;
+}
+
+@media (min-width: 900px) {
+	.hero {
+		--header-height: 80px;
+	}
+
+	.backdrop {
+		--grid-size: 24px;
+	}
+}
+
+/* Hero layout: a stacked column on phones, a fixed-height stage with floating cards on wide screens. */
+.stage {
+	position: relative;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+/* On phones the intro wrapper disappears so the art can sit between the title and the call to action. */
+.intro {
+	display: contents;
+}
+
+.title {
+	order: 1;
+	padding: 0 16px;
+}
+
+.art {
+	order: 2;
+	position: relative;
+	width: min(100%, 440px);
+	height: 430px;
+	margin: 4px auto 0;
+	pointer-events: none;
+}
+
+.body {
+	order: 3;
+	position: relative;
+	z-index: 2;
+	padding: 24px 16px 0;
+}
+
+.leafBox {
+	position: absolute;
+	left: calc(50% - 135px);
+	top: 64px;
+	width: 270px;
+	aspect-ratio: 1200 / 1294;
+	z-index: 1;
+}
+
+.leafWash {
+	position: absolute;
+	left: -8%;
+	top: 8%;
+	width: 110%;
+	height: 86%;
+	background: hsl(76 100% 41% / 0.2);
+	border-radius: 46% 54% 61% 39% / 52% 38% 62% 48%;
+}
+
+.leaf {
+	position: absolute;
+	inset: 0;
+	transform-origin: 56% 96%;
+	animation: sway 9s ease-in-out infinite;
+}
+
+/* Strips of masking tape holding the leaf on the page. */
+.tape {
+	position: absolute;
+	background: rgb(255 255 255 / 0.62);
+	border: 1px solid rgb(0 0 0 / 0.06);
+}
+
+.tapeTop {
+	left: 43%;
+	top: -1%;
+	width: 56px;
+	height: 16px;
+	transform: rotate(-8deg);
+}
+
+.tapeBottom {
+	display: none;
+	left: 49%;
+	top: 90%;
+	width: 76px;
+	height: 22px;
+	transform: rotate(6deg);
+}
+
+.card {
+	position: absolute;
+	z-index: 3;
+	width: 184px;
+	box-sizing: border-box;
+}
+
+.cardParcel {
+	left: 12px;
+	top: 12px;
+	animation: bob 7s ease-in-out infinite;
+}
+
+.cardTreatment {
+	right: 12px;
+	top: 168px;
+	animation: bob 8s ease-in-out -2s infinite;
+}
+
+.cardCopper {
+	left: 12px;
+	top: 294px;
+	animation: bob 6.5s ease-in-out -4s infinite;
+}
+
+.cardExport {
+	right: 12px;
+	top: 366px;
+	animation: bob 7s ease-in-out infinite;
+}
+
+@media (min-width: 900px) {
+	.stage {
+		display: block;
+		height: 780px;
+		padding: 0 24px;
+	}
+
+	.intro {
+		position: absolute;
+		left: 24px;
+		top: 56px;
+		z-index: 2;
+		width: 400px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.title,
+	.body {
+		padding: 0;
+	}
+
+	.art {
+		position: absolute;
+		inset: 0 24px;
+		width: auto;
+		height: auto;
+		margin: 0;
+	}
+
+	.leafBox {
+		left: max(38%, 440px);
+		top: 8px;
+		width: min(600px, calc(100% - 470px));
+	}
+
+	.leafWash {
+		left: -6%;
+		width: 104%;
+	}
+
+	.tapeTop {
+		left: 44%;
+		width: 96px;
+		height: 24px;
+	}
+
+	.tapeBottom {
+		display: block;
+	}
+
+	.cardParcel {
+		left: auto;
+		right: 2%;
+		top: 64px;
+		width: 244px;
+	}
+
+	.cardTreatment {
+		right: auto;
+		left: 31%;
+		top: 452px;
+		width: 264px;
+	}
+
+	.cardCopper {
+		left: auto;
+		right: 0;
+		top: 316px;
+		width: 272px;
+	}
+
+	.cardExport {
+		right: auto;
+		left: 58%;
+		top: 636px;
+		width: 272px;
+	}
+}
+
+/*
+  Watercolour edge where the hero bleeds into the page: a translucent leaf-green wash, then the
+  page colour on top. Each edge is a row of overlapping ellipses of uneven size (a hand-painted
+  wave rather than a repeating pattern), softened by a blur.
+*/
+.bleed {
+	position: relative;
+	z-index: 4;
+	height: 90px;
+	pointer-events: none;
+	--wash: hsl(76 100% 41% / 0.22);
+	--paper: #fafcfa;
+}
+
+.bleed::before,
+.bleed::after {
+	content: "";
+	position: absolute;
+	left: -24px;
+	right: -24px;
+	bottom: 0;
+	background-repeat: no-repeat;
+}
+
+.bleed::before {
+	top: 6px;
+	background-image:
+		radial-gradient(ellipse 26% 72% at 6% 100%, var(--wash) 97%, transparent),
+		radial-gradient(ellipse 30% 58% at 36% 100%, var(--wash) 97%, transparent),
+		radial-gradient(ellipse 24% 80% at 63% 100%, var(--wash) 97%, transparent),
+		radial-gradient(ellipse 30% 62% at 94% 100%, var(--wash) 97%, transparent);
+	filter: blur(4px);
+}
+
+.bleed::after {
+	top: 30px;
+	/* Reach past the bottom so the blur never lets the green wash peek underneath. */
+	bottom: -8px;
+	background-image:
+		radial-gradient(ellipse 30% 62% at 14% 100%, var(--paper) 97%, transparent),
+		radial-gradient(ellipse 24% 78% at 44% 100%, var(--paper) 97%, transparent),
+		radial-gradient(ellipse 30% 56% at 74% 100%, var(--paper) 97%, transparent),
+		radial-gradient(ellipse 22% 72% at 100% 100%, var(--paper) 97%, transparent),
+		linear-gradient(transparent 55%, var(--paper) 55%);
+	filter: blur(1.5px);
+}
+
+@media (min-width: 900px) {
+	.bleed {
+		height: 170px;
+		margin-top: -110px;
+	}
+
+	.bleed::before {
+		top: 24px;
+	}
+
+	.bleed::after {
+		top: 60px;
+	}
+}
+
+/* Gradient-filled words, as in the app's title. */
+.wordmark {
+	background: linear-gradient(
+		45deg,
+		#004b14 0%,
+		#004b14 30%,
+		hsl(60 100% 41%) 100%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	-webkit-text-fill-color: transparent;
+}
+
+.inkword {
+	background: linear-gradient(
+		100deg,
+		#004b14 0%,
+		hsl(136 100% 21%) 40%,
+		hsl(98 100% 30%) 100%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	-webkit-text-fill-color: transparent;
+	padding-right: 2px;
+}
+
+/* Keep the gradient words readable when the system forces its own colours. */
+@media (forced-colors: active) {
+	.wordmark,
+	.inkword {
+		background: none;
+		color: CanvasText;
+		-webkit-text-fill-color: CanvasText;
+	}
+}
+
+/* A blob of leaf wash behind the phone mockup. */
+.blob {
+	position: absolute;
+	background: hsl(76 100% 41% / 0.2);
+	border-radius: 46% 54% 61% 39% / 52% 38% 62% 48%;
+}
+
+@keyframes sway {
+	0%,
+	100% {
+		transform: rotate(-1.3deg);
+	}
+	50% {
+		transform: rotate(1.5deg);
+	}
+}
+
+@keyframes bob {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+	50% {
+		translate: 0 -6px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.leaf,
+	.card {
+		animation: none;
+	}
+}
+
+/* A clear, brand-coloured focus ring on every link of the page. */
+.page :focus-visible {
+	outline: 2px solid #004b14;
+	outline-offset: 2px;
+	border-radius: 4px;
+}
