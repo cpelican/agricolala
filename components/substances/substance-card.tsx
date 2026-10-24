@@ -23,9 +23,13 @@ import {
 	isCoverageTracked,
 } from "./coverage-headline";
 import { StageRiskChips } from "./stage-risk-chips";
+import { RiskTimelineStrip } from "./risk-timeline-strip";
 import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
-import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
+import {
+	type SubstanceRiskTimeline,
+	type SubstanceStageRisk,
+} from "@/lib/disease-stage-sensitivity";
 import { ShieldCheck } from "lucide-react";
 
 type SubstanceCoverageState =
@@ -118,12 +122,14 @@ interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
 	stageRisk?: SubstanceStageRisk;
+	riskTimeline?: SubstanceRiskTimeline;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
 	stageRisk,
+	riskTimeline,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -151,6 +157,13 @@ export function SubstanceCard({
 					)}
 				</div>
 				{stageRisk && <StageRiskChips risk={stageRisk} />}
+				{riskTimeline && (
+					<RiskTimelineStrip
+						timeline={riskTimeline}
+						currentStage={stageRisk?.stage ?? null}
+						showExperimentalLabel={!stageRisk?.isCritical}
+					/>
+				)}
 
 				{coverageResultPromise && (
 					<Suspense

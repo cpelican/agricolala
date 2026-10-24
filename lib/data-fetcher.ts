@@ -1,7 +1,10 @@
 import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { getCurrentStagesByParcel } from "./phenology-observations";
+import {
+	getCurrentStagesByParcel,
+	getObservationsForPeriod,
+} from "./phenology-observations";
 
 export * from "./data-fetcher-aggregations";
 export * from "./data-fetcher-catalog";
@@ -158,6 +161,19 @@ export const getTreatments = cache(async (userId: string) => {
 export const getStageByParcel = cache(async (userId: string) => {
 	return await getCurrentStagesByParcel(prisma, userId, new Date());
 });
+
+// Observations that can give a stage to this year's treatments, oldest first.
+export const getPhenologyObservationsThisYear = cache(
+	async (userId: string) => {
+		const now = new Date();
+		return await getObservationsForPeriod(
+			prisma,
+			userId,
+			new Date(now.getFullYear(), 0, 1),
+			now,
+		);
+	},
+);
 
 export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];
 export type ParcelWithTreatments = Awaited<

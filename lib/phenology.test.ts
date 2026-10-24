@@ -6,6 +6,7 @@ import {
 	STAGE_EXPIRES_AFTER_DAYS,
 	STAGE_HINT_NEXT_AFTER_DAYS,
 	compareStages,
+	countTreatmentDaysByStage,
 	getNextStage,
 	getStageAt,
 	getStageExpiryCutoff,
@@ -163,5 +164,75 @@ describe("getStageAt", () => {
 				NOW,
 			),
 		).toBeNull();
+	});
+});
+
+describe("countTreatmentDaysByStage", () => {
+	const observations = [
+		{
+			parcelId: "a",
+			stage: PhenologicalStage.FLOWER_CLUSTERS,
+			observedAt: daysAgo(20),
+		},
+		{
+			parcelId: "b",
+			stage: PhenologicalStage.FLOWER_CLUSTERS,
+			observedAt: daysAgo(20),
+		},
+		{
+			parcelId: "a",
+			stage: PhenologicalStage.FLOWERING,
+			observedAt: daysAgo(5),
+		},
+	];
+
+	test("counts days per stage of the treated parcel at the treatment date", () => {
+		expect(
+			countTreatmentDaysByStage(
+				[
+					{ parcelId: "a", appliedDate: daysAgo(10) },
+					{ parcelId: "a", appliedDate: daysAgo(2) },
+					{ parcelId: "b", appliedDate: daysAgo(2) },
+				],
+				observations,
+			),
+		).toEqual({
+			[PhenologicalStage.FLOWER_CLUSTERS]: 2,
+			[PhenologicalStage.FLOWERING]: 1,
+		});
+	});
+
+	test("counts parcels treated the same day at the same stage once", () => {
+		expect(
+			countTreatmentDaysByStage(
+				[
+					{ parcelId: "a", appliedDate: daysAgo(10) },
+					{ parcelId: "b", appliedDate: daysAgo(10) },
+				],
+				observations,
+			),
+		).toEqual({ [PhenologicalStage.FLOWER_CLUSTERS]: 1 });
+	});
+
+	test("leaves out treatments with no stage on their date", () => {
+		expect(
+			countTreatmentDaysByStage(
+				[
+					// Before any observation.
+					{ parcelId: "a", appliedDate: daysAgo(30) },
+					// Parcel never observed.
+					{ parcelId: "c", appliedDate: daysAgo(2) },
+					// Observation expired.
+					{ parcelId: "b", appliedDate: NOW },
+				],
+				observations.map((observation) => ({
+					...observation,
+					observedAt:
+						observation.parcelId === "b"
+							? daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1)
+							: observation.observedAt,
+				})),
+			),
+		).toEqual({});
 	});
 });

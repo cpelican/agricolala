@@ -129,10 +129,16 @@ test("substance cards show the stage and flag its critical period", async ({
 		.filter({ visible: true })
 		.first();
 
-	// No stage recorded: the cards show no stage line.
+	const riskTimeline = main
+		.getByTestId("substance-risk-timeline")
+		.filter({ visible: true })
+		.first();
+
+	// No stage recorded: the cards show no stage line and no risk strip.
 	await page.goto("/en");
 	await expect(main.getByRole("heading", { name: "Copper" })).toBeVisible();
 	await expect(stageRisk).toHaveCount(0);
+	await expect(riskTimeline).toHaveCount(0);
 
 	// Colour change is low risk for both mildews: stage only, no badge.
 	await markStageFromDetail(page, "Colour change");
@@ -163,5 +169,19 @@ test("substance cards show the stage and flag its critical period", async ({
 		page.getByText("timing varies with grape variety and climate", {
 			exact: false,
 		}),
+	).toBeVisible();
+	await page.keyboard.press("Escape");
+
+	// The risk strip marks the current stage and lists each stage's level on tap.
+	await expect(
+		riskTimeline.locator('[data-stage="FLOWERING"][data-current="true"]'),
+	).toBeVisible();
+	await riskTimeline
+		.getByRole("button", { name: "Disease risk by stage" })
+		.click();
+	const timelinePopover = page.getByRole("dialog");
+	await expect(timelinePopover.getByText("Flowering · now")).toBeVisible();
+	await expect(
+		timelinePopover.getByText("Very high risk").first(),
 	).toBeVisible();
 });

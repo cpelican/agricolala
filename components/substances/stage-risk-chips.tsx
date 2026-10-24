@@ -11,7 +11,7 @@ import { useDiseases } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 
-function ExperimentalLabel() {
+export function ExperimentalLabel() {
 	const { t } = useTranslations();
 	return (
 		<span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-700">

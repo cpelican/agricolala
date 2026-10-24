@@ -151,3 +151,31 @@ export function getSubstanceStageRisk(
 export type SubstanceStageRisk = NonNullable<
 	ReturnType<typeof getSubstanceStageRisk>
 >;
+
+// Risk timeline strip of a substance card: for each stage in season order, the highest
+// level among the substance's diseases (null when none has a matrix row for it) and
+// how many days it was applied at that stage. Null when no disease has any row.
+export function getSubstanceRiskTimeline(
+	diseaseIds: string[],
+	sensitivities: StageSensitivity[],
+	treatmentDaysByStage: Partial<Record<PhenologicalStage, number>>,
+) {
+	const timeline = PHENOLOGICAL_STAGES.map((stage) => {
+		let level: DiseaseSensitivityLevel | null = null;
+		for (const diseaseId of diseaseIds) {
+			const diseaseLevel = getSensitivityLevel(sensitivities, diseaseId, stage);
+			if (
+				diseaseLevel &&
+				(!level || compareSensitivityLevels(diseaseLevel, level) > 0)
+			) {
+				level = diseaseLevel;
+			}
+		}
+		return { stage, level, treatmentDays: treatmentDaysByStage[stage] ?? 0 };
+	});
+	return timeline.some(({ level }) => level !== null) ? timeline : null;
+}
+
+export type SubstanceRiskTimeline = NonNullable<
+	ReturnType<typeof getSubstanceRiskTimeline>
+>;
