@@ -53,7 +53,10 @@ interface AddTreatmentDialogProps {
 	parcelId?: string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
+	products: Pick<
+		Product,
+		"id" | "name" | "maxApplications" | "doseUnit" | "restrictedAtFlowering"
+	>[];
 	substances: Array<
 		Pick<Substance, "id" | "maxDosage" | "name"> & { diseaseIds: string[] }
 	>;
@@ -298,6 +301,7 @@ export function AddTreatmentDialog({
 					parcels={parcels}
 					diseases={diseases}
 					products={products}
+					stageAtTreatment={stageState.stageAtTreatment}
 					advisedDosePerProduct={advisedDosePerProduct}
 					formData={formData}
 					errors={errors}

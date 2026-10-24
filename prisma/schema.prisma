@@ -117,6 +117,8 @@ model Product {
   productLiterToKiloGramConversionRate  Float?
   maxApplications      Int?
   daysBetweenApplications Int?
+  /** Insecticide/acaricide or bee-hazard label: not allowed while the vines flower (L. 313/2004), so never suggested then */
+  restrictedAtFlowering Boolean            @default(false)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   productApplications  ProductApplication[]

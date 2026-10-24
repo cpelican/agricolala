@@ -133,6 +133,8 @@ export async function seedReferenceData(db: ReferenceDataClient) {
 			doseUnit: ProductDoseUnit.MILLILITER,
 			productLiterToKiloGramConversionRate: 0.9,
 			maxApplications: MAX_APPS_ORANGE,
+			// Registered as insecticide and acaricide too, so banned during flowering.
+			restrictedAtFlowering: true,
 			composition: {
 				// Commercial formulation: 20% sweet orange essential oil.
 				create: [{ substanceId: orangeOil.id, dose: 20 }],
@@ -177,12 +179,33 @@ async function upsertDiseaseStageSensitivities(prisma: PrismaClient) {
 	}
 }
 
+// Products not allowed during flowering (insecticide/acaricide or bee-hazard label),
+// flagged by name without wiping anything, like the sensitivities above.
+const PRODUCTS_RESTRICTED_AT_FLOWERING = ["Olio essenziale di arancio dolce"];
+
+async function updateFloweringRestrictions(prisma: PrismaClient) {
+	const { count } = await prisma.product.updateMany({
+		where: { name: { in: PRODUCTS_RESTRICTED_AT_FLOWERING } },
+		data: { restrictedAtFlowering: true },
+	});
+	console.log(`${count} products restricted at flowering`);
+}
+
 async function main() {
 	const prisma = new PrismaClient();
 
 	if (process.argv.includes("--stage-sensitivities-only")) {
 		try {
 			await upsertDiseaseStageSensitivities(prisma);
+		} finally {
+			await prisma.$disconnect();
+		}
+		return;
+	}
+
+	if (process.argv.includes("--flowering-restrictions-only")) {
+		try {
+			await updateFloweringRestrictions(prisma);
 		} finally {
 			await prisma.$disconnect();
 		}

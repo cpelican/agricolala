@@ -501,6 +501,10 @@
 		"riskByStage": "{disease}: risk by stage",
 		"riskTimelineTooltip": "Levels come from a qualitative summary of research; timing varies with grape variety and climate.",
 		"now": "now",
+		"noActiveDisease": "No disease is active at this stage, so protection isn't tracked right now.",
+		"floweringReminderTitle": "Flowering: protect the bees",
+		"floweringReminder": "No insecticides or acaricides, and only fungicides without a bee-hazard label. Spray from 2 hours before to 3 hours after sunset.",
+		"restrictedAtFlowering": "Not allowed during flowering: insecticide, acaricide or bee-hazard label.",
 		"levelUnknown": "Unknown",
 		"levels": {
 			"NONE": "No risk",

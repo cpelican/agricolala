@@ -7,6 +7,7 @@ import {
 	compareSensitivityLevels,
 	getSensitivityLevel,
 	getStageSensitivityRows,
+	getActiveDiseaseIds,
 	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 	isCriticalLevel,
@@ -143,6 +144,49 @@ describe("isDiseaseActive", () => {
 				MAY,
 			),
 		).toBe(false);
+	});
+});
+
+describe("getActiveDiseaseIds", () => {
+	test("active when one parcel's stage makes it active", () => {
+		const active = getActiveDiseaseIds(
+			[peronospora],
+			sensitivities,
+			[PhenologicalStage.BUD_BREAK, PhenologicalStage.FLOWERING],
+			SEPTEMBER,
+		);
+		expect([...active]).toEqual([peronospora.id]);
+	});
+
+	test("inactive when every parcel is at a low-risk stage, even in its months", () => {
+		expect(
+			getActiveDiseaseIds(
+				[peronospora],
+				sensitivities,
+				[PhenologicalStage.VERAISON],
+				MAY,
+			).size,
+		).toBe(0);
+	});
+
+	test("a parcel without a stage falls back to the month window", () => {
+		expect(
+			getActiveDiseaseIds(
+				[peronospora],
+				sensitivities,
+				[PhenologicalStage.VERAISON, null],
+				MAY,
+			).size,
+		).toBe(1);
+	});
+
+	test("with no parcels, the month windows apply", () => {
+		expect(
+			getActiveDiseaseIds([peronospora], sensitivities, [], MAY).size,
+		).toBe(1);
+		expect(
+			getActiveDiseaseIds([peronospora], sensitivities, [], SEPTEMBER).size,
+		).toBe(0);
 	});
 });
 

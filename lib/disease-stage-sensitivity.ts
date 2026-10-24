@@ -109,6 +109,29 @@ export function isDiseaseActive(
 	);
 }
 
+// Diseases active on at least one parcel: by the parcel's current stage, or by the
+// month window for a parcel without one. With no parcels, the month windows apply.
+export function getActiveDiseaseIds(
+	diseases: Pick<
+		Disease,
+		"id" | "sensitivityMonthMin" | "sensitivityMonthMax"
+	>[],
+	sensitivities: StageSensitivity[],
+	parcelStages: (PhenologicalStage | null)[],
+	date: Date,
+): Set<string> {
+	const stages = parcelStages.length > 0 ? parcelStages : [null];
+	return new Set(
+		diseases
+			.filter((disease) =>
+				stages.some((stage) =>
+					isDiseaseActive(disease, sensitivities, stage, date),
+				),
+			)
+			.map((disease) => disease.id),
+	);
+}
+
 // Highest risk a substance's diseases reach across the parcels' current stages: the
 // stage shown on the substance card, whether it is a critical period, and for which of
 // the substance's diseases. Parcels are in the order of `getCurrentStagesByParcel`

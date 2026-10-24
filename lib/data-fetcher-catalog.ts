@@ -17,7 +17,13 @@ export const getCachedDiseaseStageSensitivities = cache(async () => {
 
 export const getCachedProducts = cache(async () => {
 	return prisma.product.findMany({
-		select: { id: true, name: true, maxApplications: true, doseUnit: true },
+		select: {
+			id: true,
+			name: true,
+			maxApplications: true,
+			doseUnit: true,
+			restrictedAtFlowering: true,
+		},
 		orderBy: { name: "asc" },
 	});
 });
@@ -105,33 +111,17 @@ export const getCachedSubstances = cache(async () => {
 	});
 });
 
-// Cache should not be a problem if it doesnt last too long
-export const getCurrentDiseases = cache(
-	async (
-		testDate?: Date,
-	): Promise<{ id: string; name?: string; substances: { id: string }[] }[]> => {
-		const currentMonth = testDate
-			? testDate.getMonth() + 1
-			: new Date().getMonth() + 1;
-
-		return await prisma.disease.findMany({
-			select: {
-				id: true,
-				name: testDate ? true : false, // we need to fetch the name to be able to test it
-				substances: {
-					select: {
-						id: true,
-					},
-				},
-			},
-			where: {
-				sensitivityMonthMin: {
-					lte: currentMonth,
-				},
-				sensitivityMonthMax: {
-					gte: currentMonth,
-				},
-			},
-		});
-	},
-);
+// Every disease with its month window and the substances that fight it. Whether it is
+// active depends on each parcel's stage: see getActiveDiseaseIds / isDiseaseActive.
+export const getCachedDiseaseWindows = cache(async () => {
+	return prisma.disease.findMany({
+		select: {
+			id: true,
+			name: true,
+			sensitivityMonthMin: true,
+			sensitivityMonthMax: true,
+			substances: { select: { id: true } },
+		},
+		orderBy: { name: "asc" },
+	});
+});

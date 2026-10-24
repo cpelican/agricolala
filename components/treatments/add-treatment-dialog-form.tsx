@@ -30,6 +30,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ParcelWithTreatments } from "@/lib/data-fetcher";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
+import { isProductAllowedAtStage } from "@/lib/treatment-suggestions";
 
 export interface AddTreatmentDialogFormData {
 	appliedDate: Date;
@@ -57,7 +58,12 @@ interface AddTreatmentDialogFormProps {
 	t: (key: string) => string;
 	parcels?: ParcelWithTreatments[];
 	diseases: Pick<Disease, "id" | "name">[];
-	products: Pick<Product, "id" | "name" | "maxApplications" | "doseUnit">[];
+	products: Pick<
+		Product,
+		"id" | "name" | "maxApplications" | "doseUnit" | "restrictedAtFlowering"
+	>[];
+	// Stage the bee rules go by; flowering flags restricted products.
+	stageAtTreatment: PhenologicalStage | null;
 	advisedDosePerProduct: Record<string, number>;
 	formData: AddTreatmentDialogFormData;
 	errors: AddTreatmentDialogFormErrors;
@@ -106,6 +112,7 @@ export function AddTreatmentDialogForm({
 	parcels,
 	diseases,
 	products,
+	stageAtTreatment,
 	advisedDosePerProduct,
 	formData,
 	errors,
@@ -127,6 +134,10 @@ export function AddTreatmentDialogForm({
 }: AddTreatmentDialogFormProps) {
 	const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
 	const today = new Date();
+	const isRestrictedNow = (productId: string) => {
+		const product = products.find((p) => p.id === productId);
+		return !!product && !isProductAllowedAtStage(product, stageAtTreatment);
+	};
 
 	return (
 		<form
@@ -326,6 +337,11 @@ export function AddTreatmentDialogForm({
 											Math.round(advisedDosePerProduct[product.productId]),
 										),
 									)}
+								</p>
+							) : null}
+							{isRestrictedNow(product.productId) ? (
+								<p className="text-sm text-orange-400">
+									{t("phenology.restrictedAtFlowering")}
 								</p>
 							) : null}
 						</React.Fragment>

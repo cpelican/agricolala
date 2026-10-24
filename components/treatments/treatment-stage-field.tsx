@@ -1,7 +1,8 @@
 "use client";
 
-import type { PhenologicalStage } from "@prisma/client";
+import { PhenologicalStage } from "@prisma/client";
 import { endOfDay, format } from "date-fns";
+import { Flower2 } from "lucide-react";
 
 import { StagePicker } from "@/components/phenology/stage-picker";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ interface TreatmentStageFieldProps {
 	lastObservation: CurrentParcelStage | null;
 	// True when the suggestion is the next stage after a stale observation.
 	isNextStageSuggestion: boolean;
+	// Picked stage, else the suggestion; drives the flowering reminder.
+	stageAtTreatment: PhenologicalStage | null;
 	onChange: (stage: PhenologicalStage | null) => void;
 }
 
@@ -53,6 +56,8 @@ export function useTreatmentStage(
 	const suggestedStage = getSuggestedStage(lastObservation, appliedDate);
 	return {
 		value: chosen ?? null,
+		// Stage the bee rules go by: the picked one, else the suggestion.
+		stageAtTreatment: chosen ?? suggestedStage,
 		suggestedStage,
 		lastObservation,
 		isNextStageSuggestion:
@@ -60,10 +65,29 @@ export function useTreatmentStage(
 	};
 }
 
+// Bee rules while the vines flower (design-docs/phenological-stage.md, P10): the
+// strictest of the Italian and French rules, applied everywhere.
+function FloweringReminder({ t }: { t: (key: string) => string }) {
+	return (
+		<div
+			role="note"
+			data-testid="flowering-reminder"
+			className="space-y-1 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800"
+		>
+			<p className="flex items-center gap-1.5 font-medium">
+				<Flower2 className="h-4 w-4 shrink-0" aria-hidden />
+				{t("phenology.floweringReminderTitle")}
+			</p>
+			<p>{t("phenology.floweringReminder")}</p>
+		</div>
+	);
+}
+
 export function TreatmentStageField({
 	t,
 	value,
 	suggestedStage,
+	stageAtTreatment,
 	lastObservation,
 	isNextStageSuggestion,
 	onChange,
@@ -108,6 +132,9 @@ export function TreatmentStageField({
 					)}
 					{isNextStageSuggestion ? ` ${t("phenology.suggestedHint")}` : null}
 				</p>
+			) : null}
+			{stageAtTreatment === PhenologicalStage.FLOWERING ? (
+				<FloweringReminder t={t} />
 			) : null}
 			{isEarlierThanLast && lastObservation ? (
 				<p className="text-sm text-orange-400">

@@ -26,13 +26,17 @@ interface SubstanceUsageSectionProps {
 	coverageResultPromise?: Promise<CoverageResult>;
 	// Keyed by substance name; a substance without an entry has no critical chip.
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
+	// The dashboard's disease risk section is shown and says when no disease is active.
+	isNoActiveDiseaseShownAbove?: boolean;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
 function CoverageNotice({
 	coverageResultPromise,
+	isNoActiveDiseaseShownAbove,
 }: {
 	coverageResultPromise: Promise<CoverageResult>;
+	isNoActiveDiseaseShownAbove?: boolean;
 }) {
 	const result = use(coverageResultPromise);
 	const { t } = useTranslations();
@@ -40,6 +44,9 @@ function CoverageNotice({
 	if (result.status === "hidden") {
 		// Per-substance reason: each card explains it itself.
 		if (result.reason === "noCompletedTreatments") return null;
+		if (result.reason === "noActiveDisease" && isNoActiveDiseaseShownAbove) {
+			return null;
+		}
 		return <CoverageHiddenNote reason={result.reason} />;
 	}
 
@@ -59,6 +66,7 @@ export function SubstanceUsageSection({
 	allYearsData,
 	coverageResultPromise,
 	stageRiskBySubstance,
+	isNoActiveDiseaseShownAbove,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const hasSubstanceData = substanceData.length > 0;
@@ -87,7 +95,10 @@ export function SubstanceUsageSection({
 
 						{coverageResultPromise && (
 							<Suspense fallback={null}>
-								<CoverageNotice coverageResultPromise={coverageResultPromise} />
+								<CoverageNotice
+									coverageResultPromise={coverageResultPromise}
+									isNoActiveDiseaseShownAbove={isNoActiveDiseaseShownAbove}
+								/>
 							</Suspense>
 						)}
 						{substanceData.map((substance) => (
