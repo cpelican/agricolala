@@ -4,7 +4,6 @@ import {
 	DiseaseSensitivityLevel,
 	type PhenologicalStage,
 } from "@prisma/client";
-import { AlertTriangle } from "lucide-react";
 import { StageIcon } from "@/components/phenology/stage-icon";
 import {
 	ExperimentalLabel,
@@ -52,7 +51,7 @@ function TreatmentDots({ count }: { count: number }) {
 }
 
 // One disease: its name, a thin band of the 8 stages coloured by its level with the
-// current stage ringed, and one dot per day treated against it below. Tapping it
+// current stage ringed and the others faded, and one dot per day treated against it below. Tapping it
 // lists each stage's level in words (a popover, so it also works on phones).
 function DiseaseRiskRow({
 	diseaseId,
@@ -79,17 +78,7 @@ function DiseaseRiskRow({
 						className="block w-full space-y-1 rounded-sm text-left"
 						aria-label={t("phenology.riskByStage").replace("{disease}", name)}
 					>
-						<span
-							className={cn(
-								"flex items-center gap-1 text-sm font-medium",
-								isCritical && "text-red-600",
-							)}
-						>
-							{isCritical && (
-								<AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden />
-							)}
-							{name}
-						</span>
+						<span className="block text-sm font-medium">{name}</span>
 						<ol className="grid grid-cols-8 gap-0.5">
 							{timeline.map(({ stage, level, treatmentDays }) => (
 								<li
@@ -102,8 +91,9 @@ function DiseaseRiskRow({
 										className={cn(
 											"h-2 w-full",
 											level ? LEVEL_COLORS[level] : UNKNOWN_LEVEL_COLOR,
-											stage === currentStage &&
-												"ring-2 ring-foreground ring-offset-1",
+											stage === currentStage
+												? "ring-2 ring-foreground ring-offset-1"
+												: currentStage && "opacity-40",
 										)}
 									/>
 									<span className="flex h-2 items-center gap-0.5">
@@ -115,17 +105,7 @@ function DiseaseRiskRow({
 					</button>
 				</PopoverTrigger>
 				<PopoverContent className="w-72 space-y-2 p-3 text-xs">
-					<p
-						className={cn(
-							"flex items-center gap-1.5 text-sm font-semibold",
-							isCritical && "text-red-600",
-						)}
-					>
-						{isCritical && (
-							<AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
-						)}
-						{name}
-					</p>
+					<p className="text-sm font-semibold">{name}</p>
 					{isCritical && currentStage && (
 						<p>
 							{t("phenology.criticalPeriodExplanation")
