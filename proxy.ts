@@ -1,5 +1,5 @@
 import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { match } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 import {
@@ -47,6 +47,27 @@ function getLocaleFromHeaders(request: Request): Locale {
 	return matchedLocale;
 }
 
+// The language of the last localized page the visitor opened: their latest choice,
+// whether they picked it on the website, in their profile, or by following a link.
+const LOCALE_COOKIE = "NEXT_LOCALE";
+const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+// Language for a URL without a locale prefix: the remembered choice, then the profile
+// setting in the session (it can be stale until the session refreshes), then the browser.
+function getPreferredLocale(
+	req: NextRequest,
+	tokenLocale: string | undefined,
+): Locale {
+	const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value;
+	if (languageIsLocale(cookieLocale)) {
+		return cookieLocale;
+	}
+	if (languageIsLocale(tokenLocale)) {
+		return tokenLocale;
+	}
+	return getLocaleFromHeaders(req);
+}
+
 export const proxy = withAuth(
 	function proxy(req) {
 		const { pathname } = req.nextUrl;
@@ -71,8 +92,16 @@ export const proxy = withAuth(
 		// Note: This takes precedence over token locale (URL is source of truth)
 		const pathnameHasLocale = localeRegex.test(pathname);
 		if (pathnameHasLocale) {
+			const locale = getLocaleFromPathname(pathname);
 			const response = NextResponse.next();
-			response.headers.set(LOCALE_HEADER, getLocaleFromPathname(pathname));
+			response.headers.set(LOCALE_HEADER, locale);
+			if (req.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+				response.cookies.set(LOCALE_COOKIE, locale, {
+					path: "/",
+					maxAge: LOCALE_COOKIE_MAX_AGE,
+					sameSite: "lax",
+				});
+			}
 
 			return response;
 		}
@@ -82,7 +111,7 @@ export const proxy = withAuth(
 		// Action: Redirect to their preferred locale (e.g., /it or /en)
 		// This ensures users always land on a localized version of the home page
 		if (pathname === "/" && token) {
-			const locale = token.locale ?? defaultLocale;
+			const locale = getPreferredLocale(req, token.locale);
 			const response = NextResponse.redirect(new URL(`/${locale}`, req.url));
 			response.headers.set(LOCALE_HEADER, locale);
 
@@ -92,7 +121,7 @@ export const proxy = withAuth(
 		// Root path "/" without a session
 		// Action: Send visitors to the public welcome page in the browser's language
 		if (pathname === "/") {
-			const locale = getLocaleFromHeaders(req);
+			const locale = getPreferredLocale(req, undefined);
 			const response = NextResponse.redirect(
 				new URL(`/${locale}/welcome`, req.url),
 			);
@@ -105,7 +134,7 @@ export const proxy = withAuth(
 		// Example: /welcome, /legal/privacy-policy
 		// Action: Add the user's (or browser's) locale, like protected routes below
 		if (publicPageRegex.test(pathname)) {
-			const locale = token?.locale || getLocaleFromHeaders(req);
+			const locale = getPreferredLocale(req, token?.locale);
 			const response = NextResponse.redirect(
 				new URL(`/${locale}${pathname}`, req.url),
 			);
@@ -119,7 +148,7 @@ export const proxy = withAuth(
 		// Action: Use token locale if user is logged in, otherwise detect from browser headers
 		// This allows logged-in users to see auth pages in their preferred language
 		if (isPublicRoute(pathname)) {
-			const locale = token?.locale || getLocaleFromHeaders(req);
+			const locale = getPreferredLocale(req, token?.locale);
 			const response = NextResponse.next();
 			response.headers.set(LOCALE_HEADER, locale);
 
@@ -130,7 +159,7 @@ export const proxy = withAuth(
 		// Example: /parcels, /treatments, /profile (when accessed without locale)
 		// Action: Determine locale (token or headers), then redirect to add locale prefix
 		// This ensures all user-facing routes have locale prefixes
-		const locale = token?.locale || getLocaleFromHeaders(req);
+		const locale = getPreferredLocale(req, token?.locale);
 		req.nextUrl.pathname = `/${locale}${pathname}`;
 		const response = NextResponse.redirect(req.nextUrl);
 		response.headers.set(LOCALE_HEADER, locale);
