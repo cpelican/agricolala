@@ -108,8 +108,8 @@ export default async function WelcomePage({
 			<WelcomeHeader locale={lang} t={t} />
 			<main id="main" tabIndex={-1} className="outline-none">
 				<WelcomeHero locale={lang} t={t} />
-				<WelcomeSeason dict={dict} />
 				<WelcomeApp dict={dict} />
+				<WelcomeSeason dict={dict} />
 				<WelcomeUsage dict={dict} locale={lang} />
 				<WelcomeOpenSource dict={dict} />
 				<WelcomeCallToAction dict={dict} />

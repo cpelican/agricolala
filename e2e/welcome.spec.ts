@@ -20,6 +20,10 @@ test("shows the public welcome page to signed-out visitors", async ({
 		}),
 	).toBeVisible();
 	await expect(guestPage.getByText("Buds opening")).toBeVisible();
+	// The real app comes right after the hero, before the season in detail.
+	await expect(
+		guestPage.getByRole("main").getByRole("heading", { level: 2 }).first(),
+	).toHaveText("Your whole vineyard, in your pocket.");
 	await expect(
 		guestPage.getByRole("meter", {
 			name: "Copper used this year, against the yearly limit",

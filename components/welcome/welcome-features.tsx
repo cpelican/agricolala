@@ -35,7 +35,7 @@ export function WelcomeApp({ dict }: { dict: TranslationType }) {
 					/>
 					<div className="relative w-[250px] rounded-[40px] bg-[#141414] p-2.5 shadow-lg min-[900px]:w-[300px] min-[900px]:rounded-[48px] min-[900px]:p-3">
 						<Image
-							src="/welcome/app-home.webp"
+							src="/welcome/app-dashboard-2026-10.webp"
 							alt={t.imageAlt}
 							width={750}
 							height={1624}
