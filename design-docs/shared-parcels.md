@@ -23,13 +23,13 @@ What the issue asks for:
 
 ## Status
 
-As of 25 Oct 2026. PR 1 merged; PR 2 in review. No parcel should be shared in prod before PR 4 is merged.
+As of 25 Oct 2026. PRs 1 and 2 merged; PR 3 in review. No parcel should be shared in prod before PR 4 is merged.
 
 | Phase | PR | State |
 | --- | --- | --- |
 | PR 1 — `ParcelMember` table, backfill, RLS on the new table | [#101](https://github.com/cpelican/agricolala/pull/101) | Merged |
-| PR 2 — reads and permission checks go through membership | (this branch) | In review |
-| PR 3 — dashboard and parcel aggregations per parcel, rebuild script | — | Not started |
+| PR 2 — reads and permission checks go through membership | [#102](https://github.com/cpelican/agricolala/pull/102) | Merged |
+| PR 3 — dashboard and parcel aggregations per parcel, rebuild script | (this branch) | In review |
 | PR 4 — suggestions cron, Excel export, Supabase runbook | — | Not started |
 
 ## Current state
