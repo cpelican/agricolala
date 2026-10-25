@@ -618,8 +618,8 @@
 	},
 	"welcome": {
 		"meta": {
-			"title": "Agricolala: your vineyard’s treatment notebook",
-			"description": "Free, open-source app for winegrowers. Map your parcels, log every treatment at the growth stage it happened, and use as few treatments as you can."
+			"title": "Agricolala: free vineyard management app and spray diary",
+			"description": "Free, open-source vineyard app for winegrowers. Map your parcels, keep a spray diary of every treatment by growth stage, track copper and sulfur against yearly limits, and export it to Excel."
 		},
 		"skipToContent": "Skip to content",
 		"homeLink": "Agricolala, home",
@@ -632,6 +632,7 @@
 		},
 		"signIn": "Sign in",
 		"hero": {
+			"eyebrow": "Free vineyard management app",
 			"titleStart": "Your vineyard’s treatment",
 			"titleHighlight": "notebook.",
 			"lead": "Map parcels. Log treatments. Use as few as you can.",
@@ -699,6 +700,31 @@
 		"closing": {
 			"title": "Ready for your first parcel?",
 			"cta": "Get started"
+		},
+		"faq": {
+			"title": "Questions growers ask",
+			"items": [
+				{
+					"question": "Is Agricolala free?",
+					"answer": "Yes. Agricolala is free for every winegrower and its code is open source on GitHub. There is no paid plan."
+				},
+				{
+					"question": "Can I use it as my vineyard spray diary?",
+					"answer": "Yes. For every treatment you record the date, the parcel, the products and their doses, and Agricolala adds the growth stage of the vines. You can export the whole year to Excel. Check with your local authority which details your official treatment register has to include."
+				},
+				{
+					"question": "Does it track copper and sulfur limits?",
+					"answer": "Yes. Every treatment is added up from 1 January, parcel by parcel, and checked against the yearly limit of each active substance, such as 4 kg of copper per hectare."
+				},
+				{
+					"question": "Does it work on my phone?",
+					"answer": "Yes. Agricolala is a web app made for the phone you carry between the rows. There is nothing to install: open it in your browser."
+				},
+				{
+					"question": "Who can see my data?",
+					"answer": "Only you, and the people you choose to share a parcel with. Your data is never sold, and you can export it at any time."
+				}
+			]
 		},
 		"footerNav": "Legal"
 	}

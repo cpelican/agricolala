@@ -13,6 +13,7 @@ import {
 	WelcomeCallToAction,
 	WelcomeOpenSource,
 } from "@/components/welcome/welcome-closing";
+import { WelcomeFaq } from "@/components/welcome/welcome-faq";
 import {
 	GITHUB_REPOSITORY_URL,
 	siteUrl,
@@ -25,6 +26,8 @@ import { tServer } from "@/lib/i18n/server";
 
 // Public marketing page: one static page per language (params from app/[lang]/layout.tsx).
 export const dynamicParams = false;
+
+const WELCOME_SCREENSHOT = "/welcome/app-dashboard-2026-10.webp";
 
 const OG_LOCALES = { en: "en_GB", it: "it_IT", fr: "fr_FR" } as const;
 
@@ -86,7 +89,20 @@ export default async function WelcomePage({
 		operatingSystem: "Web",
 		isAccessibleForFree: true,
 		offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+		featureList: t.app.features.map((feature) => feature.title),
+		screenshot: new URL(WELCOME_SCREENSHOT, siteUrl).toString(),
 		sameAs: [GITHUB_REPOSITORY_URL],
+	};
+
+	const faqData = {
+		"@context": "https://schema.org",
+		"@type": "FAQPage",
+		inLanguage: lang,
+		mainEntity: t.faq.items.map((item) => ({
+			"@type": "Question",
+			name: item.question,
+			acceptedAnswer: { "@type": "Answer", text: item.answer },
+		})),
 	};
 
 	return (
@@ -99,12 +115,15 @@ export default async function WelcomePage({
 			>
 				{t.skipToContent}
 			</a>
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{
-					__html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
-				}}
-			/>
+			{[structuredData, faqData].map((data) => (
+				<script
+					key={data["@type"]}
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify(data).replace(/</g, "\\u003c"),
+					}}
+				/>
+			))}
 			<SiteHeader locale={lang} t={t} />
 			<main id="main" tabIndex={-1} className="outline-none">
 				<WelcomeHero locale={lang} t={t} />
@@ -112,6 +131,7 @@ export default async function WelcomePage({
 				<WelcomeSeason dict={dict} />
 				<WelcomeUsage dict={dict} locale={lang} />
 				<WelcomeOpenSource dict={dict} />
+				<WelcomeFaq dict={dict} />
 				<WelcomeCallToAction dict={dict} />
 			</main>
 			<SiteFooter dict={dict} locale={lang} />

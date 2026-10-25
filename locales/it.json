@@ -618,8 +618,8 @@
 	},
 	"welcome": {
 		"meta": {
-			"title": "Agricolala: il quaderno dei trattamenti del tuo vigneto",
-			"description": "App gratuita e open source per viticoltori. Disegna i tuoi campi, registra ogni trattamento alla fase in cui è stato fatto e usane il meno possibile."
+			"title": "Agricolala: app gratuita per la viticoltura e quaderno di campagna",
+			"description": "App gratuita e open source per viticoltori. Disegna i tuoi vigneti, registra ogni trattamento nel quaderno di campagna alla fase fenologica in cui è stato fatto, controlla rame e zolfo rispetto ai limiti annuali ed esporta tutto in Excel."
 		},
 		"skipToContent": "Vai al contenuto",
 		"homeLink": "Agricolala, pagina iniziale",
@@ -632,7 +632,8 @@
 		},
 		"signIn": "Accedi",
 		"hero": {
-			"titleStart": "Il quaderno dei trattamenti del tuo",
+			"eyebrow": "App gratuita per la viticoltura",
+			"titleStart": "Il quaderno di campagna del tuo",
 			"titleHighlight": "vigneto.",
 			"lead": "Disegna i campi. Registra i trattamenti. Usane il meno possibile.",
 			"cta": "Apri il tuo quaderno",
@@ -699,6 +700,31 @@
 		"closing": {
 			"title": "Pronto per il tuo primo campo?",
 			"cta": "Inizia ora"
+		},
+		"faq": {
+			"title": "Domande frequenti",
+			"items": [
+				{
+					"question": "Agricolala è gratuita?",
+					"answer": "Sì. Agricolala è gratuita per ogni viticoltore e il suo codice è open source su GitHub. Non c’è nessun piano a pagamento."
+				},
+				{
+					"question": "Posso usarla come quaderno di campagna?",
+					"answer": "Sì. Per ogni trattamento registri data, campo, prodotti e dosi, e Agricolala aggiunge la fase fenologica della vite. Puoi esportare tutto l’anno in Excel. Verifica con il tuo ente di riferimento quali dati deve contenere il registro ufficiale dei trattamenti."
+				},
+				{
+					"question": "Tiene il conto dei limiti di rame e zolfo?",
+					"answer": "Sì. Ogni trattamento viene sommato dal 1° gennaio, campo per campo, e confrontato con il limite annuale di ogni sostanza attiva, come i 4 kg di rame per ettaro."
+				},
+				{
+					"question": "Funziona sul telefono?",
+					"answer": "Sì. Agricolala è un’app web pensata per il telefono che porti tra i filari. Non devi installare nulla: si apre nel browser."
+				},
+				{
+					"question": "Chi può vedere i miei dati?",
+					"answer": "Solo tu e le persone con cui scegli di condividere un campo. I tuoi dati non vengono mai venduti e puoi esportarli in qualsiasi momento."
+				}
+			]
 		},
 		"footerNav": "Note legali"
 	}
