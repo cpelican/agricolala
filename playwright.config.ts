@@ -46,6 +46,10 @@ export default defineConfig({
 			DIRECT_URL: e2eDatabaseUrl,
 			PLAYWRIGHT: "1",
 			NEXT_PUBLIC_PLAYWRIGHT: "1",
+			// Never send real emails from e2e, even if dev `.env` has Resend keys.
+			RESEND_API_KEY: "",
+			ACCESS_REQUEST_NOTIFY_EMAIL: "",
+			EMAIL_FROM: "",
 		},
 	},
 	projects: [

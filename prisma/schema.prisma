@@ -56,6 +56,19 @@ model User {
   parcels       Parcel[]
   sessions      Session[]
   treatments    Treatment[]
+  accessRequest AccessRequest?
+}
+
+// A new user's introduction, sent from the waiting screen. One per account.
+model AccessRequest {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  message    String    @db.Text // Emptied once the request is approved
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([reviewedAt, createdAt])
 }
 
 model VerificationToken {

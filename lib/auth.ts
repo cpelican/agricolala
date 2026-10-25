@@ -131,8 +131,10 @@ export const authOptions: NextAuthOptions = {
 		 * Called in two scenarios:
 		 * 1. Right after the signIn callback, this populates the JWT token with user
 		 *    data from the database for the first time.
-		 * 2. On every subsequent request (when `user` is absent): Returns the existing
-		 *    token without database queries, leveraging JWT's stateless nature.
+		 * 2. On every later session read (`getServerSession`, `useSession`), with `user`
+		 *    absent: the user is read again from the database below, so a change of
+		 *    `isAuthorized` (an approved access request) applies on the next request,
+		 *    without signing in again.
 		 *
 		 * @param token - The JWT token object that gets encoded and sent to the client
 		 * @param user - Present only during initial sign-in, contains OAuth provider user data

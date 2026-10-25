@@ -35,6 +35,21 @@ npm run dev
 npm run studio # from there you can set isAuthorized to true for your local user
 ```
 
+### Access requests and emails
+
+New Google accounts start with `isAuthorized = false` and see a waiting screen where they introduce themselves. Each request is saved in `AccessRequest` and emailed to you; you approve it at `/en/admin/access-requests`, and the user gets a "you're in" email.
+
+1. Make yourself an admin (the page answers 404 to everyone else): `npm run create-admin-user <your-google-email>`.
+2. Emails go through [Resend](https://resend.com). Set these server-only variables (in `.env` locally, in Vercel → Settings → Environment Variables in production, then redeploy):
+
+| Variable | What it is |
+|----------|------------|
+| `RESEND_API_KEY` | Resend API key (secret, "Sending access" is enough). |
+| `ACCESS_REQUEST_NOTIFY_EMAIL` | Your inbox for new requests (secret: never shown to users, never `NEXT_PUBLIC_`). |
+| `EMAIL_FROM` | Sender, e.g. `Agricolala <hello@your-domain>`. |
+
+Without `RESEND_API_KEY` (local, CI, tests) emails are skipped and logged, and requests still work. Without a verified domain, use `EMAIL_FROM=Agricolala <onboarding@resend.dev>`: Resend then only delivers to your Resend account's address, which is enough for the request notifications; the "you're in" email is skipped and the admin page says "email not sent". Once a domain is verified in Resend, set `EMAIL_FROM` to an address on it.
+
 ## Run tests (Vitest)
 
 Integration tests use a **separate** Postgres on port **5433** (`docker-compose.test.yml`). Dev uses port **5435** — do not put test `DATABASE_URL` in `.env` or the Next.js test server will connect to the wrong database.
