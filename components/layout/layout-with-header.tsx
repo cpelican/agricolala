@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { BottomNavigation } from "../routing/bottom-navigation";
-import { SidebarNavigation } from "../routing/sidebar-navigation";
+import { BottomNavigation } from "./bottom-navigation";
+import { SidebarNavigation } from "./sidebar-navigation";
 
 // Same as the welcome header: 20px bold, dark green held to 30% then lime.
 const WORDMARK =

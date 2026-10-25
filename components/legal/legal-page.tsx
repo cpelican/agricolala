@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
-import { WelcomeHeader } from "@/components/welcome/welcome-header";
-import { WelcomeFooter } from "@/components/welcome/welcome-closing";
-import styles from "@/components/welcome/welcome.module.css";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
+import styles from "@/components/site/site.module.css";
 import {
 	localizedAlternates,
 	localizedPath,
@@ -67,7 +67,7 @@ export function LegalPage({
 			>
 				{dict.welcome.skipToContent}
 			</a>
-			<WelcomeHeader locale={locale} t={dict.welcome} page={page} />
+			<SiteHeader locale={locale} t={dict.welcome} page={page} />
 			<main
 				id="main"
 				tabIndex={-1}
@@ -88,7 +88,7 @@ export function LegalPage({
 				</header>
 				{children}
 			</main>
-			<WelcomeFooter dict={dict} locale={locale} />
+			<SiteFooter dict={dict} locale={locale} />
 		</div>
 	);
 }

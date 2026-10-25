@@ -1,10 +1,10 @@
 import { requireAuth } from "@/lib/auth-utils";
 import { tServer } from "@/lib/i18n/server";
 import { getLanguageAsLocale } from "@/lib/i18n/locale";
-import { ParcelsContentAsync } from "@/components/async/parcels-content-async";
+import { ParcelsContentAsync } from "@/components/parcels/parcels-content-async";
 import { Suspense } from "react";
-import { ParcelsSkeleton } from "@/components/skeletons/parcels-skeleton";
-import { Header } from "@/components/misc/header";
+import { ParcelsSkeleton } from "@/components/parcels/parcels-skeleton";
+import { Header } from "@/components/layout/header";
 
 export default async function ParcelsPage({
 	params,

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { RootDocument, rootViewport } from "@/components/misc/root-document";
-import { RouteErrorContent } from "@/components/misc/route-error-content";
+import { RootDocument, rootViewport } from "@/components/layout/root-document";
+import { RouteErrorContent } from "@/components/layout/route-error-content";
 import { siteUrl } from "@/lib/site-url";
 import { defaultLocale } from "@/lib/i18n/locale";
 import { tServer } from "@/lib/i18n/server";

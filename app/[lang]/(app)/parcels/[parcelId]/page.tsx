@@ -10,9 +10,9 @@ import {
 	getDoneTreatmentDoses,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
-import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
+import { ParcelDetailSkeleton } from "@/components/parcels/parcel-detail-skeleton";
 import { type Locale } from "@/lib/i18n/locale";
-import { Header } from "@/components/misc/header";
+import { Header } from "@/components/layout/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";

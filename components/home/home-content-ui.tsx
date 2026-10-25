@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { LocaleLink } from "../locale/locale-link";
+import { LocaleLink } from "@/components/locale/locale-link";
 import { Button } from "@/components/ui/button";
 import {
 	Card,

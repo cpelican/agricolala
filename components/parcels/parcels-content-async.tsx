@@ -1,5 +1,5 @@
 import { getParcels, getStageByParcel } from "@/lib/data-fetcher";
-import { ParcelsContent } from "../parcels/parcels-content";
+import { ParcelsContent } from "./parcels-content";
 
 interface ParcelsContentAsyncProps {
 	userId: string;

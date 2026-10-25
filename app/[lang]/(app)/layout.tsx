@@ -3,9 +3,9 @@ import { Suspense } from "react";
 import Image from "next/image";
 import { Providers } from "@/app/providers";
 import { AccessPending } from "@/components/auth/access-pending";
-import { LayoutWithHeader } from "@/components/async/layout-with-header";
-import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
-import { LayoutMainSkeleton } from "@/components/skeletons/layout-main-skeleton";
+import { LayoutWithHeader } from "@/components/layout/layout-with-header";
+import { CachedDataWrapper } from "@/components/layout/cached-data-wrapper";
+import { LayoutMainSkeleton } from "@/components/layout/layout-main-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
 import { getLanguageAsLocale } from "@/lib/i18n/locale";
 
