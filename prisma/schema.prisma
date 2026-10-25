@@ -105,7 +105,7 @@ model Parcel {
 
 // A user linked to a parcel: members see and treat it. Parcel.userId stays the creator.
 model ParcelMember {
-  id        String   @id @default(cuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()::text"))
   parcelId  String
   userId    String
   createdAt DateTime @default(now())
