@@ -174,7 +174,10 @@ export async function updateSubstanceAggregations(
 	}
 }
 
-/** Every parcel of the user (all parcels when no user is given), then their members. */
+/**
+ * One user's member parcels and their members, or every parcel and every user, so a
+ * user unlinked from all their parcels is cleared too.
+ */
 export async function rebuildSubstanceAggregations(
 	prisma: PrismaClient,
 	year: number,
@@ -184,13 +187,15 @@ export async function rebuildSubstanceAggregations(
 		where: userId ? parcelAccessWhere(userId) : {},
 		select: { id: true },
 	});
+	const userIds = userId
+		? [userId]
+		: (await prisma.user.findMany({ select: { id: true } })).map(
+				(user) => user.id,
+			);
 
 	await updateSubstanceAggregations(
 		prisma,
-		{
-			parcelIds: parcels.map((parcel) => parcel.id),
-			userIds: userId ? [userId] : [],
-		},
+		{ parcelIds: parcels.map((parcel) => parcel.id), userIds },
 		year,
 	);
 }

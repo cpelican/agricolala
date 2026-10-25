@@ -617,9 +617,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			await testPrisma.parcelMember.deleteMany({
 				where: { parcelId: testParcel.id, userId: userB.id },
 			});
-			await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
-				userId: userB.id,
-			});
+			await rebuildSubstanceAggregations(testPrisma, TEST_YEAR);
 
 			expect(await copperDose({ userId: userB.id })).toBeUndefined();
 			expect(await copperDose({ userId: testUser.id })).toBe(5);
