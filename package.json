@@ -27,7 +27,7 @@
 		"prepare": "husky",
 		"seed": "npx tsx prisma/seed.ts",
 		"studio": "npx prisma studio",
-		"populate-aggregations": "npx tsx scripts/update-substance-aggregations.ts",
+		"aggregations:rebuild": "npx tsx scripts/rebuild-aggregations.ts",
 		"knip": "knip"
 	},
 	"prisma": {

@@ -129,9 +129,8 @@ export async function createTreatment(formData: FormData) {
 			return treatments;
 		});
 
-		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(prisma, session.user.id, currentYear, {
-			affectedParcelIds: parcels.map((parcel) => parcel.id),
+		await updateSubstanceAggregations(prisma, {
+			parcelIds: parcels.map((parcel) => parcel.id),
 		});
 
 		revalidatePath("/treatments");
@@ -178,9 +177,8 @@ export async function deleteTreatment(treatmentId: string) {
 			},
 		});
 
-		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(prisma, session.user.id, currentYear, {
-			affectedParcelIds: [treatment.parcelId],
+		await updateSubstanceAggregations(prisma, {
+			parcelIds: [treatment.parcelId],
 		});
 
 		revalidatePath("/treatments");
@@ -278,7 +276,7 @@ export async function deleteParcel(parcelId: string) {
 				id: parcelId,
 				...parcelAccessWhere(session.user.id),
 			},
-			select: { userId: true },
+			select: { userId: true, members: { select: { userId: true } } },
 		});
 
 		if (!parcel) {
@@ -295,8 +293,11 @@ export async function deleteParcel(parcelId: string) {
 			},
 		});
 
-		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(prisma, session.user.id, currentYear);
+		// Memberships are gone with the parcel: refresh its former members' totals.
+		await updateSubstanceAggregations(prisma, {
+			parcelIds: [parcelId],
+			userIds: parcel.members.map((member) => member.userId),
+		});
 
 		revalidatePath("/parcels");
 		revalidatePath("/");

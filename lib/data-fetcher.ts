@@ -286,12 +286,12 @@ export async function getWeatherHistoryTaskParcelIds(taskId: string) {
 	return parcels.map((parcel) => parcel.id);
 }
 
-// Done treatments of the current year, with the parcel's area and each product's
+// Done treatments of the current year on the user's member parcels, with the parcel's area and each product's
 // substances: what the copper budget pacing needs for the dose per treatment (P7).
 export const getDoneTreatmentDoses = cache(async (userId: string) => {
 	return await prisma.treatment.findMany({
 		where: {
-			userId,
+			...treatmentAccessWhere(userId),
 			status: TreatmentStatus.DONE,
 			appliedDate: { gte: new Date(new Date().getFullYear(), 0, 1) },
 		},
