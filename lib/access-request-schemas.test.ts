@@ -42,7 +42,7 @@ describe("accessRequestSchema", () => {
 
 	test("rejects an unknown locale, a missing message and extra fields", () => {
 		expect(
-			accessRequestSchema.safeParse({ message, locale: "fr" }).success,
+			accessRequestSchema.safeParse({ message, locale: "de" }).success,
 		).toBe(false);
 		expect(
 			accessRequestSchema.safeParse({ message: null, locale: "en" }).success,

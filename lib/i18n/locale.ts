@@ -1,6 +1,7 @@
 export const appLanguages = {
 	en: "en",
 	it: "it",
+	fr: "fr",
 } as const;
 
 export const LOCALE_HEADER = "x-locale";
@@ -24,8 +25,8 @@ export const getLanguageAsLocale = (language: string | undefined): Locale => {
 	return languageIsLocale(language) ? language : defaultLocale;
 };
 
-export const getLocaleFromPathname = (pathname: string) => {
-	return pathname.startsWith("/it") ? appLanguages.it : appLanguages.en;
+export const getLocaleFromPathname = (pathname: string): Locale => {
+	return getLanguageAsLocale(pathname.match(localeRegex)?.[1]);
 };
 
 export const getLocaleFromBrowser = (): Locale => {

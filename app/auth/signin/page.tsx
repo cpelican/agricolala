@@ -1,11 +1,10 @@
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { SignInContent } from "@/components/auth/signin-content";
 
-const authEnDicts = dictionaries.en.auth;
-const authItDicts = dictionaries.it.auth;
 const signinDicts = {
-	en: authEnDicts,
-	it: authItDicts,
+	en: dictionaries.en.auth,
+	it: dictionaries.it.auth,
+	fr: dictionaries.fr.auth,
 };
 
 export default async function SignIn() {

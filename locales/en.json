@@ -168,6 +168,7 @@
 	"profile": {
 		"it": "Italian",
 		"en": "English",
+		"fr": "French",
 		"title": "Profile",
 		"email": "Email",
 		"language": "Language",
@@ -626,7 +627,8 @@
 		"languageLabel": "Language",
 		"languages": {
 			"en": "English",
-			"it": "Italiano"
+			"it": "Italiano",
+			"fr": "Français"
 		},
 		"signIn": "Sign in",
 		"hero": {
