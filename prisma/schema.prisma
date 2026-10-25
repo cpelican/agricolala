@@ -303,6 +303,7 @@ model WeatherHistoryTask {
   updatedAt DateTime @updatedAt
   parcels Parcel[] @relation("WeatherHistoryTasksParcels")
   enabled Boolean @default(true)
+  weatherHistories WeatherHistory[]
 }
 
 model WeatherHistory {
@@ -310,7 +311,10 @@ model WeatherHistory {
   cityName                  String
   latitude                  Float?
   longitude                 Float?
-  dateTime                  DateTime @unique
+  dateTime                  DateTime
+  /// Task (location) that fetched this day; null for rows written before history was kept per location.
+  weatherHistoryTaskId      String?
+  weatherHistoryTask        WeatherHistoryTask? @relation(fields: [weatherHistoryTaskId], references: [id], onDelete: Cascade)
   parcels                   Parcel[] @relation("WeatherHistoryParcels")
   temperature2mMin            Float?
   temperature2mMax            Float?
@@ -323,4 +327,6 @@ model WeatherHistory {
   temperature80mMin            Float?
   temperature80mMax            Float?
   cumulativePrecipitation             Float?
+
+  @@unique([weatherHistoryTaskId, dateTime])
 }

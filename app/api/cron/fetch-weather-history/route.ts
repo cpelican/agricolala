@@ -2,6 +2,18 @@ import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Errors } from "@/lib/constants";
 import { OpenMeteoClient } from "@/lib/open-meteo-client";
+import {
+	WEATHER_HISTORY_DAYS,
+	getStartOfUtcDay,
+	subtractUtcDays,
+} from "@/lib/open-meteo-schema";
+import {
+	adoptLegacyWeatherRows,
+	getMissingDays,
+	getStoredWeatherDays,
+	getWeatherSeasonStart,
+	saveWeatherDays,
+} from "@/lib/weather-history";
 
 export async function GET(request: NextRequest) {
 	const authHeader = request.headers.get("authorization");
@@ -34,65 +46,48 @@ export async function GET(request: NextRequest) {
 					});
 					const parcelIds = parcels.map((parcel) => parcel.id);
 
+					await adoptLegacyWeatherRows(prisma, task);
+
 					const dailyData = await OpenMeteoClient.getHistoryWeatherData(
 						task.latitude,
 						task.longitude,
 					);
+					await saveWeatherDays(prisma, task, parcelIds, dailyData);
 
-					await Promise.all(
-						dailyData.map((daily) =>
-							prisma.weatherHistory.upsert({
-								where: {
-									dateTime: daily.date,
-								},
-								update: {
-									cityName: task.cityName,
-									latitude: task.latitude,
-									longitude: task.longitude,
-									temperature2mMin: daily.temperature2mMin,
-									temperature2mMax: daily.temperature2mMax,
-									temperature80mMin: daily.temperature80mMin,
-									temperature80mMax: daily.temperature80mMax,
-									relative_humidity_2mMin: daily.relative_humidity_2mMin,
-									relative_humidity_2mMax: daily.relative_humidity_2mMax,
-									wind_speed_10mMin: daily.wind_speed_10mMin,
-									wind_speed_10mMax: daily.wind_speed_10mMax,
-									wind_speed_180mMin: daily.wind_speed_180mMin,
-									wind_speed_180mMax: daily.wind_speed_180mMax,
-									cumulativePrecipitation: daily.cumulativePrecipitation,
-									...(parcelIds.length > 0 && {
-										parcels: {
-											set: parcelIds.map((id) => ({ id })),
-										},
-									}),
-								},
-								create: {
-									cityName: task.cityName,
-									latitude: task.latitude,
-									longitude: task.longitude,
-									dateTime: daily.date,
-									temperature2mMin: daily.temperature2mMin,
-									temperature2mMax: daily.temperature2mMax,
-									temperature80mMin: daily.temperature80mMin,
-									temperature80mMax: daily.temperature80mMax,
-									relative_humidity_2mMin: daily.relative_humidity_2mMin,
-									relative_humidity_2mMax: daily.relative_humidity_2mMax,
-									wind_speed_10mMin: daily.wind_speed_10mMin,
-									wind_speed_10mMax: daily.wind_speed_10mMax,
-									wind_speed_180mMin: daily.wind_speed_180mMin,
-									wind_speed_180mMax: daily.wind_speed_180mMax,
-									cumulativePrecipitation: daily.cumulativePrecipitation,
-									...(parcelIds.length > 0 && {
-										parcels: {
-											connect: parcelIds.map((id) => ({ id })),
-										},
-									}),
-								},
-							}),
+					// Fill the days since 1 March that the last week doesn't cover: a task
+					// created mid-season, or a cron outage longer than a week.
+					const todayStart = getStartOfUtcDay(new Date());
+					const recentStart = subtractUtcDays(todayStart, WEATHER_HISTORY_DAYS);
+					const seasonStart = getWeatherSeasonStart(todayStart);
+					const missingDays = getMissingDays(
+						await getStoredWeatherDays(
+							prisma,
+							task.id,
+							seasonStart,
+							recentStart,
 						),
+						seasonStart,
+						recentStart,
 					);
+					let backfilledCount = 0;
+					if (missingDays.length > 0) {
+						const missing = new Set(missingDays.map((day) => day.getTime()));
+						const backfill = (
+							await OpenMeteoClient.getHistoryWeatherDataBetween(
+								task.latitude,
+								task.longitude,
+								missingDays[0],
+								missingDays[missingDays.length - 1],
+							)
+						).filter((daily) => missing.has(daily.date.getTime()));
+						await saveWeatherDays(prisma, task, parcelIds, backfill);
+						backfilledCount = backfill.length;
+					}
 
-					return { success: true as const, entriesCreated: dailyData.length };
+					return {
+						success: true as const,
+						entriesCreated: dailyData.length + backfilledCount,
+					};
 				} catch (error) {
 					const errorMessage = `Error processing task ${task.id} (${task.cityName}): ${
 						error instanceof Error ? error.message : String(error)
