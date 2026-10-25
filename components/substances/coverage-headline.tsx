@@ -4,7 +4,6 @@ import { type SubstanceCoverage } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
 import {
 	COPPER_EFFICACY_THRESHOLD_MG_M2,
-	COPPER_LEAF_AREA_FACTOR,
 	FULL_DOSE_G_PER_HA,
 } from "@/lib/coverage-helpers";
 import { AlertTriangle, Info, ShieldCheck } from "lucide-react";
@@ -76,15 +75,12 @@ export function getCoverageHeadline(
 	coverage: SubstanceCoverage,
 	isCriticalPeriod = false,
 ): { value: string; advice: RetreatAdvice } | null {
-	const projectedGPerHa = coverage.forecast.map(
-		(day) => day.projectedWeightedRemainingGPerHa,
-	);
 	if (coverage.leafSurfaceMgPerM2 !== undefined) {
 		return {
 			value: `${coverage.leafSurfaceMgPerM2.toFixed(2)} mg/m²`,
 			advice: getRetreatAdvice(
 				coverage.leafSurfaceMgPerM2,
-				projectedGPerHa.map((g) => g / COPPER_LEAF_AREA_FACTOR),
+				coverage.forecast.map((day) => day.projectedLeafSurfaceMgPerM2 ?? 0),
 				COPPER_EFFICACY_THRESHOLD_MG_M2,
 				isCriticalPeriod
 					? CRITICAL_PERIOD_COPPER_RETREAT_SOON_MG_M2
@@ -102,7 +98,10 @@ export function getCoverageHeadline(
 			value: `${Math.round(rawPercent)}%`,
 			advice: getRetreatAdvice(
 				rawPercent,
-				projectedGPerHa.map((g) => (g / fullDoseGPerHa) * 100),
+				coverage.forecast.map(
+					(day) =>
+						(day.projectedWeightedRemainingGPerHa / fullDoseGPerHa) * 100,
+				),
 				DOSE_RETREAT_BELOW_PERCENT,
 				isCriticalPeriod
 					? CRITICAL_PERIOD_RETREAT_SOON_PERCENT

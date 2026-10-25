@@ -1,3 +1,4 @@
+import { type PhenologicalStage } from "@prisma/client";
 import {
 	type CoverageForecastDay,
 	type CoverageWidgetData,
@@ -25,10 +26,38 @@ export const DEFAULT_DAYS_BETWEEN_APPLICATIONS = 14;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const COPPER_SUBSTANCE_NAME = "Copper";
-// LAI (Leaf Area Index) ≈ 4 for vineyards; ×10 converts g/ha to mg/m²
+// LAI (Leaf Area Index) ≈ 4 for a full vineyard canopy; ×10 converts g/ha to mg/m²
 // Source: InfoWine — Bassi dosaggi di rame in viticoltura
 // https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/
 export const COPPER_LEAF_AREA_FACTOR = 4 * 10;
+
+// Share of the full canopy's leaf area at each stage, from the Swiss stage-based dose
+// table (Agridea 2011, after Viret & Siegfried, Agroscope): 38 % at the first sprays,
+// 50–63 % before flowering, 75 % at flowering, 100 % after it.
+// https://www.bonnepratiqueagricole.ch/fileadmin/Viticulture/Maladies/Dosage_des_fongicides_en_fonction_du_stade_phenologique.pdf
+// Buds opening has no value in the table, so it keeps the first-leaves share rather than
+// a smaller one that would inflate the readout; flower clusters takes the top of its
+// range (more leaves = lower mg/m², the safe side). Parcels without a current stage keep
+// the full canopy.
+export const LEAF_AREA_SHARE_BY_STAGE = {
+	BUD_BREAK: 0.38,
+	LEAVES_UNFOLDING: 0.38,
+	FLOWER_CLUSTERS: 0.63,
+	FLOWERING: 0.75,
+	FRUIT_SET: 1,
+	BUNCH_CLOSURE: 1,
+	VERAISON: 1,
+	RIPE: 1,
+} satisfies Record<PhenologicalStage, number>;
+
+// g/ha → mg/m² of leaf for a parcel at `stage` (full canopy without one).
+export function getCopperLeafAreaFactor(
+	stage: PhenologicalStage | null,
+): number {
+	return (
+		COPPER_LEAF_AREA_FACTOR * (stage ? LEAF_AREA_SHARE_BY_STAGE[stage] : 1)
+	);
+}
 const COPPER_EFFICACY_THRESHOLD_MG_M2 = 2.5;
 
 // Scientific anchors for 100% coverage per substance.
@@ -98,11 +127,14 @@ export function calculateCoverageData(
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>,
 	substanceColorMap: Record<string, string>,
 	forecastDays: { date: Date; cumulativePrecipitation: number | null }[],
+	// Each parcel's current stage; the copper readout uses its leaf area (P3).
+	stageByParcelId: ReadonlyMap<string, PhenologicalStage> = new Map(),
 ): CoverageWidgetData {
 	type ParcelAccumulator = {
 		parcelId: string;
 		parcelName: string;
 		areaM2: number;
+		stage: PhenologicalStage | null;
 		initialSumGPerHa: number;
 		remainingSumGPerHa: number;
 		mostRecentTreatmentDate: Date | null;
@@ -180,6 +212,7 @@ export function calculateCoverageData(
 							parcelId: parcel.id,
 							parcelName: parcel.name,
 							areaM2,
+							stage: stageByParcelId.get(parcel.id) ?? null,
 							initialSumGPerHa: 0,
 							remainingSumGPerHa: 0,
 							mostRecentTreatmentDate: null,
@@ -239,25 +272,37 @@ export function calculateCoverageData(
 				? Math.min(100, (weightedRemainingGPerHa / fullDoseGPerHa) * 100)
 				: null;
 
+		// Area-weighted mg/m² of leaf, each parcel divided by its own stage's leaf area,
+		// so a spray at first leaves reads diluted once the canopy has grown
+		const leafSurfaceMgPerM2 =
+			substanceName === COPPER_SUBSTANCE_NAME
+				? parcelEntries.reduce(
+						(sum, p) =>
+							sum +
+							(p.remainingSumGPerHa / getCopperLeafAreaFactor(p.stage)) *
+								p.areaM2,
+						0,
+					) / totalAreaM2
+				: undefined;
+
 		const forecast: CoverageForecastDay[] = forecastDays.map((day, i) => {
 			const deltaRain = cumulativeForecastRain[i];
 			const deltaDays = i;
-			const projected =
-				weightedRemainingGPerHa *
+			const remainingShare =
 				computeWashoffFactor(deltaRain, substanceEntry.washoffK) *
 				computeTimeDecayFactor(deltaDays, forecastKTime);
 			return {
 				date: day.date,
 				precipitationMm: day.cumulativePrecipitation ?? 0,
 				cumulativeAdditionalRainMm: deltaRain,
-				projectedWeightedRemainingGPerHa: projected,
+				projectedWeightedRemainingGPerHa:
+					weightedRemainingGPerHa * remainingShare,
+				projectedLeafSurfaceMgPerM2:
+					leafSurfaceMgPerM2 !== undefined
+						? leafSurfaceMgPerM2 * remainingShare
+						: undefined,
 			};
 		});
-
-		const leafSurfaceMgPerM2 =
-			substanceName === COPPER_SUBSTANCE_NAME
-				? weightedRemainingGPerHa / COPPER_LEAF_AREA_FACTOR
-				: undefined;
 
 		const parcelCoverageEntries: ParcelCoverageEntry[] = parcelEntries.map(
 			(p) => ({

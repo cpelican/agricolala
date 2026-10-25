@@ -24,6 +24,8 @@ export interface CoverageForecastDay {
 	precipitationMm: number;
 	cumulativeAdditionalRainMm: number;
 	projectedWeightedRemainingGPerHa: number;
+	// Copper only: projected mg/m² of leaf at each parcel's current stage
+	projectedLeafSurfaceMgPerM2?: number;
 }
 
 export interface SubstanceCoverage {
