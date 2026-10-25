@@ -8,11 +8,27 @@ import {
 	rootViewport,
 } from "@/components/layout/root-document";
 import { getLocaleFromAcceptLanguage } from "@/lib/i18n/accept-language";
+import { defaultLocale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
+
+const { meta } = tServer(defaultLocale).welcome;
 
 export const metadata: Metadata = {
 	...rootMetadata,
 	title: "Agricolala - Sign In",
 	description: "Sign in to manage your vineyard treatments and parcels",
+	// Shared links to app pages unfurl here (no session), so present the app itself.
+	openGraph: {
+		type: "website",
+		siteName: "Agricolala",
+		title: meta.title,
+		description: meta.description,
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: meta.title,
+		description: meta.description,
+	},
 };
 export const viewport = rootViewport;
 
