@@ -81,7 +81,6 @@ export function ConfirmStageDialog({
 							</Button>
 							<Button
 								type="button"
-								className="bg-main-gradient hover:bg-primary-700"
 								onClick={() => void handleConfirm()}
 								disabled={isSubmitting}
 							>

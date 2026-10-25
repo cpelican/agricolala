@@ -47,14 +47,14 @@ export type StatusLevel = "critical" | "warning" | "optimal";
 
 export const STATUS_BADGE_STYLES: Record<StatusLevel, string> = {
 	critical: "bg-red-50 border-red-200 text-red-600",
-	warning: "bg-orange-50 border-orange-200 text-orange-700",
-	optimal: "bg-green-50 border-green-200 text-green-700",
+	warning: "bg-warning-background border-warning-border text-warning",
+	optimal: "bg-success-background border-success-border text-success",
 };
 
 const STATUS_TEXT_COLOR: Record<StatusLevel, string> = {
 	critical: "text-red-600",
-	warning: "text-orange-700",
-	optimal: "text-green-700",
+	warning: "text-warning",
+	optimal: "text-success",
 };
 
 // Status of the dose-residual gauge (non-copper substances): 50–100% of the full anchor
@@ -144,7 +144,7 @@ function Gauge({
 				/>
 				<div
 					className={`absolute top-1/2 h-5 w-2 -translate-y-1/2 rounded-full border-2 bg-white ${
-						isOverflow ? "border-red-600" : "border-gray-700"
+						isOverflow ? "border-red-600" : "border-neutral-700"
 					}`}
 					style={{ left: `calc(${pct}% - 4px)` }}
 				/>
@@ -163,7 +163,7 @@ function Gauge({
 					return (
 						<span
 							key={tick}
-							className={`absolute whitespace-nowrap ${isOptimal ? "font-semibold text-green-600" : ""}`}
+							className={`absolute whitespace-nowrap ${isOptimal ? "font-semibold text-success" : ""}`}
 							style={{
 								left: `${tickPct}%`,
 								transform: `translateX(${translate})`,
@@ -247,7 +247,7 @@ function ForecastRow({
 								</p>
 							)}
 							{day.precipitationMm > 0 && (
-								<p className="flex items-center justify-center gap-1 text-xs text-blue-500">
+								<p className="flex items-center justify-center gap-1 text-xs text-info">
 									<CloudRain className="h-3 w-3" />
 									{day.precipitationMm.toFixed(1)}
 									{t("coverage.mm")}

@@ -1,21 +1,24 @@
+import { EYEBROW, PAGE_TITLE, SECTION_TEXT } from "@/components/ui/typography";
+
 export function Header({
 	title,
+	eyebrow,
 	subtitle,
 	children,
 }: {
 	title: string;
+	eyebrow?: string;
 	subtitle?: string;
 	children?: React.ReactNode;
 }) {
 	return (
-		<div className="text-black/90 p-4 flex items-center justify-between gap-x-4">
-			<div>
-				<h1 className="text-xl font-semibold">{title}</h1>
-				{subtitle && (
-					<p className="font-light truncate max-w-[15rem]">{subtitle}</p>
-				)}
+		<div className="flex flex-col gap-2.5 px-4 pt-7 pb-4">
+			{eyebrow && <p className={`m-0 ${EYEBROW}`}>{eyebrow}</p>}
+			<div className="flex items-end justify-between gap-x-3">
+				<h1 className={`${PAGE_TITLE} min-w-0 break-words`}>{title}</h1>
+				{children && <div className="flex-none">{children}</div>}
 			</div>
-			{children}
+			{subtitle && <p className={SECTION_TEXT}>{subtitle}</p>}
 		</div>
 	);
 }

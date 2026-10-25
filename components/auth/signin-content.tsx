@@ -81,11 +81,7 @@ export const SignInContent = ({
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{hasGoogleProvider && (
-						<Button
-							onClick={signInWithGoogle}
-							className="w-full bg-main-gradient hover:bg-primary-700"
-							size="lg"
-						>
+						<Button onClick={signInWithGoogle} className="w-full" size="lg">
 							{authDicts[lang].signInWithGoogle}
 						</Button>
 					)}
@@ -119,7 +115,7 @@ export const SignInContent = ({
 								className="w-full rounded-md border px-3 py-2 text-sm"
 								required
 							/>
-							{error && <p className="text-sm text-red-600">{error}</p>}
+							{error && <p className="text-sm text-destructive">{error}</p>}
 							<Button
 								type="submit"
 								className="w-full"

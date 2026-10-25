@@ -147,6 +147,19 @@
 			"avgWind": "Vento Medio",
 			"mm": "mm",
 			"kmh": "km/h"
+		},
+		"eyebrow": "Stagione {year}",
+		"export": "Esporta",
+		"card": {
+			"for": "Contro {diseases}",
+			"scheduled": "Programmato",
+			"from": "Dal {date}",
+			"water": "{water} L di acqua",
+			"applied": "{dose} applicati",
+			"planned": "{dose} previsti",
+			"untitled": "Trattamento",
+			"name": "{product} su {parcel}",
+			"delete": "Elimina {product} su {parcel}"
 		}
 	},
 	"profile": {
@@ -226,7 +239,8 @@
 		"yearlyComparison": "Confronto Uso Sostanze Annuale",
 		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
 		"yearlyUsageTitle": "Uso cumulato per ettaro dal 1° gennaio a questo mese, per anno",
-		"year": "Anno"
+		"year": "Anno",
+		"usageEyebrow": "Uso delle sostanze"
 	},
 	"deleteTreatment": {
 		"title": "Elimina Trattamento",
@@ -434,7 +448,8 @@
 		"welcome": "Ciao",
 		"description": "Gestisci le tue parcelle agricole e trattamenti",
 		"getStarted": "Inizia",
-		"loading": "Caricamento dashboard"
+		"loading": "Caricamento dashboard",
+		"eyebrow": "Il tuo vigneto"
 	},
 	"coverage": {
 		"title": "Protezione attuale sulle viti",
@@ -552,7 +567,9 @@
 				"label": "Maturazione",
 				"description": "Pronta per la vendemmia o raccolta"
 			}
-		}
+		},
+		"stageNumber": "Fase {n} di {total}",
+		"riskLegend": "Livelli di rischio"
 	},
 	"welcome": {
 		"meta": {

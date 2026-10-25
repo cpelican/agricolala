@@ -37,10 +37,10 @@ export default async function Layout({
 				icon={
 					<Image
 						src="/1.png"
-						alt="Agricolala"
-						width={32}
-						height={32}
-						className="size-8 shrink-0"
+						alt=""
+						width={40}
+						height={43}
+						className="size-7 shrink-0 object-contain"
 						priority
 					/>
 				}

@@ -147,6 +147,19 @@
 			"avgWind": "Avg Wind",
 			"mm": "mm",
 			"kmh": "km/h"
+		},
+		"eyebrow": "Season {year}",
+		"export": "Export",
+		"card": {
+			"for": "For {diseases}",
+			"scheduled": "Scheduled",
+			"from": "From {date}",
+			"water": "{water} L water",
+			"applied": "{dose} applied",
+			"planned": "{dose} planned",
+			"untitled": "Treatment",
+			"name": "{product} on {parcel}",
+			"delete": "Delete {product} on {parcel}"
 		}
 	},
 	"profile": {
@@ -226,7 +239,8 @@
 		"yearlyComparison": "Yearly Substance Usage Comparison",
 		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
 		"yearlyUsageTitle": "Cumulated substance use per hectare, Jan 1 to this month, by year",
-		"year": "Year"
+		"year": "Year",
+		"usageEyebrow": "Substance usage"
 	},
 	"deleteTreatment": {
 		"title": "Delete Treatment",
@@ -434,7 +448,8 @@
 		"welcome": "Welcome",
 		"description": "Manage your agricultural parcels and treatments",
 		"getStarted": "Get Started",
-		"loading": "Loading dashboard"
+		"loading": "Loading dashboard",
+		"eyebrow": "Your vineyard"
 	},
 	"coverage": {
 		"title": "Protection on the vines now",
@@ -552,7 +567,9 @@
 				"label": "Ripe",
 				"description": "Ready for harvest or picked"
 			}
-		}
+		},
+		"stageNumber": "Stage {n} of {total}",
+		"riskLegend": "Risk levels"
 	},
 	"welcome": {
 		"meta": {

@@ -22,13 +22,14 @@ export function SidebarNavigation() {
 							href={item.href}
 							prefetch
 							className={cn(
-								`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors`,
+								"flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 transition-colors",
 								isActive
-									? "text-primary-700 bg-hsl"
-									: "text-gray-500 hover:text-gray-700",
+									? "bg-primary-50 font-semibold text-primary-700"
+									: "font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900",
 							)}
+							aria-current={isActive ? "page" : undefined}
 						>
-							<item.icon className="h-6 w-6 mb-1" />
+							<item.icon aria-hidden="true" className="size-[22px]" />
 							{t(item.name)}
 						</LocaleLink>
 					</li>

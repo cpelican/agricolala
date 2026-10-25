@@ -16,6 +16,7 @@ import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
+import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
 interface HomeDashboardContentProps {
 	locale: Locale;
@@ -75,7 +76,7 @@ export async function HomeDashboardContent({
 		return {
 			...substance,
 			maxDosage: substanceMeta?.maxDosage || 0,
-			color: substanceMeta?.color || "rgb(182, 182, 182)",
+			color: substanceMeta?.color ?? SUBSTANCE_FALLBACK_COLOR,
 		};
 	});
 	const dict = tServer(locale);
@@ -84,7 +85,7 @@ export async function HomeDashboardContent({
 	const hasMultipleYears = years.length > 1;
 
 	return (
-		<div className="space-y-4 p-4">
+		<div className="space-y-8 px-4 pt-3 pb-8">
 			{vineyardStageRisk && (
 				<DiseaseRiskSection
 					stage={vineyardStageRisk.stage}

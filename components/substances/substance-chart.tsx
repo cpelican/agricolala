@@ -37,7 +37,7 @@ const months = [
 ];
 
 export function SubstanceChart({ data }: SubstanceChartProps) {
-	const { t } = useTranslations();
+	const { t, getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
 	const colors = substances.reduce<Record<string, string>>((acc, substance) => {
 		acc[substance.name] = substance.color;
@@ -51,7 +51,7 @@ export function SubstanceChart({ data }: SubstanceChartProps) {
 	const chartData: ChartData<"line"> = {
 		labels: months,
 		datasets: data.map((substance) => ({
-			label: substance.name,
+			label: getSubstanceTranslation(substance.name),
 			data: substance.monthlyData.map((grams, monthIndex) =>
 				monthIndex > currentMonth ? null : grams / GRAMS_PER_KILOGRAM,
 			),

@@ -2,6 +2,10 @@ import type { ReactNode } from "react";
 import { BottomNavigation } from "../routing/bottom-navigation";
 import { SidebarNavigation } from "../routing/sidebar-navigation";
 
+// Same as the welcome header: 20px bold, dark green held to 30% then lime.
+const WORDMARK =
+	"wordmark-gradient text-xl leading-6 font-bold tracking-[-0.01em]";
+
 interface LayoutWithHeaderProps {
 	children: ReactNode;
 	icon: ReactNode;
@@ -16,33 +20,25 @@ export const LayoutWithHeader = async ({
 	return (
 		<>
 			<div className="sm:hidden min-h-screen bg-primary-10 pb-20">
-				<div className="p-4 flex items-center gap-x-4 bg-main border-solid border-b-1 border-gray-200">
+				<header className="flex h-16 items-center gap-2 border-b border-border px-4">
 					{icon}
-					<div>
-						<h1 className="text-2xl font-semibold gradient-main-title">
-							{title}
-						</h1>
-					</div>
-				</div>
+					<span className={WORDMARK}>{title}</span>
+				</header>
 
 				<main>{children}</main>
 				<BottomNavigation />
 			</div>
 			<div className="hidden sm:grid sm:grid-cols-[20rem_1fr] sm:h-screen">
 				<nav className="bg-sidebar  border-r border-sidebar-border">
-					<div className="p-4 flex items-center gap-x-4">
+					<div className="flex h-16 items-center gap-2 px-4">
 						{icon}
-						<div>
-							<h1 className="text-2xl font-semibold gradient-main-title">
-								{title}
-							</h1>
-						</div>
+						<span className={WORDMARK}>{title}</span>
 					</div>
 					<div className="p-4">
 						<SidebarNavigation />
 					</div>
 				</nav>
-				<main className="overflow-auto">
+				<main className="overflow-auto bg-primary-10">
 					<div className="p-6">
 						<div className="max-w-3xl mx-auto">{children}</div>
 					</div>

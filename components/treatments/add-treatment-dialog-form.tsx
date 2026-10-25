@@ -186,7 +186,7 @@ export function AddTreatmentDialogForm({
 					</Popover>
 
 					{errors.appliedDate.map((er) => (
-						<p key={er} className="text-sm text-red-700">
+						<p key={er} className="text-sm text-destructive">
 							{er}
 						</p>
 					))}
@@ -239,7 +239,7 @@ export function AddTreatmentDialogForm({
 							</div>
 						))}
 						{errors.parcelIds.map((er) => (
-							<p key={er} className="text-sm text-red-700">
+							<p key={er} className="text-sm text-destructive">
 								{er}
 							</p>
 						))}
@@ -329,7 +329,7 @@ export function AddTreatmentDialogForm({
 							</div>
 							{advisedDosePerProduct[product.productId] &&
 							advisedDosePerProduct[product.productId] < product.dose ? (
-								<p className="text-sm text-orange-400">
+								<p className="text-sm text-warning">
 									{t("treatments.warnings.doseAdvice").replace(
 										"{dose}",
 										String(
@@ -339,14 +339,14 @@ export function AddTreatmentDialogForm({
 								</p>
 							) : null}
 							{isRestrictedNow(product.productId) ? (
-								<p className="text-sm text-orange-400">
+								<p className="text-sm text-warning">
 									{t("phenology.restrictedAtFlowering")}
 								</p>
 							) : null}
 						</React.Fragment>
 					))}
 					{errors.productApplications.map((er) => (
-						<p key={er} className="text-sm text-red-700">
+						<p key={er} className="text-sm text-destructive">
 							{er}
 						</p>
 					))}
@@ -409,7 +409,7 @@ export function AddTreatmentDialogForm({
 						</div>
 					))}
 					{errors.diseases.map((er) => (
-						<p key={er} className="text-sm text-red-700">
+						<p key={er} className="text-sm text-destructive">
 							{er}
 						</p>
 					))}
@@ -430,7 +430,7 @@ export function AddTreatmentDialogForm({
 						onKeyDown={preventEnterSubmit}
 					/>
 					{errors.waterDose.map((er) => (
-						<p key={er} className="text-sm text-red-700">
+						<p key={er} className="text-sm text-destructive">
 							{er}
 						</p>
 					))}
@@ -441,12 +441,7 @@ export function AddTreatmentDialogForm({
 				<Button type="button" variant="outline" onClick={onCancel}>
 					{t("treatments.cancel")}
 				</Button>
-				<Button
-					type="button"
-					className="bg-main-gradient hover:bg-primary-700"
-					onClick={onSubmit}
-					disabled={isSubmitting}
-				>
+				<Button type="button" onClick={onSubmit} disabled={isSubmitting}>
 					{t("treatments.createTreatment")}
 				</Button>
 			</DialogFooter>

@@ -67,8 +67,9 @@ export function TranslationsProvider({ children }: { children: ReactNode }) {
 	};
 
 	const getSubstanceTranslation = (substanceName: string): string => {
-		const name = substanceName.toLowerCase();
-		return t(`substances.${name}`) || substanceName;
+		const key = `substances.${substanceName.toLowerCase()}`;
+		const label = t(key);
+		return label === key ? substanceName : label;
 	};
 
 	return (
