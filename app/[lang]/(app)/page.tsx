@@ -1,9 +1,9 @@
 import { StrictMode, Suspense } from "react";
 import { HomePageContent } from "@/components/async/home-page-content";
 import { requireAuth } from "@/lib/auth-utils";
-import { tServer } from "@/lib/translations-server-only";
+import { tServer } from "@/lib/i18n/server";
 import { HomeSkeleton } from "@/components/skeletons/home-skeleton";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
 
 export default async function Home({
 	params,

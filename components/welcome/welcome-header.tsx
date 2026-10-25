@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { appLanguages, type Locale } from "@/lib/translations-helpers";
+import { appLanguages, type Locale } from "@/lib/i18n/locale";
 import {
 	localizedPath,
 	PUBLIC_PAGES,

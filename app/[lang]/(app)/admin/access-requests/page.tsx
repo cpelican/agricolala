@@ -9,8 +9,8 @@ import {
 	isAdminEmail,
 } from "@/lib/data-fetcher-access-requests";
 import { requireAuth } from "@/lib/auth-utils";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 
 export const metadata: Metadata = {
 	robots: { index: false, follow: false },

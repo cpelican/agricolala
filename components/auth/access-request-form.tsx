@@ -11,10 +11,10 @@ import {
 	ACCESS_REQUEST_MESSAGE_MAX,
 	ACCESS_REQUEST_MESSAGE_MIN,
 } from "@/lib/access-request-schemas";
-import { type Locale } from "@/lib/translations-helpers";
-import type enDict from "@/locales/en.json";
+import { type Locale } from "@/lib/i18n/locale";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
 
-type PendingDict = typeof enDict.auth.pending;
+type PendingDict = TranslationType["auth"]["pending"];
 
 const cardClassName =
 	"flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-5 shadow-xs";

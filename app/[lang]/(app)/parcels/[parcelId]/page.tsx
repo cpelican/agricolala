@@ -11,7 +11,7 @@ import {
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
-import { type Locale } from "@/lib/translations-helpers";
+import { type Locale } from "@/lib/i18n/locale";
 import { Header } from "@/components/misc/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";

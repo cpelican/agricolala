@@ -6,7 +6,7 @@ import {
 	type EmailContent,
 } from "./access-request-emails";
 import { taintUtils } from "./taint-utils";
-import { type Locale } from "./translations-helpers";
+import { type Locale } from "./i18n/locale";
 
 // RESEND_API_KEY and ACCESS_REQUEST_NOTIFY_EMAIL are secrets: they are read here only,
 // never returned to callers and never logged.

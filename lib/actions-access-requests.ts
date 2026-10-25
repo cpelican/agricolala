@@ -13,7 +13,7 @@ import {
 import { formatAccessRequestDate } from "./access-requests";
 import { isAdminEmail } from "./data-fetcher-access-requests";
 import { notifyAdminOfAccessRequest, sendAccessGrantedEmail } from "./email";
-import { getLanguageAsLocale } from "./translations-helpers";
+import { getLanguageAsLocale } from "./i18n/locale";
 
 export type AccessRequestState =
 	| { status: "idle" }

@@ -11,8 +11,8 @@ import {
 	type PublicPage,
 	welcomePath,
 } from "@/lib/site-url";
-import type { Locale } from "@/lib/translations-helpers";
-import type { TranslationType } from "@/lib/translations-server-only";
+import type { Locale } from "@/lib/i18n/locale";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
 
 export const legalMetadata = ({
 	locale,

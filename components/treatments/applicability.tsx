@@ -1,7 +1,7 @@
 import { getNext3DaysTreatmentApplicability } from "@/lib/applicability";
 import { Badge } from "@/components/ui/badge";
-import { tServer } from "@/lib/translations-server-only";
-import { type Locale } from "@/lib/translations-helpers";
+import { tServer } from "@/lib/i18n/server";
+import { type Locale } from "@/lib/i18n/locale";
 
 const Applicability = async ({
 	parcelId,

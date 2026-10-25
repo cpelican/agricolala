@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
-import { languageIsLocale, defaultLocale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import { languageIsLocale, defaultLocale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

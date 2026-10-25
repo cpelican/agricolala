@@ -6,8 +6,8 @@ import {
 	localizedPath,
 	PUBLIC_PAGES,
 } from "@/lib/site-url";
-import type { TranslationType } from "@/lib/translations-server-only";
-import type { Locale } from "@/lib/translations-helpers";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/locale";
 import {
 	EYEBROW,
 	PRIMARY_BUTTON,

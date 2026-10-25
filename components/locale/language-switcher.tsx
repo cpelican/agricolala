@@ -6,7 +6,7 @@ import {
 	getLocaleFromPathname,
 	type Locale,
 	localeRegex,
-} from "@/lib/translations-helpers";
+} from "@/lib/i18n/locale";
 import { useTranslations } from "@/contexts/translations-context";
 import { useRouter, usePathname } from "next/navigation";
 import { updateUserLocale } from "@/lib/actions";

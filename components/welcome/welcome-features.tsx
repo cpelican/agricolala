@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CalendarDays, TriangleAlert } from "lucide-react";
-import type { TranslationType } from "@/lib/translations-server-only";
-import type { Locale } from "@/lib/translations-helpers";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/locale";
 import {
 	EXAMPLE_COPPER,
 	EXAMPLE_COPPER_PERCENT,

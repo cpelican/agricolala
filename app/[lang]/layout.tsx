@@ -5,7 +5,7 @@ import {
 	rootMetadata,
 	rootViewport,
 } from "@/components/misc/root-document";
-import { appLanguages, getLanguageAsLocale } from "@/lib/translations-helpers";
+import { appLanguages, getLanguageAsLocale } from "@/lib/i18n/locale";
 
 export const metadata = rootMetadata;
 export const viewport = rootViewport;

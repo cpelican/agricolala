@@ -7,7 +7,7 @@ import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { LayoutMainSkeleton } from "@/components/skeletons/layout-main-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
 
 export default async function Layout({
 	children,

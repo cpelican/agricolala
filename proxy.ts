@@ -1,6 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { type NextRequest, NextResponse } from "next/server";
-import { getLocaleFromAcceptLanguage } from "@/lib/accept-language";
+import { getLocaleFromAcceptLanguage } from "@/lib/i18n/accept-language";
 import {
 	defaultLocale,
 	appLanguages,
@@ -9,7 +9,7 @@ import {
 	getLocaleFromPathname,
 	LOCALE_HEADER,
 	languageIsLocale,
-} from "@/lib/translations-helpers";
+} from "@/lib/i18n/locale";
 
 const locales: Locale[] = Object.values(appLanguages);
 

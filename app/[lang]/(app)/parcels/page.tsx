@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth-utils";
-import { tServer } from "@/lib/translations-server-only";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
+import { tServer } from "@/lib/i18n/server";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
 import { ParcelsContentAsync } from "@/components/async/parcels-content-async";
 import { Suspense } from "react";
 import { ParcelsSkeleton } from "@/components/skeletons/parcels-skeleton";

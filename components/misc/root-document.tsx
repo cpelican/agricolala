@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { inter } from "@/lib/app-shell";
 import { siteUrl } from "@/lib/site-url";
-import type { Locale } from "@/lib/translations-helpers";
+import type { Locale } from "@/lib/i18n/locale";
 
 // The app has two root layouts (app/[lang] and app/auth), so the <html> shell and the
 // defaults they share live here.

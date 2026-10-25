@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getAuthorizedSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { type Locale } from "./translations-helpers";
+import { type Locale } from "./i18n/locale";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations/core";
 import { TreatmentStatus } from "@prisma/client";
 import { productApplicationsToGrams } from "./product-dose-to-grams";

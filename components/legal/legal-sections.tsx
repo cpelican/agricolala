@@ -1,4 +1,4 @@
-import type { TranslationType } from "@/lib/translations-server-only";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
 
 export type LegalDictionary = TranslationType["legal"];
 
