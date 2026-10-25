@@ -27,6 +27,11 @@ test("a new account explains why, takes an introduction and remembers it", async
 		main.getByText(/I open every new account by hand/),
 	).toBeVisible();
 	await expect(main.getByText(pendingE2eUser.email).first()).toBeVisible();
+	// Friendly heads-up that requests nobody can trace back to a real person get turned down.
+	await expect(
+		main.getByRole("heading", { level: 3, name: "What helps me say yes" }),
+	).toBeVisible();
+	await expect(main.getByText(/gives me nothing to check/)).toBeVisible();
 
 	const introduction = main.getByRole("textbox", {
 		name: "A few words about you",

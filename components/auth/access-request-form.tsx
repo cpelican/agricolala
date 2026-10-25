@@ -88,6 +88,21 @@ export function AccessRequestForm({
 				<h2 id={ids.title} className="m-0 text-lg font-semibold">
 					{t.requestTitle}
 				</h2>
+				<p className="m-0 text-sm leading-relaxed text-neutral-700">
+					{t.requestIntro}
+				</p>
+				<div className="flex flex-col gap-1.5 rounded-md bg-primary-10 p-3">
+					<h3 className="m-0 text-sm font-semibold text-neutral-950">
+						{t.tipsTitle}
+					</h3>
+					<ul className="m-0 flex list-disc flex-col gap-1 pl-5 text-sm leading-relaxed text-neutral-700">
+						<li>{t.tipName}</li>
+						<li>{t.tipLink}</li>
+					</ul>
+					<p className="m-0 text-sm leading-relaxed text-neutral-700">
+						{t.requestExample}
+					</p>
+				</div>
 				<form action={formAction} className="flex flex-col gap-3" noValidate>
 					<input type="hidden" name="locale" value={locale} />
 					<div className="flex flex-col gap-1.5">
