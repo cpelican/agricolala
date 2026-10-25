@@ -146,6 +146,43 @@ describe("[Integration] Suggest Treatments", () => {
 		);
 	});
 
+	test("creates one TODO for a shared parcel, authored by its last treatment's author", async () => {
+		const {
+			pastTreatment,
+			testParcel,
+			COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS,
+		} = testData;
+		const userB = await testPrisma.user.create({
+			data: { email: "b@example.com", isAuthorized: true },
+		});
+		await testPrisma.parcelMember.create({
+			data: { parcelId: testParcel.id, userId: userB.id },
+		});
+		// B recorded the parcel's last treatment.
+		await testPrisma.treatment.update({
+			where: { id: pastTreatment.id },
+			data: {
+				userId: userB.id,
+				appliedDate: localMidnightDaysAgo(
+					CRON_AS_OF_IN_SEASON,
+					COPPER_TEST_PRODUCT_DAYS_BETWEEN_APPLICATIONS + 2,
+				),
+			},
+		});
+
+		const response = await fetchSuggestTreatments(CRON_AS_OF_IN_SEASON);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(data.suggestedTreatments).toBe(1);
+		const todos = await testPrisma.treatment.findMany({
+			where: { status: TreatmentStatus.TODO },
+		});
+		expect(todos).toEqual([
+			expect.objectContaining({ parcelId: testParcel.id, userId: userB.id }),
+		]);
+	});
+
 	test("should create a TODO treatment using the default interval when the product has no daysBetweenApplications", async () => {
 		const { pastTreatment, copper, testParcel, testUser } = testData;
 		const liquidProduct = await testPrisma.product.create({

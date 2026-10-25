@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		const { suggestedTreatments, processedUsers } = await suggestTreatments(
+		const { suggestedTreatments, processedParcels } = await suggestTreatments(
 			resolveCronReferenceDate(request),
 		);
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 			success: true,
 			message: `Created ${suggestedTreatments} suggested treatments`,
 			suggestedTreatments,
-			processedUsers,
+			processedParcels,
 		});
 	} catch (error) {
 		console.error("Error in cron job:", error);
