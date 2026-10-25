@@ -42,7 +42,7 @@ describe("getThermalSum", () => {
 		).toBe(6);
 	});
 
-	test("null when a day is missing or has no temperature", () => {
+	test("null when a day before the last stored one is missing or has no temperature", () => {
 		const days = temperatures(day(3, 1), 3, 6, 14);
 		expect(getThermalSum([days[0], days[2]], day(3, 1), day(3, 4))).toBe(null);
 		expect(
@@ -51,6 +51,19 @@ describe("getThermalSum", () => {
 				day(3, 1),
 				day(3, 4),
 			),
+		).toBe(null);
+	});
+
+	test("sums up to the last stored day while the weekly cron hasn't run yet", () => {
+		// Stored 1–3 March; 4–11 March (8 days) not yet.
+		expect(
+			getThermalSum(temperatures(day(3, 1), 3, 6, 14), day(3, 1), day(3, 12)),
+		).toBe(30);
+	});
+
+	test("null once more than 8 days at the end are missing", () => {
+		expect(
+			getThermalSum(temperatures(day(3, 1), 3, 6, 14), day(3, 1), day(3, 13)),
 		).toBe(null);
 	});
 
@@ -172,8 +185,21 @@ describe("[Integration] getStageEstimate", () => {
 		).toBe(PhenologicalStage.FLOWERING);
 	});
 
+	test("still estimated while the last week's weather isn't fetched yet", async () => {
+		// Stored up to 24 May: 85 days × 16 °C = 1360 °C·day.
+		await seedWeather(16, dayCount - 7);
+		await observe(PhenologicalStage.FLOWER_CLUSTERS, day(5, 10));
+
+		expect(
+			await getStageEstimate(testPrisma, testData.testParcel.id, today),
+		).toBe(PhenologicalStage.FLOWERING);
+	});
+
 	test("nothing while a day since 1 March is missing", async () => {
-		await seedWeather(15, dayCount - 1);
+		await seedWeather(15);
+		await testPrisma.weatherHistory.deleteMany({
+			where: { dateTime: day(4, 15) },
+		});
 		await observe(PhenologicalStage.FLOWER_CLUSTERS, day(5, 10));
 
 		expect(

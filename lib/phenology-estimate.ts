@@ -4,12 +4,14 @@ import {
 	type PrismaClient,
 	type WeatherHistory,
 } from "@prisma/client";
-import { getStartOfUtcDay } from "./open-meteo-schema";
+import { WEATHER_HISTORY_DAYS, getStartOfUtcDay } from "./open-meteo-schema";
 import { compareStages } from "./phenology";
 import { getLatestObservation } from "./phenology-observations";
 import { getMissingDays, getWeatherSeasonStart } from "./weather-history";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 // Stage estimate from temperature (P5 in design-docs/phenological-stage.md): GFV
 // model (Parker et al. 2011, 2013), the daily mean temperatures above 0 °C summed
@@ -26,8 +28,13 @@ type DailyTemperature = Pick<
 	"dateTime" | "temperature2mMin" | "temperature2mMax"
 >;
 
-// °C·day over the UTC days [from, to). Null when a day is missing or has no
-// temperature: a gap would lower the sum and make the estimate late.
+// The weather cron runs once a week and fetches the 7 days before it, so the latest
+// days are usually not stored yet; one more day allows for a late run.
+const MAX_LATEST_DAYS_MISSING = WEATHER_HISTORY_DAYS + 1;
+
+// °C·day over the UTC days [from, to), up to the last stored day. Null when a day
+// before it is missing or has no temperature (a gap would lower the sum and make the
+// estimate late), or when more than MAX_LATEST_DAYS_MISSING days at the end are.
 export function getThermalSum(
 	days: DailyTemperature[],
 	from: Date,
@@ -49,7 +56,15 @@ export function getThermalSum(
 		meanByDay.set(time, (day.temperature2mMin + day.temperature2mMax) / 2);
 	}
 	const storedDays = [...meanByDay.keys()].map((time) => new Date(time));
-	if (getMissingDays(storedDays, from, to).length > 0) return null;
+	const missing = getMissingDays(storedDays, from, to);
+	const latestDaysStart = to.getTime() - missing.length * MS_PER_DAY;
+	if (
+		missing.length > MAX_LATEST_DAYS_MISSING ||
+		// Missing days are in order: only the latest ones may be missing.
+		(missing.length > 0 && missing[0].getTime() !== latestDaysStart)
+	) {
+		return null;
+	}
 
 	let sum = 0;
 	for (const mean of meanByDay.values()) sum += Math.max(0, mean);
@@ -86,7 +101,8 @@ export function getStageToConfirm(
 }
 
 // Stage the temperatures say the parcel has probably reached and its grower has not
-// recorded yet, from the days since 1 March up to yesterday. Never used in a
+// recorded yet, from the days since 1 March up to the last one stored (at most about
+// a week before today, see getThermalSum). Never used in a
 // calculation: only a confirmed observation is.
 export async function getStageEstimate(
 	db: DbClient,
