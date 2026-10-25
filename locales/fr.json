@@ -618,8 +618,8 @@
 	},
 	"welcome": {
 		"meta": {
-			"title": "Agricolala : le carnet de traitements de votre vignoble",
-			"description": "Appli gratuite et open source pour les vignerons. Dessinez vos parcelles, enregistrez chaque traitement au stade où il a été fait, et traitez le moins possible."
+			"title": "Agricolala : application gratuite de viticulture et registre phytosanitaire",
+			"description": "Appli gratuite et open source pour les vignerons et tous les passionnés de vigne. Dessinez vos parcelles, tenez votre registre phytosanitaire avec chaque traitement au stade où il a été fait, suivez le cuivre et le soufre utilisés, et exportez tout vers Excel."
 		},
 		"skipToContent": "Aller au contenu",
 		"homeLink": "Agricolala, accueil",
@@ -632,6 +632,7 @@
 		},
 		"signIn": "Se connecter",
 		"hero": {
+			"eyebrow": "Application gratuite de viticulture",
 			"titleStart": "Le carnet de traitements de votre",
 			"titleHighlight": "vignoble.",
 			"lead": "Dessinez vos parcelles. Notez vos traitements. Traitez le moins possible.",
@@ -699,6 +700,31 @@
 		"closing": {
 			"title": "Prêt pour votre première parcelle ?",
 			"cta": "Commencer"
+		},
+		"faq": {
+			"title": "Questions fréquentes",
+			"items": [
+				{
+					"question": "Agricolala est-elle gratuite ?",
+					"answer": "Oui. Agricolala est gratuite pour chaque vigneron et son code est open source sur GitHub. Il n’y a aucune offre payante."
+				},
+				{
+					"question": "Puis-je l’utiliser comme registre phytosanitaire ?",
+					"answer": "Oui. Pour chaque traitement, vous notez la date, la parcelle, les produits et leurs doses, et Agricolala ajoute le stade de la vigne. Vous pouvez exporter toute l’année vers Excel. Vérifiez auprès de l’organisme compétent quelles informations votre registre officiel doit contenir."
+				},
+				{
+					"question": "Suit-elle le cuivre et le soufre que j’utilise ?",
+					"answer": "Oui. Chaque traitement est cumulé depuis le 1er janvier, parcelle par parcelle, pour le cuivre, le soufre et toutes les autres substances actives. Le cuivre est comparé à la limite légale de 4 kg par hectare et par an en moyenne. Le soufre n’a pas de limite légale, mais voir le total vous aide à en utiliser le moins possible."
+				},
+				{
+					"question": "Fonctionne-t-elle sur mon téléphone ?",
+					"answer": "Oui. Agricolala est une appli web pensée pour le téléphone que vous emportez entre les rangs. Rien à installer : elle s’ouvre dans votre navigateur."
+				},
+				{
+					"question": "Qui peut voir mes données ?",
+					"answer": "Vous seul, et les personnes avec qui vous choisissez de partager une parcelle. Vos données ne sont jamais vendues, et vous pouvez les exporter à tout moment."
+				}
+			]
 		},
 		"footerNav": "Mentions légales"
 	}

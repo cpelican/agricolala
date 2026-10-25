@@ -13,7 +13,7 @@ import {
 
 const locales: Locale[] = Object.values(appLanguages);
 
-const SEO_FILES = ["/robots.txt", "/sitemap.xml"];
+const SEO_FILES = ["/robots.txt", "/sitemap.xml", "/llms.txt"];
 const ROUTES_WITHOUT_LOCALE = ["/api", ...SEO_FILES];
 const PUBLIC_ROUTES = [
 	"/auth",

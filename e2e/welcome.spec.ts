@@ -16,7 +16,7 @@ test("shows the public welcome page to signed-out visitors", async ({
 	await expect(
 		guestPage.getByRole("heading", {
 			level: 1,
-			name: "Your vineyard’s treatment notebook.",
+			name: /Free vineyard management app\s*Your vineyard’s treatment notebook\./,
 		}),
 	).toBeVisible();
 	await expect(guestPage.getByText("Buds opening")).toBeVisible();
@@ -34,7 +34,7 @@ test("shows the public welcome page to signed-out visitors", async ({
 	await expect(guestPage).toHaveURL(/\/it\/welcome$/);
 	await expect(guestPage.locator("html")).toHaveAttribute("lang", "it");
 	await expect(
-		guestPage.getByRole("heading", { level: 1, name: /quaderno/ }),
+		guestPage.getByRole("heading", { level: 1, name: /quaderno di campagna/ }),
 	).toBeVisible();
 
 	await guestPage.getByRole("link", { name: "Inizia ora" }).click();

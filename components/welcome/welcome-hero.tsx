@@ -7,7 +7,11 @@ import {
 	EXAMPLE_COPPER_PERCENT,
 	formatNumber,
 } from "./example-data";
-import { PRIMARY_BUTTON, PRIMARY_BUTTON_ARROW } from "./section-styles";
+import {
+	EYEBROW,
+	PRIMARY_BUTTON,
+	PRIMARY_BUTTON_ARROW,
+} from "./section-styles";
 import type { WelcomeDictionary } from "./types";
 import styles from "@/components/site/site.module.css";
 
@@ -41,6 +45,10 @@ export function WelcomeHero({
 						id="hero-title"
 						className={`${styles.title} mt-2 mb-0 text-[34px] leading-[1.05] font-bold tracking-[-0.03em] text-primary-700 min-[900px]:mt-0 min-[900px]:text-[clamp(40px,4.6vw,60px)] min-[900px]:leading-[1.02]`}
 					>
+						{/* Inside the h1 so search engines read what the page is about. */}
+						<span className={`mb-3 block leading-4 ${EYEBROW}`}>
+							{t.hero.eyebrow}
+						</span>
 						{t.hero.titleStart}{" "}
 						<span className={styles.inkword}>{t.hero.titleHighlight}</span>
 					</h1>
