@@ -21,6 +21,7 @@ ALTER TABLE IF EXISTS "SubstanceDose" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Disease" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "DiseaseStageSensitivity" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "AdminUser" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "AccessRequest" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_SubstanceDiseases" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "UserSubstanceAggregation" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "ParcelSubstanceAggregation" ENABLE ROW LEVEL SECURITY;
@@ -538,6 +539,32 @@ CREATE POLICY "Only admins can delete substance doses" ON "SubstanceDose"
 DROP POLICY IF EXISTS "Admins can manage admin users" ON "AdminUser";
 CREATE POLICY "Admins can manage admin users" ON "AdminUser"
     FOR ALL USING (private.is_admin((select auth.uid())::text));
+
+-- RLS policies for AccessRequest (new users' introductions: personal data)
+-- The owner can read their own request, admins can read all. Writes go through the app's
+-- server actions only (validated there), so through the API only admins may write.
+-- One permissive policy per command, to avoid multiple permissive SELECT policies.
+DROP POLICY IF EXISTS "Users can view their own access request or admins can view all" ON "AccessRequest";
+CREATE POLICY "Users can view their own access request or admins can view all" ON "AccessRequest"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid())::text = "userId" OR
+        private.is_admin((select auth.uid())::text)
+    );
+
+DROP POLICY IF EXISTS "Only admins can insert access requests" ON "AccessRequest";
+CREATE POLICY "Only admins can insert access requests" ON "AccessRequest"
+    FOR INSERT WITH CHECK (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can update access requests" ON "AccessRequest";
+CREATE POLICY "Only admins can update access requests" ON "AccessRequest"
+    FOR UPDATE
+    USING (private.is_admin((select auth.uid())::text))
+    WITH CHECK (private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can delete access requests" ON "AccessRequest";
+CREATE POLICY "Only admins can delete access requests" ON "AccessRequest"
+    FOR DELETE USING (private.is_admin((select auth.uid())::text));
 
 -- _SubstanceDiseases modification policies (SELECT is handled by "Authenticated users can view" policy above)
 -- Drop old policies if they exist (from previous versions)
