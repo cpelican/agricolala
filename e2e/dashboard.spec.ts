@@ -42,5 +42,5 @@ test("dashboard shows April treatment data in the line chart", async ({
 	await expect(
 		main.getByText("Active substance", { exact: true }),
 	).toBeVisible();
-	await expect(main.getByText("1,600 g/ha", { exact: true })).toBeVisible();
+	await expect(main.getByText("1.6 kg/ha", { exact: true })).toBeVisible();
 });

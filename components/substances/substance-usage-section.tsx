@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use } from "react";
+import { Suspense, use, useId } from "react";
 import {
 	Card,
 	CardContent,
@@ -16,6 +16,7 @@ import { CoverageHiddenNote } from "./coverage-headline";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { EYEBROW, SUBSECTION_TITLE } from "@/components/ui/typography";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 
 interface SubstanceUsageSectionProps {
@@ -69,6 +70,7 @@ export function SubstanceUsageSection({
 	isNoActiveDiseaseShownAbove,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
+	const titleId = useId();
 	const hasSubstanceData = substanceData.length > 0;
 
 	const defaultTitle = t("substances.usageThisYear");
@@ -76,23 +78,19 @@ export function SubstanceUsageSection({
 
 	return (
 		<TooltipProvider>
-			<div className="space-y-4">
-				<Card className="bg-card">
-					<CardHeader>
-						<CardTitle>{title || defaultTitle}</CardTitle>
-						<CardDescription>
-							{description || defaultDescription}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<SubstanceChart data={substanceData} />
-					</CardContent>
-				</Card>
+			<section aria-labelledby={titleId} className="space-y-4">
+				<div className="flex flex-col gap-2">
+					<p className={`m-0 ${EYEBROW}`}>{t("substances.usageEyebrow")}</p>
+					<h2 id={titleId} className={SUBSECTION_TITLE}>
+						{t("coverage.cumulatedDose")}
+					</h2>
+					<p className="m-0 text-sm leading-5 text-neutral-700">
+						{t("coverage.cumulatedDoseSubtitle")}
+					</p>
+				</div>
 
 				{hasSubstanceData && (
 					<div className="grid gap-4">
-						<h2 className="text-lg font-semibold">{t("substances.details")}</h2>
-
 						{coverageResultPromise && (
 							<Suspense fallback={null}>
 								<CoverageNotice
@@ -112,6 +110,18 @@ export function SubstanceUsageSection({
 					</div>
 				)}
 
+				<Card className="bg-card">
+					<CardHeader>
+						<CardTitle>{title || defaultTitle}</CardTitle>
+						<CardDescription>
+							{description || defaultDescription}
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<SubstanceChart data={substanceData} />
+					</CardContent>
+				</Card>
+
 				{allYearsData && (
 					<Card className="bg-card">
 						<CardHeader>
@@ -125,7 +135,7 @@ export function SubstanceUsageSection({
 						</CardContent>
 					</Card>
 				)}
-			</div>
+			</section>
 		</TooltipProvider>
 	);
 }

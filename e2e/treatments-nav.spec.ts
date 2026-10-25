@@ -74,7 +74,7 @@ test("adds liquid product in ml and converts to grams of pure substance", async 
 	const summary = await getChartSummary(getDashboardChart(main));
 	// Sum over months so the check does not depend on the run date.
 	const orangeOilKg =
-		getDataset(summary, orangeOilProduct.substanceName)?.data ?? [];
+		getDataset(summary, orangeOilProduct.substanceLabel)?.data ?? [];
 	expect(
 		orangeOilKg.reduce<number>((sum, kg) => sum + (kg ?? 0), 0),
 	).toBeCloseTo(expectedOrangeOilChartTotalKg);

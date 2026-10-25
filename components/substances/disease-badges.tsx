@@ -13,8 +13,8 @@ import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 export function ExperimentalLabel() {
 	const { t } = useTranslations();
 	return (
-		<span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-700">
-			<FlaskConical className="h-3 w-3" aria-hidden />
+		<span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-[11px] leading-4 font-medium text-neutral-600">
+			<FlaskConical className="size-3" aria-hidden />
 			{t("coverage.experimental")}
 		</span>
 	);

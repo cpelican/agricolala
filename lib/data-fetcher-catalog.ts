@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
 import { productFloweringSelect } from "./treatment-suggestions";
+import { getSubstanceColor } from "./substance-colors";
 
 export const getCachedDiseases = cache(async () => {
 	return prisma.disease.findMany({
@@ -39,11 +40,6 @@ export async function getProductDoseUnits(productIds: string[]) {
 		},
 	});
 }
-
-const substanceToColors = {
-	Copper: "rgb(59, 130, 246)",
-	Sulfur: "rgb(34, 197, 94)",
-} as const;
 
 export const getCachedCompositions = cache(async () => {
 	const compositions = await prisma.substanceDose.findMany({
@@ -101,14 +97,7 @@ export const getCachedSubstances = cache(async () => {
 			maxDosageUnitPerAreaUnit: substance.maxDosageUnitPerAreaUnit,
 			diseaseIds: substance.diseases.map((d) => d.id),
 		};
-		if (substance.name in substanceToColors) {
-			return {
-				...base,
-				color:
-					substanceToColors[substance.name as keyof typeof substanceToColors],
-			};
-		}
-		return { ...base, color: "rgb(182, 182, 182)" };
+		return { ...base, color: getSubstanceColor(substance.name) };
 	});
 });
 

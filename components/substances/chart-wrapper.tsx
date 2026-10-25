@@ -14,6 +14,7 @@ import { Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
 import { Skeleton } from "../ui/skeleton";
 import { useId } from "react";
+import { inter } from "@/app/const";
 
 ChartJS.register(
 	CategoryScale,
@@ -24,6 +25,11 @@ ChartJS.register(
 	Tooltip,
 	Legend,
 );
+
+// Same type and greys as the rest of the app: Inter, neutral-600 text, neutral-200 lines.
+ChartJS.defaults.font.family = inter.style.fontFamily;
+ChartJS.defaults.color = "hsl(0 0% 32%)";
+ChartJS.defaults.borderColor = "hsl(0 0% 90%)";
 
 /** Fixed chart area height — keep in sync with skeletons to avoid CLS. */
 export const CHART_HEIGHT_PX = 400;

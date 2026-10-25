@@ -239,7 +239,8 @@
 		"yearlyComparison": "Yearly Substance Usage Comparison",
 		"yearlyComparisonDescription": "Cumulated dose per hectare across all years",
 		"yearlyUsageTitle": "Cumulated substance use per hectare, Jan 1 to this month, by year",
-		"year": "Year"
+		"year": "Year",
+		"usageEyebrow": "Substance usage"
 	},
 	"deleteTreatment": {
 		"title": "Delete Treatment",
@@ -566,7 +567,9 @@
 				"label": "Ripe",
 				"description": "Ready for harvest or picked"
 			}
-		}
+		},
+		"stageNumber": "Stage {n} of {total}",
+		"riskLegend": "Risk levels"
 	},
 	"welcome": {
 		"meta": {

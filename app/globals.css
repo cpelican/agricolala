@@ -44,6 +44,14 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
+  /* Disease risk levels: each step is darker than the last, so they read apart
+     without colour too. */
+  --color-risk-none: hsl(0 0% 90%);
+  --color-risk-low: hsl(136 40% 80%);
+  --color-risk-medium: hsl(46 92% 68%);
+  --color-risk-high: hsl(24 90% 58%);
+  --color-risk-very-high: hsl(0 72% 42%);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);

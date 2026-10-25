@@ -7,6 +7,7 @@ import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import type { ChartData, ChartOptions } from "chart.js";
 import { ChartSkeleton } from "./chart-wrapper";
+import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
 const ChartWrapper = dynamic(
 	() =>
@@ -67,8 +68,8 @@ export function SubstanceYearlyChart({
 			return {
 				label: getSubstanceTranslation(substanceName),
 				data,
-				borderColor: colors[substanceName] || "rgb(182, 182, 182)",
-				backgroundColor: colors[substanceName] || "rgb(182, 182, 182)",
+				borderColor: colors[substanceName] ?? SUBSTANCE_FALLBACK_COLOR,
+				backgroundColor: colors[substanceName] ?? SUBSTANCE_FALLBACK_COLOR,
 				tension: 0.1,
 			};
 		})

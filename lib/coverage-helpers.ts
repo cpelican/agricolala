@@ -8,6 +8,7 @@ import {
 	type getCachedCompositions,
 	type getTreatmentsWithParcelWeather,
 } from "./data-fetcher";
+import { SUBSTANCE_FALLBACK_COLOR } from "./substance-colors";
 
 // k_rain: per-mm washoff coefficient. ln(2)/threshold_mm → 50% loss at threshold.
 // https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/ (copper, 25mm threshold)
@@ -166,7 +167,7 @@ export function calculateCoverageData(
 						substanceMap.set(substanceNameInner, {
 							substanceName: substanceNameInner,
 							color:
-								substanceColorMap[substanceNameInner] ?? "rgb(182, 182, 182)",
+								substanceColorMap[substanceNameInner] ?? SUBSTANCE_FALLBACK_COLOR,
 							washoffK: kRain,
 							parcelMap: new Map(),
 						});

@@ -239,7 +239,8 @@
 		"yearlyComparison": "Confronto Uso Sostanze Annuale",
 		"yearlyComparisonDescription": "Dose cumulata per ettaro negli anni",
 		"yearlyUsageTitle": "Uso cumulato per ettaro dal 1° gennaio a questo mese, per anno",
-		"year": "Anno"
+		"year": "Anno",
+		"usageEyebrow": "Uso delle sostanze"
 	},
 	"deleteTreatment": {
 		"title": "Elimina Trattamento",
@@ -566,7 +567,9 @@
 				"label": "Maturazione",
 				"description": "Pronta per la vendemmia o raccolta"
 			}
-		}
+		},
+		"stageNumber": "Fase {n} di {total}",
+		"riskLegend": "Livelli di rischio"
 	},
 	"welcome": {
 		"meta": {
