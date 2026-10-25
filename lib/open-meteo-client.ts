@@ -61,6 +61,37 @@ export class OpenMeteoClient {
 		return parseOpenMeteoResponse(response);
 	};
 
+	// Archived forecasts (same variables as the forecast API, from about 2022), for
+	// days older than `past_days` covers. `startDay`/`endDay` are UTC days, inclusive.
+	private static fetchHistoricalWeatherData = async (
+		latitude: number,
+		longitude: number,
+		startDay: Date,
+		endDay: Date,
+	): Promise<OpenMeteoResponse> => {
+		const url = new URL(
+			"https://historical-forecast-api.open-meteo.com/v1/forecast",
+		);
+		url.searchParams.set("latitude", latitude.toString());
+		url.searchParams.set("longitude", longitude.toString());
+		url.searchParams.set(
+			"hourly",
+			"precipitation,temperature_2m,temperature_80m,wind_speed_10m,wind_speed_180m,relative_humidity_2m,evapotranspiration",
+		);
+		url.searchParams.set("start_date", startDay.toISOString().slice(0, 10));
+		url.searchParams.set("end_date", endDay.toISOString().slice(0, 10));
+
+		const response = await OpenMeteoClient.fetchWithRetry(url.toString());
+		if (!response.ok) {
+			console.error(
+				`Failed to fetch historical weather data: ${response.statusText}`,
+			);
+			throw new Error(Errors.ACCESS_DENIED);
+		}
+
+		return parseOpenMeteoResponse(response);
+	};
+
 	private static fetchWeatherForecast = async (
 		latitude: number,
 		longitude: number,
@@ -238,6 +269,25 @@ export class OpenMeteoClient {
 		);
 
 		return Array.from(dailyData.values());
+	};
+
+	// Whole UTC days from `startDay` to `endDay`, inclusive.
+	public static getHistoryWeatherDataBetween = async (
+		latitude: number,
+		longitude: number,
+		startDay: Date,
+		endDay: Date,
+	): Promise<DailyWeatherData[]> => {
+		const response = await OpenMeteoClient.fetchHistoricalWeatherData(
+			latitude,
+			longitude,
+			startDay,
+			endDay,
+		);
+		return OpenMeteoClient.computeDailyWeatherData(
+			response.hourly,
+			() => false,
+		);
 	};
 
 	public static getForecastWeatherData = async (
