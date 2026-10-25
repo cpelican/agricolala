@@ -2,7 +2,7 @@ import type React from "react";
 import { Suspense } from "react";
 import Image from "next/image";
 import { Providers } from "@/app/providers";
-import { AccessPending, accountCodeOf } from "@/components/auth/access-pending";
+import { AccessPending } from "@/components/auth/access-pending";
 import { LayoutWithHeader } from "@/components/async/layout-with-header";
 import { CachedDataWrapper } from "@/components/misc/cached-data-wrapper";
 import { LayoutMainSkeleton } from "@/components/skeletons/layout-main-skeleton";
@@ -19,13 +19,13 @@ export default async function Layout({
 	const { lang } = await params;
 	const session = await requireAuth();
 
-	// New accounts are opened by hand: until then, explain why and how to ask.
+	// New accounts are opened by hand: until then, explain why and let them introduce themselves.
 	if (!session.user.isAuthorized) {
 		return (
 			<AccessPending
 				locale={getLanguageAsLocale(lang)}
-				email={session.user.email}
-				accountCode={accountCodeOf(session.user.id)}
+				userId={session.user.id}
+				email={session.user.email ?? ""}
 			/>
 		);
 	}

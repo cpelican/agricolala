@@ -194,6 +194,8 @@ async function wipeE2eDatabase(tx: E2eTx) {
 	await tx.userSubstanceAggregation.deleteMany();
 	await tx.parcel.deleteMany();
 	await tx.session.deleteMany();
+	await tx.accessRequest.deleteMany();
+	await tx.adminUser.deleteMany();
 	await tx.account.deleteMany();
 	await tx.user.deleteMany();
 	await tx.substanceDose.deleteMany();
@@ -337,11 +339,46 @@ export async function seedE2eData() {
 	});
 }
 
-/** Puts the e2e user back in the "waiting for access" state (the seed re-authorizes it). */
-export async function revokeE2eUserAccess() {
-	await prisma.user.update({
-		where: { email: e2eUser.email },
-		data: { isAuthorized: false },
+/** A second account, still waiting to be opened (signs in via `pendingUserContext`). */
+export const pendingE2eUser = {
+	email: "pending@agricolala.test",
+	name: "Pending Grower",
+} as const;
+
+export const pendingE2eUserIntroduction =
+	"Hi! I tend a small Vermentino vineyard near Sarzana and would love to log my treatments.";
+
+/** Seeds the waiting account, optionally with its request already sent, and makes the
+ * main e2e user an admin (AdminUser) so it can approve it. */
+export async function seedPendingE2eUser({
+	withRequest = false,
+}: {
+	withRequest?: boolean;
+} = {}) {
+	assertSafeE2eDatabase();
+
+	return await prisma.$transaction(async (tx) => {
+		const user = await tx.user.create({
+			data: {
+				...pendingE2eUser,
+				emailVerified: new Date(),
+				isAuthorized: false,
+				locale: "en",
+				tosAcceptedAt: new Date(),
+				accessRequest: withRequest
+					? { create: { message: pendingE2eUserIntroduction } }
+					: undefined,
+			},
+		});
+		await tx.adminUser.create({ data: { email: e2eUser.email } });
+		return user;
+	});
+}
+
+export async function getPendingE2eUserAccess() {
+	return await prisma.user.findUniqueOrThrow({
+		where: { email: pendingE2eUser.email },
+		select: { isAuthorized: true, accessRequest: true },
 	});
 }
 

@@ -61,6 +61,24 @@ export const taintUtils = {
 			}
 		}
 	},
+	taintEmailSecrets: () => {
+		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
+			if (process.env.RESEND_API_KEY) {
+				experimental_taintUniqueValue(
+					"Do not pass the Resend API key to the client.",
+					process,
+					process.env.RESEND_API_KEY,
+				);
+			}
+			if (process.env.ACCESS_REQUEST_NOTIFY_EMAIL) {
+				experimental_taintUniqueValue(
+					"Do not pass the admin notification address to the client.",
+					process,
+					process.env.ACCESS_REQUEST_NOTIFY_EMAIL,
+				);
+			}
+		}
+	},
 	taintBusinessLogic: <Type extends Reference>(obj: Type) => {
 		if (!["production", "test"].includes(process.env.NODE_ENV || "")) {
 			experimental_taintObjectReference(

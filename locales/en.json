@@ -189,20 +189,48 @@
 		"email": "Email",
 		"password": "Password",
 		"signInWithGoogle": "Sign in with Google",
-		"newAccountNote": "New here? Signing in with Google also creates your account. To keep bots out, we open every account by hand, so the first time we’ll ask you to say hello.",
+		"newAccountNote": "New here? Signing in with Google also creates your account. To keep bots out, I open every account by hand: the first time, I’ll ask you for a few words about yourself.",
 		"pending": {
 			"title": "Almost there!",
-			"why": "Agricolala is a one-person project. To keep bots out, every new account is opened by hand. Just send us a short message to introduce yourself: we’ll be more than happy to give you access.",
+			"why": "Agricolala is a one-person project, and I open every new account by hand to keep bots out. Tell me a little about yourself below: I’ll be happy to let you in.",
 			"requestTitle": "Introduce yourself",
-			"requestText": "Open a short request on GitHub and tell us who you are and a little about your vineyard. You’ll need a free GitHub account. Requests are public, so don’t write your email or other personal details: your account code is already in the request, and it’s all we need to find your account.",
-			"requestCta": "Request access on GitHub",
-			"opensInNewTab": "(opens in a new tab)",
+			"messageLabel": "A few words about you",
+			"messageHint": "Who are you, and what do you grow? Between 20 and 1000 characters. Only I will read it.",
+			"submit": "Send my request",
+			"sending": "Sending…",
+			"errorTooShort": "Please write at least 20 characters.",
+			"errorTooLong": "Please keep it to 1000 characters or fewer.",
+			"errorGeneric": "Something went wrong. Please try again in a moment.",
 			"nextTitle": "What happens next",
-			"nextText": "We usually open accounts within a few days. Once yours is open, just come back and sign in again.",
-			"signedInAs": "Signed in as",
-			"issueTitle": "Access request {code}",
-			"issueBody": "Hi! I’d like to use Agricolala.\n\nAccount code: {code}\n\nAbout me and my vineyard:\n\n",
-			"accountCode": "Your account code"
+			"nextText": "I read every request myself and usually reply within {delay}. You’ll get an email at {email} as soon as your account is open.",
+			"replyDelay": "a few days",
+			"sentTitle": "Request sent on {date}",
+			"sentText": "I usually reply within {delay}. You’ll get an email at {email} as soon as your account is open; then just sign in again.",
+			"signedInAs": "Signed in as"
+		},
+		"grantedEmail": {
+			"subject": "Your Agricolala notebook is open",
+			"greeting": "Hi {name},",
+			"greetingNoName": "Hi,",
+			"body": "I’ve opened your account. You can now sign in and start your vineyard notebook.",
+			"cta": "Sign in",
+			"footer": "You’re receiving this email because you asked for access to Agricolala."
+		},
+		"admin": {
+			"title": "Access requests",
+			"pendingTitle": "Waiting",
+			"pendingEmpty": "No requests waiting.",
+			"approvedTitle": "Recently approved",
+			"approvedEmpty": "None yet.",
+			"requestedOn": "Requested on {date}",
+			"approvedOn": "Approved on {date}",
+			"language": "Language",
+			"noName": "No name",
+			"approve": "Approve",
+			"approving": "Approving…",
+			"approvedEmailSent": "Approved {name}; welcome email sent.",
+			"approvedEmailNotSent": "Approved {name}; email not sent.",
+			"approveError": "Couldn’t approve this request. Please try again."
 		}
 	},
 	"errors": {
@@ -592,7 +620,7 @@
 			"titleHighlight": "notebook.",
 			"lead": "Map parcels. Log treatments. Use as few as you can.",
 			"cta": "Start your notebook",
-			"note": "Free and open source, made by one person. To keep bots out, new accounts are opened by hand: sign in, say hello, and we’ll let you in."
+			"note": "Free and open source, made by one person. To keep bots out, I open new accounts by hand: sign in, introduce yourself in a few words, and I’ll let you in."
 		},
 		"illustration": {
 			"parcelName": "North Field",
