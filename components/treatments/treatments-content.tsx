@@ -11,6 +11,7 @@ import { TreatmentCard } from "./treatment-card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 import { useDiseases } from "@/contexts/cached-data-context";
 import { useTranslations } from "@/contexts/translations-context";
+import { EYEBROW } from "@/components/ui/typography";
 
 interface TreatmentsContentProps {
 	treatments: TreatmentType[];
@@ -43,10 +44,10 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 	}
 
 	return (
-		<div className="p-4 space-y-6">
+		<div className="space-y-7 px-4 pt-3 pb-8">
 			{upcomingTreatments.length > 0 && (
 				<div>
-					<h2 className="text-lg font-semibold mb-3 flex items-center">
+					<h2 className={`m-0 mb-3 ${EYEBROW}`}>
 						{upcomingTreatments.length} {t("treatments.upcoming")}
 					</h2>
 					<div className="space-y-3">
@@ -64,7 +65,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 
 			{completedTreatments.length > 0 && (
 				<div>
-					<h2 className="text-lg font-semibold mb-3 flex items-center">
+					<h2 className={`m-0 mb-3 ${EYEBROW}`}>
 						{completedTreatments.length} {t("treatments.completed")}
 					</h2>
 					<div className="space-y-3">

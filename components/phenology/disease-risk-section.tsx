@@ -24,12 +24,23 @@ import { cn } from "@/lib/utils";
 import { type CoverageResult } from "@/components/types";
 
 const LEVEL_COLORS: Record<DiseaseSensitivityLevel, string> = {
-	[DiseaseSensitivityLevel.NONE]: "bg-slate-200",
-	[DiseaseSensitivityLevel.LOW]: "bg-green-300",
-	[DiseaseSensitivityLevel.MEDIUM]: "bg-yellow-300",
-	[DiseaseSensitivityLevel.HIGH]: "bg-orange-400",
-	[DiseaseSensitivityLevel.VERY_HIGH]: "bg-red-500",
+	[DiseaseSensitivityLevel.NONE]: "bg-risk-none",
+	[DiseaseSensitivityLevel.LOW]: "bg-risk-low",
+	[DiseaseSensitivityLevel.MEDIUM]: "bg-risk-medium",
+	[DiseaseSensitivityLevel.HIGH]: "bg-risk-high",
+	[DiseaseSensitivityLevel.VERY_HIGH]: "bg-risk-very-high",
 };
+// Levels shown in the legend, lowest first.
+const LEGEND_LEVELS = [
+	DiseaseSensitivityLevel.LOW,
+	DiseaseSensitivityLevel.MEDIUM,
+	DiseaseSensitivityLevel.HIGH,
+	DiseaseSensitivityLevel.VERY_HIGH,
+] as const;
+const HIGH_LEVELS = new Set<DiseaseSensitivityLevel>([
+	DiseaseSensitivityLevel.HIGH,
+	DiseaseSensitivityLevel.VERY_HIGH,
+]);
 // Stage with no matrix row for the disease.
 const UNKNOWN_LEVEL_COLOR = "bg-muted";
 // One disease: its name, a thin band of the 8 stages coloured by its level with the
@@ -50,6 +61,10 @@ function DiseaseRiskRow({
 	const name = useDiseaseLabel()(diseaseId) ?? diseaseId;
 	const levelLabel = (level: DiseaseSensitivityLevel | null) =>
 		level ? t(`phenology.levels.${level}`) : t("phenology.levelUnknown");
+	// Level at the current stage; undefined when no stage is known.
+	const currentLevel = currentStage
+		? (timeline.find((entry) => entry.stage === currentStage)?.level ?? null)
+		: undefined;
 
 	return (
 		<li data-testid="disease-risk-row">
@@ -57,20 +72,34 @@ function DiseaseRiskRow({
 				<PopoverTrigger asChild>
 					<button
 						type="button"
-						className="block w-full space-y-1 rounded-sm text-left"
+						className="block w-full space-y-1.5 rounded-sm text-left"
 						aria-label={t("phenology.riskByStage").replace("{disease}", name)}
 					>
-						<span className="block text-sm font-medium">{name}</span>
-						<ol className="grid grid-cols-8 gap-0.5">
+						<span className="flex items-baseline justify-between gap-2">
+							<span className="text-sm leading-5 font-medium">{name}</span>
+							{currentLevel !== undefined && (
+								<span
+									className={cn(
+										"text-xs leading-4 font-semibold",
+										currentLevel && HIGH_LEVELS.has(currentLevel)
+											? "text-destructive"
+											: "text-neutral-600",
+									)}
+								>
+									{levelLabel(currentLevel)}
+								</span>
+							)}
+						</span>
+						<ol className="grid grid-cols-8 gap-[3px]">
 							{timeline.map(({ stage, level }) => (
 								<li
 									key={stage}
 									className={cn(
-										"h-2",
+										"h-2 rounded-[2px]",
 										level ? LEVEL_COLORS[level] : UNKNOWN_LEVEL_COLOR,
 										stage === currentStage
-											? "ring-2 ring-foreground ring-offset-1"
-											: currentStage && "opacity-40",
+											? "-mt-0.5 h-3 ring-2 ring-foreground ring-offset-1"
+											: currentStage && "opacity-45",
 									)}
 									data-stage={stage}
 									data-current={stage === currentStage || undefined}
@@ -159,23 +188,39 @@ export function DiseaseRiskSection({
 
 	return (
 		<Card data-testid="disease-risk-section">
-			<CardHeader className="space-y-2 pb-3">
-				<div className="flex flex-wrap items-center gap-2">
-					<CardTitle>{t("phenology.diseaseRisk")}</CardTitle>
+			<CardHeader className="space-y-4 p-5 pb-4">
+				<div className="flex flex-wrap items-center gap-2.5">
+					<CardTitle className="text-lg leading-7">
+						{t("phenology.diseaseRisk")}
+					</CardTitle>
 					<ExperimentalLabel />
 				</div>
-				<p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-					{stage && <StageIcon stage={stage} className="h-5 w-5" />}
-					{stage
-						? t(`phenology.stages.${stage}.label`)
-						: t("phenology.unknown")}
-				</p>
+				<div className="flex items-center gap-2.5 rounded-lg bg-primary-50 px-3 py-2.5">
+					{stage && <StageIcon stage={stage} className="size-7 flex-none" />}
+					<div className="flex flex-col">
+						<span className="text-sm leading-5 font-semibold text-primary-700">
+							{stage
+								? t(`phenology.stages.${stage}.label`)
+								: t("phenology.unknown")}
+						</span>
+						{stage && (
+							<span className="text-xs leading-4 text-neutral-700">
+								{t("phenology.stageNumber")
+									.replace(
+										"{n}",
+										String(PHENOLOGICAL_STAGES.indexOf(stage) + 1),
+									)
+									.replace("{total}", String(PHENOLOGICAL_STAGES.length))}
+							</span>
+						)}
+					</div>
+				</div>
 				<Suspense fallback={null}>
 					<NoActiveDiseaseNote coverageResultPromise={coverageResultPromise} />
 				</Suspense>
 			</CardHeader>
-			<CardContent className="space-y-1">
-				<ul className="space-y-3">
+			<CardContent className="space-y-3 p-5 pt-0">
+				<ul className="space-y-3.5">
 					{rows.map(({ diseaseId, timeline }) => (
 						<DiseaseRiskRow
 							key={diseaseId}
@@ -186,10 +231,24 @@ export function DiseaseRiskSection({
 						/>
 					))}
 				</ul>
-				<p className="flex justify-between text-[10px] text-muted-foreground">
+				<p className="m-0 flex justify-between text-xs leading-4 text-muted-foreground">
 					<span>{t(`phenology.stages.${PHENOLOGICAL_STAGES[0]}.label`)}</span>
 					<span>{t(`phenology.stages.${PHENOLOGICAL_STAGES[7]}.label`)}</span>
 				</p>
+				<ul
+					aria-label={t("phenology.riskLegend")}
+					className="m-0 flex list-none flex-wrap gap-3 border-t border-border p-0 pt-3 text-xs leading-4 text-neutral-600"
+				>
+					{LEGEND_LEVELS.map((level) => (
+						<li key={level} className="inline-flex items-center gap-1.5">
+							<span
+								aria-hidden
+								className={cn("size-2.5 rounded-[2px]", LEVEL_COLORS[level])}
+							/>
+							{t(`phenology.levels.${level}`)}
+						</li>
+					))}
+				</ul>
 			</CardContent>
 		</Card>
 	);

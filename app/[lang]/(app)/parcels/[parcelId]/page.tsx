@@ -15,6 +15,7 @@ import { Header } from "@/components/misc/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
+import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -61,7 +62,7 @@ export default async function ParcelPage({
 		return {
 			...substance,
 			maxDosage: substanceMeta?.maxDosage || -1,
-			color: substanceMeta?.color || "rgb(182, 182, 182)",
+			color: substanceMeta?.color ?? SUBSTANCE_FALLBACK_COLOR,
 		};
 	});
 

@@ -60,7 +60,7 @@ const Applicability = async ({
 					{applicability.flowering ? (
 						<p
 							data-testid="applicability-flowering"
-							className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800"
+							className="rounded-md border border-warning-border bg-warning-background px-3 py-2 text-sm text-warning"
 						>
 							{t("treatments.applicability.flowering")}
 						</p>

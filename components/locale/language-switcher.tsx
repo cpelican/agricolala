@@ -37,7 +37,7 @@ export function LanguageSwitcher() {
 		<select
 			value={currentLocale}
 			onChange={(e) => changeLanguage(getLanguageAsLocale(e.target.value))}
-			className="px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+			className="px-3 py-2 border rounded-md bg-white text-neutral-900"
 		>
 			{Object.values(appLanguages).map((locale) => (
 				<option key={locale} value={locale}>

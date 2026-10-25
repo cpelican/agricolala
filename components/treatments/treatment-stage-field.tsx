@@ -72,7 +72,7 @@ function FloweringReminder({ t }: { t: (key: string) => string }) {
 		<div
 			role="note"
 			data-testid="flowering-reminder"
-			className="space-y-1 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800"
+			className="space-y-1 rounded-md border border-warning-border bg-warning-background px-3 py-2 text-sm text-warning"
 		>
 			<p className="flex items-center gap-1.5 font-medium">
 				<Flower2 className="h-4 w-4 shrink-0" aria-hidden />
@@ -137,7 +137,7 @@ export function TreatmentStageField({
 				<FloweringReminder t={t} />
 			) : null}
 			{isEarlierThanLast && lastObservation ? (
-				<p className="text-sm text-orange-400">
+				<p className="text-sm text-warning">
 					{t("phenology.earlierWarning").replace(
 						"{date}",
 						format(lastObservation.observedAt, "PP"),

@@ -1,10 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Matches `Header` (p-4 + text-xl title) to avoid CLS while home content streams. */
+/** Matches `Header` (pt-7 pb-4 + 30px title) to avoid CLS while home content streams. */
 export function WelcomeHeaderSkeleton() {
 	return (
-		<div className="flex items-center justify-between gap-x-4 p-4 text-black/90">
-			<Skeleton className="h-7 w-56 max-w-[85vw]" />
+		<div className="flex flex-col gap-2.5 px-4 pt-7 pb-4">
+			<Skeleton className="h-4 w-28" />
+			<Skeleton className="h-8 w-56 max-w-[85vw]" />
 		</div>
 	);
 }

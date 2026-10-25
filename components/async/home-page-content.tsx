@@ -9,12 +9,14 @@ import { type Locale } from "@/lib/translations-helpers";
 interface HomePageContentProps {
 	userId: string;
 	welcomeTitle: string;
+	eyebrow: string;
 	locale: Locale;
 }
 
 export async function HomePageContent({
 	userId,
 	welcomeTitle,
+	eyebrow,
 	locale,
 }: HomePageContentProps) {
 	const parcels = await getParcels(userId);
@@ -22,7 +24,7 @@ export async function HomePageContent({
 
 	return (
 		<>
-			<Header title={welcomeTitle} />
+			<Header eyebrow={eyebrow} title={welcomeTitle} />
 			{hasParcels ? (
 				<Suspense fallback={<HomeDashboardBodySkeleton />}>
 					<HomeDashboardContent locale={locale} userId={userId} />

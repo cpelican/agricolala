@@ -27,6 +27,7 @@ import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 import { ShieldCheck } from "lucide-react";
+import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
 type SubstanceCoverageState =
 	| { kind: "available"; coverage: SubstanceCoverage; hasWeatherData: boolean }
@@ -129,15 +130,17 @@ export function SubstanceCard({
 	const substances = useSubstances();
 	const translatedName = getSubstanceTranslation(substance.name);
 	const substanceMeta = substances.find((s) => s.name === substance.name);
-	const substanceColor = substanceMeta?.color || "rgb(182, 182, 182)";
+	const substanceColor = substanceMeta?.color ?? SUBSTANCE_FALLBACK_COLOR;
 
 	return (
 		<Card>
-			<CardContent className="p-4 space-y-4">
-				<div className="flex items-center justify-between gap-2 flex-wrap">
-					<div className="flex items-center gap-2">
+			<CardContent className="space-y-3.5 p-5">
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<div className="flex items-center gap-2.5">
 						<SubstanceCircle substanceName={substance.name} />
-						<h3 className="text-lg font-semibold">{translatedName}</h3>
+						<h3 className="m-0 text-lg leading-7 font-semibold">
+							{translatedName}
+						</h3>
 					</div>
 					{coverageResultPromise && (
 						<Suspense fallback={null}>
@@ -172,6 +175,7 @@ export function SubstanceCard({
 				<CumulatedDoseSection
 					substance={substance}
 					substanceColor={substanceColor}
+					showTitle={Boolean(coverageResultPromise)}
 				/>
 			</CardContent>
 		</Card>

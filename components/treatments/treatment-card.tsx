@@ -1,30 +1,59 @@
+"use client";
+
 import { type Disease, TreatmentStatus } from "@prisma/client";
-import { MapPin, Calendar, Droplets } from "lucide-react";
-import { format } from "date-fns";
-import { Card, CardContent } from "../ui/card";
+import { Calendar, Droplet, Droplets, MapPin } from "lucide-react";
+import { Card } from "../ui/card";
 import { type TreatmentType } from "@/lib/data-fetcher";
 import { SubstanceCircle } from "../substances/substance-circle";
-import { useCompositions } from "@/contexts/cached-data-context";
+import { useSubstances } from "@/contexts/cached-data-context";
+import { useTranslations } from "@/contexts/translations-context";
 import { DeleteTreatmentButton } from "./delete-treatment-button";
 
-function formatTreatmentDate(
+type CardTreatment = Pick<
+	TreatmentType,
+	| "id"
+	| "diseaseIds"
+	| "status"
+	| "dateMin"
+	| "dateMax"
+	| "appliedDate"
+	| "productApplications"
+	| "waterDose"
+>;
+type CardProduct = CardTreatment["productApplications"][number]["product"];
+
+// Some catalogue products repeat the brand in their name ("OxyFlow OxyFlow"):
+// print the brand only when the name does not already carry it.
+function productLabel(product: Pick<CardProduct, "brand" | "name">) {
+	const brand = product.brand.trim();
+	const name = product.name.trim();
+	if (!brand || name.toLowerCase().includes(brand.toLowerCase())) return name;
+	return `${brand} ${name}`;
+}
+
+function useTreatmentDate(
 	treatment: Pick<
-		TreatmentType,
+		CardTreatment,
 		"status" | "dateMin" | "dateMax" | "appliedDate"
 	>,
 ) {
+	const { t, locale } = useTranslations();
+	const day = new Intl.DateTimeFormat(locale, {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
+
 	if (treatment.status === TreatmentStatus.DONE && treatment.appliedDate) {
-		return `Applied: ${format(new Date(treatment.appliedDate), "MMM dd, yyyy")}`;
+		return day.format(new Date(treatment.appliedDate));
 	}
-
 	if (treatment.dateMin) {
-		return `Scheduled: ${format(new Date(treatment.dateMin), "MMM dd")} - ${
-			treatment.dateMax
-				? format(new Date(treatment.dateMax), "MMM dd, yyyy")
-				: "Open"
-		}`;
+		const start = new Date(treatment.dateMin);
+		if (!treatment.dateMax) {
+			return t("treatments.card.from").replace("{date}", day.format(start));
+		}
+		return day.formatRange(start, new Date(treatment.dateMax));
 	}
-
 	return null;
 }
 
@@ -34,106 +63,163 @@ export function TreatmentCard({
 	diseases,
 }: {
 	parcelName: string;
-	treatment: Pick<
-		TreatmentType,
-		| "id"
-		| "diseaseIds"
-		| "status"
-		| "dateMin"
-		| "dateMax"
-		| "appliedDate"
-		| "productApplications"
-		| "waterDose"
-	>;
+	treatment: CardTreatment;
 	diseases: Pick<Disease, "id" | "name">[];
 }) {
-	const compositions = useCompositions();
-	const formattedDate = formatTreatmentDate(treatment);
+	const { t, locale, getSubstanceTranslation } = useTranslations();
+	const substances = useSubstances();
+	const formattedDate = useTreatmentDate(treatment);
+	const isDone = treatment.status === TreatmentStatus.DONE;
+	const listFormat = new Intl.ListFormat(locale, { type: "conjunction" });
+	const numberFormat = new Intl.NumberFormat(locale, {
+		maximumFractionDigits: 1,
+	});
 
-	// Create a treatment name for the delete dialog
-	const treatmentName = `Treatment for ${parcelName} - ${treatment.diseaseIds
-		.map((diseaseId) => {
-			return diseases.find((disease) => disease.id === diseaseId)?.name;
-		})
-		.join(", ")}`;
+	const diseaseLabels = treatment.diseaseIds.flatMap((diseaseId) => {
+		const name = diseases.find((disease) => disease.id === diseaseId)?.name;
+		if (!name) return [];
+		const key = `diseases.${name.toLowerCase()}`;
+		const label = t(key);
+		return [label === key ? name : label];
+	});
+	const productNames = treatment.productApplications.map((application) =>
+		productLabel(application.product),
+	);
+	const title =
+		productNames.length > 0
+			? listFormat.format(productNames)
+			: t("treatments.card.untitled");
+
+	// Each substance once, even when several products share it.
+	const substanceIds = [
+		...new Set(
+			treatment.productApplications.flatMap((application) =>
+				application.product.composition.map((c) => c.substanceId),
+			),
+		),
+	];
+	const treatmentSubstances = substanceIds.flatMap((id) => {
+		const substance = substances.find((s) => s.id === id);
+		return substance ? [substance] : [];
+	});
+
+	const doseLines = treatment.productApplications.map((application) => {
+		const unit = t(`substances.units.${application.product.doseUnit}`);
+		const dose = `${numberFormat.format(application.dose)} ${unit}`;
+		const line = t(
+			isDone ? "treatments.card.applied" : "treatments.card.planned",
+		).replace("{dose}", dose);
+		return productNames.length > 1
+			? `${line} · ${productLabel(application.product)}`
+			: line;
+	});
+
+	const treatmentName = t("treatments.card.name")
+		.replace("{product}", title)
+		.replace("{parcel}", parcelName);
 
 	return (
-		<Card>
-			<CardContent className="p-4">
-				<div className="flex justify-between items-start mb-3">
-					<div className="flex-1">
-						<p className="text-sm text-gray-600">
-							Target:{" "}
-							{treatment.diseaseIds
-								.map((diseaseId) => {
-									return diseases.find((disease) => disease.id === diseaseId)
-										?.name;
-								})
-								.join(", ")}
+		<Card className="flex flex-col gap-3.5 p-4">
+			<div className="flex items-start gap-3">
+				<span
+					aria-hidden="true"
+					className="flex size-10 flex-none items-center justify-center rounded-md bg-primary-50 text-primary-700"
+				>
+					<Droplet className="size-5" />
+				</span>
+				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+					<h3 className="m-0 text-base leading-[22px] font-semibold">
+						{title}
+					</h3>
+					{diseaseLabels.length > 0 && (
+						<p className="m-0 text-[13px] leading-[18px] text-neutral-600">
+							{t("treatments.card.for").replace(
+								"{diseases}",
+								listFormat.format(diseaseLabels),
+							)}
 						</p>
-					</div>
-					<DeleteTreatmentButton
-						treatmentId={treatment.id}
-						treatmentName={treatmentName}
-						className="ml-2"
+					)}
+				</div>
+				<span
+					className={
+						isDone
+							? "inline-flex flex-none items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs leading-[18px] font-medium text-primary-700"
+							: "inline-flex flex-none items-center rounded-full border border-primary-200 bg-white px-2.5 py-0.5 text-xs leading-[18px] font-medium text-primary-700"
+					}
+				>
+					{isDone
+						? t("treatments.status.done")
+						: t("treatments.card.scheduled")}
+				</span>
+			</div>
+
+			<ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 p-0 text-[13px] leading-[18px] text-neutral-700">
+				<li className="inline-flex items-center gap-1.5">
+					<MapPin
+						aria-hidden="true"
+						className="size-3.5 text-muted-foreground"
 					/>
-				</div>
-
-				<div className="flex items-center text-sm text-gray-600 mb-2">
-					<MapPin className="h-4 w-4 mr-1" />
 					{parcelName}
-				</div>
-
+				</li>
 				{formattedDate && (
-					<div className="flex items-center text-sm text-gray-600 mb-2">
-						<Calendar className="h-4 w-4 mr-1" />
+					<li className="inline-flex items-center gap-1.5">
+						<Calendar
+							aria-hidden="true"
+							className="size-3.5 text-muted-foreground"
+						/>
 						{formattedDate}
-					</div>
+					</li>
 				)}
+				{treatment.waterDose ? (
+					<li className="inline-flex items-center gap-1.5">
+						<Droplets
+							aria-hidden="true"
+							className="size-3.5 text-muted-foreground"
+						/>
+						{t("treatments.card.water").replace(
+							"{water}",
+							numberFormat.format(treatment.waterDose),
+						)}
+					</li>
+				) : null}
+			</ul>
 
-				{treatment.waterDose && (
-					<div className="flex items-center text-sm text-gray-600 mb-3">
-						<Droplets className="h-4 w-4 mr-1" />
-						Water: {treatment.waterDose}L
-					</div>
-				)}
-
-				{treatment.productApplications.length > 0 && (
-					<div>
-						<div className="space-y-1">
-							{treatment.productApplications.map((app, index) => (
-								<div
-									key={index}
-									className="text-sm text-gray-600 bg-gray-50 p-2 rounded"
+			<div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+				<div className="flex min-w-0 flex-col gap-1.5">
+					{doseLines.map((line, index) => (
+						<span
+							// Lines follow the product applications, which have no id here.
+							key={`${index}-${line}`}
+							className="text-sm leading-5 font-medium tabular-nums"
+						>
+							{line}
+						</span>
+					))}
+					{treatmentSubstances.length > 0 && (
+						<span className="flex flex-wrap gap-2.5 text-xs leading-4 text-neutral-600">
+							{treatmentSubstances.map((substance) => (
+								<span
+									key={substance.id}
+									className="inline-flex items-center gap-[5px]"
 								>
-									<div className="font-medium">
-										{Math.round(app.dose)}g of {app.product.brand}{" "}
-										{app.product.name}
-									</div>
-									{app.product.composition.length > 0 && (
-										<div className="text-xs mt-1">
-											{app.product.composition.map((c, i) => {
-												const substance =
-													compositions[c.substanceId][app.product.id]
-														?.substance;
-												return (
-													<div
-														key={`composition-${i}`}
-														className="flex items-center gap-1"
-													>
-														<SubstanceCircle substanceName={substance.name} />
-														{substance.name}
-													</div>
-												);
-											})}
-										</div>
-									)}
-								</div>
+									<SubstanceCircle
+										substanceName={substance.name}
+										className="size-2"
+									/>
+									{getSubstanceTranslation(substance.name)}
+								</span>
 							))}
-						</div>
-					</div>
-				)}
-			</CardContent>
+						</span>
+					)}
+				</div>
+				<DeleteTreatmentButton
+					treatmentId={treatment.id}
+					treatmentName={treatmentName}
+					ariaLabel={t("treatments.card.delete")
+						.replace("{product}", title)
+						.replace("{parcel}", parcelName)}
+				/>
+			</div>
 		</Card>
 	);
 }

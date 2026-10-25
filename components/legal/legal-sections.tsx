@@ -31,17 +31,17 @@ export function LegalSections({
 		<div className="space-y-6">
 			{sections.map((section) => (
 				<section key={section.title} className="space-y-3">
-					<Heading className="text-lg font-semibold text-gray-900">
+					<Heading className="text-lg font-semibold text-neutral-900">
 						{section.title}
 					</Heading>
 					<div className="space-y-3">
 						{paragraphsOf(section.content).map((paragraph) => (
-							<p key={paragraph} className="text-gray-700 leading-relaxed">
+							<p key={paragraph} className="text-neutral-700 leading-relaxed">
 								{paragraph}
 							</p>
 						))}
 						{section.listItems && (
-							<ul className="list-disc pl-6 space-y-2 text-gray-700">
+							<ul className="list-disc pl-6 space-y-2 text-neutral-700">
 								{section.listItems.map((item) => (
 									<li key={item} className="leading-relaxed">
 										{item}
@@ -50,7 +50,7 @@ export function LegalSections({
 							</ul>
 						)}
 						{section.additionalContent && (
-							<p className="text-gray-700 leading-relaxed">
+							<p className="text-neutral-700 leading-relaxed">
 								{section.additionalContent}
 							</p>
 						)}

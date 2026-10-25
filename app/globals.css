@@ -32,6 +32,17 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  /* Status notices: text, background and border of a notice of each kind. */
+  --color-warning: hsl(var(--warning));
+  --color-warning-background: hsl(var(--warning-background));
+  --color-warning-border: hsl(var(--warning-border));
+  --color-success: hsl(var(--success));
+  --color-success-background: hsl(var(--success-background));
+  --color-success-border: hsl(var(--success-border));
+  --color-info: hsl(var(--info));
+  --color-info-background: hsl(var(--info-background));
+  --color-info-border: hsl(var(--info-border));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
 
@@ -43,6 +54,14 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Disease risk levels: each step is darker than the last, so they read apart
+     without colour too. */
+  --color-risk-none: hsl(0 0% 90%);
+  --color-risk-low: hsl(136 40% 80%);
+  --color-risk-medium: hsl(46 92% 68%);
+  --color-risk-high: hsl(24 90% 58%);
+  --color-risk-very-high: hsl(0 72% 42%);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -63,7 +82,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-neutral-200, currentcolor);
   }
 }
 
@@ -71,43 +90,24 @@
   text-wrap: balance;
 }
 
-@utility bg-main-gradient {
+/* The "Agricolala" wordmark: the only text set in the leaf gradient (same as the welcome header). */
+@utility wordmark-gradient {
   background: linear-gradient(
     45deg,
     var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)/ 70%) 100%
-  );
-}
-
-@utility bg-solid-gradient {
-  background: linear-gradient(
-    45deg,
-    var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
-  );
-}
-
-@utility bg-hsl {
-  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
-}
-
-@utility gradient-main-title {
-  background: linear-gradient(
-    45deg,
-    var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
+    var(--color-primary-700) 30%,
+    hsl(60 100% 41%) 100%
   );
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
-}
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 
-@utility bg-secondary-gradient {
-  background-color: linear-gradient(
-    45deg,
-    var(--color-primary-400) 0%,
-    hsl(calc(var(--primary-hue) - 60) calc(var(--primary-saturation) * 0.6) calc(var(--primary-lightness) + 60%)) 100%
-  );
+  @media (forced-colors: active) {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
 }
 
 @keyframes grape-color {
@@ -115,10 +115,10 @@
     color: var(--color-primary-700);
   }
   50% {
-    color: hsl(calc(var(--primary-hue) - 38) var(--primary-saturation) var(--primary-lightness));
+    color: hsl(calc(var(--primary-hue) - 38) var(--primary-saturation) var(--leaf-lightness));
   }
   100% {
-    color: hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness));
+    color: hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--leaf-lightness));
   }
 }
 
@@ -128,14 +128,12 @@
 
 @utility blob-background {
   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
+  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--leaf-lightness)/0.20);
   display: inline-block;
 }
 
 @layer utilities {
   body {
-    font-family: Arial, Helvetica, sans-serif;
-
     #headlessui-dialog-panel-«rc» > .absolute button svg {
       color: black !important;
     }
@@ -158,10 +156,12 @@
 		--card-foreground: 0 0% 3.9%;
 		--popover: 0 0% 100%;
 		--popover-foreground: 0 0% 3.9%;
-		--primary: 136, 100%, 21%;
 		--primary-hue: 136;
 		--primary-saturation: 100%;
-		--primary-lightness: 41%;
+		--primary-lightness: 21%;
+		--primary: var(--primary-hue) var(--primary-saturation) var(--primary-lightness);
+		/* Lightness of the leaf colours (lime, leaf green, leaf wash) mixed from the primary hue. */
+		--leaf-lightness: 41%;
 		--primary-foreground: 0 0% 98%;
 		--secondary: 0 0% 96.1%;
 		--secondary-foreground: 0 0% 9%;
@@ -169,11 +169,21 @@
 		--muted-foreground: 0 0% 45.1%;
 		--accent: 0 0% 96.1%;
 		--accent-foreground: 0 0% 9%;
-		--destructive: 0 84.2% 60.2%;
+		/* Dark enough for white text on it (4.8:1). */
+		--destructive: 0 84.2% 47%;
 		--destructive-foreground: 0 0% 98%;
+		--warning: 26 90% 37%;
+		--warning-background: 48 100% 96%;
+		--warning-border: 48 97% 77%;
+		--success: 142 72% 29%;
+		--success-background: 138 76% 97%;
+		--success-border: 141 79% 85%;
+		--info: 224 64% 33%;
+		--info-background: 214 100% 97%;
+		--info-border: 213 97% 87%;
 		--border: 0 0% 89.8%;
 		--input: 0 0% 89.8%;
-		--ring: 0 0% 3.9%;
+		--ring: 136 100% 14.7%; /* primary-700 (#004b14) */
 		--chart-1: 12 76% 61%;
 		--chart-2: 173 58% 39%;
 		--chart-3: 197 37% 24%;

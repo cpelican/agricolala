@@ -107,8 +107,16 @@ export const expectedOrangeOilChartTotalKg = orangeOilPureGrams / 1_000;
 
 // Mirrors CumulatedDoseSection's formatNumber: "en" locale, up to 2 decimals,
 // thousands separators, trailing zeros stripped.
-function formatGramsPerHa(value: number): string {
+function formatGrams(value: number): string {
 	return value.toLocaleString("en", { maximumFractionDigits: 2 });
+}
+
+// Mirrors CumulatedDoseSection's formatKgPerHa: 3 decimals below 1 kg/ha, else 2.
+function formatKgPerHaFromGrams(gramsPerHa: number): string {
+	const kgPerHa = gramsPerHa / 1_000;
+	return kgPerHa.toLocaleString("en", {
+		maximumFractionDigits: kgPerHa < 1 ? 3 : 2,
+	});
 }
 
 export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
@@ -118,8 +126,8 @@ export function expectedDashboardCopperLabelsAfterAdditionalTreatment() {
 		totalCopperProductDoseGrams + additionalTreatmentProductGrams;
 
 	return {
-		productValue: `${formatGramsPerHa(productGrams)} g`,
-		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
+		productValue: `${formatGrams(productGrams)} g`,
+		activeSubstanceValue: `${formatKgPerHaFromGrams(pureGramsPerHa)} kg/ha`,
 	};
 }
 
@@ -127,8 +135,8 @@ export function expectedDashboardOrangeOilLabelsAfterTreatment() {
 	const pureGramsPerHa = (orangeOilPureGrams * 10_000) / PARCEL_AREA_M2;
 
 	return {
-		productValue: `${formatGramsPerHa(orangeOilProductGrams)} g`,
-		activeSubstanceValue: `${formatGramsPerHa(pureGramsPerHa)} g/ha`,
+		productValue: `${formatGrams(orangeOilProductGrams)} g`,
+		activeSubstanceValue: `${formatKgPerHaFromGrams(pureGramsPerHa)} kg/ha`,
 	};
 }
 
