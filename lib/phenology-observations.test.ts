@@ -39,6 +39,7 @@ describe("[Integration] phenology observations", () => {
 				height: 50,
 				type: "VINEYARD",
 				userId,
+				members: { create: { userId } },
 			},
 		});
 	}

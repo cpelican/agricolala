@@ -232,6 +232,7 @@ export async function createParcel(formData: FormData) {
 				width: 0,
 				height: 0,
 				userId: session.user.id,
+				members: { create: { userId: session.user.id } },
 			},
 		});
 

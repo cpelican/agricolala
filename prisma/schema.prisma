@@ -54,6 +54,7 @@ model User {
   updatedAt     DateTime    @updatedAt
   accounts      Account[]
   parcels       Parcel[]
+  parcelMemberships ParcelMember[]
   sessions      Session[]
   treatments    Treatment[]
   accessRequest AccessRequest?
@@ -99,6 +100,20 @@ model Parcel {
   @@index([userId], map: "idx_parcel_user_id")
   weatherHistoryTasks WeatherHistoryTask[] @relation("WeatherHistoryTasksParcels")
   phenologyObservations PhenologyObservation[]
+  members    ParcelMember[]
+}
+
+// A user linked to a parcel: members see and treat it. Parcel.userId stays the creator.
+model ParcelMember {
+  id        String   @id @default(cuid())
+  parcelId  String
+  userId    String
+  createdAt DateTime @default(now())
+  parcel    Parcel   @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([parcelId, userId])
+  @@index([userId])
 }
 
 model Treatment {
