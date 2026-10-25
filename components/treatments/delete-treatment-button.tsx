@@ -7,20 +7,19 @@ import { cn } from "@/lib/utils";
 interface DeleteTreatmentButtonProps {
 	treatmentId: string;
 	treatmentName: string;
+	// Accessible name of the icon-only trigger, e.g. "Delete OxyFlow on parcel A".
+	ariaLabel: string;
 	redirectTo?: string;
-	iconSize?: "sm" | "md";
 	className?: string;
 }
 
 export function DeleteTreatmentButton({
 	treatmentId,
 	treatmentName,
+	ariaLabel,
 	redirectTo,
-	iconSize = "sm",
 	className,
 }: DeleteTreatmentButtonProps) {
-	const iconClass = iconSize === "sm" ? "h-4 w-4" : "h-5 w-5";
-
 	return (
 		<DeleteTreatmentDialog
 			treatmentId={treatmentId}
@@ -28,12 +27,14 @@ export function DeleteTreatmentButton({
 			redirectTo={redirectTo}
 			trigger={
 				<button
+					type="button"
+					aria-label={ariaLabel}
 					className={cn(
-						"p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-full transition-colors cursor-pointer",
+						"flex size-11 flex-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden",
 						className,
 					)}
 				>
-					<Trash2 className={iconClass} />
+					<Trash2 aria-hidden="true" className="size-[18px]" />
 				</button>
 			}
 		/>

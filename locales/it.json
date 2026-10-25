@@ -149,7 +149,18 @@
 			"kmh": "km/h"
 		},
 		"eyebrow": "Stagione {year}",
-		"export": "Esporta"
+		"export": "Esporta",
+		"card": {
+			"for": "Contro {diseases}",
+			"scheduled": "Programmato",
+			"from": "Dal {date}",
+			"water": "{water} L di acqua",
+			"applied": "{dose} applicati",
+			"planned": "{dose} previsti",
+			"untitled": "Trattamento",
+			"name": "{product} su {parcel}",
+			"delete": "Elimina {product} su {parcel}"
+		}
 	},
 	"profile": {
 		"it": "Italiano",
