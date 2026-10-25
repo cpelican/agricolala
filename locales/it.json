@@ -146,7 +146,9 @@
 			"rain": "Pioggia",
 			"avgWind": "Vento Medio",
 			"mm": "mm",
-			"kmh": "km/h"
+			"kmh": "km/h",
+			"dormant": "Nessuna fase registrata in questa stagione: segna “Germogliamento” in Fase di crescita quando le gemme si aprono per vedere il meteo per i trattamenti.",
+			"flowering": "Fioritura: per proteggere le api, tratta solo da 2 ore prima a 3 ore dopo il tramonto."
 		},
 		"eyebrow": "Stagione {year}",
 		"export": "Esporta",
