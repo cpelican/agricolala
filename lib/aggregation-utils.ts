@@ -1,8 +1,9 @@
+import { type PrismaClient } from "@prisma/client";
 import { getCachedSubstances } from "./data-fetcher";
-import { prisma } from "./prisma";
 import { type SubstanceData } from "@/components/types";
 
 export async function updateUserAggregations(
+	prisma: PrismaClient,
 	substanceData: SubstanceData[],
 	userId: string,
 	year: number,
@@ -36,6 +37,7 @@ export async function updateUserAggregations(
 }
 
 export async function updateParcelAggregations(
+	prisma: PrismaClient,
 	substanceData: SubstanceData[],
 	parcelId: string,
 	year: number,

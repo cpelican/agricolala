@@ -1,4 +1,4 @@
-import { updateSubstanceAggregations } from "../lib/update-substance-aggregations";
+import { updateSubstanceAggregations } from "../lib/update-substance-aggregations/core";
 import { prisma } from "../lib/prisma";
 
 async function main() {
@@ -11,7 +11,7 @@ async function main() {
 	}
 
 	try {
-		await updateSubstanceAggregations(userId, year);
+		await updateSubstanceAggregations(prisma, userId, year);
 		console.info(`✅ Aggregations updated for user ${userId}, year ${year}`);
 	} catch (error) {
 		console.error("❌ Error:", error);

@@ -1,16 +1,15 @@
 import * as XLSX from "xlsx";
 import type { PhenologicalStage } from "@prisma/client";
-import { prisma } from "./prisma";
 import {
 	getCachedSubstances,
 	getCachedCompositions,
-	treatmentSelect,
+	getObservationsForYear,
 	getParcels,
+	getTreatmentsForYear,
 } from "./data-fetcher";
 import { GRAMS_PER_KILOGRAM } from "./constants";
 import { calculateSubstanceData } from "./substance-helpers";
 import { PHENOLOGY_STAGE_BBCH, getStageAt } from "./phenology";
-import { getObservationsForPeriod } from "./phenology-observations";
 import en from "@/locales/en.json";
 
 interface ProductApplicationExportData {
@@ -47,23 +46,11 @@ export async function generateTreatmentsExcel(userId: string, year: number) {
 	const yearEnd = new Date(year, 11, 31);
 	const [treatments, substances, compositions, parcels, observations] =
 		await Promise.all([
-			prisma.treatment.findMany({
-				where: {
-					userId,
-					appliedDate: {
-						gte: yearStart,
-						lte: yearEnd,
-					},
-				},
-				select: treatmentSelect,
-				orderBy: {
-					appliedDate: "desc",
-				},
-			}),
+			getTreatmentsForYear(userId, yearStart, yearEnd),
 			getCachedSubstances(),
 			getCachedCompositions(),
 			getParcels(userId),
-			getObservationsForPeriod(prisma, userId, yearStart, yearEnd),
+			getObservationsForYear(userId, yearStart, yearEnd),
 		]);
 
 	const productApplicationsData: ProductApplicationExportData[] = [];

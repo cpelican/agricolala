@@ -3,11 +3,11 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/misc/header";
 import { PendingAccessRequests } from "@/components/admin/pending-access-requests";
 import { SUBSECTION_TITLE } from "@/components/ui/typography";
+import { formatAccessRequestDate } from "@/lib/access-requests";
 import {
-	formatAccessRequestDate,
 	getAccessRequestsForReview,
 	isAdminEmail,
-} from "@/lib/access-requests";
+} from "@/lib/data-fetcher-access-requests";
 import { requireAuth } from "@/lib/auth-utils";
 import { getLanguageAsLocale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";

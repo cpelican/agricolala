@@ -2,8 +2,7 @@ import { PhenologicalStage } from "@prisma/client";
 import { Errors } from "@/lib/constants";
 import { OpenMeteoClient } from "./open-meteo-client";
 import { isObservationExpired } from "./phenology";
-import { getLatestObservation } from "./phenology-observations";
-import { prisma } from "./prisma";
+import { getLatestParcelObservation, getParcelLocation } from "./data-fetcher";
 
 const average = (arr: number[]) => {
 	return arr.reduce((acc, curr) => acc + curr, 0) / arr.length;
@@ -90,11 +89,8 @@ export const getNext3DaysTreatmentApplicability = async (
 ): Promise<TreatmentApplicability> => {
 	const now = new Date();
 	const [parcel, latestObservation] = await Promise.all([
-		prisma.parcel.findUnique({
-			where: { id: parcelId },
-			select: { latitude: true, longitude: true },
-		}),
-		getLatestObservation(prisma, parcelId, now),
+		getParcelLocation(parcelId),
+		getLatestParcelObservation(parcelId, now),
 	]);
 	if (!parcel?.latitude || !parcel?.longitude) {
 		throw new Error(Errors.RESOURCE_NOT_FOUND);

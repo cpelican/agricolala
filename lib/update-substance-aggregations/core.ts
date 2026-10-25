@@ -113,7 +113,7 @@ export async function updateSubstanceAggregations(
 		where: { userId, year },
 	});
 
-	await updateUserAggregations(userSubstanceData, userId, year);
+	await updateUserAggregations(prisma, userSubstanceData, userId, year);
 
 	const parcelIdsToUpdate =
 		options?.affectedParcelIds ??
@@ -139,7 +139,12 @@ export async function updateSubstanceAggregations(
 			);
 
 			if (parcelSubstanceData.length > 0) {
-				await updateParcelAggregations(parcelSubstanceData, parcelId, year);
+				await updateParcelAggregations(
+					prisma,
+					parcelSubstanceData,
+					parcelId,
+					year,
+				);
 			}
 		}),
 	);
