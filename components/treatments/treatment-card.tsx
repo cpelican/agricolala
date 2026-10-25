@@ -32,7 +32,10 @@ function productLabel(product: Pick<CardProduct, "brand" | "name">) {
 }
 
 function useTreatmentDate(
-	treatment: Pick<CardTreatment, "status" | "dateMin" | "dateMax" | "appliedDate">,
+	treatment: Pick<
+		CardTreatment,
+		"status" | "dateMin" | "dateMax" | "appliedDate"
+	>,
 ) {
 	const { t, locale } = useTranslations();
 	const day = new Intl.DateTimeFormat(locale, {
@@ -144,13 +147,18 @@ export function TreatmentCard({
 							: "inline-flex flex-none items-center rounded-full border border-primary-200 bg-white px-2.5 py-0.5 text-xs leading-[18px] font-medium text-primary-700"
 					}
 				>
-					{isDone ? t("treatments.status.done") : t("treatments.card.scheduled")}
+					{isDone
+						? t("treatments.status.done")
+						: t("treatments.card.scheduled")}
 				</span>
 			</div>
 
 			<ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 p-0 text-[13px] leading-[18px] text-neutral-700">
 				<li className="inline-flex items-center gap-1.5">
-					<MapPin aria-hidden="true" className="size-3.5 text-muted-foreground" />
+					<MapPin
+						aria-hidden="true"
+						className="size-3.5 text-muted-foreground"
+					/>
 					{parcelName}
 				</li>
 				{formattedDate && (

@@ -441,11 +441,7 @@ export function AddTreatmentDialogForm({
 				<Button type="button" variant="outline" onClick={onCancel}>
 					{t("treatments.cancel")}
 				</Button>
-				<Button
-					type="button"
-					onClick={onSubmit}
-					disabled={isSubmitting}
-				>
+				<Button type="button" onClick={onSubmit} disabled={isSubmitting}>
 					{t("treatments.createTreatment")}
 				</Button>
 			</DialogFooter>

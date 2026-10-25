@@ -43,7 +43,9 @@ function LegalAcceptanceStatus({ tosAcceptedAt }: LegalAcceptanceStatusProps) {
 			) : (
 				<>
 					<XCircle className="h-4 w-4 text-destructive mr-2" />
-					<span className="text-sm text-destructive">{t("legal.notAccepted")}</span>
+					<span className="text-sm text-destructive">
+						{t("legal.notAccepted")}
+					</span>
 				</>
 			)}
 		</div>

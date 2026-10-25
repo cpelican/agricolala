@@ -81,11 +81,7 @@ export const SignInContent = ({
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{hasGoogleProvider && (
-						<Button
-							onClick={signInWithGoogle}
-							className="w-full"
-							size="lg"
-						>
+						<Button onClick={signInWithGoogle} className="w-full" size="lg">
 							{authDicts[lang].signInWithGoogle}
 						</Button>
 					)}

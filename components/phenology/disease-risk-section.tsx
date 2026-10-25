@@ -206,7 +206,10 @@ export function DiseaseRiskSection({
 						{stage && (
 							<span className="text-xs leading-4 text-neutral-700">
 								{t("phenology.stageNumber")
-									.replace("{n}", String(PHENOLOGICAL_STAGES.indexOf(stage) + 1))
+									.replace(
+										"{n}",
+										String(PHENOLOGICAL_STAGES.indexOf(stage) + 1),
+									)
 									.replace("{total}", String(PHENOLOGICAL_STAGES.length))}
 							</span>
 						)}

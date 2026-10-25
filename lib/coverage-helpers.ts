@@ -167,7 +167,8 @@ export function calculateCoverageData(
 						substanceMap.set(substanceNameInner, {
 							substanceName: substanceNameInner,
 							color:
-								substanceColorMap[substanceNameInner] ?? SUBSTANCE_FALLBACK_COLOR,
+								substanceColorMap[substanceNameInner] ??
+								SUBSTANCE_FALLBACK_COLOR,
 							washoffK: kRain,
 							parcelMap: new Map(),
 						});

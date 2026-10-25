@@ -204,10 +204,7 @@ export function AddParcelDialog({
 						>
 							{t("parcels.cancel")}
 						</Button>
-						<Button
-							type="submit"
-							disabled={loading || !boundary}
-						>
+						<Button type="submit" disabled={loading || !boundary}>
 							{loading ? t("parcels.adding") : t("parcels.addParcelButton")}
 						</Button>
 					</div>
