@@ -1,4 +1,4 @@
-import { getTosStatus } from "@/app/actions/get-tos-status";
+import { getTosStatus } from "@/lib/actions-tos";
 import { requireAuth } from "@/lib/auth-utils";
 import { ProfileContent } from "../misc/profile-content";
 

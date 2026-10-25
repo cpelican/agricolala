@@ -1,22 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthorizedSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { taintUtils } from "@/lib/taint-utils";
 import { Errors } from "@/lib/constants";
 import { recordPhenologyObservationSchema } from "./actions-schemas";
 import { createStandaloneObservation } from "./phenology-observations";
 
 // Stage observed without a treatment (the parcel card's "Update stage").
 export async function recordPhenologyObservation(formData: FormData) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const observedAt = formData.get("observedAt");

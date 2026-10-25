@@ -25,3 +25,23 @@ export async function requireAuth() {
 
 	return session;
 }
+
+/**
+ * For server actions: returns the session of an approved user, or null.
+ * Unlike `requireAuth`, it never redirects, so each action picks its own error.
+ */
+export async function getAuthorizedSession() {
+	const session = await getSession();
+
+	if (
+		!session?.user?.id ||
+		session.user.id === INVALID_SESSION_ID ||
+		!session.user.isAuthorized
+	) {
+		return null;
+	}
+
+	taintUtils.taintUserSession(session.user);
+
+	return session;
+}

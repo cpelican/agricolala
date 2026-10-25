@@ -1,18 +1,14 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { taintUtils } from "@/lib/taint-utils";
+import { getAuthorizedSession } from "@/lib/auth-utils";
 import { Errors } from "@/lib/constants";
 import { generateTreatmentsExcel } from "./excel-export";
 
 export async function downloadTreatmentsExcel(year: number) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const excelBuffer = await generateTreatmentsExcel(session.user.id, year);
