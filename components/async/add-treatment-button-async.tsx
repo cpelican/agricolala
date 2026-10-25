@@ -1,5 +1,9 @@
 import { AddTreatmentButton } from "../treatments/add-treatment-button";
-import { getParcels, getStageByParcel } from "@/lib/data-fetcher";
+import {
+	getParcels,
+	getStageByParcel,
+	getStageEstimatesByParcel,
+} from "@/lib/data-fetcher";
 
 interface AddTreatmentButtonAsyncProps {
 	userId: string;
@@ -8,9 +12,16 @@ interface AddTreatmentButtonAsyncProps {
 export async function AddTreatmentButtonAsync({
 	userId,
 }: AddTreatmentButtonAsyncProps) {
-	const [parcels, stages] = await Promise.all([
+	const [parcels, stages, stageEstimates] = await Promise.all([
 		getParcels(userId),
 		getStageByParcel(userId),
+		getStageEstimatesByParcel(userId),
 	]);
-	return <AddTreatmentButton parcels={parcels} stages={stages} />;
+	return (
+		<AddTreatmentButton
+			parcels={parcels}
+			stages={stages}
+			stageEstimates={stageEstimates}
+		/>
+	);
 }

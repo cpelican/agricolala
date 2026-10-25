@@ -1,13 +1,15 @@
 "use client";
 
 import { PhenologicalStage } from "@prisma/client";
-import { endOfDay, format } from "date-fns";
+import { differenceInCalendarDays, endOfDay, format } from "date-fns";
 import { Flower2 } from "lucide-react";
 
+import { StageEstimateNote } from "@/components/phenology/stage-estimate-prompt";
 import { StagePicker } from "@/components/phenology/stage-picker";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
+import type { ParcelStageEstimate } from "@/lib/phenology-estimate";
 import { compareStages, getSuggestedStage } from "@/lib/phenology";
 
 interface TreatmentStageFieldProps {
@@ -20,6 +22,8 @@ interface TreatmentStageFieldProps {
 	lastObservation: CurrentParcelStage | null;
 	// True when the suggestion is the next stage after a stale observation.
 	isNextStageSuggestion: boolean;
+	// Stage the temperatures point to, offered until the grower picks a stage (P5).
+	estimatedStage: PhenologicalStage | null;
 	// Picked stage, else the suggestion; drives the flowering reminder.
 	stageAtTreatment: PhenologicalStage | null;
 	onChange: (stage: PhenologicalStage | null) => void;
@@ -44,6 +48,32 @@ function getLatestObservation(
 		);
 }
 
+// Estimates are as of today (from weather up to a week old), so they are offered
+// only for treatments within a week of today.
+const ESTIMATE_MAX_DAYS_FROM_TODAY = 7;
+
+// Most advanced estimate among the given parcels, like the latest observation for
+// the suggestion: one stage is recorded for all the selected parcels.
+function getEstimatedStage(
+	estimates: ParcelStageEstimate[],
+	parcelIds: string[],
+	date: Date,
+): PhenologicalStage | null {
+	if (
+		Math.abs(differenceInCalendarDays(date, new Date())) >
+		ESTIMATE_MAX_DAYS_FROM_TODAY
+	) {
+		return null;
+	}
+	return estimates
+		.filter((estimate) => parcelIds.includes(estimate.parcelId))
+		.reduce<PhenologicalStage | null>(
+			(latest, { stage }) =>
+				!latest || compareStages(stage, latest) > 0 ? stage : latest,
+			null,
+		);
+}
+
 // The picked stage plus a suggestion as of the treatment date. Only a stage the
 // grower taps is saved, so an untouched picker never records or advances a stage.
 export function useTreatmentStage(
@@ -51,9 +81,11 @@ export function useTreatmentStage(
 	parcelIds: string[],
 	appliedDate: Date,
 	chosen: PhenologicalStage | null | undefined,
+	estimates: ParcelStageEstimate[] = [],
 ) {
 	const lastObservation = getLatestObservation(stages, parcelIds, appliedDate);
 	const suggestedStage = getSuggestedStage(lastObservation, appliedDate);
+	const estimatedStage = getEstimatedStage(estimates, parcelIds, appliedDate);
 	return {
 		value: chosen ?? null,
 		// Stage the bee rules go by: the picked one, else the suggestion.
@@ -62,6 +94,9 @@ export function useTreatmentStage(
 		lastObservation,
 		isNextStageSuggestion:
 			suggestedStage !== null && suggestedStage !== lastObservation?.stage,
+		// Only offered: it never turns on the bee reminder until the grower taps it.
+		// Hidden when the suggestion already says the same.
+		estimatedStage: estimatedStage === suggestedStage ? null : estimatedStage,
 	};
 }
 
@@ -90,6 +125,7 @@ export function TreatmentStageField({
 	stageAtTreatment,
 	lastObservation,
 	isNextStageSuggestion,
+	estimatedStage,
 	onChange,
 }: TreatmentStageFieldProps) {
 	const isEarlierThanLast =
@@ -132,6 +168,21 @@ export function TreatmentStageField({
 					)}
 					{isNextStageSuggestion ? ` ${t("phenology.suggestedHint")}` : null}
 				</p>
+			) : null}
+			{value === null && estimatedStage ? (
+				<StageEstimateNote
+					t={t}
+					stage={estimatedStage}
+					testId="stage-estimate-offer"
+				>
+					<Button
+						type="button"
+						size="sm"
+						onClick={() => onChange(estimatedStage)}
+					>
+						{t("phenology.estimateConfirm")}
+					</Button>
+				</StageEstimateNote>
 			) : null}
 			{stageAtTreatment === PhenologicalStage.FLOWERING ? (
 				<FloweringReminder t={t} />

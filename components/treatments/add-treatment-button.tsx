@@ -12,16 +12,19 @@ import {
 } from "@/contexts/cached-data-context";
 import { type ParcelWithTreatments } from "@/lib/data-fetcher";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
+import type { ParcelStageEstimate } from "@/lib/phenology-estimate";
 import { useTranslations } from "@/contexts/translations-context";
 
 export const AddTreatmentButton = ({
 	parcelId,
 	parcels,
 	stages,
+	stageEstimates = [],
 }: {
 	parcelId?: string;
 	parcels: ParcelWithTreatments[];
 	stages: CurrentParcelStage[];
+	stageEstimates?: ParcelStageEstimate[];
 }) => {
 	const [isAddTreatmentOpen, setIsAddTreatmentOpen] = useState(false);
 	const diseases = useDiseases();
@@ -50,6 +53,7 @@ export const AddTreatmentButton = ({
 				substances={substances}
 				compositions={compositions}
 				stages={stages}
+				stageEstimates={stageEstimates}
 			/>
 		</>
 	);

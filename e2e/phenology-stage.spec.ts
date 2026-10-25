@@ -3,6 +3,7 @@ import { expect, test } from "./support/test";
 import { goToTreatmentsAndAddTreatment } from "./flows/dashboard-nav-treatment";
 import {
 	additionalTreatmentProductGrams,
+	seedSeasonWarmth,
 	seededParcel,
 } from "./support/e2e-data";
 import { clickMobileNavLink } from "./support/navigation";
@@ -221,4 +222,70 @@ test("spray weather recalls the evening-only rule at flowering", async ({
 	await expect(main.getByTestId("applicability-flowering")).toHaveText(
 		/2 hours before to 3 hours after sunset/,
 	);
+});
+
+// Stage estimate from temperature (P5): a sum between the flowering and veraison
+// thresholds (1282 and 2528 °C·day) on a parcel last marked at flower clusters.
+async function openSeededParcelWithFloweringEstimate(page: Page) {
+	const seeded = await seedSeasonWarmth(1900, "FLOWER_CLUSTERS");
+	test.skip(!seeded, "No day since 1 March to sum yet");
+	await page.goto("/en/parcels");
+	await page
+		.getByRole("main")
+		.getByRole("link", { name: new RegExp(seededParcel.name) })
+		.click();
+	// The page keeps a hidden copy of the stage card: only count the visible one.
+	const prompt = page
+		.getByTestId("stage-estimate-prompt")
+		.filter({ visible: true });
+	await expect(prompt).toContainText("Have your vines reached flowering?");
+	await expect(prompt.getByText("Experimental")).toBeVisible();
+	return prompt;
+}
+
+test("temperature estimate asks to confirm flowering and records it", async ({
+	page,
+}) => {
+	const prompt = await openSeededParcelWithFloweringEstimate(page);
+	await prompt.getByRole("button", { name: "Yes, mark it" }).click();
+
+	await expect(page.getByText("Stage updated", { exact: true })).toBeVisible();
+	await expect(
+		page.getByRole("main").getByRole("button", { name: "Mark Flowering" }),
+	).toHaveAttribute("aria-pressed", "true");
+	await expect(prompt).toHaveCount(0);
+});
+
+test("'Not yet' hides the temperature estimate on this device", async ({
+	page,
+}) => {
+	const prompt = await openSeededParcelWithFloweringEstimate(page);
+	await prompt.getByRole("button", { name: "Not yet" }).click();
+	await expect(prompt).toHaveCount(0);
+
+	await page.reload();
+	await expect(page.getByRole("main").getByText("Growth stage")).toBeVisible();
+	await expect(prompt).toHaveCount(0);
+	// Nothing was recorded.
+	await expect(
+		page.getByRole("main").getByRole("button", { name: "Mark Flowering" }),
+	).toHaveAttribute("aria-pressed", "false");
+});
+
+test("the treatment modal offers the temperature estimate without picking it", async ({
+	page,
+}) => {
+	await openSeededParcelWithFloweringEstimate(page);
+	await page.getByRole("button", { name: "Add Treatment" }).click();
+	const dialog = page.getByRole("dialog", { name: "Add Treatment" });
+	const estimate = dialog.getByTestId("stage-estimate-offer");
+	await expect(estimate).toContainText("Have your vines reached flowering?");
+	// Only offered: no stage picked and no bee reminder until the grower taps it.
+	await expect(dialog.getByRole("radio", { checked: true })).toHaveCount(0);
+	await expect(dialog.getByTestId("flowering-reminder")).toHaveCount(0);
+
+	await estimate.getByRole("button", { name: "Yes, mark it" }).click();
+	await expect(dialog.getByRole("radio", { name: "Flowering" })).toBeChecked();
+	await expect(dialog.getByTestId("flowering-reminder")).toBeVisible();
+	await expect(estimate).toHaveCount(0);
 });

@@ -9,6 +9,7 @@ import { PHENOLOGICAL_STAGES } from "@/lib/phenology";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
 import { cn } from "@/lib/utils";
 import { ConfirmStageDialog } from "./confirm-stage-dialog";
+import { StageEstimatePrompt } from "./stage-estimate-prompt";
 import { StageIcon } from "./stage-icon";
 import { formatStageSetAgo } from "./stage-set-ago";
 
@@ -16,6 +17,8 @@ interface ParcelStageCardProps {
 	parcelId: string;
 	// Current (non-expired) observation, or null when the stage is unknown.
 	observation: CurrentParcelStage | null;
+	// Stage the temperatures say the vines have probably reached, to confirm (P5).
+	stageEstimate?: PhenologicalStage | null;
 }
 
 // Parcel detail: the season as 8 tiles, the current stage highlighted. Tapping
@@ -23,6 +26,7 @@ interface ParcelStageCardProps {
 export function ParcelStageCard({
 	parcelId,
 	observation,
+	stageEstimate = null,
 }: ParcelStageCardProps) {
 	const { t } = useTranslations();
 	const [pendingStage, setPendingStage] = useState<PhenologicalStage | null>(
@@ -50,6 +54,9 @@ export function ParcelStageCard({
 						</span>
 					) : null}
 				</div>
+				{stageEstimate ? (
+					<StageEstimatePrompt parcelId={parcelId} stage={stageEstimate} />
+				) : null}
 				<div className="grid grid-cols-8 gap-1.5">
 					{PHENOLOGICAL_STAGES.map((stage) => {
 						const isCurrent = stage === current;

@@ -16,6 +16,7 @@ import { useTranslations } from "@/contexts/translations-context";
 import { useToast } from "@/hooks/use-toast";
 import { createTreatment } from "@/lib/actions";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
+import type { ParcelStageEstimate } from "@/lib/phenology-estimate";
 import type {
 	ParcelWithTreatments,
 	getCachedCompositions,
@@ -56,6 +57,8 @@ interface AddTreatmentDialogProps {
 	compositions: Awaited<ReturnType<typeof getCachedCompositions>>;
 	// Current stage of the user's parcels, to pre-select the picker.
 	stages: CurrentParcelStage[];
+	// Stages the temperatures point to and the grower hasn't confirmed (P5).
+	stageEstimates?: ParcelStageEstimate[];
 }
 
 export function AddTreatmentDialog({
@@ -68,6 +71,7 @@ export function AddTreatmentDialog({
 	substances,
 	compositions,
 	stages,
+	stageEstimates = [],
 }: AddTreatmentDialogProps) {
 	const router = useRouter();
 	const { t } = useTranslations();
@@ -212,6 +216,7 @@ export function AddTreatmentDialog({
 		selectedParcelIds,
 		formData.appliedDate,
 		formData.phenologicalStage,
+		stageEstimates,
 	);
 
 	const validateForm = () => {
