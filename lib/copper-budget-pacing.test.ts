@@ -36,7 +36,7 @@ describe("getCopperBudgetPacing", () => {
 	test("counts the treatments at the grower's median dose", () => {
 		const pacing = getCopperBudgetPacing({
 			...COPPER,
-			usedGPerHa: 3_000,
+			usedGPerHa: 1_500,
 			stage: "FLOWER_CLUSTERS",
 			medianTreatmentDoseGPerHa: 300,
 		});
