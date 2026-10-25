@@ -159,6 +159,34 @@ export const getStageByParcel = cache(async (userId: string) => {
 	return await getCurrentStagesByParcel(prisma, userId, new Date());
 });
 
+// Done treatments of the current year, with the parcel's area and each product's
+// substances: what the copper budget pacing needs for the dose per spray (P7).
+export const getDoneTreatmentDoses = cache(async (userId: string) => {
+	return await prisma.treatment.findMany({
+		where: {
+			userId,
+			status: TreatmentStatus.DONE,
+			appliedDate: { gte: new Date(new Date().getFullYear(), 0, 1) },
+		},
+		select: {
+			parcelId: true,
+			parcel: { select: { width: true, height: true, areaM2: true } },
+			productApplications: {
+				select: {
+					dose: true,
+					product: {
+						select: {
+							composition: {
+								select: { dose: true, substance: { select: { name: true } } },
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+});
+
 export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];
 export type ParcelWithTreatments = Awaited<
 	ReturnType<typeof getParcels>

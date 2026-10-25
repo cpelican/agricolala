@@ -7,6 +7,7 @@ import {
 	getCachedSubstances,
 	getParcelDetail,
 	getStageByParcel,
+	getDoneTreatmentDoses,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
@@ -16,6 +17,8 @@ import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
+import { getMedianSprayDoseGPerHa } from "@/lib/copper-budget-pacing";
+import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
 
 export type PageProps<T extends Record<string, string>> = {
 	params: Promise<T>;
@@ -40,11 +43,13 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	const [substanceData, substances, stages] = await Promise.all([
-		getCachedParcelSubstanceAggregations(parcelId, currentYear),
-		getCachedSubstances(),
-		getStageByParcel(session.user.id),
-	]);
+	const [substanceData, substances, stages, doneTreatmentDoses] =
+		await Promise.all([
+			getCachedParcelSubstanceAggregations(parcelId, currentYear),
+			getCachedSubstances(),
+			getStageByParcel(session.user.id),
+			getDoneTreatmentDoses(session.user.id),
+		]);
 	const currentStage =
 		stages.find((stage) => stage.parcelId === parcel.id) ?? null;
 
@@ -86,6 +91,15 @@ export default async function ParcelPage({
 						pastTreatments={pastTreatments}
 						substanceData={enrichedSubstanceData}
 						currentStage={currentStage}
+						copperPacing={{
+							stage: currentStage?.stage ?? null,
+							medianSprayDoseGPerHa: getMedianSprayDoseGPerHa(
+								doneTreatmentDoses.filter(
+									(treatment) => treatment.parcelId === parcel.id,
+								),
+								COPPER_SUBSTANCE_NAME,
+							),
+						}}
 					>
 						<Applicability parcelId={parcel.id} locale={lang} />
 					</ParcelDetail>

@@ -1,7 +1,11 @@
 import { type PhenologicalStage } from "@prisma/client";
 import { GRAMS_PER_KILOGRAM } from "./constants";
 import { COPPER_SUBSTANCE_NAME, FULL_DOSE_G_PER_HA } from "./coverage-helpers";
+import { type getDoneTreatmentDoses } from "./data-fetcher";
+import { getParcelAreaM2 } from "./parcel-geometry";
 import { compareStages } from "./phenology";
+
+const HECTARE_IN_M2 = 10_000;
 
 // Copper sprays still ahead in the flowering → bunch-closure window, from the start of
 // each stage. Bunches are most at risk from bloom to 3–4 weeks after it (see the
@@ -19,10 +23,43 @@ export const COPPER_WINDOW_SPRAYS_BY_STAGE = {
 	RIPE: 0,
 } satisfies Record<PhenologicalStage, number>;
 
-// Each spray of the window is counted at the full-protection dose of the coverage
-// readout (100 g/ha), so the reserve is a minimum: heavier sprays need more.
-export const COPPER_WINDOW_SPRAY_DOSE_G_PER_HA =
+// Each spray of the window is counted at the grower's median copper dose per spray
+// this year, never below the coverage readout's full-protection dose (100 g/ha): a
+// lighter spray does not protect, and the floor is also the dose before any copper.
+export const MIN_COPPER_SPRAY_DOSE_G_PER_HA =
 	FULL_DOSE_G_PER_HA[COPPER_SUBSTANCE_NAME];
+
+// Median g/ha of `substanceName` that one done treatment put on its parcel, among
+// the treatments that sprayed it. Null when none did.
+export function getMedianSprayDoseGPerHa(
+	treatments: Awaited<ReturnType<typeof getDoneTreatmentDoses>>,
+	substanceName: string,
+): number | null {
+	const doses = treatments.flatMap((treatment) => {
+		const areaM2 = getParcelAreaM2(treatment.parcel);
+		if (areaM2 <= 0) return [];
+		const grams = treatment.productApplications.reduce(
+			(sum, application) =>
+				sum +
+				application.product.composition
+					.filter(({ substance }) => substance.name === substanceName)
+					.reduce(
+						(productSum, composition) =>
+							productSum + application.dose * (composition.dose / 100),
+						0,
+					),
+			0,
+		);
+		return grams > 0 ? [(grams * HECTARE_IN_M2) / areaM2] : [];
+	});
+	if (doses.length === 0) return null;
+
+	doses.sort((a, b) => a - b);
+	const middle = Math.floor(doses.length / 2);
+	return doses.length % 2 === 1
+		? doses[middle]
+		: (doses[middle - 1] + doses[middle]) / 2;
+}
 
 // How much of the yearly copper limit is left for the window, at `stage`. Null for
 // other substances, without a stage, without a limit, or once bunch closure is past.
@@ -31,31 +68,47 @@ export function getCopperBudgetPacing({
 	usedGPerHa,
 	maxDosageKgPerHa,
 	stage,
+	medianSprayDoseGPerHa,
 }: {
 	substanceName: string;
 	usedGPerHa: number;
 	maxDosageKgPerHa: number;
 	stage: PhenologicalStage | null;
+	medianSprayDoseGPerHa: number | null;
 }) {
 	if (substanceName !== COPPER_SUBSTANCE_NAME || !stage) return null;
 	if (maxDosageKgPerHa <= 0) return null;
 	const spraysAhead = COPPER_WINDOW_SPRAYS_BY_STAGE[stage];
 	if (spraysAhead === 0) return null;
 
+	const isOwnDose =
+		medianSprayDoseGPerHa !== null &&
+		medianSprayDoseGPerHa > MIN_COPPER_SPRAY_DOSE_G_PER_HA;
+	const sprayDoseGPerHa = isOwnDose
+		? medianSprayDoseGPerHa
+		: MIN_COPPER_SPRAY_DOSE_G_PER_HA;
 	const leftKgPerHa = Math.max(
 		0,
 		maxDosageKgPerHa - usedGPerHa / GRAMS_PER_KILOGRAM,
 	);
-	const reserveKgPerHa =
-		(spraysAhead * COPPER_WINDOW_SPRAY_DOSE_G_PER_HA) / GRAMS_PER_KILOGRAM;
+	const reserveKgPerHa = (spraysAhead * sprayDoseGPerHa) / GRAMS_PER_KILOGRAM;
 	return {
 		leftKgPerHa,
 		reserveKgPerHa,
 		spraysAhead,
+		sprayDoseGPerHa,
+		isOwnDose,
 		isInWindow: compareStages(stage, "FLOWERING") >= 0,
 		isShort: leftKgPerHa < reserveKgPerHa,
 	};
 }
+
+// What the copper note needs besides the substance totals: the stage the budget is
+// paced for and the grower's median copper dose per spray. UI-only prop shape.
+export type CopperPacingInput = {
+	stage: PhenologicalStage | null;
+	medianSprayDoseGPerHa: number | null;
+};
 
 // The farm-wide copper total spans every parcel, so pacing follows the parcel with
 // the most of the window still ahead: the earliest current stage.

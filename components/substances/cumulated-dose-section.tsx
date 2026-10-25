@@ -1,11 +1,10 @@
 "use client";
 
-import { type PhenologicalStage } from "@prisma/client";
 import { type SubstanceData } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
 import { GRAMS_PER_KILOGRAM } from "@/lib/constants";
 import {
-	COPPER_WINDOW_SPRAY_DOSE_G_PER_HA,
+	type CopperPacingInput,
 	getCopperBudgetPacing,
 } from "@/lib/copper-budget-pacing";
 import { getSubstanceInk } from "@/lib/substance-colors";
@@ -21,17 +20,17 @@ function formatKgPerHa(kgPerHa: number, locale: string) {
 // How much copper is left for the flowering → bunch-closure window (P7).
 function CopperPacingNote({
 	substance,
-	stage,
+	pacingInput,
 }: {
 	substance: SubstanceData;
-	stage: PhenologicalStage | null;
+	pacingInput: CopperPacingInput;
 }) {
 	const { t, locale } = useTranslations();
 	const pacing = getCopperBudgetPacing({
 		substanceName: substance.name,
 		usedGPerHa: substance.totalUsedOfPureActiveSubstancePerHaGrams,
 		maxDosageKgPerHa: substance.maxDosage,
-		stage,
+		...pacingInput,
 	});
 	if (!pacing) return null;
 
@@ -48,6 +47,14 @@ function CopperPacingNote({
 					"{count}",
 					String(pacing.spraysAhead),
 				);
+	const dose = (
+		pacing.isOwnDose
+			? t("coverage.copperPacingDoseOwn")
+			: t("coverage.copperPacingDoseFloor")
+	).replace(
+		"{dose}",
+		`${formatNumber(pacing.sprayDoseGPerHa, locale, 0)} g/ha`,
+	);
 	const text = template
 		.replace("{left}", `${formatKgPerHa(pacing.leftKgPerHa, locale)} ${unit}`)
 		.replace(
@@ -55,10 +62,7 @@ function CopperPacingNote({
 			`${formatKgPerHa(pacing.reserveKgPerHa, locale)} ${unit}`,
 		)
 		.replace("{sprays}", sprays)
-		.replace(
-			"{dose}",
-			`${formatNumber(COPPER_WINDOW_SPRAY_DOSE_G_PER_HA, locale, 0)} g/ha`,
-		);
+		.replace("{dose}", dose);
 
 	return (
 		<div
@@ -85,15 +89,15 @@ export function CumulatedDoseSection({
 	substance,
 	substanceColor,
 	showTitle = false,
-	pacingStage = null,
+	copperPacing,
 }: {
 	substance: SubstanceData;
 	substanceColor: string;
 	// Only needed when the card also shows "protection now" above it; the section
 	// header already explains what "used this year" counts.
 	showTitle?: boolean;
-	// Stage the copper budget is paced for; null hides the pacing note.
-	pacingStage?: PhenologicalStage | null;
+	// Absent or without a stage, the copper pacing note is hidden.
+	copperPacing?: CopperPacingInput;
 }) {
 	const { t, locale, getSubstanceTranslation } = useTranslations();
 	const substanceInKgPerHa =
@@ -162,7 +166,9 @@ export function CumulatedDoseSection({
 					</span>
 				</div>
 			</div>
-			<CopperPacingNote substance={substance} stage={pacingStage} />
+			{copperPacing && (
+				<CopperPacingNote substance={substance} pacingInput={copperPacing} />
+			)}
 		</div>
 	);
 }

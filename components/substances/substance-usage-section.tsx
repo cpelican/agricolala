@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, use, useId } from "react";
-import { type PhenologicalStage } from "@prisma/client";
 import {
 	Card,
 	CardContent,
@@ -19,6 +18,7 @@ import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EYEBROW, SUBSECTION_TITLE } from "@/components/ui/typography";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
+import { type CopperPacingInput } from "@/lib/copper-budget-pacing";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -30,8 +30,8 @@ interface SubstanceUsageSectionProps {
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
 	// The dashboard's disease risk section is shown and says when no disease is active.
 	isNoActiveDiseaseShownAbove?: boolean;
-	// Stage the copper budget is paced for (P7); null or absent hides the pacing note.
-	copperPacingStage?: PhenologicalStage | null;
+	// Copper budget pacing (P7); absent hides the pacing note.
+	copperPacing?: CopperPacingInput;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
@@ -71,7 +71,7 @@ export function SubstanceUsageSection({
 	coverageResultPromise,
 	stageRiskBySubstance,
 	isNoActiveDiseaseShownAbove,
-	copperPacingStage,
+	copperPacing,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const titleId = useId();
@@ -109,7 +109,7 @@ export function SubstanceUsageSection({
 								substance={substance}
 								coverageResultPromise={coverageResultPromise}
 								stageRisk={stageRiskBySubstance?.[substance.name]}
-								pacingStage={copperPacingStage}
+								copperPacing={copperPacing}
 							/>
 						))}
 					</div>

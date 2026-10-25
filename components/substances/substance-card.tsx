@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, use } from "react";
-import { type PhenologicalStage } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -27,6 +26,7 @@ import { DiseaseBadges } from "./disease-badges";
 import { useTranslations } from "@/contexts/translations-context";
 import { useSubstances } from "@/contexts/cached-data-context";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
+import { type CopperPacingInput } from "@/lib/copper-budget-pacing";
 import { ShieldCheck } from "lucide-react";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
@@ -120,14 +120,14 @@ interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
 	stageRisk?: SubstanceStageRisk;
-	pacingStage?: PhenologicalStage | null;
+	copperPacing?: CopperPacingInput;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
 	stageRisk,
-	pacingStage,
+	copperPacing,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -179,7 +179,7 @@ export function SubstanceCard({
 					substance={substance}
 					substanceColor={substanceColor}
 					showTitle={Boolean(coverageResultPromise)}
-					pacingStage={pacingStage}
+					copperPacing={copperPacing}
 				/>
 			</CardContent>
 		</Card>
