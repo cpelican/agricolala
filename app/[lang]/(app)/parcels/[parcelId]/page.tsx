@@ -77,11 +77,14 @@ export default async function ParcelPage({
 				title={`${parcel.name}`}
 				subtitle={`${parcel.type} - ${formatParcelAreaDisplay(parcel)}`}
 			>
-				<DeleteParcelButton
-					parcelId={parcel.id}
-					parcelName={parcel.name}
-					redirectTo={`/${lang}/parcels`}
-				/>
+				{/* Only the creator deletes a shared parcel (D3). */}
+				{parcel.userId === session.user.id && (
+					<DeleteParcelButton
+						parcelId={parcel.id}
+						parcelName={parcel.name}
+						redirectTo={`/${lang}/parcels`}
+					/>
+				)}
 			</Header>
 			<Suspense fallback={<ParcelDetailSkeleton />}>
 				<div className="space-y-6">
@@ -91,6 +94,7 @@ export default async function ParcelPage({
 						pastTreatments={pastTreatments}
 						substanceData={enrichedSubstanceData}
 						currentStage={currentStage}
+						currentUserId={session.user.id}
 						copperPacing={{
 							stage: currentStage?.stage ?? null,
 							medianTreatmentDoseGPerHa: getMedianTreatmentDoseGPerHa(

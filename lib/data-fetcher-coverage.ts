@@ -1,5 +1,6 @@
 import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
+import { parcelAccessWhere } from "./parcel-access";
 import { prisma } from "./prisma";
 
 // Extends productApplicationsSelect with daysBetweenApplications for the coverage widget.
@@ -23,7 +24,7 @@ const coverageProductApplicationsSelect = {
 export const getTreatmentsWithParcelWeather = cache(async (userId: string) => {
 	const yearStart = new Date(new Date().getFullYear(), 0, 1);
 	return await prisma.parcel.findMany({
-		where: { userId },
+		where: parcelAccessWhere(userId),
 		select: {
 			id: true,
 			name: true,

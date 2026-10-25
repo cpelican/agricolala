@@ -34,6 +34,7 @@ export default async function TreatmentsPage({
 			<Suspense fallback={<TreatmentsSkeleton />}>
 				<TreatmentsContentAsync
 					treatmentsPromise={getTreatments(session.user.id)}
+					currentUserId={session.user.id}
 				/>
 			</Suspense>
 			<Suspense fallback={null}>

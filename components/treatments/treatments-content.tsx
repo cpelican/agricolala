@@ -15,9 +15,13 @@ import { EYEBROW } from "@/components/ui/typography";
 
 interface TreatmentsContentProps {
 	treatments: TreatmentType[];
+	currentUserId: string;
 }
 
-export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
+export function TreatmentsContent({
+	treatments,
+	currentUserId,
+}: TreatmentsContentProps) {
 	const diseases = useDiseases();
 	const { t } = useTranslations();
 
@@ -57,6 +61,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 								parcelName={treatment.parcel.name}
 								treatment={treatment}
 								diseases={diseases}
+								currentUserId={currentUserId}
 							/>
 						))}
 					</div>
@@ -75,6 +80,7 @@ export function TreatmentsContent({ treatments }: TreatmentsContentProps) {
 								key={treatment.id}
 								treatment={treatment}
 								diseases={diseases}
+								currentUserId={currentUserId}
 							/>
 						))}
 					</div>

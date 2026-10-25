@@ -23,6 +23,7 @@ interface ParcelDetailProps {
 	substanceData: SubstanceData[];
 	currentStage: CurrentParcelStage | null;
 	copperPacing: CopperPacingInput;
+	currentUserId: string;
 	children: React.ReactNode;
 }
 
@@ -33,6 +34,7 @@ export function ParcelDetail({
 	substanceData,
 	currentStage,
 	copperPacing,
+	currentUserId,
 	children,
 }: ParcelDetailProps) {
 	const { t } = useTranslations();
@@ -123,6 +125,7 @@ export function ParcelDetail({
 										parcelName={parcel.name}
 										treatment={treatment}
 										diseases={diseases}
+										currentUserId={currentUserId}
 									/>
 								))}
 							</div>

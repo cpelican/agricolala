@@ -19,6 +19,7 @@ type CardTreatment = Pick<
 	| "appliedDate"
 	| "productApplications"
 	| "waterDose"
+	| "user"
 >;
 type CardProduct = CardTreatment["productApplications"][number]["product"];
 
@@ -61,15 +62,27 @@ export function TreatmentCard({
 	parcelName,
 	treatment,
 	diseases,
+	currentUserId,
 }: {
 	parcelName: string;
 	treatment: CardTreatment;
 	diseases: Pick<Disease, "id" | "name">[];
+	currentUserId: string;
 }) {
 	const { t, locale, getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
 	const formattedDate = useTreatmentDate(treatment);
 	const isDone = treatment.status === TreatmentStatus.DONE;
+	// Only the author deletes a treatment (D2). Another member's done treatment shows
+	// who recorded it (D1); suggested TODOs carry no author label.
+	const isOwn = treatment.user.id === currentUserId;
+	const authorLabel =
+		!isOwn && isDone
+			? t("treatments.card.by").replace(
+					"{author}",
+					treatment.user.name || treatment.user.email,
+				)
+			: null;
 	const listFormat = new Intl.ListFormat(locale, { type: "conjunction" });
 	const numberFormat = new Intl.NumberFormat(locale, {
 		maximumFractionDigits: 1,
@@ -131,6 +144,11 @@ export function TreatmentCard({
 					<h3 className="m-0 text-base leading-[22px] font-semibold">
 						{title}
 					</h3>
+					{authorLabel && (
+						<p className="m-0 text-[13px] leading-[18px] text-neutral-600">
+							{authorLabel}
+						</p>
+					)}
 					{diseaseLabels.length > 0 && (
 						<p className="m-0 text-[13px] leading-[18px] text-neutral-600">
 							{t("treatments.card.for").replace(
@@ -212,13 +230,15 @@ export function TreatmentCard({
 						</span>
 					)}
 				</div>
-				<DeleteTreatmentButton
-					treatmentId={treatment.id}
-					treatmentName={treatmentName}
-					ariaLabel={t("treatments.card.delete")
-						.replace("{product}", title)
-						.replace("{parcel}", parcelName)}
-				/>
+				{isOwn && (
+					<DeleteTreatmentButton
+						treatmentId={treatment.id}
+						treatmentName={treatmentName}
+						ariaLabel={t("treatments.card.delete")
+							.replace("{product}", title)
+							.replace("{parcel}", parcelName)}
+					/>
+				)}
 			</div>
 		</Card>
 	);

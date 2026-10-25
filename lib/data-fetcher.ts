@@ -8,6 +8,7 @@ import {
 } from "./phenology-observations";
 import { getStageExpiryCutoff } from "./phenology";
 import { lastTreatmentSelect } from "./treatment-suggestions";
+import { parcelAccessWhere, treatmentAccessWhere } from "./parcel-access";
 
 export * from "./data-fetcher-aggregations";
 export * from "./data-fetcher-catalog";
@@ -30,6 +31,11 @@ const productApplicationsSelect = {
 			},
 		},
 	},
+};
+
+// Who recorded a treatment, shown on cards when it is another member (D1).
+const treatmentAuthorSelect = {
+	select: { id: true, name: true, email: true },
 };
 
 const parcelSelect = {
@@ -67,6 +73,7 @@ const parcelSelect = {
 const parcelDetailSelect = {
 	id: true,
 	name: true,
+	userId: true,
 	latitude: true,
 	longitude: true,
 	width: true,
@@ -85,6 +92,7 @@ const parcelDetailSelect = {
 			status: true,
 			waterDose: true,
 			diseaseIds: true,
+			user: treatmentAuthorSelect,
 			productApplications: {
 				select: productApplicationsSelect,
 			},
@@ -106,6 +114,7 @@ const treatmentSelect = {
 	status: true,
 	waterDose: true,
 	diseaseIds: true,
+	user: treatmentAuthorSelect,
 	parcel: {
 		select: {
 			id: true,
@@ -119,7 +128,7 @@ const treatmentSelect = {
 
 export const getParcels = cache(async (userId: string) => {
 	return await prisma.parcel.findMany({
-		where: { userId },
+		where: parcelAccessWhere(userId),
 		select: parcelSelect,
 		orderBy: { createdAt: "desc" },
 	});
@@ -127,8 +136,8 @@ export const getParcels = cache(async (userId: string) => {
 
 export const getParcelDetail = cache(
 	async (parcelId: string, userId: string) => {
-		const parcel = await prisma.parcel.findUnique({
-			where: { id: parcelId, userId },
+		const parcel = await prisma.parcel.findFirst({
+			where: { id: parcelId, ...parcelAccessWhere(userId) },
 			select: parcelDetailSelect,
 		});
 
@@ -139,7 +148,7 @@ export const getParcelDetail = cache(
 export const getTreatments = cache(async (userId: string) => {
 	return await prisma.treatment.findMany({
 		where: {
-			userId,
+			...treatmentAccessWhere(userId),
 			OR: [
 				// Treatments with appliedDate in current year (January onwards)
 				{
