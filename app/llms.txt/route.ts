@@ -17,12 +17,18 @@ const absolute = (path: string) => new URL(path, siteUrl).toString();
 export function GET() {
 	const { welcome } = getDictionary(appLanguages.en);
 	const { welcome: welcomeIt } = getDictionary(appLanguages.it);
+	const languages = new Intl.ListFormat("en", { type: "conjunction" }).format(
+		Object.values(appLanguages).map(
+			(locale) =>
+				new Intl.DisplayNames("en", { type: "language" }).of(locale) ?? locale,
+		),
+	);
 
 	const body = `# Agricolala
 
 > ${welcome.meta.description}
 
-Agricolala is a free, open-source web app for winegrowers, made by one person. In Italian it works as a "quaderno di campagna" (the vineyard treatment register). It works in English and Italian, in the browser, and is made for phones. New accounts are opened by hand to keep bots out.
+Agricolala is a free, open-source web app for winegrowers. In Italian it works as a "quaderno di campagna" (the vineyard treatment register). It works in ${languages}, in the browser, and is made for phones.
 
 ## What it does
 
