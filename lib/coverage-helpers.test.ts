@@ -582,8 +582,8 @@ describe("calculateCoverageData", () => {
 
 	test("copper mg/m² uses each parcel's stage leaf area; g/ha is unchanged", () => {
 		// 100 g/ha on each parcel, no decay (treated today)
-		const early = makeParcel({ id: "early" });
-		const late = makeParcel({ id: "late" });
+		const early = makeParcel({ id: "early", treatmentDate: FIXED_NOW });
+		const late = makeParcel({ id: "late", treatmentDate: FIXED_NOW });
 		const forecastDays = [
 			{ date: new Date("2025-06-21"), cumulativePrecipitation: 0 },
 		];
@@ -611,7 +611,7 @@ describe("calculateCoverageData", () => {
 
 	test("copper without a current stage keeps the full canopy (LAI = 4)", () => {
 		const result = calculateCoverageData(
-			[makeParcel({})],
+			[makeParcel({ treatmentDate: FIXED_NOW })],
 			compositions,
 			colorMap,
 			[],
