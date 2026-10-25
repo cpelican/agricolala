@@ -677,8 +677,8 @@
 		},
 		"usage": {
 			"eyebrow": "Substance usage",
-			"title": "4 kg of copper per hectare, each year. Always in view.",
-			"description": "Every treatment is added up from 1 January and counted against the yearly limit, parcel by parcel and across the whole vineyard. Rain washes copper off the leaves, never off the counter.",
+			"title": "Treat only when it counts. Use fewer chemicals.",
+			"description": "Every treatment is added up from 1 January, parcel by parcel and across the whole vineyard, and checked against the yearly limits. Knowing what your vines have already received lets you treat only when it is really needed and keep chemicals to a minimum.",
 			"exampleVineyard": "Example vineyard",
 			"usedThisYear": "Used this year",
 			"productApplied": "Product applied",
