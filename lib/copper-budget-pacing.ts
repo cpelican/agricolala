@@ -25,7 +25,7 @@ export const COPPER_WINDOW_TREATMENTS_BY_STAGE = {
 
 // Each treatment of the window is counted at the grower's median copper dose per
 // treatment this year, never below the coverage readout's full-protection dose
-// (100 g/ha): a lighter treatment does not protect, and the floor is also the dose before any copper.
+// (100 g/ha): a lighter treatment does not protect.
 export const MIN_COPPER_TREATMENT_DOSE_G_PER_HA =
 	FULL_DOSE_G_PER_HA[COPPER_SUBSTANCE_NAME];
 
@@ -62,7 +62,8 @@ export function getMedianTreatmentDoseGPerHa(
 }
 
 // How much of the yearly copper limit is left for the window, at `stage`. Null for
-// other substances, without a stage, without a limit, or once bunch closure is past.
+// other substances, without a stage, without a limit, once bunch closure is past, or
+// before any copper treatment: the whole limit is left and there is no dose to count.
 export function getCopperBudgetPacing({
 	substanceName,
 	usedGPerHa,
@@ -77,12 +78,11 @@ export function getCopperBudgetPacing({
 	medianTreatmentDoseGPerHa: number | null;
 }) {
 	if (substanceName !== COPPER_SUBSTANCE_NAME || !stage) return null;
-	if (maxDosageKgPerHa <= 0) return null;
+	if (maxDosageKgPerHa <= 0 || medianTreatmentDoseGPerHa === null) return null;
 	const treatmentsAhead = COPPER_WINDOW_TREATMENTS_BY_STAGE[stage];
 	if (treatmentsAhead === 0) return null;
 
 	const isOwnDose =
-		medianTreatmentDoseGPerHa !== null &&
 		medianTreatmentDoseGPerHa > MIN_COPPER_TREATMENT_DOSE_G_PER_HA;
 	const treatmentDoseGPerHa = isOwnDose
 		? medianTreatmentDoseGPerHa

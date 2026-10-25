@@ -10,11 +10,12 @@ import { PHENOLOGICAL_STAGES } from "./phenology";
 const COPPER = {
 	substanceName: "Copper",
 	maxDosageKgPerHa: 4,
-	medianTreatmentDoseGPerHa: null,
+	// Lighter than a full-protection treatment, so counted at the 100 g/ha floor.
+	medianTreatmentDoseGPerHa: 80,
 } as const;
 
 describe("getCopperBudgetPacing", () => {
-	test("keeps 4 treatments at the 100 g/ha floor before any copper", () => {
+	test("keeps 4 treatments at the 100 g/ha floor before flowering", () => {
 		expect(
 			getCopperBudgetPacing({
 				...COPPER,
@@ -90,6 +91,17 @@ describe("getCopperBudgetPacing", () => {
 		});
 		expect(pacing?.leftKgPerHa).toBe(0);
 		expect(pacing?.isShort).toBe(true);
+	});
+
+	test("returns null before any copper treatment", () => {
+		expect(
+			getCopperBudgetPacing({
+				...COPPER,
+				usedGPerHa: 0,
+				stage: "FLOWER_CLUSTERS",
+				medianTreatmentDoseGPerHa: null,
+			}),
+		).toBeNull();
 	});
 
 	test("returns null after bunch closure, without a stage, a limit, or for sulfur", () => {
