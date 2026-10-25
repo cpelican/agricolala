@@ -3,10 +3,7 @@
 import { type ReactNode } from "react";
 import { type CoverageForecastDay, type SubstanceCoverage } from "../types";
 import { useTranslations } from "@/contexts/translations-context";
-import {
-	COPPER_EFFICACY_THRESHOLD_MG_M2,
-	COPPER_LEAF_AREA_FACTOR,
-} from "@/lib/coverage-helpers";
+import { COPPER_EFFICACY_THRESHOLD_MG_M2 } from "@/lib/coverage-helpers";
 import { formatNumber } from "@/lib/utils";
 import {
 	AlertTriangle,
@@ -181,8 +178,8 @@ function Gauge({
 }
 
 interface ForecastMetric {
-	// Converts the projected g/ha figure into whatever unit the gauge above uses.
-	convert: (projectedGPerHa: number) => number;
+	// Reads the day's projection in whatever unit the gauge above uses.
+	convert: (day: CoverageForecastDay) => number;
 	unit: string;
 	statusLevel: (value: number) => StatusLevel;
 	subtitle: string;
@@ -217,9 +214,7 @@ function ForecastRow({
 							timeZone: "UTC",
 						})
 						.toUpperCase();
-					const value = metric
-						? metric.convert(day.projectedWeightedRemainingGPerHa)
-						: null;
+					const value = metric ? metric.convert(day) : null;
 					const level = value !== null ? metric!.statusLevel(value) : null;
 
 					return (
@@ -359,7 +354,7 @@ export function getResidualPanelProps(
 			},
 			forecast: coverage.forecast,
 			forecastMetric: {
-				convert: (g) => g / COPPER_LEAF_AREA_FACTOR,
+				convert: (day) => day.projectedLeafSurfaceMgPerM2 ?? 0,
 				unit: "mg/m²",
 				statusLevel: (v) =>
 					v < COPPER_EFFICACY_THRESHOLD_MG_M2 ? "critical" : "optimal",
@@ -404,7 +399,8 @@ export function getResidualPanelProps(
 			status,
 			forecast: coverage.forecast,
 			forecastMetric: {
-				convert: (g) => (g / fullDoseGPerHa) * 100,
+				convert: (day) =>
+					(day.projectedWeightedRemainingGPerHa / fullDoseGPerHa) * 100,
 				unit: "%",
 				statusLevel: doseStatusLevel,
 				subtitle: t("coverage.forecastSubtitleDose"),

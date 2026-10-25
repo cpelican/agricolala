@@ -75,6 +75,7 @@ export async function getCoverageWidgetData(
 			compositions,
 			substanceColorMap,
 			forecastDays,
+			new Map(parcelStages.map(({ parcelId, stage }) => [parcelId, stage])),
 		);
 
 		return data.substances.length > 0

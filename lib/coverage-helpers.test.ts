@@ -7,6 +7,7 @@ import {
 	calculateCoverageData,
 	DEFAULT_DAYS_BETWEEN_APPLICATIONS,
 	FULL_DOSE_G_PER_HA,
+	getCopperLeafAreaFactor,
 } from "./coverage-helpers";
 
 // ---------------------------------------------------------------------------
@@ -577,5 +578,72 @@ describe("calculateCoverageData", () => {
 		});
 		const result = calculateCoverageData([parcel], compositions, colorMap, []);
 		expect(result.hasIncompleteWeatherHistory).toBe(true);
+	});
+
+	test("copper mg/m² uses each parcel's stage leaf area; g/ha is unchanged", () => {
+		// 100 g/ha on each parcel, no decay (treated today)
+		const early = makeParcel({ id: "early", treatmentDate: FIXED_NOW });
+		const late = makeParcel({ id: "late", treatmentDate: FIXED_NOW });
+		const forecastDays = [
+			{ date: new Date("2025-06-21"), cumulativePrecipitation: 0 },
+		];
+		const result = calculateCoverageData(
+			[early, late],
+			compositions,
+			colorMap,
+			forecastDays,
+			new Map([
+				["early", "LEAVES_UNFOLDING"],
+				["late", "FRUIT_SET"],
+			]),
+		);
+		const sub = result.substances[0];
+		expect(sub.weightedRemainingGPerHa).toBeCloseTo(100, 5);
+		// early: 100 / (40 × 0.38) ≈ 6.58; late: 100 / 40 = 2.5; equal areas
+		expect(sub.leafSurfaceMgPerM2).toBeCloseTo((100 / 15.2 + 2.5) / 2, 5);
+		// One day of decay applies the same share to mg/m² as to g/ha
+		const share = sub.forecast[0].projectedWeightedRemainingGPerHa / 100;
+		expect(sub.forecast[0].projectedLeafSurfaceMgPerM2).toBeCloseTo(
+			sub.leafSurfaceMgPerM2! * share,
+			5,
+		);
+	});
+
+	test("copper without a current stage keeps the full canopy (LAI = 4)", () => {
+		const result = calculateCoverageData(
+			[makeParcel({ treatmentDate: FIXED_NOW })],
+			compositions,
+			colorMap,
+			[],
+		);
+		expect(result.substances[0].leafSurfaceMgPerM2).toBeCloseTo(2.5, 5);
+	});
+
+	test("sulfur has no leaf-surface projection", () => {
+		const result = calculateCoverageData(
+			[
+				makeParcel({
+					productId: "product-sulfur",
+					substanceId: "substance-sulfur",
+				}),
+			],
+			compositions,
+			colorMap,
+			[{ date: new Date("2025-06-21"), cumulativePrecipitation: 0 }],
+			new Map([["parcel-1", "FLOWERING"]]),
+		);
+		expect(result.substances[0].forecast[0].projectedLeafSurfaceMgPerM2).toBe(
+			undefined,
+		);
+	});
+});
+
+describe("getCopperLeafAreaFactor", () => {
+	test("scales LAI = 4 by the Swiss stage shares", () => {
+		expect(getCopperLeafAreaFactor(null)).toBe(40);
+		expect(getCopperLeafAreaFactor("BUD_BREAK")).toBeCloseTo(15.2);
+		expect(getCopperLeafAreaFactor("FLOWER_CLUSTERS")).toBeCloseTo(25.2);
+		expect(getCopperLeafAreaFactor("FLOWERING")).toBeCloseTo(30);
+		expect(getCopperLeafAreaFactor("BUNCH_CLOSURE")).toBe(40);
 	});
 });

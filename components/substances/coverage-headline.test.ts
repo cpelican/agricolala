@@ -48,6 +48,7 @@ function copperCoverage(
 			precipitationMm: 0,
 			cumulativeAdditionalRainMm: 0,
 			projectedWeightedRemainingGPerHa: mg * COPPER_LEAF_AREA_FACTOR,
+			projectedLeafSurfaceMgPerM2: mg,
 		})),
 	};
 }
