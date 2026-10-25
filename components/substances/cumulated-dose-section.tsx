@@ -49,7 +49,7 @@ export function CumulatedDoseSection({
 					title={t("coverage.cumulatedDose")}
 				/>
 			)}
-			<dl className="m-0 grid grid-cols-2 gap-3">
+			<dl className="grid grid-cols-2 gap-3">
 				<div className={STAT_TILE}>
 					<dt className={STAT_LABEL}>{t("coverage.productApplied")}</dt>
 					<dd className={STAT_VALUE}>
