@@ -10,11 +10,11 @@ const Applicability = async ({
 	parcelId: string;
 	locale: Locale;
 }) => {
-	let next3DaysApplicability: Awaited<
+	let applicability: Awaited<
 		ReturnType<typeof getNext3DaysTreatmentApplicability>
 	>;
 	try {
-		next3DaysApplicability = await getNext3DaysTreatmentApplicability(parcelId);
+		applicability = await getNext3DaysTreatmentApplicability(parcelId);
 	} catch (error) {
 		// The forecast comes from an external API: if it fails or times out, hide
 		// this block instead of letting the error take down the parcel page.
@@ -22,7 +22,10 @@ const Applicability = async ({
 		return null;
 	}
 
-	if (next3DaysApplicability.length === 0) {
+	if (
+		applicability.state === "closed" ||
+		(applicability.state === "open" && applicability.days.length === 0)
+	) {
 		return null;
 	}
 
@@ -45,40 +48,59 @@ const Applicability = async ({
 			<h2 className="text-lg font-semibold mb-3 flex items-center">
 				{t("treatments.applicability.title")}
 			</h2>
-			<div className="grid gap-4 md:grid-cols-3">
-				{next3DaysApplicability.map((day, index) => (
-					<div key={index} className="rounded-lg border p-4 space-y-2">
-						<div className="flex items-center justify-between">
-							<h3 className="font-semibold">{formatDate(day.date)}</h3>
-							<Badge variant={day.applicable ? "default" : "destructive"}>
-								{day.applicable
-									? t("treatments.applicability.applicable")
-									: t("treatments.applicability.notApplicable")}
-							</Badge>
-						</div>
-						<div className="space-y-1 text-sm">
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">
-									{t("treatments.applicability.rain")}:
-								</span>
-								<span className="font-medium">
-									{day.cumulativePrecipitation.toFixed(1)}{" "}
-									{t("treatments.applicability.mm")}
-								</span>
+			{applicability.state === "dormant" ? (
+				<p
+					data-testid="applicability-dormant"
+					className="text-sm text-muted-foreground"
+				>
+					{t("treatments.applicability.dormant")}
+				</p>
+			) : (
+				<div className="space-y-3">
+					{applicability.flowering ? (
+						<p
+							data-testid="applicability-flowering"
+							className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800"
+						>
+							{t("treatments.applicability.flowering")}
+						</p>
+					) : null}
+					<div className="grid gap-4 md:grid-cols-3">
+						{applicability.days.map((day, index) => (
+							<div key={index} className="rounded-lg border p-4 space-y-2">
+								<div className="flex items-center justify-between">
+									<h3 className="font-semibold">{formatDate(day.date)}</h3>
+									<Badge variant={day.applicable ? "default" : "destructive"}>
+										{day.applicable
+											? t("treatments.applicability.applicable")
+											: t("treatments.applicability.notApplicable")}
+									</Badge>
+								</div>
+								<div className="space-y-1 text-sm">
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">
+											{t("treatments.applicability.rain")}:
+										</span>
+										<span className="font-medium">
+											{day.cumulativePrecipitation.toFixed(1)}{" "}
+											{t("treatments.applicability.mm")}
+										</span>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">
+											{t("treatments.applicability.avgWind")}:
+										</span>
+										<span className="font-medium">
+											{day.averageWindSpeed.toFixed(1)}{" "}
+											{t("treatments.applicability.kmh")}
+										</span>
+									</div>
+								</div>
 							</div>
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">
-									{t("treatments.applicability.avgWind")}:
-								</span>
-								<span className="font-medium">
-									{day.averageWindSpeed.toFixed(1)}{" "}
-									{t("treatments.applicability.kmh")}
-								</span>
-							</div>
-						</div>
+						))}
 					</div>
-				))}
-			</div>
+				</div>
+			)}
 		</div>
 	);
 };

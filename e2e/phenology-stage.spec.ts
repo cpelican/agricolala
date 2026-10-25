@@ -210,3 +210,15 @@ test("flowering shows the bee reminder and flags copper in the modal", async ({
 		dialog.getByText("Best avoided during flowering", { exact: false }),
 	).toBeHidden();
 });
+
+test("spray weather recalls the evening-only rule at flowering", async ({
+	page,
+}) => {
+	await markStageFromDetail(page, "Flowering");
+	await page.reload();
+
+	const main = page.getByRole("main");
+	await expect(main.getByTestId("applicability-flowering")).toHaveText(
+		/2 hours before to 3 hours after sunset/,
+	);
+});

@@ -146,7 +146,9 @@
 			"rain": "Rain",
 			"avgWind": "Avg Wind",
 			"mm": "mm",
-			"kmh": "km/h"
+			"kmh": "km/h",
+			"dormant": "No stage recorded yet this season: mark “Buds opening” under Growth stage when the buds open to see the spray weather.",
+			"flowering": "Flowering: to protect the bees, spray only from 2 hours before to 3 hours after sunset."
 		}
 	},
 	"profile": {
