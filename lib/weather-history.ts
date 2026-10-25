@@ -52,7 +52,15 @@ export async function getStoredWeatherDays(
 	to: Date,
 ): Promise<Date[]> {
 	const rows = await db.weatherHistory.findMany({
-		where: { weatherHistoryTaskId: taskId, dateTime: { gte: from, lt: to } },
+		where: {
+			weatherHistoryTaskId: taskId,
+			dateTime: { gte: from, lt: to },
+			// A day saved without temperatures (Open-Meteo returned nulls) counts as
+			// missing, so the backfill fetches it again instead of leaving a hole in
+			// the thermal sum for the rest of the season.
+			temperature2mMin: { not: null },
+			temperature2mMax: { not: null },
+		},
 		select: { dateTime: true },
 	});
 	return rows.map((row) => row.dateTime);
