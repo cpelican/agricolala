@@ -16,7 +16,7 @@ export function WelcomeOpenSource({ dict }: { dict: TranslationType }) {
 
 	return (
 		<section aria-labelledby="open-source-title" className={SECTION}>
-			<div className="flex max-w-[600px] flex-col gap-4">
+			<div className="flex max-w-[600px] flex-col gap-4 min-[900px]:max-w-none">
 				<p className={`m-0 ${EYEBROW}`}>{t.eyebrow}</p>
 				<h2 id="open-source-title" className={SECTION_TITLE}>
 					{t.title}

@@ -8,7 +8,7 @@ export function WelcomeFaq({ dict }: { dict: TranslationType }) {
 
 	return (
 		<section aria-labelledby="faq-title" className={SECTION}>
-			<div className="flex max-w-[720px] flex-col gap-6">
+			<div className="flex max-w-[720px] flex-col gap-6 min-[900px]:max-w-none">
 				<h2 id="faq-title" className={SECTION_TITLE}>
 					{t.title}
 				</h2>
