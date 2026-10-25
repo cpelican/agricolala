@@ -1,4 +1,4 @@
-import { SubstanceUsageSection } from "../substances/substance-usage-section";
+import { SubstanceUsageSection } from "@/components/substances/substance-usage-section";
 import {
 	getCachedSubstanceAggregations,
 	getAllYearsSubstanceAggregations,
@@ -18,7 +18,7 @@ import {
 	getMedianTreatmentDoseGPerHa,
 } from "@/lib/copper-budget-pacing";
 import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
-import { DiseaseRiskSection } from "../phenology/disease-risk-section";
+import { DiseaseRiskSection } from "@/components/phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/i18n/locale";
 import { tServer } from "@/lib/i18n/server";

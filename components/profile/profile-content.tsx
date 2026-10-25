@@ -20,7 +20,7 @@ import {
 import { SignOutButton } from "@/components/auth/signout-button";
 import { LanguageSwitcher } from "@/components/locale/language-switcher";
 import { ChevronRight } from "lucide-react";
-import { LocaleLink } from "../locale/locale-link";
+import { LocaleLink } from "@/components/locale/locale-link";
 import { useTranslations } from "@/contexts/translations-context";
 import { type getTosStatus } from "@/lib/actions-tos";
 

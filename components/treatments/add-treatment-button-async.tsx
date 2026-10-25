@@ -1,4 +1,4 @@
-import { AddTreatmentButton } from "../treatments/add-treatment-button";
+import { AddTreatmentButton } from "./add-treatment-button";
 import { getParcels, getStageByParcel } from "@/lib/data-fetcher";
 
 interface AddTreatmentButtonAsyncProps {

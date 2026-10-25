@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { HomeDashboardContent } from "@/components/async/home-dashboard-content";
-import { Header } from "@/components/misc/header";
-import { HomeContentUI } from "@/components/misc/home-content-ui";
-import { HomeDashboardBodySkeleton } from "@/components/skeletons/home-skeleton";
+import { HomeDashboardContent } from "@/components/home/home-dashboard-content";
+import { Header } from "@/components/layout/header";
+import { HomeContentUI } from "@/components/home/home-content-ui";
+import { HomeDashboardBodySkeleton } from "@/components/home/home-skeleton";
 import { getParcels } from "@/lib/data-fetcher";
 import { type Locale } from "@/lib/i18n/locale";
 

@@ -9,7 +9,7 @@ import {
 } from "./example-data";
 import { PRIMARY_BUTTON, PRIMARY_BUTTON_ARROW } from "./section-styles";
 import type { WelcomeDictionary } from "./types";
-import styles from "./welcome.module.css";
+import styles from "@/components/site/site.module.css";
 
 const CARD =
 	"rounded-lg border border-neutral-200 bg-white shadow-md flex items-center gap-2.5 px-3 py-2.5 min-[900px]:gap-3 min-[900px]:px-3.5 min-[900px]:py-3";

@@ -13,7 +13,7 @@ import {
 	SECTION_TEXT,
 	SECTION_TITLE,
 } from "./section-styles";
-import styles from "./welcome.module.css";
+import styles from "@/components/site/site.module.css";
 
 export function WelcomeApp({ dict }: { dict: TranslationType }) {
 	const t = dict.welcome.app;

@@ -1,6 +1,6 @@
 "use client";
 
-import { RouteErrorContent } from "@/components/misc/route-error-content";
+import { RouteErrorContent } from "@/components/layout/route-error-content";
 import { useTranslations } from "@/contexts/translations-context";
 
 interface ErrorPageProps {

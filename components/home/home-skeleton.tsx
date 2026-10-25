@@ -1,5 +1,5 @@
 import { ChartSkeleton } from "@/components/substances/chart-wrapper";
-import { WelcomeHeaderSkeleton } from "@/components/skeletons/welcome-header-skeleton";
+import { HeaderSkeleton } from "@/components/layout/header-skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -69,7 +69,7 @@ export function HomeSkeleton({
 }: HomeSkeletonProps) {
 	return (
 		<div role="status" aria-busy="true" aria-label={ariaLabel}>
-			<WelcomeHeaderSkeleton />
+			<HeaderSkeleton />
 			{variant === "dashboard" ? (
 				<HomeDashboardBodySkeleton />
 			) : (

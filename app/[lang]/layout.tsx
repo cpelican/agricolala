@@ -4,7 +4,7 @@ import {
 	RootDocument,
 	rootMetadata,
 	rootViewport,
-} from "@/components/misc/root-document";
+} from "@/components/layout/root-document";
 import { appLanguages, getLanguageAsLocale } from "@/lib/i18n/locale";
 
 export const metadata = rootMetadata;

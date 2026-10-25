@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Header } from "@/components/misc/header";
+import { Header } from "@/components/layout/header";
 import { PendingAccessRequests } from "@/components/admin/pending-access-requests";
 import { SUBSECTION_TITLE } from "@/components/ui/typography";
 import { formatAccessRequestDate } from "@/lib/access-requests";

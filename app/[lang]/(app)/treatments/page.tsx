@@ -1,13 +1,13 @@
 import { Suspense } from "react";
-import { TreatmentsContentAsync } from "@/components/async/treatments-content-async";
-import { AddTreatmentButtonAsync } from "@/components/async/add-treatment-button-async";
-import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
+import { TreatmentsContentAsync } from "@/components/treatments/treatments-content-async";
+import { AddTreatmentButtonAsync } from "@/components/treatments/add-treatment-button-async";
+import { TreatmentsSkeleton } from "@/components/treatments/treatments-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
 import { getTreatments } from "@/lib/data-fetcher";
 import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
 import { tServer } from "@/lib/i18n/server";
 import { getLanguageAsLocale } from "@/lib/i18n/locale";
-import { Header } from "@/components/misc/header";
+import { Header } from "@/components/layout/header";
 
 export default async function TreatmentsPage({
 	params,

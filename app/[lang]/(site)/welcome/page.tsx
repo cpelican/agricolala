@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { WelcomeHeader } from "@/components/welcome/welcome-header";
-import styles from "@/components/welcome/welcome.module.css";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
+import styles from "@/components/site/site.module.css";
 import { WelcomeHero } from "@/components/welcome/welcome-hero";
 import { WelcomeSeason } from "@/components/welcome/welcome-season";
 import {
@@ -10,7 +11,6 @@ import {
 } from "@/components/welcome/welcome-features";
 import {
 	WelcomeCallToAction,
-	WelcomeFooter,
 	WelcomeOpenSource,
 } from "@/components/welcome/welcome-closing";
 import {
@@ -105,7 +105,7 @@ export default async function WelcomePage({
 					__html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
 				}}
 			/>
-			<WelcomeHeader locale={lang} t={t} />
+			<SiteHeader locale={lang} t={t} />
 			<main id="main" tabIndex={-1} className="outline-none">
 				<WelcomeHero locale={lang} t={t} />
 				<WelcomeApp dict={dict} />
@@ -114,7 +114,7 @@ export default async function WelcomePage({
 				<WelcomeOpenSource dict={dict} />
 				<WelcomeCallToAction dict={dict} />
 			</main>
-			<WelcomeFooter dict={dict} locale={lang} />
+			<SiteFooter dict={dict} locale={lang} />
 		</div>
 	);
 }

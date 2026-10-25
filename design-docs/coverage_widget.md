@@ -347,7 +347,7 @@ recommendedTopUpProductG?: number;          // total grams of product for this s
 - `daysSince(date: Date): number` — `(now - date) / MS_PER_DAY`
 - `calculateCoverageData(parcels, compositions, substanceColorMap, forecastRain): CoverageWidgetData` — main function
 
-### `components/async/coverage-widget-content.tsx` — async server component
+### `components/home/coverage-widget-content.tsx` — async server component
 - Calls `getCurrentDiseases()` first — if it returns an empty array (outside disease season), returns `null` immediately. No further queries are made.
 - Otherwise calls `getTreatmentsWithParcelWeather(userId)`, `getCachedCompositions()`, `getCachedSubstances()` in `Promise.all`
 - Calls `OpenMeteoClient.getForecastWeatherData()` once for the first parcel with coordinates (`try/catch`, degrades gracefully)
@@ -445,11 +445,11 @@ export const getTreatmentsWithParcelWeather = cache(async (userId) => { ... });
 export type CoverageParcel = Awaited<ReturnType<typeof getTreatmentsWithParcelWeather>>[number];
 ```
 
-### `components/async/home-dashboard-content.tsx`
+### `components/home/home-dashboard-content.tsx`
 Add `<CoverageWidgetContent>` below `<SubstanceUsageSection>`, wrapped in `<Suspense fallback={<CoverageWidgetSkeleton />}>` so the Open-Meteo API call doesn't block the existing aggregation section.
 
 ### Skeleton file
-Add `CoverageWidgetSkeleton` to wherever home skeletons live (check `components/skeletons/`).
+Add `CoverageWidgetSkeleton` to wherever home skeletons live (next to the home components in `components/home/`).
 
 ### `locales/en.json` + `locales/it.json`
 Add `"coverage"` namespace:

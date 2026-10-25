@@ -7,21 +7,21 @@ import {
 	type PublicPage,
 	welcomePath,
 } from "@/lib/site-url";
-import type { WelcomeDictionary } from "./types";
-import styles from "./welcome.module.css";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
+import styles from "./site.module.css";
 
 const LANGUAGE_CODES = {
 	en: "EN",
 	it: "IT",
 } as const satisfies Record<Locale, string>;
 
-export function WelcomeHeader({
+export function SiteHeader({
 	locale,
 	t,
 	page = PUBLIC_PAGES.welcome,
 }: {
 	locale: Locale;
-	t: WelcomeDictionary;
+	t: TranslationType["welcome"];
 	// The page the language links switch between.
 	page?: PublicPage;
 }) {

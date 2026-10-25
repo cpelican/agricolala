@@ -1,4 +1,4 @@
-import { WelcomeHeaderSkeleton } from "@/components/skeletons/welcome-header-skeleton";
+import { HeaderSkeleton } from "./header-skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function LayoutMainSkeleton() {
 	return (
 		<>
-			<WelcomeHeaderSkeleton />
+			<HeaderSkeleton />
 			<div className="p-4">
 				<Card>
 					<CardHeader className="space-y-2 text-center">
