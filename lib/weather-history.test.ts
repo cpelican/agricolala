@@ -6,6 +6,7 @@ import { type DailyWeatherData } from "./open-meteo-schema";
 import {
 	adoptLegacyWeatherRows,
 	getMissingDays,
+	getStoredWeatherDays,
 	getWeatherSeasonStart,
 	saveWeatherDays,
 } from "./weather-history";
@@ -174,5 +175,23 @@ describe("[Integration] saveWeatherDays", () => {
 				where: { weatherHistoryTaskId: null },
 			}),
 		).toBe(1);
+	});
+
+	test("a day saved without temperatures is not counted as stored", async () => {
+		const { testParcel } = testData;
+		const genoa = await createTask("Genoa", 44);
+		await saveWeatherDays(
+			testPrisma,
+			genoa,
+			[testParcel.id],
+			[
+				weatherDay(day(5, 1), 0),
+				{ ...weatherDay(day(5, 2), 0), temperature2mMin: null },
+			],
+		);
+
+		expect(
+			await getStoredWeatherDays(testPrisma, genoa.id, day(5, 1), day(5, 3)),
+		).toEqual([day(5, 1)]);
 	});
 });
