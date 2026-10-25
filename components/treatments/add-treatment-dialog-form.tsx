@@ -443,7 +443,6 @@ export function AddTreatmentDialogForm({
 				</Button>
 				<Button
 					type="button"
-					className="bg-main-gradient hover:bg-primary-700"
 					onClick={onSubmit}
 					disabled={isSubmitting}
 				>

@@ -148,7 +148,8 @@
 			"mm": "mm",
 			"kmh": "km/h"
 		},
-		"eyebrow": "Season {year}"
+		"eyebrow": "Season {year}",
+		"export": "Export"
 	},
 	"profile": {
 		"it": "Italian",

@@ -207,7 +207,6 @@ export function AddParcelDialog({
 						<Button
 							type="submit"
 							disabled={loading || !boundary}
-							className="bg-main-gradient hover:bg-primary-700"
 						>
 							{loading ? t("parcels.adding") : t("parcels.addParcelButton")}
 						</Button>

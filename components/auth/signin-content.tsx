@@ -83,7 +83,7 @@ export const SignInContent = ({
 					{hasGoogleProvider && (
 						<Button
 							onClick={signInWithGoogle}
-							className="w-full bg-main-gradient hover:bg-primary-700"
+							className="w-full"
 							size="lg"
 						>
 							{authDicts[lang].signInWithGoogle}

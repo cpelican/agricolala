@@ -66,7 +66,6 @@ export function UpdateStageDialog({
 					</Button>
 					<Button
 						type="button"
-						className="bg-main-gradient hover:bg-primary-700"
 						onClick={() => void handleSave()}
 						disabled={!stage || isSubmitting}
 					>

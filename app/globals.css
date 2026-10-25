@@ -71,43 +71,28 @@
   text-wrap: balance;
 }
 
-@utility bg-main-gradient {
+/* The "Agricolala" wordmark: the only text set in the leaf gradient (same as the welcome header). */
+@utility wordmark-gradient {
   background: linear-gradient(
     45deg,
     var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)/ 70%) 100%
+    var(--color-primary-700) 30%,
+    hsl(60 100% 41%) 100%
   );
-}
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 
-@utility bg-solid-gradient {
-  background: linear-gradient(
-    45deg,
-    var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
-  );
+  @media (forced-colors: active) {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
 }
 
 @utility bg-hsl {
   background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
-}
-
-@utility gradient-main-title {
-  background: linear-gradient(
-    45deg,
-    var(--color-primary-700) 0%,
-    hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness)) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@utility bg-secondary-gradient {
-  background-color: linear-gradient(
-    45deg,
-    var(--color-primary-400) 0%,
-    hsl(calc(var(--primary-hue) - 60) calc(var(--primary-saturation) * 0.6) calc(var(--primary-lightness) + 60%)) 100%
-  );
 }
 
 @keyframes grape-color {

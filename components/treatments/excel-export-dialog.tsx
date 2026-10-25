@@ -22,17 +22,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { downloadTreatmentsExcel } from "@/lib/actions-export";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { useTranslations } from "@/contexts/translations-context";
 
 interface ExcelExportDialogProps {
 	trigger?: React.ReactNode;
-	className?: string;
 }
 
-export function ExcelExportDialog({
-	trigger,
-	className,
-}: ExcelExportDialogProps) {
+export function ExcelExportDialog({ trigger }: ExcelExportDialogProps) {
+	const { t } = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -92,14 +89,10 @@ export function ExcelExportDialog({
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
 				{trigger || (
-					<button
-						className={cn(
-							"p-2 bg-hsl rounded-full text-primary-700",
-							className,
-						)}
-					>
-						<Download className="h-6 w-6" />
-					</button>
+					<Button type="button" variant="outline" className="h-11 px-3.5">
+						<Download aria-hidden="true" />
+						{t("treatments.export")}
+					</Button>
 				)}
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
@@ -142,7 +135,6 @@ export function ExcelExportDialog({
 					</Button>
 					<Button
 						type="button"
-						className="bg-main-gradient hover:bg-primary-700"
 						onClick={handleDownload}
 						disabled={isDownloading}
 					>
