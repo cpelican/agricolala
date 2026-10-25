@@ -17,6 +17,7 @@ import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
+import { getEarliestStage } from "@/lib/copper-budget";
 
 interface HomeDashboardContentProps {
 	locale: Locale;
@@ -101,6 +102,9 @@ export async function HomeDashboardContent({
 				coverageResultPromise={coverageResultPromise}
 				stageRiskBySubstance={stageRiskBySubstance}
 				isNoActiveDiseaseShownAbove={vineyardStageRisk !== null}
+				copperPacingStage={getEarliestStage(
+					parcelStages.map(({ stage }) => stage),
+				)}
 			/>
 		</div>
 	);

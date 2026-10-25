@@ -28,6 +28,7 @@ import { useSubstances } from "@/contexts/cached-data-context";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
 import { ShieldCheck } from "lucide-react";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
+import { type PhenologicalStage } from "@prisma/client";
 
 type SubstanceCoverageState =
 	| { kind: "available"; coverage: SubstanceCoverage; hasWeatherData: boolean }
@@ -119,12 +120,14 @@ interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
 	stageRisk?: SubstanceStageRisk;
+	copperPacingStage?: PhenologicalStage | null;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
 	stageRisk,
+	copperPacingStage = null,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -176,6 +179,7 @@ export function SubstanceCard({
 					substance={substance}
 					substanceColor={substanceColor}
 					showTitle={Boolean(coverageResultPromise)}
+					pacingStage={copperPacingStage}
 				/>
 			</CardContent>
 		</Card>

@@ -7,6 +7,8 @@ import { getSubstanceInk } from "@/lib/substance-colors";
 import { formatNumber } from "@/lib/utils";
 import { CalendarRange } from "lucide-react";
 import { CardSectionHeader } from "./card-section-header";
+import { type PhenologicalStage } from "@prisma/client";
+import { getCopperBudgetPacing } from "@/lib/copper-budget";
 
 // Small doses still read as more than zero: 0.45, 0.012 kg/ha.
 function formatKgPerHa(kgPerHa: number, locale: string) {
@@ -22,12 +24,15 @@ export function CumulatedDoseSection({
 	substance,
 	substanceColor,
 	showTitle = false,
+	pacingStage = null,
 }: {
 	substance: SubstanceData;
 	substanceColor: string;
 	// Only needed when the card also shows "protection now" above it; the section
 	// header already explains what "used this year" counts.
 	showTitle?: boolean;
+	// Current stage the copper budget is paced for; none hides the pacing note.
+	pacingStage?: PhenologicalStage | null;
 }) {
 	const { t, locale, getSubstanceTranslation } = useTranslations();
 	const substanceInKgPerHa =
@@ -40,6 +45,7 @@ export function CumulatedDoseSection({
 				)
 			: 0;
 	const unit = t("substances.units.KG_PER_HA");
+	const pacing = getCopperBudgetPacing(substance, pacingStage);
 
 	return (
 		<div className={showTitle ? "space-y-3.5 border-t pt-4" : "space-y-3.5"}>
@@ -96,6 +102,30 @@ export function CumulatedDoseSection({
 					</span>
 				</div>
 			</div>
+			{pacing && (
+				<p
+					className={
+						pacing.leftKgPerHa > 0
+							? "m-0 text-sm leading-5 text-neutral-700"
+							: "m-0 rounded-md border border-warning-border bg-warning-background px-3 py-2 text-sm leading-5 text-warning"
+					}
+				>
+					{pacing.leftKgPerHa > 0
+						? t(
+								pacing.phase === "beforeWindow"
+									? "coverage.copperBudgetBeforeWindow"
+									: "coverage.copperBudgetInWindow",
+							).replace(
+								"{left}",
+								`${formatKgPerHa(pacing.leftKgPerHa, locale)} ${unit}`,
+							)
+						: t(
+								pacing.phase === "beforeWindow"
+									? "coverage.copperBudgetSpentBeforeWindow"
+									: "coverage.copperBudgetSpentInWindow",
+							)}
+				</p>
+			)}
 		</div>
 	);
 }

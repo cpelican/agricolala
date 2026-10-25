@@ -131,6 +131,7 @@ export function ParcelDetail({
 			<SubstanceUsageSection
 				substanceData={substanceData}
 				description={t("parcels.trackSubstanceApplications")}
+				copperPacingStage={currentStage?.stage ?? null}
 			/>
 		</div>
 	);
