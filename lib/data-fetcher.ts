@@ -174,12 +174,13 @@ export const getStageByParcel = cache(async (userId: string) => {
 	return await getCurrentStagesByParcel(prisma, userId, new Date());
 });
 
-// Every treatment applied during the year, for the Excel export.
+// Every treatment applied during the year on the user's member parcels, whoever
+// recorded it, for the Excel export (D6).
 export const getTreatmentsForYear = cache(
 	async (userId: string, yearStart: Date, yearEnd: Date) => {
 		return await prisma.treatment.findMany({
 			where: {
-				userId,
+				...treatmentAccessWhere(userId),
 				appliedDate: {
 					gte: yearStart,
 					lte: yearEnd,
@@ -213,49 +214,43 @@ export const getLatestParcelObservation = cache(
 	},
 );
 
-// For the suggest-treatments cron: every approved user's parcels with their last
-// done treatment of the year and their current stage at the reference date.
-export async function getAuthorizedUsersWithLastTreatments(
-	referenceDate: Date,
-) {
+// For the suggest-treatments cron: every parcel with an approved member, with its
+// last done treatment of the year (and that treatment's author) and its current stage
+// at the reference date. A shared parcel comes once, whatever its number of members.
+export async function getParcelsWithLastTreatments(referenceDate: Date) {
 	const year = referenceDate.getFullYear();
-	return await prisma.user.findMany({
+	return await prisma.parcel.findMany({
 		where: {
-			isAuthorized: true,
+			members: { some: { user: { isAuthorized: true } } },
 		},
 		select: {
 			id: true,
-			parcels: {
-				select: {
-					id: true,
-					treatments: {
-						where: {
-							status: TreatmentStatus.DONE,
-							appliedDate: {
-								not: null,
-								gte: new Date(year, 0, 1),
-								lt: new Date(year + 1, 0, 1),
-							},
-						},
-						orderBy: {
-							appliedDate: "desc",
-						},
-						take: 1, // Get only the most recent treatment per parcel
-						select: lastTreatmentSelect,
-					},
-					// Current stage: latest observation on or before the date, unless expired.
-					phenologyObservations: {
-						where: {
-							observedAt: {
-								lte: referenceDate,
-								gte: getStageExpiryCutoff(referenceDate),
-							},
-						},
-						orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
-						take: 1,
-						select: { stage: true },
+			treatments: {
+				where: {
+					status: TreatmentStatus.DONE,
+					appliedDate: {
+						not: null,
+						gte: new Date(year, 0, 1),
+						lt: new Date(year + 1, 0, 1),
 					},
 				},
+				orderBy: {
+					appliedDate: "desc",
+				},
+				take: 1, // Get only the most recent treatment per parcel
+				select: { ...lastTreatmentSelect, userId: true },
+			},
+			// Current stage: latest observation on or before the date, unless expired.
+			phenologyObservations: {
+				where: {
+					observedAt: {
+						lte: referenceDate,
+						gte: getStageExpiryCutoff(referenceDate),
+					},
+				},
+				orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
+				take: 1,
+				select: { stage: true },
 			},
 		},
 	});

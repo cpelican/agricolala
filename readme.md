@@ -130,6 +130,28 @@ Do the Vercel update+redeploy promptly after resetting — the live site will fa
 
 If you need to update RLS policies for some new tables, make sure you update `supabase-setup.sql`.
 
+### Share a parcel
+
+A parcel can have several members: each sees it, all its treatments and its stage, and can treat it; only its creator deletes it, and only a treatment's author deletes that treatment (see [design-docs/shared-parcels.md](design-docs/shared-parcels.md)). There is no screen for it: members are linked in the Supabase SQL editor.
+
+1. Find both ids: `select id, email from "User";` then `select id, name from "Parcel" where "userId" = '<creator id>';`
+2. Link the user:
+
+   ```sql
+   insert into "ParcelMember" (id, "parcelId", "userId")
+   values (gen_random_uuid()::text, '<parcel id>', '<user id>');
+   ```
+
+   Prisma generates `cuid()` ids, not the database: any unique text id works.
+3. Refresh the substance totals, which linking does not update:
+
+   ```bash
+   npm run aggregations:rebuild:prod
+   ```
+
+   Add `-- --user <email>` to rebuild one user's parcels only, `-- --year <yyyy>` for a past season.
+4. To unlink: `delete from "ParcelMember" where "parcelId" = '<parcel id>' and "userId" = '<user id>';`, then rebuild as in step 3. Never remove the creator's own row.
+
 ## Linting & Formatting
 
 ```bash

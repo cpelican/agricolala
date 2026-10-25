@@ -28,6 +28,7 @@
 		"seed": "npx tsx prisma/seed.ts",
 		"studio": "npx prisma studio",
 		"aggregations:rebuild": "npx tsx scripts/rebuild-aggregations.ts",
+		"aggregations:rebuild:prod": "scripts/with-prod-db.sh npx tsx scripts/rebuild-aggregations.ts",
 		"knip": "knip"
 	},
 	"prisma": {
