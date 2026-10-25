@@ -2,7 +2,10 @@ import { describe, test, expect, beforeEach } from "vitest";
 import { type PrismaClient } from "@prisma/client";
 import { cleanDatabase, seedTestData } from "@/test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
-import { updateSubstanceAggregations } from "./update-substance-aggregations/core";
+import {
+	rebuildSubstanceAggregations,
+	updateSubstanceAggregations,
+} from "./update-substance-aggregations/core";
 import { calculateSubstanceData } from "./substance-helpers";
 import { getCachedCompositions } from "./data-fetcher";
 
@@ -46,7 +49,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		const appliedDate = new Date(TEST_YEAR, 5, 15);
 		await setTreatmentDate(testPrisma, pastTreatment.id, appliedDate);
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		const parcelAreaM2 = testParcel.width * testParcel.height;
 		const copperPure = pureActiveSubstanceGrams(5, 25);
@@ -131,7 +136,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			},
 		});
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		const copperAggregationBeforeUpdate =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -144,7 +151,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		expect(copperAggregationBeforeUpdate?.totalDoseOfProduct).toBe(5);
 		expect(copperAggregationBeforeUpdate?.applicationCount).toBe(1);
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		const copperAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -166,7 +175,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			new Date(TEST_YEAR, 2, 1),
 		);
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 		// Manually corrupt the aggregations
 		await testPrisma.userSubstanceAggregation.updateMany({
 			where: { userId: testUser.id, year: TEST_YEAR },
@@ -177,7 +188,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			data: { totalDoseOfProduct: 999, applicationCount: 99 },
 		});
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 		// the computation relies on the treatments data, so the corruption on the aggregation disapears.
 		const copperUserAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -209,11 +222,15 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			pastTreatment.id,
 			new Date(TEST_YEAR, 1, 1),
 		);
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		await testPrisma.treatment.delete({ where: { id: pastTreatment.id } });
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		expect(
 			await testPrisma.userSubstanceAggregation.count({
@@ -262,7 +279,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			pastTreatment.id,
 			new Date(TEST_YEAR, 7, 1),
 		);
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		const otherYearUserAggregation =
 			await testPrisma.userSubstanceAggregation.findFirst({
@@ -317,7 +336,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			},
 		});
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 		// Mark the untouched parcel's rows so we can tell whether they were rewritten.
 		await testPrisma.parcelSubstanceAggregation.updateMany({
 			where: { parcelId: otherParcel.id, year: TEST_YEAR },
@@ -338,9 +359,11 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			},
 		});
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR, {
-			affectedParcelIds: [testParcel.id],
-		});
+		await updateSubstanceAggregations(
+			testPrisma,
+			{ parcelIds: [testParcel.id] },
+			TEST_YEAR,
+		);
 
 		const findCopper = (parcelId: string) =>
 			testPrisma.parcelSubstanceAggregation.findFirst({
@@ -405,7 +428,9 @@ describe("[Integration] updateSubstanceAggregations", () => {
 			});
 		}
 
-		await updateSubstanceAggregations(testPrisma, testUser.id, TEST_YEAR);
+		await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+			userId: testUser.id,
+		});
 
 		const copperSubstanceId = (
 			await testPrisma.substanceDose.findFirst({
@@ -483,5 +508,119 @@ describe("[Integration] updateSubstanceAggregations", () => {
 		expect(smallCopper?.totalUsedOfPureActiveSubstancePerHa).not.toBe(
 			userCopper?.totalUsedOfPureActiveSubstancePerHa,
 		);
+	});
+
+	describe("shared parcel", () => {
+		async function shareTestParcelWithB() {
+			const userB = await testPrisma.user.create({
+				data: { email: "b@example.com", isAuthorized: true },
+			});
+			await testPrisma.parcelMember.create({
+				data: { parcelId: testData.testParcel.id, userId: userB.id },
+			});
+			return userB;
+		}
+
+		async function treatTestParcelAs(userId: string, dose: number) {
+			await testPrisma.treatment.create({
+				data: {
+					parcelId: testData.testParcel.id,
+					userId,
+					status: "DONE",
+					appliedDate: new Date(TEST_YEAR, 4, 1),
+					waterDose: 10,
+					diseaseIds: [testData.peronospora.id],
+					productApplications: {
+						create: [{ productId: testData.copperProduct.id, dose }],
+					},
+				},
+			});
+		}
+
+		const copperDose = async (where: { userId?: string; parcelId?: string }) =>
+			where.userId
+				? (
+						await testPrisma.userSubstanceAggregation.findFirst({
+							where: {
+								userId: where.userId,
+								year: TEST_YEAR,
+								substanceName: "Copper",
+							},
+						})
+					)?.totalDoseOfProduct
+				: (
+						await testPrisma.parcelSubstanceAggregation.findFirst({
+							where: {
+								parcelId: where.parcelId,
+								year: TEST_YEAR,
+								substanceName: "Copper",
+							},
+						})
+					)?.totalDoseOfProduct;
+
+		test("a member's treatment counts for every member and for the parcel", async () => {
+			const { testUser, testParcel, pastTreatment } = testData;
+			await setTreatmentDate(
+				testPrisma,
+				pastTreatment.id,
+				new Date(TEST_YEAR, 3, 1),
+			);
+			const userB = await shareTestParcelWithB();
+			await treatTestParcelAs(userB.id, 10);
+
+			await updateSubstanceAggregations(
+				testPrisma,
+				{ parcelIds: [testParcel.id] },
+				TEST_YEAR,
+			);
+
+			// A's 5 g plus B's 10 g of copper product, for both members and the parcel.
+			expect(await copperDose({ parcelId: testParcel.id })).toBe(15);
+			expect(await copperDose({ userId: testUser.id })).toBe(15);
+			expect(await copperDose({ userId: userB.id })).toBe(15);
+		});
+
+		test("users outside the parcel are not counted or refreshed", async () => {
+			const { testParcel, pastTreatment } = testData;
+			await setTreatmentDate(
+				testPrisma,
+				pastTreatment.id,
+				new Date(TEST_YEAR, 3, 1),
+			);
+			const userC = await testPrisma.user.create({
+				data: { email: "c@example.com", isAuthorized: true },
+			});
+
+			await updateSubstanceAggregations(
+				testPrisma,
+				{ parcelIds: [testParcel.id] },
+				TEST_YEAR,
+			);
+			await rebuildSubstanceAggregations(testPrisma, TEST_YEAR, {
+				userId: userC.id,
+			});
+
+			expect(await copperDose({ userId: userC.id })).toBeUndefined();
+		});
+
+		test("unlinking then rebuilding drops the parcel from the member's totals", async () => {
+			const { testUser, testParcel, pastTreatment } = testData;
+			await setTreatmentDate(
+				testPrisma,
+				pastTreatment.id,
+				new Date(TEST_YEAR, 3, 1),
+			);
+			const userB = await shareTestParcelWithB();
+			await rebuildSubstanceAggregations(testPrisma, TEST_YEAR);
+			expect(await copperDose({ userId: userB.id })).toBe(5);
+
+			await testPrisma.parcelMember.deleteMany({
+				where: { parcelId: testParcel.id, userId: userB.id },
+			});
+			await rebuildSubstanceAggregations(testPrisma, TEST_YEAR);
+
+			expect(await copperDose({ userId: userB.id })).toBeUndefined();
+			expect(await copperDose({ userId: testUser.id })).toBe(5);
+		});
 	});
 });
