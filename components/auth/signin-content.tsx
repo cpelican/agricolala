@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type TranslationType } from "@/lib/i18n/dictionaries";
-import { getLocaleFromBrowser } from "@/lib/i18n/locale";
+import { getLocaleFromBrowser, type Locale } from "@/lib/i18n/locale";
 import { Button } from "../ui/button";
 
 const signInWithGoogle = () => {
@@ -19,7 +19,7 @@ const signInWithGoogle = () => {
 };
 
 interface SignInContentProps {
-	authDicts: { en: TranslationType["auth"]; it: TranslationType["auth"] };
+	authDicts: Record<Locale, TranslationType["auth"]>;
 	hasCredentialsProvider?: boolean;
 	hasGoogleProvider?: boolean;
 }

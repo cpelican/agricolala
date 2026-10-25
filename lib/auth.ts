@@ -68,7 +68,7 @@ if (isTestEnv) {
 						email: user.email,
 						name: user.name,
 						isAuthorized: user.isAuthorized,
-						locale: user.locale as "en" | "it",
+						locale: getLanguageAsLocale(user.locale),
 					};
 				}
 				return null;

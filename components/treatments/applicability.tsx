@@ -36,7 +36,7 @@ const Applicability = async ({
 	};
 
 	const formatDate = (date: Date) => {
-		return new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-US", {
+		return new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, {
 			weekday: "short",
 			month: "short",
 			day: "numeric",

@@ -1,0 +1,705 @@
+{
+	"common": {
+		"save": "Enregistrer",
+		"cancel": "Annuler",
+		"delete": "Supprimer",
+		"edit": "Modifier",
+		"add": "Ajouter",
+		"back": "Retour",
+		"loading": "Chargement...",
+		"error": "Erreur",
+		"success": "Succès",
+		"close": "Fermer",
+		"confirm": "Confirmer",
+		"yes": "Oui",
+		"no": "Non"
+	},
+	"navigation": {
+		"home": "Accueil",
+		"parcels": "Parcelles",
+		"treatments": "Traitements",
+		"profile": "Profil"
+	},
+	"parcels": {
+		"title": "Parcelles",
+		"description": "Gérez les parcelles de votre vignoble",
+		"addParcel": "Ajouter une parcelle",
+		"addNewParcel": "Ajouter une nouvelle parcelle",
+		"addNewParcelDescription": "Ajoutez une nouvelle parcelle à votre système de gestion du vignoble",
+		"parcelName": "Nom de la parcelle",
+		"parcelNamePlaceholder": "ex. : Champ Nord",
+		"parcelType": "Type de parcelle",
+		"cultureType": "Type de culture",
+		"coordinates": "Coordonnées",
+		"width": "Largeur (mètres)",
+		"height": "Hauteur (mètres)",
+		"latitude": "Latitude",
+		"longitude": "Longitude",
+		"latitudePlaceholder": "45.0000",
+		"longitudePlaceholder": "7.0000",
+		"altitude": "Altitude",
+		"altitudePlaceholder": "50",
+		"widthPlaceholder": "100",
+		"heightPlaceholder": "50",
+		"wineyard": "Vigne",
+		"peaches": "Pêchers",
+		"noParcels": "Aucune parcelle trouvée",
+		"deleteParcel": "Supprimer la parcelle",
+		"deleteParcelConfirm": "Voulez-vous vraiment supprimer cette parcelle ?",
+		"parcelDeleted": "Parcelle supprimée",
+		"parcelAdded": "Parcelle ajoutée",
+		"parcelUpdated": "Parcelle mise à jour",
+		"enterParcelName": "Saisissez le nom de la parcelle",
+		"selectParcelType": "Choisissez le type de parcelle",
+		"enterCoordinates": "Saisissez les coordonnées",
+		"enterWidth": "Saisissez la largeur",
+		"enterHeight": "Saisissez la hauteur",
+		"locationMap": "Carte de localisation de la parcelle",
+		"drawParcel": "Dessiner la parcelle",
+		"drawParcelHint": "Dessinez le contour de la parcelle sur la carte",
+		"drawInstructions": "Touchez la carte pour ajouter des coins",
+		"undoPoint": "Annuler",
+		"finishShape": "Terminer",
+		"cancelDrawing": "Annuler",
+		"calculatedArea": "Surface calculée",
+		"clickMapToAdd": "Dessinez une parcelle sur la carte pour commencer",
+		"clickMapToAddFirst": "Dessinez votre première parcelle sur la carte",
+		"zoomInToFindLocation": "Zoomez pour trouver votre emplacement exact",
+		"useMyLocation": "Utiliser ma position",
+		"locationInsecureContext": "La localisation ne fonctionne que sur http://localhost:3000 (pas via une adresse IP du réseau comme 192.168.x.x). Ouvrez cette adresse sur cet appareil.",
+		"locationDenied": "L’accès à la position a été bloqué. Autorisez-le dans les réglages de votre navigateur, puis touchez Utiliser ma position.",
+		"locationUnavailable": "Impossible de déterminer votre position. Réessayez ou déplacez la carte à la main.",
+		"locationTimeout": "La localisation a pris trop de temps. Réessayez avec Utiliser ma position.",
+		"locationUnsupported": "Ce navigateur ne prend pas en charge la localisation.",
+		"cancel": "Annuler",
+		"adding": "Ajout...",
+		"addParcelButton": "Ajouter la parcelle",
+		"upcomingTreatments": "Traitements à venir",
+		"pastTreatments": "Traitements passés",
+		"noPastTreatments": "Aucun traitement passé",
+		"trackSubstanceApplications": "Suivez les applications de substances sur cette parcelle",
+		"productDose": "L/ha",
+		"errors": {
+			"createFailed": "Impossible de créer la parcelle",
+			"minPoints": "Dessinez au moins 3 coins avant de terminer",
+			"invalidShape": "La forme n’est pas valide. Ajustez les coins et réessayez."
+		}
+	},
+	"treatments": {
+		"title": "Traitements",
+		"description": "Gérez les traitements de votre vignoble",
+		"addTreatment": "Ajouter un traitement",
+		"addTreatmentDescription": "Ajoutez un nouveau traitement pour cette parcelle. Remplissez les informations ci-dessous.",
+		"addTreatmentFormDescription": "Enregistrez un traitement : choisissez la parcelle, la maladie, le produit et la dose.",
+		"applicationDate": "Date d’application",
+		"pickDate": "Choisir une date",
+		"parcels": "Parcelles",
+		"addParcel": "Ajouter une parcelle",
+		"selectParcel": "Choisir une parcelle",
+		"diseases": "Maladies",
+		"addDisease": "Ajouter une maladie",
+		"selectDisease": "Choisir une maladie",
+		"diseasesFromProductsHint": "Rempli à partir des produits choisis ; vous pouvez ajuster.",
+		"products": "Produits",
+		"productDosesByUnit": "Saisissez la quantité de chaque produit dans son unité (g, ml).",
+		"addProduct": "Ajouter un produit",
+		"selectProduct": "Choisir un produit",
+		"doseUnitPlaceholder": "g/ml",
+		"selectDoseUnit": "Choisir l’unité",
+		"waterDose": "Volume d’eau (L)",
+		"cancel": "Annuler",
+		"creating": "Création...",
+		"createTreatment": "Créer le traitement",
+		"status": {
+			"todo": "À faire",
+			"done": "Fait"
+		},
+		"appliedDate": "Date d’application",
+		"noTreatments": "Aucun traitement trouvé",
+		"deleteTreatment": "Supprimer le traitement",
+		"deleteTreatmentConfirm": "Voulez-vous vraiment supprimer ce traitement ?",
+		"treatmentDeleted": "Traitement supprimé",
+		"treatmentAdded": "Traitement ajouté",
+		"treatmentUpdated": "Traitement mis à jour",
+		"selectDiseases": "Choisir les maladies",
+		"selectProducts": "Choisir les produits",
+		"enterWaterDose": "Saisissez le volume d’eau",
+		"selectAppliedDate": "Choisissez la date d’application",
+		"noTreatmentsDescription": "Les traitements apparaîtront ici une fois que vous aurez ajouté des parcelles et planifié des traitements",
+		"upcoming": "À venir",
+		"completed": "Terminés",
+		"errors": {
+			"applicationDateRequired": "La date d’application est obligatoire",
+			"parcelRequired": "Au moins une parcelle est obligatoire",
+			"diseaseRequired": "Au moins une maladie est obligatoire",
+			"productRequired": "Au moins un produit avec une dose valide est obligatoire",
+			"waterDoseRequired": "Le volume d’eau doit être supérieur à 0",
+			"createFailed": "Impossible de créer le traitement"
+		},
+		"warnings": {
+			"doseAdvice": "Il est conseillé de ne pas dépasser la dose de {dose} g"
+		},
+		"applicability": {
+			"title": "Conditions de traitement sur les 3 prochains jours",
+			"applicable": "Favorable",
+			"notApplicable": "Défavorable",
+			"rain": "Pluie",
+			"avgWind": "Vent moyen",
+			"mm": "mm",
+			"kmh": "km/h",
+			"dormant": "Aucun stade enregistré cette saison : indiquez « Débourrement » dans Stade de développement à l’ouverture des bourgeons pour savoir quand vous pouvez traiter.",
+			"flowering": "Floraison : pour protéger les abeilles, traitez uniquement entre 2 heures avant et 3 heures après le coucher du soleil."
+		},
+		"eyebrow": "Saison {year}",
+		"export": "Exporter",
+		"card": {
+			"for": "Contre {diseases}",
+			"scheduled": "Prévu",
+			"from": "À partir du {date}",
+			"water": "{water} L d’eau",
+			"applied": "{dose} appliqués",
+			"planned": "{dose} prévus",
+			"untitled": "Traitement",
+			"name": "{product} sur {parcel}",
+			"delete": "Supprimer {product} sur {parcel}",
+			"by": "Par {author}"
+		}
+	},
+	"profile": {
+		"it": "Italien",
+		"en": "Anglais",
+		"fr": "Français",
+		"title": "Profil",
+		"email": "E-mail",
+		"language": "Langue",
+		"signOut": "Se déconnecter",
+		"languageChanged": "Langue modifiée",
+		"accountSettings": "Paramètres du compte",
+		"accountInformation": "Informations du compte",
+		"accountDetails": "Les informations de votre profil",
+		"languageDescription": "Choisissez votre langue préférée",
+		"actions": "Actions",
+		"accountManagement": "Options de gestion du compte",
+		"aboutAgricolala": "À propos d’Agricolala",
+		"aboutDescription": "Agricolala vous aide à gérer les traitements de votre vignoble et à suivre l’utilisation des substances pour respecter la réglementation agricole."
+	},
+	"auth": {
+		"title": "Agricolala",
+		"description": "Gérez les traitements et les parcelles de votre vignoble",
+		"signIn": "Se connecter",
+		"signOut": "Se déconnecter",
+		"email": "E-mail",
+		"password": "Mot de passe",
+		"signInWithGoogle": "Se connecter avec Google",
+		"newAccountNote": "Nouveau ici ? Se connecter avec Google crée aussi votre compte. Pour éviter les robots, j’ouvre chaque compte à la main : la première fois, je vous demanderai quelques mots sur vous.",
+		"pending": {
+			"title": "Vous y êtes presque !",
+			"why": "Agricolala est un projet mené par une seule personne, et j’ouvre chaque nouveau compte à la main pour éviter les robots. Présentez-vous en quelques mots ci-dessous : je vous laisserai entrer avec plaisir.",
+			"requestTitle": "Présentez-vous",
+			"requestIntro": "Je lis chaque demande moi-même et je fais une petite recherche en ligne, simplement pour m’assurer qu’il y a une vraie personne derrière. Je ne refuse que les demandes que je ne peux rattacher à personne.",
+			"tipsTitle": "Ce qui m’aide à dire oui",
+			"tipName": "Votre nom, et où vous cultivez vos vignes (quelques rangs dans le jardin comptent aussi !)",
+			"tipLink": "Quelque chose de public qui montre qui vous êtes : un profil sur un réseau social ou LinkedIn, un site personnel ou professionnel… Pas besoin que ça parle de vin.",
+			"requestExample": "Un message comme « Je fais du vin et j’ai besoin de cette appli » envoyé depuis quelquun@nullepart.com ne me donne rien à vérifier, je devrais donc dire non. Mais si je peux relier votre e-mail à une vraie personne, c’est bon !",
+			"messageLabel": "Quelques mots sur vous",
+			"messageHint": "Qui vous êtes, ce que vous cultivez et où je peux vous trouver en ligne. Entre 20 et 1000 caractères. Personne d’autre que moi ne le lira, et je le supprimerai dès que votre compte sera ouvert.",
+			"submit": "Envoyer ma demande",
+			"sending": "Envoi…",
+			"errorTooShort": "Écrivez au moins 20 caractères.",
+			"errorTooLong": "Ne dépassez pas 1000 caractères.",
+			"errorGeneric": "Une erreur s’est produite. Réessayez dans un instant.",
+			"nextTitle": "Et ensuite ?",
+			"nextText": "Je lis chaque demande moi-même et je réponds généralement sous {delay}. Vous recevrez un e-mail à {email} dès que votre compte sera ouvert.",
+			"replyDelay": "quelques jours",
+			"sentTitle": "Demande envoyée le {date}",
+			"sentText": "Je réponds généralement sous {delay}. Vous recevrez un e-mail à {email} dès que votre compte sera ouvert ; il vous suffira alors de vous reconnecter.",
+			"signedInAs": "Connecté en tant que"
+		},
+		"grantedEmail": {
+			"subject": "Votre carnet Agricolala est ouvert",
+			"greeting": "Bonjour {name},",
+			"greetingNoName": "Bonjour,",
+			"body": "J’ai ouvert votre compte. Vous pouvez maintenant vous connecter et commencer le carnet de votre vignoble.",
+			"cta": "Se connecter",
+			"footer": "Vous recevez cet e-mail parce que vous avez demandé un accès à Agricolala."
+		},
+		"admin": {
+			"title": "Demandes d’accès",
+			"pendingTitle": "En attente",
+			"pendingEmpty": "Aucune demande en attente.",
+			"approvedTitle": "Approuvées récemment",
+			"approvedEmpty": "Aucune pour l’instant.",
+			"requestedOn": "Demandé le {date}",
+			"approvedOn": "Approuvé le {date}",
+			"language": "Langue",
+			"noName": "Sans nom",
+			"approve": "Approuver",
+			"approving": "Approbation…",
+			"approvedEmailSent": "{name} approuvé·e ; e-mail de bienvenue envoyé.",
+			"approvedEmailNotSent": "{name} approuvé·e ; e-mail non envoyé.",
+			"approveError": "Impossible d’approuver cette demande. Réessayez."
+		}
+	},
+	"errors": {
+		"page": {
+			"title": "Une erreur s’est produite",
+			"description": "Une erreur inattendue s’est produite. Vous pouvez réessayer ou revenir à l’accueil.",
+			"tryAgain": "Réessayer",
+			"backHome": "Retour à l’accueil"
+		},
+		"notFound": {
+			"title": "Page introuvable",
+			"description": "La page que vous cherchez n’existe pas ou a été supprimée.",
+			"backHome": "Retour à l’accueil"
+		}
+	},
+	"diseases": {
+		"peronospora": "Mildiou",
+		"oidium": "Oïdium"
+	},
+	"substances": {
+		"copper": "Cuivre",
+		"sulfur": "Soufre",
+		"olio essenziale di arancio dolce": "Huile essentielle d’orange douce",
+		"usageThisYear": "Utilisation des substances cette année",
+		"trackApplications": "Suivez les applications de substances sur tous vos traitements",
+		"trackApplicationsHome": "Suivez les applications de substances sur toutes vos parcelles",
+		"details": "Détails de la substance",
+		"kgPerHa": "kg/ha de substance active pure",
+		"monthlyPureActiveSubstanceKg": "Substance active pure par mois (kg)",
+		"units": {
+			"KG_PER_HA": "kg/ha",
+			"GRAM": "g",
+			"MILLILITER": "ml"
+		},
+		"noTreatmentData": "Aucune donnée de traitement pour cette année",
+		"yearlyComparison": "Comparaison annuelle de l’utilisation des substances",
+		"yearlyComparisonDescription": "Dose cumulée par hectare, toutes années confondues",
+		"yearlyUsageTitle": "Utilisation cumulée des substances par hectare, du 1er janvier à ce mois-ci, par année",
+		"year": "Année",
+		"usageEyebrow": "Utilisation des substances"
+	},
+	"deleteTreatment": {
+		"title": "Supprimer le traitement",
+		"description": "Voulez-vous vraiment supprimer le traitement « {name} » ? Cette action est irréversible.",
+		"warningTitle": "Ceci supprimera définitivement :",
+		"warningItems": [
+			"Le traitement et toutes ses données",
+			"Toutes les applications de produits de ce traitement",
+			"Les calculs d’utilisation des substances seront mis à jour"
+		],
+		"cancel": "Annuler",
+		"delete": "Supprimer le traitement",
+		"deleting": "Suppression..."
+	},
+	"deleteParcel": {
+		"title": "Supprimer la parcelle",
+		"description": "Voulez-vous vraiment supprimer « {name} » ? Cette action est irréversible et supprimera définitivement :",
+		"warningItems": [
+			"La parcelle et toutes ses données",
+			"Tous les traitements associés à cette parcelle",
+			"Toutes les applications de produits de ces traitements"
+		],
+		"cancel": "Annuler",
+		"delete": "Supprimer la parcelle",
+		"deleting": "Suppression...",
+		"error": "Impossible de supprimer la parcelle"
+	},
+	"backButton": {
+		"back": "Retour"
+	},
+	"legal": {
+		"title": "Mentions légales",
+		"description": "Conditions et informations sur la confidentialité",
+		"privacyPolicy": "Politique de confidentialité",
+		"termsOfService": "Conditions d’utilisation",
+		"acceptTerms": "J’accepte les conditions d’utilisation",
+		"acceptPrivacy": "J’accepte la politique de confidentialité",
+		"acceptedOn": "Conditions d’utilisation et politique de confidentialité acceptées le",
+		"notAccepted": "Conditions d’utilisation et politique de confidentialité non acceptées",
+		"readTerms": "Lire les conditions complètes",
+		"howWeHandleData": "Comment nous traitons vos données",
+		"tos": {
+			"sections": {
+				"acceptance": {
+					"title": "1. Acceptation des conditions",
+					"content": "En accédant à Agricolala (« le Service ») et en l’utilisant, vous acceptez d’être lié par les conditions et dispositions du présent accord. Si vous ne les acceptez pas, veuillez ne pas utiliser ce service."
+				},
+				"description": {
+					"title": "2. Description du Service",
+					"content": "Agricolala est une application de gestion agricole qui permet aux utilisateurs de :",
+					"listItems": [
+						"Suivre les parcelles agricoles et leurs caractéristiques",
+						"Enregistrer les traitements et l’utilisation de produits chimiques",
+						"Surveiller l’utilisation des substances et la conformité",
+						"Générer des rapports et des analyses pour les activités agricoles"
+					]
+				},
+				"responsibilities": {
+					"title": "3. Responsabilités de l’utilisateur",
+					"content": "En tant qu’utilisateur du Service, vous vous engagez à :",
+					"listItems": [
+						"Fournir des informations exactes et complètes sur vos activités agricoles",
+						"Respecter toutes les réglementations agricoles locales, régionales et nationales applicables",
+						"Utiliser le Service uniquement à des fins agricoles licites",
+						"Préserver la sécurité de vos identifiants de connexion",
+						"Ne pas partager votre compte avec des utilisateurs non autorisés",
+						"Signaler immédiatement toute faille de sécurité suspectée"
+					]
+				},
+				"compliance": {
+					"title": "4. Données agricoles et conformité",
+					"content": "Avertissement important : cette application est conçue pour aider à la tenue des registres agricoles et ne remplace ni un conseil agricole professionnel ni le respect de la réglementation.",
+					"listItems": [
+						"Les utilisateurs sont responsables du respect de toutes les réglementations agricoles applicables",
+						"Le Service ne garantit ni la conformité réglementaire ni les résultats agricoles",
+						"Les utilisateurs doivent vérifier toutes les données d’utilisation de produits chimiques par rapport aux étiquettes officielles des produits et à la réglementation",
+						"Les décisions agricoles doivent être prises en concertation avec des professionnels qualifiés"
+					]
+				},
+				"dataOwnership": {
+					"title": "5. Propriété et utilisation des données",
+					"content": [
+						"Vos données : vous restez propriétaire de toutes les données agricoles que vous saisissez dans le Service.",
+						"Utilisation par le Service : nous pouvons utiliser des données agrégées et anonymisées pour améliorer le Service, fournir des analyses et entraîner des modèles d’apprentissage automatique de manière anonymisée.",
+						"Export des données : vous pouvez exporter vos données à tout moment grâce aux fonctions d’export du Service."
+					]
+				},
+				"liability": {
+					"title": "6. Limitation de responsabilité",
+					"content": "Avertissement agricole : le Service est fourni « en l’état », sans garantie d’aucune sorte. Nous ne sommes pas responsables :",
+					"listItems": [
+						"Des pertes de récolte ou des résultats agricoles liés aux données saisies dans le Service",
+						"Des problèmes ou infractions de conformité réglementaire",
+						"De doses ou de dates d’application de produits chimiques incorrectes",
+						"Des interruptions du Service ou des pertes de données",
+						"Des décisions prises sur la base des informations fournies par le Service"
+					]
+				}
+			}
+		},
+		"privacy": {
+			"sections": {
+				"information": {
+					"title": "1. Informations que nous collectons",
+					"content": [
+						"Informations du compte : lorsque vous créez un compte, nous collectons votre nom, votre adresse e-mail et vos informations d’authentification.",
+						"Données agricoles : nous collectons les données que vous saisissez sur vos activités agricoles, notamment :"
+					],
+					"listItems": [
+						"Informations sur les parcelles (emplacement, surface, type de culture)",
+						"Traitements et dates d’application",
+						"Utilisation de produits chimiques et suivi des substances",
+						"Applications de produits et doses",
+						"Registres de gestion des maladies et des ravageurs"
+					],
+					"additionalContent": "Données d’utilisation : nous collectons des informations sur la façon dont vous utilisez le Service, notamment les heures d’accès, les fonctions utilisées et les données de performance."
+				},
+				"usage": {
+					"title": "2. Utilisation de vos informations",
+					"content": "Nous utilisons vos informations pour :",
+					"listItems": [
+						"Fournir et maintenir le Service",
+						"Générer des rapports et des analyses agricoles",
+						"Calculer les cumuls d’utilisation des substances",
+						"Vous envoyer des informations importantes sur le Service",
+						"Améliorer le Service et développer de nouvelles fonctions",
+						"Entraîner des modèles d’apprentissage automatique à partir de données anonymisées pour améliorer les analyses et prévisions agricoles",
+						"Assurer le respect de la réglementation agricole",
+						"Fournir une assistance aux utilisateurs"
+					]
+				},
+				"sharing": {
+					"title": "3. Partage et divulgation des données",
+					"content": [
+						"Nous ne vendons pas vos données agricoles à des tiers.",
+						"Nous pouvons partager vos informations dans les cas limités suivants :"
+					],
+					"listItems": [
+						"Prestataires de services : avec des services tiers de confiance qui nous aident à faire fonctionner le Service (hébergement, analyses, etc.)",
+						"Obligations légales : lorsque la loi l’exige ou pour protéger nos droits et notre sécurité",
+						"Conformité réglementaire : lorsque cela est nécessaire pour respecter la réglementation agricole",
+						"Données agrégées : nous pouvons partager des données anonymisées et agrégées à des fins de recherche, d’analyse ou d’entraînement de modèles d’apprentissage automatique"
+					]
+				},
+				"security": {
+					"title": "4. Sécurité des données",
+					"content": "Nous mettons en œuvre des mesures de sécurité appropriées pour protéger vos données agricoles :",
+					"listItems": [
+						"Chiffrement des données en transit et au repos",
+						"Authentification et contrôles d’accès sécurisés",
+						"Audits et mises à jour de sécurité réguliers",
+						"Accès à vos données limité au seul personnel autorisé",
+						"Procédures de sauvegarde et de reprise après sinistre"
+					]
+				},
+				"retention": {
+					"title": "5. Conservation des données",
+					"content": [
+						"Registres agricoles : nous conservons vos données agricoles tant que votre compte est actif, car ces registres sont souvent exigés par la réglementation et peuvent devoir être conservés plusieurs années.",
+						"Données du compte : nous conservons les informations de votre compte tant que celui-ci est actif, plus une durée raisonnable à des fins de sauvegarde et de restauration.",
+						"Suppression : vous pouvez demander la suppression de vos données, mais certains registres agricoles peuvent devoir être conservés pour des raisons de conformité réglementaire."
+					]
+				},
+				"rights": {
+					"title": "6. Vos droits",
+					"content": "Vous disposez des droits suivants sur vos données :",
+					"listItems": [
+						"Accès : consulter et télécharger vos données agricoles",
+						"Rectification : mettre à jour ou corriger des informations inexactes",
+						"Export : exporter vos données dans un format portable",
+						"Effacement : demander la suppression de vos données (sous réserve des obligations réglementaires)",
+						"Limitation : restreindre la façon dont nous traitons vos données",
+						"Portabilité : transférer vos données vers un autre service"
+					]
+				},
+				"cookies": {
+					"title": "7. Cookies et suivi",
+					"content": "Nous utilisons des cookies essentiels au fonctionnement du Service. Nous n’utilisons ni cookies de suivi ni outils d’analyse tiers susceptibles de porter atteinte à votre vie privée."
+				},
+				"children": {
+					"title": "8. Protection des mineurs",
+					"content": "Notre Service ne s’adresse pas aux enfants de moins de 13 ans. Nous ne collectons pas sciemment d’informations personnelles auprès d’enfants de moins de 13 ans. Si vous êtes parent ou tuteur et pensez que votre enfant nous a fourni des informations personnelles, veuillez nous contacter."
+				},
+				"international": {
+					"title": "9. Transferts internationaux de données",
+					"content": "Vos données peuvent être traitées dans d’autres pays que le vôtre. Nous veillons à ce que des garanties appropriées soient en place pour protéger vos données conformément aux lois applicables en matière de protection des données."
+				},
+				"changes": {
+					"title": "10. Modifications de cette politique",
+					"content": "Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Nous vous informerons des changements importants par e-mail ou via le Service. En continuant à utiliser le Service après ces changements, vous acceptez la politique mise à jour."
+				},
+				"contact": {
+					"title": "11. Nous contacter",
+					"content": "Pour toute question sur cette politique de confidentialité ou pour exercer vos droits sur vos données, contactez-nous via l’application ou à l’adresse e-mail indiquée dans les paramètres de votre compte."
+				}
+			}
+		},
+		"backToHome": "Retour à Agricolala",
+		"meta": {
+			"privacyDescription": "Comment Agricolala collecte, utilise et protège les données de votre compte et de votre vignoble, et les droits dont vous disposez sur celles-ci.",
+			"termsDescription": "Les conditions d’utilisation d’Agricolala, le carnet de traitements gratuit pour la vigne : vos responsabilités, la propriété de vos données et les limites de responsabilité."
+		}
+	},
+	"home": {
+		"welcome": "Bienvenue",
+		"description": "Gérez vos parcelles et vos traitements",
+		"getStarted": "Commencer",
+		"loading": "Chargement du tableau de bord",
+		"eyebrow": "Votre vignoble"
+	},
+	"coverage": {
+		"title": "Protection actuelle de la vigne",
+		"description": "Substance active résiduelle estimée après la pluie et la dégradation naturelle au fil du temps",
+		"remaining": "g/ha restants",
+		"remainingPercent": "de la protection complète restante",
+		"mm": "mm",
+		"forecast": "Prévisions à 3 jours",
+		"forecastSubtitleLeaf": "Résidu estimé sur les feuilles après dégradation et pluie",
+		"forecastSubtitleDose": "% estimé de la dose de protection complète restante après dégradation et pluie",
+		"productApplied": "Produit appliqué",
+		"activeSubstance": "Substance active",
+		"cumulatedDose": "Utilisé cette année",
+		"cumulatedDoseSubtitle": "Tout ce qui a été appliqué depuis le 1er janvier, comparé à la limite légale annuelle. Ce total ne baisse jamais avec la pluie ou le temps.",
+		"leafExplanation": "Cuivre encore présent sur les feuilles après la pluie et le temps, comparé aux 2,5 mg/m² nécessaires pour les protéger",
+		"percentExplanation": "Part d’une dose de protection complète encore présente sur les feuilles après la pluie et le temps",
+		"of": "sur",
+		"maxSuffix": "max",
+		"timeDecayOnly": "dégradation dans le temps uniquement",
+		"belowThreshold": "Sous le seuil aujourd’hui",
+		"aboveThreshold": "Au-dessus du seuil aujourd’hui",
+		"thresholdSuffix": "seuil",
+		"optimalSuffix": "optimal",
+		"critical": "Critique",
+		"warning": "Attention",
+		"incompleteWeatherData": "L’historique des pluies peut être incomplet pour certains traitements anciens",
+		"yearlyLimitUsed": "de la limite annuelle utilisée",
+		"copperPacingTitle": "De la floraison à la fermeture de la grappe",
+		"copperPacingBefore": "Gardez au moins {reserve} pour cette période : {treatments} {dose}. Il reste {left}.",
+		"copperPacingDuring": "Encore {treatments} {dose}, il faut donc {reserve}. Il reste {left}.",
+		"copperPacingShort": "Il ne reste que {left} : {treatments} {dose} nécessitent {reserve} jusqu’à la fermeture de la grappe.",
+		"copperPacingTreatmentOne": "environ 1 traitement",
+		"copperPacingTreatmentOther": "environ {count} traitements",
+		"copperPacingDoseOwn": "à votre dose habituelle de {dose}",
+		"copperPacingDoseFloor": "à {dose}",
+		"headlineLabel": "Protection",
+		"adviceRetreatNow": "Retraiter maintenant",
+		"adviceRetreatSoon": "Retraiter bientôt",
+		"adviceProtected": "Protégé",
+		"adviceAboveFullDose": "Au-dessus de la dose complète",
+		"hiddenNoActiveDisease": "La protection n’est pas suivie en ce moment : aucune maladie n’est active à cette période de l’année.",
+		"hiddenNoCompletedTreatments": "Aucun traitement terminé avec cette substance cette année. Marquez un traitement comme fait pour voir la protection restante.",
+		"hiddenNotTracked": "Le suivi de la protection n’est pas disponible pour cette substance.",
+		"hiddenUnavailable": "Les niveaux de protection n’ont pas pu être calculés. Réessayez plus tard.",
+		"criticalToday": "Critique aujourd’hui",
+		"warningToday": "Attention aujourd’hui",
+		"optimalToday": "Optimal aujourd’hui",
+		"experimental": "Expérimental",
+		"experimentalDisclaimer": "Estimation expérimentale basée sur les données météo et un modèle simplifié de lessivage. Utilisez-la comme repère et vérifiez l’étiquette de votre produit et votre vigne avant de décider."
+	},
+	"phenology": {
+		"title": "À quoi ressemblent vos vignes ?",
+		"optional": "Facultatif, un même stade pour toutes les parcelles choisies",
+		"skip": "Passer",
+		"suggested": "Suggéré",
+		"suggestion": "Suggestion : {stage}. Touchez-le pour l’enregistrer avec ce traitement.",
+		"suggestedHint": "Votre dernier stade date de plus de 14 jours : est-ce le moment de passer au suivant ?",
+		"earlierWarning": "Plus tôt que ce que vous avez enregistré le {date} : c’est correct ?",
+		"growthStage": "Stade de développement",
+		"setToday": "Indiquer aujourd’hui",
+		"setYesterday": "Indiquer hier",
+		"setDaysAgo": "Indiquer il y a {days} jours",
+		"markStage": "Marquer {stage}",
+		"confirmTitle": "Marquer {stage} ?",
+		"confirmCurrent": "Actuellement : {stage}",
+		"confirm": "Confirmer",
+		"unknown": "Stade inconnu",
+		"updateStage": "Mettre à jour le stade",
+		"updateStageDescription": "À quoi ressemblent les vignes de {parcel} aujourd’hui ?",
+		"save": "Enregistrer",
+		"cancel": "Annuler",
+		"saved": "Stade mis à jour",
+		"saveFailed": "Impossible de mettre à jour le stade",
+		"criticalPeriod": "Période critique",
+		"criticalPeriodTooltip": "Risque de maladie plus élevé à ce stade, d’après une synthèse qualitative de la recherche ; le calendrier varie selon le cépage et le climat.",
+		"criticalPeriodExplanation": "{stage} est une période critique pour {diseases} : les vignes sont le plus exposées en ce moment, gardez-les protégées et retraitez plus tôt que d’habitude.",
+		"diseaseRisk": "Risque de maladie",
+		"riskByStage": "{disease} : risque par stade",
+		"riskTimelineTooltip": "Les niveaux proviennent d’une synthèse qualitative de la recherche ; le calendrier varie selon le cépage et le climat.",
+		"now": "maintenant",
+		"noActiveDisease": "Aucune maladie n’est active à ce stade, la protection n’est donc pas suivie en ce moment.",
+		"floweringReminderTitle": "Floraison : protégez les abeilles",
+		"floweringReminder": "La floraison ne dure que quelques jours : si possible, évitez de traiter. N’utilisez jamais d’insecticides ni d’acaricides, et évitez le cuivre ; utilisez uniquement des fongicides sans mention de danger pour les abeilles, entre 2 heures avant et 3 heures après le coucher du soleil.",
+		"restrictedAtFlowering": "À éviter pendant la floraison : contient du cuivre ou un insecticide.",
+		"levelUnknown": "Inconnu",
+		"levels": {
+			"NONE": "Aucun risque",
+			"LOW": "Risque faible",
+			"MEDIUM": "Risque moyen",
+			"HIGH": "Risque élevé",
+			"VERY_HIGH": "Risque très élevé"
+		},
+		"stages": {
+			"BUD_BREAK": {
+				"label": "Débourrement",
+				"description": "Pointe verte visible à travers la bourre"
+			},
+			"LEAVES_UNFOLDING": {
+				"label": "Premières feuilles",
+				"description": "2 à 6 feuilles étalées, rameaux de moins de 20 cm"
+			},
+			"FLOWER_CLUSTERS": {
+				"label": "Grappes séparées",
+				"description": "Grappes séparées, fleurs encore fermées"
+			},
+			"FLOWERING": {
+				"label": "Floraison",
+				"description": "Capuchons qui tombent, pollen visible"
+			},
+			"FRUIT_SET": {
+				"label": "Nouaison",
+				"description": "Baies formées, jusqu’à la taille d’un petit pois"
+			},
+			"BUNCH_CLOSURE": {
+				"label": "Fermeture de la grappe",
+				"description": "Les baies se touchent"
+			},
+			"VERAISON": {
+				"label": "Véraison",
+				"description": "Les baies ramollissent et changent de couleur"
+			},
+			"RIPE": {
+				"label": "Maturité",
+				"description": "Prêt à vendanger ou vendangé"
+			}
+		},
+		"stageNumber": "Stade {n} sur {total}",
+		"riskLegend": "Niveaux de risque"
+	},
+	"welcome": {
+		"meta": {
+			"title": "Agricolala : le carnet de traitements de votre vignoble",
+			"description": "Appli gratuite et open source pour les vignerons. Dessinez vos parcelles, enregistrez chaque traitement au stade où il a été fait, et traitez le moins possible."
+		},
+		"skipToContent": "Aller au contenu",
+		"homeLink": "Agricolala, accueil",
+		"accountNav": "Langue et connexion",
+		"languageLabel": "Langue",
+		"languages": {
+			"en": "English",
+			"it": "Italiano",
+			"fr": "Français"
+		},
+		"signIn": "Se connecter",
+		"hero": {
+			"titleStart": "Le carnet de traitements de votre",
+			"titleHighlight": "vignoble.",
+			"lead": "Dessinez vos parcelles. Notez vos traitements. Traitez le moins possible.",
+			"cta": "Ouvrir mon carnet",
+			"note": "Gratuit et open source, fait par une seule personne. Pour éviter les robots, j’ouvre les nouveaux comptes à la main : connectez-vous, présentez-vous en quelques mots, et je vous laisserai entrer."
+		},
+		"illustration": {
+			"parcelName": "Champ Nord",
+			"parcelMeta": "Vigne · 0,8 ha",
+			"treatmentName": "Bouillie bordelaise",
+			"treatmentTarget": "Cible : mildiou",
+			"done": "Fait",
+			"copper": "Cuivre",
+			"usedThisYear": "Utilisé cette année",
+			"activeSubstance": "substance active",
+			"exportTitle": "Export Excel",
+			"exportMeta": "Tous les traitements de l’année"
+		},
+		"season": {
+			"title": "Du premier bourgeon à la dernière grappe.",
+			"description": "C’est la vigne qui fixe le calendrier, pas l’inverse. Suivez vos parcelles à travers les huit stades de la saison et retrouvez chaque traitement là où il a été fait.",
+			"caption": "Exemple de saison : les traitements faits à chaque stade.",
+			"noTreatment": "Aucun traitement",
+			"oneTreatment": "1 traitement",
+			"manyTreatments": "{count} traitements"
+		},
+		"app": {
+			"eyebrow": "L’appli",
+			"title": "Tout votre vignoble, dans votre poche.",
+			"description": "Pensée pour le téléphone que vous emportez entre les rangs. Ouvrez-la pour voir quelles maladies surveiller au stade de développement du jour, et quelle quantité de chaque substance vous avez utilisée cette année.",
+			"imageAlt": "L’écran d’accueil d’Agricolala sur un téléphone : risque de maladie à la floraison et utilisation des substances cette année",
+			"features": [
+				{
+					"title": "Risque de maladie",
+					"description": "Le risque d’oïdium et de mildiou au fil de la saison, indiqué au stade où se trouvent vos vignes. Encore expérimental."
+				},
+				{
+					"title": "Utilisation des substances",
+					"description": "Cuivre, soufre et toutes les autres substances actives, mois par mois."
+				},
+				{
+					"title": "À portée de doigt",
+					"description": "Parcelles, traitements et profil sont dans la barre du bas."
+				}
+			]
+		},
+		"usage": {
+			"eyebrow": "Utilisation des substances",
+			"title": "Traitez seulement quand c’est utile. Utilisez moins de produits chimiques.",
+			"description": "Chaque traitement est cumulé depuis le 1er janvier, parcelle par parcelle et sur l’ensemble du vignoble, et comparé aux limites annuelles. Savoir ce que vos vignes ont déjà reçu vous permet de ne traiter que lorsque c’est vraiment nécessaire et de réduire les produits chimiques au minimum.",
+			"exampleVineyard": "Vignoble d’exemple",
+			"usedThisYear": "Utilisé cette année",
+			"productApplied": "Produit appliqué",
+			"activeSubstance": "Substance active",
+			"limitUsed": "{percent} % de la limite annuelle utilisée",
+			"limitMax": "{max} kg/ha max",
+			"meterLabel": "Cuivre utilisé cette année, par rapport à la limite annuelle"
+		},
+		"openSource": {
+			"eyebrow": "Gratuit et open source",
+			"title": "Gratuit pour chaque vigneron. Ouvert à la lecture de tous.",
+			"description": "Agricolala ne coûte rien, et son code est public. Nous pensons que les outils qui aident les vignerons à cultiver plus proprement doivent appartenir à celles et ceux qui les utilisent : vous pouvez vérifier comment chaque chiffre est calculé, proposer des améliorations ou l’héberger vous-même.",
+			"github": "Voir le code sur GitHub"
+		},
+		"closing": {
+			"title": "Prêt pour votre première parcelle ?",
+			"cta": "Commencer"
+		},
+		"footerNav": "Mentions légales"
+	}
+}

@@ -26,7 +26,7 @@ import { tServer } from "@/lib/i18n/server";
 // Public marketing page: one static page per language (params from app/[lang]/layout.tsx).
 export const dynamicParams = false;
 
-const OG_LOCALES = { en: "en_GB", it: "it_IT" } as const;
+const OG_LOCALES = { en: "en_GB", it: "it_IT", fr: "fr_FR" } as const;
 
 export async function generateMetadata({
 	params,

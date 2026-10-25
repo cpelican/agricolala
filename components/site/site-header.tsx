@@ -13,6 +13,7 @@ import styles from "./site.module.css";
 const LANGUAGE_CODES = {
 	en: "EN",
 	it: "IT",
+	fr: "FR",
 } as const satisfies Record<Locale, string>;
 
 export function SiteHeader({
