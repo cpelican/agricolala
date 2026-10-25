@@ -6,12 +6,18 @@ import {
 	getCachedDiseases,
 	getCachedDiseaseStageSensitivities,
 	getStageByParcel,
+	getDoneTreatmentDoses,
 } from "@/lib/data-fetcher";
 import {
 	type SubstanceStageRisk,
 	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 } from "@/lib/disease-stage-sensitivity";
+import {
+	getEarliestStage,
+	getMedianTreatmentDoseGPerHa,
+} from "@/lib/copper-budget-pacing";
+import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
 import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
@@ -40,6 +46,7 @@ export async function HomeDashboardContent({
 		diseases,
 		parcelStages,
 		sensitivities,
+		doneTreatmentDoses,
 	] = await Promise.all([
 		getCachedSubstanceAggregations(userId, currentYear),
 		getAllYearsSubstanceAggregations(userId),
@@ -47,6 +54,7 @@ export async function HomeDashboardContent({
 		getCachedDiseases(),
 		getStageByParcel(userId),
 		getCachedDiseaseStageSensitivities(),
+		getDoneTreatmentDoses(userId),
 	]);
 
 	const stageRiskBySubstance: Record<string, SubstanceStageRisk> = {};
@@ -101,6 +109,13 @@ export async function HomeDashboardContent({
 				coverageResultPromise={coverageResultPromise}
 				stageRiskBySubstance={stageRiskBySubstance}
 				isNoActiveDiseaseShownAbove={vineyardStageRisk !== null}
+				copperPacing={{
+					stage: getEarliestStage(parcelStages),
+					medianTreatmentDoseGPerHa: getMedianTreatmentDoseGPerHa(
+						doneTreatmentDoses,
+						COPPER_SUBSTANCE_NAME,
+					),
+				}}
 			/>
 		</div>
 	);

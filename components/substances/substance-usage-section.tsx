@@ -18,6 +18,7 @@ import { type getAllYearsSubstanceAggregations } from "@/lib/data-fetcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EYEBROW, SUBSECTION_TITLE } from "@/components/ui/typography";
 import { type SubstanceStageRisk } from "@/lib/disease-stage-sensitivity";
+import { type CopperPacingInput } from "@/lib/copper-budget-pacing";
 
 interface SubstanceUsageSectionProps {
 	substanceData: SubstanceData[];
@@ -29,6 +30,8 @@ interface SubstanceUsageSectionProps {
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
 	// The dashboard's disease risk section is shown and says when no disease is active.
 	isNoActiveDiseaseShownAbove?: boolean;
+	// Copper budget pacing (P7); absent hides the pacing note.
+	copperPacing?: CopperPacingInput;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
@@ -68,6 +71,7 @@ export function SubstanceUsageSection({
 	coverageResultPromise,
 	stageRiskBySubstance,
 	isNoActiveDiseaseShownAbove,
+	copperPacing,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const titleId = useId();
@@ -105,6 +109,7 @@ export function SubstanceUsageSection({
 								substance={substance}
 								coverageResultPromise={coverageResultPromise}
 								stageRisk={stageRiskBySubstance?.[substance.name]}
+								copperPacing={copperPacing}
 							/>
 						))}
 					</div>

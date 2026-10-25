@@ -7,6 +7,7 @@ import { type SubstanceData } from "../types";
 import { TreatmentCard } from "../treatments/treatment-card";
 import { type ParcelDetailType } from "@/lib/data-fetcher";
 import type { CurrentParcelStage } from "@/lib/phenology-observations";
+import { type CopperPacingInput } from "@/lib/copper-budget-pacing";
 import { ParcelStageCard } from "../phenology/parcel-stage-card";
 import { AddTreatmentButton } from "../treatments/add-treatment-button";
 import { useDiseases, useCompositions } from "@/contexts/cached-data-context";
@@ -21,6 +22,7 @@ interface ParcelDetailProps {
 	pastTreatments: ParcelDetailType["treatments"];
 	substanceData: SubstanceData[];
 	currentStage: CurrentParcelStage | null;
+	copperPacing: CopperPacingInput;
 	children: React.ReactNode;
 }
 
@@ -30,6 +32,7 @@ export function ParcelDetail({
 	pastTreatments,
 	substanceData,
 	currentStage,
+	copperPacing,
 	children,
 }: ParcelDetailProps) {
 	const { t } = useTranslations();
@@ -131,6 +134,7 @@ export function ParcelDetail({
 			<SubstanceUsageSection
 				substanceData={substanceData}
 				description={t("parcels.trackSubstanceApplications")}
+				copperPacing={copperPacing}
 			/>
 		</div>
 	);
