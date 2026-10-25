@@ -116,12 +116,7 @@ export const getNext3DaysTreatmentApplicability = async (
 			day.wind_speed_10mMax ?? 0,
 			day.wind_speed_10mMin ?? 0,
 		]);
-		const avgWind180m = average([
-			day.wind_speed_180mMax ?? 0,
-			day.wind_speed_180mMin ?? 0,
-		]);
 		const cumulativePrecipitation = day.cumulativePrecipitation ?? 0;
-		const avgWind = average([avgWind10m, avgWind180m]);
 		const applicable = isTreatmentApplicable({
 			windSpeed10m: avgWind10m,
 			cumulativePrecipitation,
@@ -130,7 +125,8 @@ export const getNext3DaysTreatmentApplicability = async (
 		return {
 			date: day.date,
 			cumulativePrecipitation,
-			averageWindSpeed: avgWind,
+			// The wind the applicable rule checks, so the card matches its badge
+			averageWindSpeed: avgWind10m,
 			applicable,
 		};
 	});
