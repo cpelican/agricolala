@@ -1,6 +1,6 @@
 "use client";
 
-import { type Parcel } from "@prisma/client";
+import { type Parcel, type PhenologicalStage } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubstanceUsageSection } from "../substances/substance-usage-section";
 import { type SubstanceData } from "../types";
@@ -22,6 +22,8 @@ interface ParcelDetailProps {
 	pastTreatments: ParcelDetailType["treatments"];
 	substanceData: SubstanceData[];
 	currentStage: CurrentParcelStage | null;
+	// Stage the temperatures say the vines have probably reached, to confirm (P5).
+	stageEstimate: PhenologicalStage | null;
 	copperPacing: CopperPacingInput;
 	children: React.ReactNode;
 }
@@ -32,6 +34,7 @@ export function ParcelDetail({
 	pastTreatments,
 	substanceData,
 	currentStage,
+	stageEstimate,
 	copperPacing,
 	children,
 }: ParcelDetailProps) {
@@ -47,7 +50,11 @@ export function ParcelDetail({
 					parcels={[]}
 					stages={currentStage ? [currentStage] : []}
 				/>
-				<ParcelStageCard parcelId={parcel.id} observation={currentStage} />
+				<ParcelStageCard
+					parcelId={parcel.id}
+					observation={currentStage}
+					stageEstimate={stageEstimate}
+				/>
 				{children}
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>

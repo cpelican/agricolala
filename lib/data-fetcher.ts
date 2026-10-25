@@ -2,6 +2,7 @@ import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
 import { getCurrentStagesByParcel } from "./phenology-observations";
+import { getStageEstimate } from "./phenology-estimate";
 
 export * from "./data-fetcher-aggregations";
 export * from "./data-fetcher-catalog";
@@ -185,6 +186,11 @@ export const getDoneTreatmentDoses = cache(async (userId: string) => {
 			},
 		},
 	});
+});
+
+// Stage the temperatures say a parcel has probably reached, still to confirm (P5).
+export const getParcelStageEstimate = cache(async (parcelId: string) => {
+	return await getStageEstimate(prisma, parcelId, new Date());
 });
 
 export type TreatmentType = Awaited<ReturnType<typeof getTreatments>>[number];

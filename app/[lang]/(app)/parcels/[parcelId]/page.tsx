@@ -8,6 +8,7 @@ import {
 	getParcelDetail,
 	getStageByParcel,
 	getDoneTreatmentDoses,
+	getParcelStageEstimate,
 } from "@/lib/data-fetcher";
 import { ParcelDetail } from "@/components/parcels/parcel-detail";
 import { ParcelDetailSkeleton } from "@/components/skeletons/parcel-detail-skeleton";
@@ -43,12 +44,13 @@ export default async function ParcelPage({
 		return new Date(treatment.appliedDate).getFullYear() === currentYear;
 	});
 
-	const [substanceData, substances, stages, doneTreatmentDoses] =
+	const [substanceData, substances, stages, doneTreatmentDoses, stageEstimate] =
 		await Promise.all([
 			getCachedParcelSubstanceAggregations(parcelId, currentYear),
 			getCachedSubstances(),
 			getStageByParcel(session.user.id),
 			getDoneTreatmentDoses(session.user.id),
+			getParcelStageEstimate(parcel.id),
 		]);
 	const currentStage =
 		stages.find((stage) => stage.parcelId === parcel.id) ?? null;
@@ -91,6 +93,7 @@ export default async function ParcelPage({
 						pastTreatments={pastTreatments}
 						substanceData={enrichedSubstanceData}
 						currentStage={currentStage}
+						stageEstimate={stageEstimate}
 						copperPacing={{
 							stage: currentStage?.stage ?? null,
 							medianTreatmentDoseGPerHa: getMedianTreatmentDoseGPerHa(

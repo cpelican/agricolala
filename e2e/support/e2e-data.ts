@@ -1,5 +1,6 @@
 import {
 	CultureType,
+	type PhenologicalStage,
 	type Prisma,
 	PrismaClient,
 	TreatmentStatus,
@@ -7,6 +8,8 @@ import {
 import { dirname, join } from "node:path";
 import { mkdir } from "node:fs/promises";
 import { seedReferenceData } from "../../prisma/seed";
+import { getStartOfUtcDay } from "../../lib/open-meteo-schema";
+import { getWeatherSeasonStart } from "../../lib/weather-history";
 
 const prisma = new PrismaClient();
 
@@ -188,6 +191,8 @@ function parseE2eDatabaseSafety(databaseUrl: string) {
 type E2eTx = Prisma.TransactionClient;
 
 async function wipeE2eDatabase(tx: E2eTx) {
+	await tx.weatherHistory.deleteMany();
+	await tx.weatherHistoryTask.deleteMany();
 	await tx.productApplication.deleteMany();
 	await tx.treatment.deleteMany();
 	await tx.parcelSubstanceAggregation.deleteMany();
@@ -337,6 +342,68 @@ export async function seedE2eData() {
 			},
 		});
 	});
+}
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+/**
+ * Weather for the seeded parcel on every day since 1 March up to yesterday, as warm
+ * as needed for the temperature sum to reach `thermalSum` °C·day (stage estimate,
+ * P5), plus an observation of `observedStage` on 1 March so the parcel is tracked.
+ * Returns false before 2 March, when there is no day to sum yet.
+ */
+export async function seedSeasonWarmth(
+	thermalSum: number,
+	observedStage: PhenologicalStage,
+) {
+	assertSafeE2eDatabase();
+
+	const todayStart = getStartOfUtcDay(new Date());
+	const seasonStart = getWeatherSeasonStart(todayStart);
+	const dayCount = Math.round(
+		(todayStart.getTime() - seasonStart.getTime()) / MS_PER_DAY,
+	);
+	if (dayCount < 1) return false;
+	const dailyMean = thermalSum / dayCount;
+
+	await prisma.$transaction(async (tx) => {
+		const parcel = await tx.parcel.findFirstOrThrow({
+			where: { name: seededParcel.name },
+		});
+		const task = await tx.weatherHistoryTask.create({
+			data: {
+				cityName: "E2E",
+				latitude: seededParcel.latitude,
+				longitude: seededParcel.longitude,
+				parcels: { connect: [{ id: parcel.id }] },
+			},
+		});
+		const days = await tx.weatherHistory.createManyAndReturn({
+			data: Array.from({ length: dayCount }, (_, i) => ({
+				cityName: task.cityName,
+				latitude: task.latitude,
+				longitude: task.longitude,
+				dateTime: new Date(seasonStart.getTime() + i * MS_PER_DAY),
+				weatherHistoryTaskId: task.id,
+				temperature2mMin: dailyMean,
+				temperature2mMax: dailyMean,
+				cumulativePrecipitation: 0,
+			})),
+			select: { id: true },
+		});
+		await tx.parcel.update({
+			where: { id: parcel.id },
+			data: { weatherHistories: { connect: days } },
+		});
+		await tx.phenologyObservation.create({
+			data: {
+				parcelId: parcel.id,
+				stage: observedStage,
+				observedAt: new Date(seasonStart.getTime() + MS_PER_DAY / 2),
+			},
+		});
+	});
+	return true;
 }
 
 /** A second account, still waiting to be opened (signs in via `pendingUserContext`). */
