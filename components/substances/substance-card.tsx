@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, use } from "react";
+import { type PhenologicalStage } from "@prisma/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -119,12 +120,14 @@ interface SubstanceCardProps {
 	substance: SubstanceData;
 	coverageResultPromise?: Promise<CoverageResult>;
 	stageRisk?: SubstanceStageRisk;
+	pacingStage?: PhenologicalStage | null;
 }
 
 export function SubstanceCard({
 	substance,
 	coverageResultPromise,
 	stageRisk,
+	pacingStage,
 }: SubstanceCardProps) {
 	const { getSubstanceTranslation } = useTranslations();
 	const substances = useSubstances();
@@ -176,6 +179,7 @@ export function SubstanceCard({
 					substance={substance}
 					substanceColor={substanceColor}
 					showTitle={Boolean(coverageResultPromise)}
+					pacingStage={pacingStage}
 				/>
 			</CardContent>
 		</Card>

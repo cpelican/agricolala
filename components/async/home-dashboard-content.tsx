@@ -12,6 +12,7 @@ import {
 	getDiseaseRiskTimeline,
 	getSubstanceStageRisk,
 } from "@/lib/disease-stage-sensitivity";
+import { getEarliestStage } from "@/lib/copper-budget-pacing";
 import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
 import { type Locale } from "@/lib/translations-helpers";
@@ -101,6 +102,7 @@ export async function HomeDashboardContent({
 				coverageResultPromise={coverageResultPromise}
 				stageRiskBySubstance={stageRiskBySubstance}
 				isNoActiveDiseaseShownAbove={vineyardStageRisk !== null}
+				copperPacingStage={getEarliestStage(parcelStages)}
 			/>
 		</div>
 	);

@@ -25,7 +25,7 @@ export const DEFAULT_DAYS_BETWEEN_APPLICATIONS = 14;
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-const COPPER_SUBSTANCE_NAME = "Copper";
+export const COPPER_SUBSTANCE_NAME = "Copper";
 // LAI (Leaf Area Index) ≈ 4 for a full vineyard canopy; ×10 converts g/ha to mg/m²
 // Source: InfoWine — Bassi dosaggi di rame in viticoltura
 // https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/

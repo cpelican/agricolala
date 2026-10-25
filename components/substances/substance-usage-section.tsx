@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, use, useId } from "react";
+import { type PhenologicalStage } from "@prisma/client";
 import {
 	Card,
 	CardContent,
@@ -29,6 +30,8 @@ interface SubstanceUsageSectionProps {
 	stageRiskBySubstance?: Record<string, SubstanceStageRisk>;
 	// The dashboard's disease risk section is shown and says when no disease is active.
 	isNoActiveDiseaseShownAbove?: boolean;
+	// Stage the copper budget is paced for (P7); null or absent hides the pacing note.
+	copperPacingStage?: PhenologicalStage | null;
 }
 
 // Season-wide coverage notices, shown once above the substance cards.
@@ -68,6 +71,7 @@ export function SubstanceUsageSection({
 	coverageResultPromise,
 	stageRiskBySubstance,
 	isNoActiveDiseaseShownAbove,
+	copperPacingStage,
 }: SubstanceUsageSectionProps) {
 	const { t } = useTranslations();
 	const titleId = useId();
@@ -105,6 +109,7 @@ export function SubstanceUsageSection({
 								substance={substance}
 								coverageResultPromise={coverageResultPromise}
 								stageRisk={stageRiskBySubstance?.[substance.name]}
+								pacingStage={copperPacingStage}
 							/>
 						))}
 					</div>
