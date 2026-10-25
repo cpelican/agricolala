@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getAuthorizedSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { type Locale } from "./translations-helpers";
-import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
+import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations/core";
 import { TreatmentStatus } from "@prisma/client";
 import { productApplicationsToGrams } from "./product-dose-to-grams";
 import { getProductDoseUnits } from "./data-fetcher-catalog";
@@ -129,7 +129,7 @@ export async function createTreatment(formData: FormData) {
 		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear, {
+		await updateSubstanceAggregations(prisma, session.user.id, currentYear, {
 			affectedParcelIds: parcels.map((parcel) => parcel.id),
 		});
 
@@ -173,7 +173,7 @@ export async function deleteTreatment(treatmentId: string) {
 		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear, {
+		await updateSubstanceAggregations(prisma, session.user.id, currentYear, {
 			affectedParcelIds: [treatment.parcelId],
 		});
 
@@ -281,7 +281,7 @@ export async function deleteParcel(parcelId: string) {
 		});
 
 		const currentYear = new Date().getFullYear();
-		await updateSubstanceAggregations(session.user.id, currentYear);
+		await updateSubstanceAggregations(prisma, session.user.id, currentYear);
 
 		revalidatePath("/parcels");
 		revalidatePath("/");

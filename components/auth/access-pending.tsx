@@ -1,10 +1,8 @@
 import Image from "next/image";
 import { AccessRequestForm } from "@/components/auth/access-request-form";
 import { SignOutButton } from "@/components/auth/signout-button";
-import {
-	formatAccessRequestDate,
-	getAccessRequestOf,
-} from "@/lib/access-requests";
+import { formatAccessRequestDate } from "@/lib/access-requests";
+import { getAccessRequestOf } from "@/lib/data-fetcher-access-requests";
 import type { Locale } from "@/lib/translations-helpers";
 import { tServer } from "@/lib/translations-server-only";
 

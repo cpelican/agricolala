@@ -1,7 +1,13 @@
 import { TreatmentStatus } from "@prisma/client";
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { getCurrentStagesByParcel } from "./phenology-observations";
+import {
+	getCurrentStagesByParcel,
+	getLatestObservation,
+	getObservationsForPeriod,
+} from "./phenology-observations";
+import { getStageExpiryCutoff } from "./phenology";
+import { lastTreatmentSelect } from "./treatment-suggestions";
 
 export * from "./data-fetcher-aggregations";
 export * from "./data-fetcher-catalog";
@@ -92,7 +98,7 @@ const parcelDetailSelect = {
 	},
 };
 
-export const treatmentSelect = {
+const treatmentSelect = {
 	id: true,
 	appliedDate: true,
 	dateMin: true,
@@ -158,6 +164,118 @@ export const getTreatments = cache(async (userId: string) => {
 export const getStageByParcel = cache(async (userId: string) => {
 	return await getCurrentStagesByParcel(prisma, userId, new Date());
 });
+
+// Every treatment applied during the year, for the Excel export.
+export const getTreatmentsForYear = cache(
+	async (userId: string, yearStart: Date, yearEnd: Date) => {
+		return await prisma.treatment.findMany({
+			where: {
+				userId,
+				appliedDate: {
+					gte: yearStart,
+					lte: yearEnd,
+				},
+			},
+			select: treatmentSelect,
+			orderBy: {
+				appliedDate: "desc",
+			},
+		});
+	},
+);
+
+export const getObservationsForYear = cache(
+	async (userId: string, yearStart: Date, yearEnd: Date) => {
+		return await getObservationsForPeriod(prisma, userId, yearStart, yearEnd);
+	},
+);
+
+// Not filtered by user: callers load the parcel through getParcelDetail first.
+export const getParcelLocation = cache(async (parcelId: string) => {
+	return await prisma.parcel.findUnique({
+		where: { id: parcelId },
+		select: { latitude: true, longitude: true },
+	});
+});
+
+export const getLatestParcelObservation = cache(
+	async (parcelId: string, now: Date) => {
+		return await getLatestObservation(prisma, parcelId, now);
+	},
+);
+
+// For the suggest-treatments cron: every approved user's parcels with their last
+// done treatment of the year and their current stage at the reference date.
+export async function getAuthorizedUsersWithLastTreatments(
+	referenceDate: Date,
+) {
+	const year = referenceDate.getFullYear();
+	return await prisma.user.findMany({
+		where: {
+			isAuthorized: true,
+		},
+		select: {
+			id: true,
+			parcels: {
+				select: {
+					id: true,
+					treatments: {
+						where: {
+							status: TreatmentStatus.DONE,
+							appliedDate: {
+								not: null,
+								gte: new Date(year, 0, 1),
+								lt: new Date(year + 1, 0, 1),
+							},
+						},
+						orderBy: {
+							appliedDate: "desc",
+						},
+						take: 1, // Get only the most recent treatment per parcel
+						select: lastTreatmentSelect,
+					},
+					// Current stage: latest observation on or before the date, unless expired.
+					phenologyObservations: {
+						where: {
+							observedAt: {
+								lte: referenceDate,
+								gte: getStageExpiryCutoff(referenceDate),
+							},
+						},
+						orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
+						take: 1,
+						select: { stage: true },
+					},
+				},
+			},
+		},
+	});
+}
+
+// For the weather history cron.
+export async function getEnabledWeatherHistoryTasks() {
+	return await prisma.weatherHistoryTask.findMany({
+		where: {
+			enabled: true,
+		},
+	});
+}
+
+export async function getWeatherHistoryTaskParcelIds(taskId: string) {
+	const parcels = await prisma.parcel.findMany({
+		where: {
+			weatherHistoryTasks: {
+				some: {
+					id: taskId,
+				},
+			},
+		},
+		select: {
+			id: true,
+		},
+	});
+	return parcels.map((parcel) => parcel.id);
+}
 
 // Done treatments of the current year, with the parcel's area and each product's
 // substances: what the copper budget pacing needs for the dose per treatment (P7).
