@@ -619,7 +619,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala: app gratuita per la viticoltura e quaderno di campagna",
-			"description": "App gratuita e open source per viticoltori. Disegna i tuoi vigneti, registra ogni trattamento nel quaderno di campagna alla fase fenologica in cui è stato fatto, controlla rame e zolfo rispetto ai limiti annuali ed esporta tutto in Excel."
+			"description": "App gratuita e open source per viticoltori. Disegna i tuoi vigneti, registra ogni trattamento nel quaderno di campagna alla fase fenologica in cui è stato fatto, tieni il conto di rame e zolfo usati ed esporta tutto in Excel."
 		},
 		"skipToContent": "Vai al contenuto",
 		"homeLink": "Agricolala, pagina iniziale",
@@ -713,8 +713,8 @@
 					"answer": "Sì. Per ogni trattamento registri data, campo, prodotti e dosi, e Agricolala aggiunge la fase fenologica della vite. Puoi esportare tutto l’anno in Excel. Verifica con il tuo ente di riferimento quali dati deve contenere il registro ufficiale dei trattamenti."
 				},
 				{
-					"question": "Tiene il conto dei limiti di rame e zolfo?",
-					"answer": "Sì. Ogni trattamento viene sommato dal 1° gennaio, campo per campo, e confrontato con il limite annuale di ogni sostanza attiva, come i 4 kg di rame per ettaro."
+					"question": "Tiene il conto di rame e zolfo usati?",
+					"answer": "Sì. Ogni trattamento viene sommato dal 1° gennaio, campo per campo, per il rame, lo zolfo e ogni altra sostanza attiva. Il rame viene confrontato con il limite di legge di 4 kg per ettaro all’anno in media. Per lo zolfo non c’è un limite di legge, ma vedere il totale ti aiuta a usarne il meno possibile."
 				},
 				{
 					"question": "Funziona sul telefono?",

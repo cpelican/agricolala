@@ -619,7 +619,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala: free vineyard management app and spray diary",
-			"description": "Free, open-source vineyard app for winegrowers. Map your parcels, keep a spray diary of every treatment by growth stage, track copper and sulfur against yearly limits, and export it to Excel."
+			"description": "Free, open-source vineyard app for winegrowers. Map your parcels, keep a spray diary of every treatment by growth stage, track how much copper and sulfur you use, and export it to Excel."
 		},
 		"skipToContent": "Skip to content",
 		"homeLink": "Agricolala, home",
@@ -713,8 +713,8 @@
 					"answer": "Yes. For every treatment you record the date, the parcel, the products and their doses, and Agricolala adds the growth stage of the vines. You can export the whole year to Excel. Check with your local authority which details your official treatment register has to include."
 				},
 				{
-					"question": "Does it track copper and sulfur limits?",
-					"answer": "Yes. Every treatment is added up from 1 January, parcel by parcel, and checked against the yearly limit of each active substance, such as 4 kg of copper per hectare."
+					"question": "Does it track how much copper and sulfur I use?",
+					"answer": "Yes. Every treatment is added up from 1 January, parcel by parcel, for copper, sulfur and every other active substance. Copper is checked against the legal limit of 4 kg per hectare per year on average. Sulfur has no legal limit, but seeing the total helps you use as little as you can."
 				},
 				{
 					"question": "Does it work on my phone?",
