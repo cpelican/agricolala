@@ -22,7 +22,7 @@ import { LanguageSwitcher } from "@/components/locale/language-switcher";
 import { ChevronRight } from "lucide-react";
 import { LocaleLink } from "../locale/locale-link";
 import { useTranslations } from "@/contexts/translations-context";
-import { type getTosStatus } from "@/app/actions/get-tos-status";
+import { type getTosStatus } from "@/lib/actions-tos";
 
 interface LegalAcceptanceStatusProps {
 	tosAcceptedAt?: Date | null;

@@ -4,7 +4,7 @@ import { LocaleLink } from "../locale/locale-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { localeRegex } from "@/lib/translations-helpers";
-import { navigation } from "@/app/const";
+import { navigation } from "@/lib/app-shell";
 import { useTranslations } from "@/contexts/translations-context";
 
 export function BottomNavigation() {

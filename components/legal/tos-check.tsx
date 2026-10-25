@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TosAcceptanceDialog } from "./tos-acceptance-dialog";
-import { acceptTos } from "@/app/actions/accept-tos";
-import { getTosStatus } from "@/app/actions/get-tos-status";
+import { acceptTos, getTosStatus } from "@/lib/actions-tos";
 import { useRouter } from "next/navigation";
 
 interface TosCheckProps {

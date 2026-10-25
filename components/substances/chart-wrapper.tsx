@@ -14,7 +14,7 @@ import { Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
 import { Skeleton } from "../ui/skeleton";
 import { useId } from "react";
-import { inter } from "@/app/const";
+import { inter } from "@/lib/app-shell";
 
 ChartJS.register(
 	CategoryScale,

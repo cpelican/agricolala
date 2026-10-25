@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthorizedSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { type Locale } from "./translations-helpers";
 import { updateSubstanceAggregations } from "@/lib/update-substance-aggregations";
@@ -22,12 +21,10 @@ import { taintUtils } from "@/lib/taint-utils";
 import { Errors } from "@/lib/constants";
 
 export async function createTreatment(formData: FormData) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const appliedDate = String(formData.get("appliedDate"));
@@ -152,12 +149,10 @@ export async function createTreatment(formData: FormData) {
 }
 
 export async function deleteTreatment(treatmentId: string) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const treatment = await prisma.treatment.findFirst({
@@ -197,12 +192,10 @@ export async function deleteTreatment(treatmentId: string) {
 }
 
 export async function createParcel(formData: FormData) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const name = String(formData.get("name"));
@@ -264,12 +257,10 @@ export async function createParcel(formData: FormData) {
 }
 
 export async function deleteParcel(parcelId: string) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		const parcel = await prisma.parcel.findFirst({
@@ -306,12 +297,10 @@ export async function deleteParcel(parcelId: string) {
 }
 
 export async function updateUserLocale(locale: Locale) {
-	const session = await getServerSession(authOptions);
-	if (!session?.user?.id || !session.user.isAuthorized) {
+	const session = await getAuthorizedSession();
+	if (!session) {
 		throw new Error(Errors.ACCESS_DENIED);
 	}
-
-	taintUtils.taintUserSession(session.user);
 
 	try {
 		await prisma.user.update({

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { inter } from "@/app/const";
+import { inter } from "@/lib/app-shell";
 import { siteUrl } from "@/lib/site-url";
 import type { Locale } from "@/lib/translations-helpers";
 
