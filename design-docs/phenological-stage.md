@@ -241,7 +241,7 @@ Four phases, each usable on its own and built on the previous one. Progress is t
     4. ✅ PR [#87](https://github.com/cpelican/agricolala/pull/87): copper budget pacing in the cumulated-dose section, with a reserve for the flowering → bunch-closure window (P7).
 4. **v4 — Estimate the stage automatically.** Design in [Stage estimate from temperature (P5)](#stage-estimate-from-temperature-p5).
     1. 🔄 PR [#93](https://github.com/cpelican/agricolala/pull/93) (in review): weather history per location and day, backfilled from 1 March (no UI change; also fixes coverage for vineyards in different places).
-    2. 🔄 PR [#94](https://github.com/cpelican/agricolala/pull/94) (in review, on top of #93): GFV thermal sum and the "Have your vines reached flowering?" prompt on the parcel page (P5).
+    2. 🔄 PR [#94](https://github.com/cpelican/agricolala/pull/94) (in review, on top of #93): GFV thermal sum and the "Have your vines reached flowering?" prompt on the parcel page and in the treatment modal (P5).
     3. PR (optional): each parcel's own threshold, from the stages its grower entered in past seasons (P5).
 
 ### Stage estimate from temperature (P5)
@@ -264,7 +264,7 @@ Built in #93 (weather history) and #94 (estimate and prompt), in review. Goal: a
 #### Prompt
 
 - **When.** A parcel's sum from 1 March reaches the threshold, and its latest observation this season is before that stage. As in P8, only parcels that have at least one observation are prompted, so growers who never record a stage see no change.
-- **Where.** On the parcel page, in the stage card: "Have your vines reached flowering?", with the Experimental label, "Probably, going by the temperatures since 1 March. Timing varies with grape variety and climate, so check the vines.", and "Yes, mark it" / "Not yet". Not in the treatment modal (decided while building #94): its suggested stage also turns on the flowering bee reminder, so pre-selecting the estimate there would let an unconfirmed estimate drive that reminder.
+- **Where.** On the parcel page, in the stage card: "Have your vines reached flowering?", with the Experimental label, "Probably, going by the temperatures since 1 March. Timing varies with grape variety and climate, so check the vines.", and "Yes, mark it" / "Not yet". In the treatment modal (added in review of #94, the parcel page alone being easy to miss), the stage field shows the same box while no stage is picked, for treatments within a week of today; "Yes, mark it" picks the stage for the treatment. It is not pre-selected like the suggested stage: the suggestion also turns on the flowering bee reminder, so the estimate stays apart until the grower taps it. With several parcels selected, the most advanced estimate among them is offered, as the suggestion takes their latest observation.
 - **Confirm** records an observation dated today with `recordPhenologyObservation`, like a tap on the stage tiles. **Not yet** hides the prompt for 3 days on that device (browser storage, a per-viewer convenience); the prompt comes back while the sum keeps rising.
 - **An estimate never drives a calculation on its own.** P1–P4, P8 and P3 keep using confirmed observations only. A one-week error at flowering would move the bee rules and the critical cadence by a week, so the grower decides. The prompt carries the same "Experimental" label, and the variety-and-climate sentence sits in its text (the label has no tooltip).
 
@@ -281,7 +281,7 @@ Built in #93 (weather history) and #94 (estimate and prompt), in review. Goal: a
 | --- | --- |
 | Per-location history and backfill | `prisma/schema.prisma` (`WeatherHistory.weatherHistoryTaskId`, unique per task and day), `lib/weather-history.ts` (`saveWeatherDays`, `adoptLegacyWeatherRows`, `getMissingDays`), `app/api/cron/fetch-weather-history/route.ts`, `getHistoryWeatherDataBetween` in `lib/open-meteo-client.ts` (Open-Meteo historical forecast API) |
 | Thermal sum and estimate | `lib/phenology-estimate.ts`: `GFV_THRESHOLDS`, `getThermalSum(days, from, to)` (null when a day is missing), `getEstimatedStage(sum)`, `getStageToConfirm`, `getStageEstimate`; the season start (1 March) is `getWeatherSeasonStart` in `lib/weather-history.ts` |
-| Prompt | `components/phenology/stage-estimate-prompt.tsx` in `parcel-stage-card.tsx`, estimate from `getParcelStageEstimate` (`lib/data-fetcher.ts`) on the parcel page; en/it strings |
+| Prompt | `components/phenology/stage-estimate-prompt.tsx` (`StageEstimatePrompt`, `StageEstimateNote`) in `parcel-stage-card.tsx` and `components/treatments/treatment-stage-field.tsx`; estimates from `getParcelStageEstimate` and `getStageEstimatesByParcel` (`lib/data-fetcher.ts`); en/it strings |
 
 #### Testing
 
