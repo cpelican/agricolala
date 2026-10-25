@@ -54,7 +54,7 @@ function CoverageNotice({
 	if (!result.data.hasIncompleteWeatherHistory) return null;
 
 	return (
-		<p className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-md px-3 py-2">
+		<p className="rounded-md border border-warning-border bg-warning-background px-3 py-2 text-sm text-warning">
 			{t("coverage.incompleteWeatherData")}
 		</p>
 	);

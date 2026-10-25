@@ -38,7 +38,7 @@ export const LayoutWithHeader = async ({
 						<SidebarNavigation />
 					</div>
 				</nav>
-				<main className="overflow-auto">
+				<main className="overflow-auto bg-primary-10">
 					<div className="p-6">
 						<div className="max-w-3xl mx-auto">{children}</div>
 					</div>

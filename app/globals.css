@@ -32,6 +32,17 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  /* Status notices: text, background and border of a notice of each kind. */
+  --color-warning: hsl(var(--warning));
+  --color-warning-background: hsl(var(--warning-background));
+  --color-warning-border: hsl(var(--warning-border));
+  --color-success: hsl(var(--success));
+  --color-success-background: hsl(var(--success-background));
+  --color-success-border: hsl(var(--success-border));
+  --color-info: hsl(var(--info));
+  --color-info-background: hsl(var(--info-background));
+  --color-info-border: hsl(var(--info-border));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
 
@@ -99,19 +110,15 @@
   }
 }
 
-@utility bg-hsl {
-  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
-}
-
 @keyframes grape-color {
   0% {
     color: var(--color-primary-700);
   }
   50% {
-    color: hsl(calc(var(--primary-hue) - 38) var(--primary-saturation) var(--primary-lightness));
+    color: hsl(calc(var(--primary-hue) - 38) var(--primary-saturation) var(--leaf-lightness));
   }
   100% {
-    color: hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--primary-lightness));
+    color: hsl(calc(var(--primary-hue) - 76) var(--primary-saturation) var(--leaf-lightness));
   }
 }
 
@@ -121,14 +128,12 @@
 
 @utility blob-background {
   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--primary-lightness)/0.20);
+  background-color: hsla(calc(var(--primary-hue) - 60) var(--primary-saturation) var(--leaf-lightness)/0.20);
   display: inline-block;
 }
 
 @layer utilities {
   body {
-    font-family: Arial, Helvetica, sans-serif;
-
     #headlessui-dialog-panel-«rc» > .absolute button svg {
       color: black !important;
     }
@@ -151,10 +156,12 @@
 		--card-foreground: 0 0% 3.9%;
 		--popover: 0 0% 100%;
 		--popover-foreground: 0 0% 3.9%;
-		--primary: 136, 100%, 21%;
 		--primary-hue: 136;
 		--primary-saturation: 100%;
-		--primary-lightness: 41%;
+		--primary-lightness: 21%;
+		--primary: var(--primary-hue) var(--primary-saturation) var(--primary-lightness);
+		/* Lightness of the leaf colours (lime, leaf green, leaf wash) mixed from the primary hue. */
+		--leaf-lightness: 41%;
 		--primary-foreground: 0 0% 98%;
 		--secondary: 0 0% 96.1%;
 		--secondary-foreground: 0 0% 9%;
@@ -162,8 +169,18 @@
 		--muted-foreground: 0 0% 45.1%;
 		--accent: 0 0% 96.1%;
 		--accent-foreground: 0 0% 9%;
-		--destructive: 0 84.2% 60.2%;
+		/* Dark enough for white text on it (4.8:1). */
+		--destructive: 0 84.2% 47%;
 		--destructive-foreground: 0 0% 98%;
+		--warning: 26 90% 37%;
+		--warning-background: 48 100% 96%;
+		--warning-border: 48 97% 77%;
+		--success: 142 72% 29%;
+		--success-background: 138 76% 97%;
+		--success-border: 141 79% 85%;
+		--info: 224 64% 33%;
+		--info-background: 214 100% 97%;
+		--info-border: 213 97% 87%;
 		--border: 0 0% 89.8%;
 		--input: 0 0% 89.8%;
 		--ring: 136 100% 14.7%; /* primary-700 (#004b14) */

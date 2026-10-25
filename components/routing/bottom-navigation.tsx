@@ -12,8 +12,8 @@ export function BottomNavigation() {
 	const { t } = useTranslations();
 
 	return (
-		<nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border px-4 py-2 safe-area-pb">
-			<div className="flex justify-around">
+		<nav className="fixed right-0 bottom-0 left-0 border-t border-border bg-white px-3 pt-2 pb-3 safe-area-pb">
+			<div className="grid grid-cols-4 gap-1">
 				{navigation.map((item) => {
 					const pathWithoutLocale = pathname.replace(localeRegex, "") || "/";
 					const isActive = pathWithoutLocale === item.href;
@@ -23,13 +23,14 @@ export function BottomNavigation() {
 							href={item.href}
 							prefetch
 							className={cn(
-								"flex flex-col items-center px-3 py-2 text-xs font-medium rounded-lg transition-colors",
+								"flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-lg text-xs leading-4 transition-colors",
 								isActive
-									? "text-primary-700 bg-hsl"
-									: "text-muted-foreground hover:text-neutral-700",
+									? "bg-primary-50 font-semibold text-primary-700"
+									: "font-medium text-neutral-600 hover:text-neutral-900",
 							)}
+							aria-current={isActive ? "page" : undefined}
 						>
-							<item.icon className="h-6 w-6 mb-1" />
+							<item.icon aria-hidden="true" className="size-[22px]" />
 							{t(item.name)}
 						</LocaleLink>
 					);

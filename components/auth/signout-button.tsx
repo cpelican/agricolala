@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 
 export const SignOutButton = ({
 	label,
-	variant = "destructive",
+	variant = "outline",
 	className = "w-full",
 }: {
 	label: string;
@@ -19,7 +19,7 @@ export const SignOutButton = ({
 			variant={variant}
 			className={className}
 		>
-			<LogOut aria-hidden="true" className="h-4 w-4 mr-2" />
+			<LogOut aria-hidden="true" className="h-4 w-4" />
 			{label}
 		</Button>
 	);

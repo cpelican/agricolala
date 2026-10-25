@@ -35,15 +35,15 @@ function LegalAcceptanceStatus({ tosAcceptedAt }: LegalAcceptanceStatusProps) {
 		<div className="flex items-center">
 			{tosAcceptedAt ? (
 				<>
-					<CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-					<span className="text-sm text-green-600">
+					<CheckCircle className="h-4 w-4 text-success mr-2" />
+					<span className="text-sm text-success">
 						{t("legal.acceptedOn")} {tosAcceptedAt.toLocaleDateString()}
 					</span>
 				</>
 			) : (
 				<>
-					<XCircle className="h-4 w-4 text-red-600 mr-2" />
-					<span className="text-sm text-red-600">{t("legal.notAccepted")}</span>
+					<XCircle className="h-4 w-4 text-destructive mr-2" />
+					<span className="text-sm text-destructive">{t("legal.notAccepted")}</span>
 				</>
 			)}
 		</div>

@@ -119,7 +119,7 @@ export const SignInContent = ({
 								className="w-full rounded-md border px-3 py-2 text-sm"
 								required
 							/>
-							{error && <p className="text-sm text-red-600">{error}</p>}
+							{error && <p className="text-sm text-destructive">{error}</p>}
 							<Button
 								type="submit"
 								className="w-full"
