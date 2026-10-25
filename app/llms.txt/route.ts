@@ -28,7 +28,7 @@ export function GET() {
 
 > ${welcome.meta.description}
 
-Agricolala is a free, open-source web app for winegrowers. In Italian it works as a "quaderno di campagna" (the vineyard treatment register). It works in ${languages}, in the browser, and is made for phones.
+Agricolala is a free, open-source web app for hobby growers and small independent winegrowers (in Italian, "vignaioli indipendenti"). In Italian it works as a "quaderno di campagna" (the vineyard treatment register). It works in ${languages}, in the browser, and is made for phones.
 
 ## What it does
 
