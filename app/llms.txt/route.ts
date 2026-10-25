@@ -16,7 +16,6 @@ const absolute = (path: string) => new URL(path, siteUrl).toString();
 // welcome page copy so the two never drift apart.
 export function GET() {
 	const { welcome } = getDictionary(appLanguages.en);
-	const { welcome: welcomeIt } = getDictionary(appLanguages.it);
 	const languages = new Intl.ListFormat("en", { type: "conjunction" }).format(
 		Object.values(appLanguages).map(
 			(locale) =>
@@ -24,11 +23,22 @@ export function GET() {
 		),
 	);
 
+	// One welcome page per language, each named in its own language.
+	const welcomePages = Object.values(appLanguages)
+		.map((locale) => {
+			const name = new Intl.DisplayNames(locale, { type: "language" }).of(
+				locale,
+			);
+			const { meta } = getDictionary(locale).welcome;
+			return `- [${name}](${absolute(welcomePath(locale))}): ${meta.title}`;
+		})
+		.join("\n");
+
 	const body = `# Agricolala
 
 > ${welcome.meta.description}
 
-Agricolala is a free, open-source web app for hobby growers and small independent winegrowers (in Italian, "vignaioli indipendenti"). In Italian it works as a "quaderno di campagna" (the vineyard treatment register). It works in ${languages}, in the browser, and is made for phones.
+Agricolala is a free, open-source web app for hobby growers and small independent winegrowers ("vignaioli indipendenti" in Italian, "vignerons indépendants" in French). It works as their vineyard treatment register ("quaderno di campagna" in Italian, "registre phytosanitaire" in French). It works in ${languages}, in the browser, and is made for phones.
 
 ## What it does
 
@@ -45,8 +55,7 @@ ${welcome.faq.items.map((item) => `### ${item.question}\n\n${item.answer}`).join
 
 ## Pages
 
-- [Welcome (English)](${absolute(welcomePath(appLanguages.en))}): ${welcome.meta.title}
-- [Benvenuto (Italiano)](${absolute(welcomePath(appLanguages.it))}): ${welcomeIt.meta.title}
+${welcomePages}
 - [Privacy policy](${absolute(localizedPath(appLanguages.en, PUBLIC_PAGES.privacyPolicy))})
 - [Terms of service](${absolute(localizedPath(appLanguages.en, PUBLIC_PAGES.termsOfService))})
 - [Source code on GitHub](${GITHUB_REPOSITORY_URL})
