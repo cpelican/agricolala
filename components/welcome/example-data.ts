@@ -1,5 +1,5 @@
 import { PhenologicalStage } from "@prisma/client";
-import type { Locale } from "@/lib/translations-helpers";
+import type { Locale } from "@/lib/i18n/locale";
 
 // Figures of the example vineyard shown on the welcome page (illustrative, not real user data).
 export const EXAMPLE_COPPER = {

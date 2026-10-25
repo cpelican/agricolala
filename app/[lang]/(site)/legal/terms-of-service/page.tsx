@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { LegalPage, legalMetadata } from "@/components/legal/legal-page";
 import { TosContent } from "@/components/legal/tos-content";
 import { PUBLIC_PAGES } from "@/lib/site-url";
-import { languageIsLocale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import { languageIsLocale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 
 export const dynamicParams = false;
 

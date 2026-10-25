@@ -1,4 +1,4 @@
-import { type Locale } from "@/lib/translations-helpers";
+import { type Locale } from "@/lib/i18n/locale";
 import "next-auth";
 import "next-auth/jwt";
 

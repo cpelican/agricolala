@@ -27,3 +27,19 @@ export const getLanguageAsLocale = (language: string | undefined): Locale => {
 export const getLocaleFromPathname = (pathname: string) => {
 	return pathname.startsWith("/it") ? appLanguages.it : appLanguages.en;
 };
+
+export const getLocaleFromBrowser = (): Locale => {
+	// SSR has no navigator; sign-in renders null until the client session check, so the real UI uses the browser locale.
+	if (typeof navigator === "undefined") {
+		return defaultLocale;
+	}
+	// Browsers report regional tags ("it-IT"): match on the base language, in the user's
+	// order of preference, like the Accept-Language negotiation on the server.
+	const preferred = navigator.languages?.length
+		? navigator.languages
+		: [navigator.language];
+	const supported = preferred
+		.map((tag) => tag.split("-")[0]?.toLowerCase())
+		.find((language) => languageIsLocale(language));
+	return getLanguageAsLocale(supported);
+};

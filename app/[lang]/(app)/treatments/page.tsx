@@ -5,8 +5,8 @@ import { TreatmentsSkeleton } from "@/components/skeletons/treatments-skeleton";
 import { requireAuth } from "@/lib/auth-utils";
 import { getTreatments } from "@/lib/data-fetcher";
 import { ExcelExportDialog } from "@/components/treatments/excel-export-dialog";
-import { tServer } from "@/lib/translations-server-only";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
+import { tServer } from "@/lib/i18n/server";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
 import { Header } from "@/components/misc/header";
 
 export default async function TreatmentsPage({

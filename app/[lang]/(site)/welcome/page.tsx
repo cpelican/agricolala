@@ -20,8 +20,8 @@ import {
 	PUBLIC_PAGES,
 	welcomePath,
 } from "@/lib/site-url";
-import { appLanguages, languageIsLocale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import { appLanguages, languageIsLocale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 
 // Public marketing page: one static page per language (params from app/[lang]/layout.tsx).
 export const dynamicParams = false;

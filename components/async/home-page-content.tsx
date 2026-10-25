@@ -4,7 +4,7 @@ import { Header } from "@/components/misc/header";
 import { HomeContentUI } from "@/components/misc/home-content-ui";
 import { HomeDashboardBodySkeleton } from "@/components/skeletons/home-skeleton";
 import { getParcels } from "@/lib/data-fetcher";
-import { type Locale } from "@/lib/translations-helpers";
+import { type Locale } from "@/lib/i18n/locale";
 
 interface HomePageContentProps {
 	userId: string;

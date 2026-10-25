@@ -6,7 +6,7 @@ import {
 	type PublicPage,
 	siteUrl,
 } from "@/lib/site-url";
-import { appLanguages } from "@/lib/translations-helpers";
+import { appLanguages } from "@/lib/i18n/locale";
 
 const absolute = (path: string) => new URL(path, siteUrl).toString();
 

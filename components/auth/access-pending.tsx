@@ -3,8 +3,8 @@ import { AccessRequestForm } from "@/components/auth/access-request-form";
 import { SignOutButton } from "@/components/auth/signout-button";
 import { formatAccessRequestDate } from "@/lib/access-requests";
 import { getAccessRequestOf } from "@/lib/data-fetcher-access-requests";
-import type { Locale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import type { Locale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 
 // Shown instead of the app while an account waits to be opened by hand.
 export async function AccessPending({

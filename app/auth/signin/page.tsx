@@ -1,4 +1,4 @@
-import { dictionaries } from "@/lib/translations-server-only";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { SignInContent } from "@/components/auth/signin-content";
 
 const authEnDicts = dictionaries.en.auth;

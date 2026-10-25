@@ -1,12 +1,6 @@
 import { siteUrl } from "./site-url";
-import { type Locale } from "./translations-helpers";
-import enDict from "../locales/en.json";
-import itDict from "../locales/it.json";
-
-const grantedEmailDicts = {
-	en: enDict.auth.grantedEmail,
-	it: itDict.auth.grantedEmail,
-} satisfies Record<Locale, typeof enDict.auth.grantedEmail>;
+import { type Locale } from "./i18n/locale";
+import { getDictionary } from "./i18n/dictionaries";
 
 export type EmailContent = {
 	subject: string;
@@ -100,7 +94,7 @@ export function buildAccessGrantedEmail({
 	name: string | null;
 	locale: Locale;
 }): EmailContent {
-	const t = grantedEmailDicts[locale];
+	const t = getDictionary(locale).auth.grantedEmail;
 	const url = signInUrl(locale);
 	const greeting = name ? t.greeting.replace("{name}", name) : t.greetingNoName;
 

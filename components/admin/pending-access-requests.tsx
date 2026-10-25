@@ -8,10 +8,10 @@ import {
 	type ApproveAccessRequestState,
 	approveAccessRequest,
 } from "@/lib/actions-access-requests";
-import type enDict from "@/locales/en.json";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
 import type { AccessRequest, User } from "@prisma/client";
 
-type AdminDict = typeof enDict.auth.admin;
+type AdminDict = TranslationType["auth"]["admin"];
 
 type PendingRequest = Pick<AccessRequest, "userId" | "message"> &
 	Pick<User, "name" | "email" | "locale"> & { requestedOn: string };

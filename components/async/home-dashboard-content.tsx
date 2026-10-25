@@ -20,8 +20,8 @@ import {
 import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
 import { DiseaseRiskSection } from "../phenology/disease-risk-section";
 import { getCoverageWidgetData } from "@/lib/get-coverage-widget-data";
-import { type Locale } from "@/lib/translations-helpers";
-import { tServer } from "@/lib/translations-server-only";
+import { type Locale } from "@/lib/i18n/locale";
+import { tServer } from "@/lib/i18n/server";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 
 interface HomeDashboardContentProps {

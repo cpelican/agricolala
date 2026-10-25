@@ -7,7 +7,7 @@ import {
 	rootMetadata,
 	rootViewport,
 } from "@/components/misc/root-document";
-import { getLocaleFromAcceptLanguage } from "@/lib/accept-language";
+import { getLocaleFromAcceptLanguage } from "@/lib/i18n/accept-language";
 
 export const metadata: Metadata = {
 	...rootMetadata,

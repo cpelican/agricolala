@@ -10,8 +10,8 @@ import {
 } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { type TranslationType } from "@/lib/translations-server-only";
-import { getLocaleFromBrowser } from "@/contexts/translations-context";
+import { type TranslationType } from "@/lib/i18n/dictionaries";
+import { getLocaleFromBrowser } from "@/lib/i18n/locale";
 import { Button } from "../ui/button";
 
 const signInWithGoogle = () => {

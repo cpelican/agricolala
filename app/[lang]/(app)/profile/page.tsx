@@ -1,5 +1,5 @@
-import { tServer } from "@/lib/translations-server-only";
-import { getLanguageAsLocale } from "@/lib/translations-helpers";
+import { tServer } from "@/lib/i18n/server";
+import { getLanguageAsLocale } from "@/lib/i18n/locale";
 import { Suspense } from "react";
 import { ProfileContentAsync } from "@/components/async/profile-content-async";
 import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";

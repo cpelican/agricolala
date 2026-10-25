@@ -1,5 +1,5 @@
 import z from "zod";
-import { appLanguages } from "./translations-helpers";
+import { appLanguages } from "./i18n/locale";
 
 export const ACCESS_REQUEST_MESSAGE_MIN = 20;
 export const ACCESS_REQUEST_MESSAGE_MAX = 1000;

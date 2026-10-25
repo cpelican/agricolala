@@ -1,17 +1,11 @@
 "use client";
 
-import en from "@/locales/en.json";
-import it from "@/locales/it.json";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
 	defaultLocale,
 	getLocaleFromPathname,
 	type Locale,
-} from "@/lib/translations-helpers";
-
-const errorCopy = {
-	en: en.errors.page,
-	it: it.errors.page,
-} as const;
+} from "@/lib/i18n/locale";
 
 function getClientLocale(): Locale {
 	if (typeof window === "undefined") {
@@ -27,7 +21,7 @@ interface GlobalErrorProps {
 
 export default function GlobalError({ reset }: GlobalErrorProps) {
 	const locale = getClientLocale();
-	const copy = errorCopy[locale];
+	const copy = getDictionary(locale).errors.page;
 
 	return (
 		<html lang={locale} suppressHydrationWarning>

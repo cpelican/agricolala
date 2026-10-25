@@ -10,7 +10,7 @@ import {
 import { GRAMS_PER_KILOGRAM } from "./constants";
 import { calculateSubstanceData } from "./substance-helpers";
 import { PHENOLOGY_STAGE_BBCH, getStageAt } from "./phenology";
-import en from "@/locales/en.json";
+import { getDictionary } from "./i18n/dictionaries";
 
 interface ProductApplicationExportData {
 	treatmentId: string;
@@ -38,7 +38,7 @@ function formatStage(stage: PhenologicalStage | null): string {
 		return "";
 	}
 	const { min, max } = PHENOLOGY_STAGE_BBCH[stage];
-	return `${en.phenology.stages[stage].label} (BBCH ${min}–${max})`;
+	return `${getDictionary("en").phenology.stages[stage].label} (BBCH ${min}–${max})`;
 }
 
 export async function generateTreatmentsExcel(userId: string, year: number) {

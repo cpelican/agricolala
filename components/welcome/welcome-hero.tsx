@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, FileSpreadsheet, Droplet } from "lucide-react";
-import type { Locale } from "@/lib/translations-helpers";
+import type { Locale } from "@/lib/i18n/locale";
 import {
 	EXAMPLE_COPPER,
 	EXAMPLE_COPPER_PERCENT,

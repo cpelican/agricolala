@@ -1,6 +1,6 @@
 import { StageIcon } from "@/components/phenology/stage-icon";
 import { PHENOLOGICAL_STAGES } from "@/lib/phenology";
-import type { TranslationType } from "@/lib/translations-server-only";
+import type { TranslationType } from "@/lib/i18n/dictionaries";
 import { EXAMPLE_TREATMENTS_PER_STAGE } from "./example-data";
 import { SECTION, SECTION_TEXT, SECTION_TITLE } from "./section-styles";
 

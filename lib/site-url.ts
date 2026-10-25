@@ -1,4 +1,4 @@
-import { appLanguages, type Locale } from "./translations-helpers";
+import { appLanguages, type Locale } from "./i18n/locale";
 
 // Absolute origin used for canonical URLs, hreflang links, the sitemap and Open Graph.
 // NEXT_PUBLIC_SITE_URL wins; on Vercel the production domain is provided automatically.

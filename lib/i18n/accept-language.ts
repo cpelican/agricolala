@@ -5,7 +5,7 @@ import {
 	defaultLocale,
 	languageIsLocale,
 	type Locale,
-} from "./translations-helpers";
+} from "./locale";
 
 const locales: Locale[] = Object.values(appLanguages);
 

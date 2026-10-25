@@ -3,7 +3,7 @@
 import { LocaleLink } from "../locale/locale-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { localeRegex } from "@/lib/translations-helpers";
+import { localeRegex } from "@/lib/i18n/locale";
 import { navigation } from "@/lib/app-shell";
 import { useTranslations } from "@/contexts/translations-context";
 
