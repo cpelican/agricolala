@@ -342,6 +342,76 @@ export async function seedE2eData() {
 	});
 }
 
+/** Another grower who created a parcel and shared it with the e2e user (issue #74). */
+export const sharedParcelOwner = {
+	email: "partner@agricolala.test",
+	name: "Bea Partner",
+} as const;
+
+export const sharedParcel = {
+	...seededParcel,
+	name: "Shared Vineyard",
+	latitude: 44.1471,
+	longitude: 9.6553,
+} as const;
+
+/** `seedE2eData`, plus a parcel created by `sharedParcelOwner`, shared with the e2e
+ * user, with one done treatment recorded by its creator. */
+export async function seedE2eDataWithSharedParcel() {
+	await seedE2eData();
+
+	const year = new Date().getFullYear();
+	await prisma.$transaction(async (tx) => {
+		const e2eAccount = await tx.user.findUniqueOrThrow({
+			where: { email: e2eUser.email },
+			select: { id: true },
+		});
+		// Reference rows seeded by seedE2eData (seedReferenceData).
+		const copperProduct = await tx.product.findFirstOrThrow({
+			where: { name: "Pasta cafaro" },
+			select: { id: true },
+		});
+		const peronospora = await tx.disease.findFirstOrThrow({
+			where: { name: "Peronospora" },
+			select: { id: true },
+		});
+		const owner = await tx.user.create({
+			data: {
+				...sharedParcelOwner,
+				emailVerified: new Date(),
+				isAuthorized: true,
+				locale: "en",
+				tosAcceptedAt: new Date(),
+			},
+		});
+		await tx.parcel.create({
+			data: {
+				...sharedParcel,
+				type: CultureType.VINEYARD,
+				userId: owner.id,
+				members: {
+					create: [{ userId: owner.id }, { userId: e2eAccount.id }],
+				},
+				treatments: {
+					create: {
+						appliedDate: new Date(Date.UTC(year, 3, 5, 12)),
+						diseaseIds: [peronospora.id],
+						status: TreatmentStatus.DONE,
+						userId: owner.id,
+						waterDose: 10,
+						productApplications: {
+							create: {
+								dose: COPPER_PRODUCT_DOSE_GRAMS,
+								productId: copperProduct.id,
+							},
+						},
+					},
+				},
+			},
+		});
+	});
+}
+
 /** A second account, still waiting to be opened (signs in via `pendingUserContext`). */
 export const pendingE2eUser = {
 	email: "pending@agricolala.test",

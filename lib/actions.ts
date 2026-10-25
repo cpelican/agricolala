@@ -18,7 +18,8 @@ import {
 	getParcelAreaM2,
 } from "./parcel-geometry";
 import { taintUtils } from "@/lib/taint-utils";
-import { Errors } from "@/lib/constants";
+import { Errors, isAccessError } from "@/lib/constants";
+import { parcelAccessWhere, treatmentAccessWhere } from "./parcel-access";
 
 export async function createTreatment(formData: FormData) {
 	const session = await getAuthorizedSession();
@@ -50,7 +51,7 @@ export async function createTreatment(formData: FormData) {
 		const parcels = await prisma.parcel.findMany({
 			where: {
 				id: { in: validatedData.parcelIds },
-				userId: session.user.id,
+				...parcelAccessWhere(session.user.id),
 			},
 			select: {
 				id: true,
@@ -144,6 +145,9 @@ export async function createTreatment(formData: FormData) {
 		};
 	} catch (error) {
 		console.error("Error creating treatment", error);
+		if (isAccessError(error)) {
+			throw error;
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
@@ -155,10 +159,12 @@ export async function deleteTreatment(treatmentId: string) {
 	}
 
 	try {
+		// Only its author deletes a treatment, even on a shared parcel (D2).
 		const treatment = await prisma.treatment.findFirst({
 			where: {
 				id: treatmentId,
 				userId: session.user.id,
+				...treatmentAccessWhere(session.user.id),
 			},
 		});
 
@@ -187,6 +193,9 @@ export async function deleteTreatment(treatmentId: string) {
 		};
 	} catch (error) {
 		console.error("Error deleting treatment", error);
+		if (isAccessError(error)) {
+			throw error;
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }
@@ -267,12 +276,17 @@ export async function deleteParcel(parcelId: string) {
 		const parcel = await prisma.parcel.findFirst({
 			where: {
 				id: parcelId,
-				userId: session.user.id,
+				...parcelAccessWhere(session.user.id),
 			},
+			select: { userId: true },
 		});
 
 		if (!parcel) {
 			throw new Error(Errors.RESOURCE_NOT_FOUND);
+		}
+		// Other members see the parcel but only its creator deletes it (D3).
+		if (parcel.userId !== session.user.id) {
+			throw new Error(Errors.ACCESS_DENIED);
 		}
 
 		await prisma.parcel.delete({
@@ -293,6 +307,9 @@ export async function deleteParcel(parcelId: string) {
 		};
 	} catch (error) {
 		console.error("Error deleting parcel", error);
+		if (isAccessError(error)) {
+			throw error;
+		}
 		throw new Error(Errors.INTERNAL_SERVER);
 	}
 }

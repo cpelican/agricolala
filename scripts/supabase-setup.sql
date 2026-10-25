@@ -99,10 +99,11 @@ CREATE POLICY "Users can manage their own sessions or admins can manage all" ON 
 
 -- Create RLS policies for Parcel table
 DROP POLICY IF EXISTS "Users can view their own parcels or admins can view all" ON "Parcel";
+-- Members see a shared parcel; insert, update and delete stay with its creator ("userId", D3).
 CREATE POLICY "Users can view their own parcels or admins can view all" ON "Parcel"
     FOR SELECT USING (
         (select auth.role()) = 'service_role' OR
-        (select auth.uid())::text = "userId" OR
+        EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = "Parcel".id AND m."userId" = (select auth.uid())::text) OR
         private.is_admin((select auth.uid())::text)
     );
 
@@ -126,10 +127,12 @@ CREATE POLICY "Users can delete their own parcels or admins can delete all" ON "
 
 -- Create RLS policies for Treatment table
 DROP POLICY IF EXISTS "Users can view their own treatments or admins can view all" ON "Treatment";
+-- Members see every treatment on a shared parcel and record their own on it; update and
+-- delete stay with the treatment's author ("userId", D2).
 CREATE POLICY "Users can view their own treatments or admins can view all" ON "Treatment"
     FOR SELECT USING (
         (select auth.role()) = 'service_role' OR
-        (select auth.uid())::text = "userId" OR
+        EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = "Treatment"."parcelId" AND m."userId" = (select auth.uid())::text) OR
         private.is_admin((select auth.uid())::text)
     );
 
@@ -137,7 +140,7 @@ DROP POLICY IF EXISTS "Users can insert their own treatments or admins can inser
 CREATE POLICY "Users can insert their own treatments or admins can insert" ON "Treatment"
     FOR INSERT WITH CHECK (
         (select auth.role()) = 'service_role' OR
-        (select auth.uid())::text = "userId" OR
+        ((select auth.uid())::text = "userId" AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = "Treatment"."parcelId" AND m."userId" = (select auth.uid())::text)) OR
         private.is_admin((select auth.uid())::text)
     );
 
@@ -165,7 +168,7 @@ CREATE POLICY "Users can view their own product applications or admins can view 
         EXISTS (
             SELECT 1 FROM "Treatment" t
             WHERE t.id = "ProductApplication"."treatmentId"
-            AND (t."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+            AND (EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = t."parcelId" AND m."userId" = (select auth.uid())::text) OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -200,7 +203,7 @@ CREATE POLICY "Users can delete their own product applications or admins can del
         )
     );
 
--- Create RLS policies for PhenologyObservation table (owned through its parcel)
+-- Create RLS policies for PhenologyObservation table (through its parcel: any member)
 DROP POLICY IF EXISTS "Owners or admins can view phenology observations" ON "PhenologyObservation";
 CREATE POLICY "Owners or admins can view phenology observations" ON "PhenologyObservation"
     FOR SELECT USING (
@@ -208,7 +211,7 @@ CREATE POLICY "Owners or admins can view phenology observations" ON "PhenologyOb
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "PhenologyObservation"."parcelId"
-            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+            AND (EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text) OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -219,7 +222,7 @@ CREATE POLICY "Owners or admins can insert phenology observations" ON "Phenology
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "PhenologyObservation"."parcelId"
-            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+            AND (EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text) OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -229,7 +232,7 @@ CREATE POLICY "Owners or admins can update phenology observations" ON "Phenology
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "PhenologyObservation"."parcelId"
-            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+            AND (EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text) OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -239,7 +242,7 @@ CREATE POLICY "Owners or admins can delete phenology observations" ON "Phenology
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "PhenologyObservation"."parcelId"
-            AND (p."userId" = (select auth.uid())::text OR private.is_admin((select auth.uid())::text))
+            AND (EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text) OR private.is_admin((select auth.uid())::text))
         )
     );
 
@@ -685,7 +688,7 @@ CREATE POLICY "Users can view parcel substance aggregations for their parcels or
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "ParcelSubstanceAggregation"."parcelId"
-            AND p."userId" = (select auth.uid())::text
+            AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text)
         )
     );
 
@@ -697,7 +700,7 @@ CREATE POLICY "Users can insert parcel substance aggregations for their parcels 
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "ParcelSubstanceAggregation"."parcelId"
-            AND p."userId" = (select auth.uid())::text
+            AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text)
         )
     );
 
@@ -710,7 +713,7 @@ CREATE POLICY "Users can update parcel substance aggregations for their parcels 
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "ParcelSubstanceAggregation"."parcelId"
-            AND p."userId" = (select auth.uid())::text
+            AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text)
         )
     )
     WITH CHECK (
@@ -719,7 +722,7 @@ CREATE POLICY "Users can update parcel substance aggregations for their parcels 
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "ParcelSubstanceAggregation"."parcelId"
-            AND p."userId" = (select auth.uid())::text
+            AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text)
         )
     );
 
@@ -731,7 +734,7 @@ CREATE POLICY "Users can delete parcel substance aggregations for their parcels 
         EXISTS (
             SELECT 1 FROM "Parcel" p
             WHERE p.id = "ParcelSubstanceAggregation"."parcelId"
-            AND p."userId" = (select auth.uid())::text
+            AND EXISTS (SELECT 1 FROM "ParcelMember" m WHERE m."parcelId" = p.id AND m."userId" = (select auth.uid())::text)
         )
     );
 

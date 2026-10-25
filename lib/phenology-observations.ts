@@ -5,6 +5,7 @@ import {
 } from "@prisma/client";
 import { Errors } from "@/lib/constants";
 import { getStageExpiryCutoff } from "./phenology";
+import { parcelAccessWhere } from "./parcel-access";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -42,7 +43,7 @@ export async function createStandaloneObservation(
 	},
 ) {
 	const parcel = await db.parcel.findFirst({
-		where: { id: parcelId, userId },
+		where: { id: parcelId, ...parcelAccessWhere(userId) },
 		select: { id: true },
 	});
 	if (!parcel) {
@@ -55,7 +56,7 @@ export async function createStandaloneObservation(
 	});
 }
 
-// Latest non-expired observation per parcel of the user at `date`. Parcels without
+// Latest non-expired observation per parcel the user is a member of, at `date`. Parcels without
 // one have no current stage and are left out.
 export async function getCurrentStagesByParcel(
 	db: DbClient,
@@ -64,7 +65,7 @@ export async function getCurrentStagesByParcel(
 ) {
 	return db.phenologyObservation.findMany({
 		where: {
-			parcel: { userId },
+			parcel: parcelAccessWhere(userId),
 			observedAt: { lte: date, gte: getStageExpiryCutoff(date) },
 		},
 		orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
@@ -77,7 +78,7 @@ export type CurrentParcelStage = Awaited<
 	ReturnType<typeof getCurrentStagesByParcel>
 >[number];
 
-// Every observation of the user's parcels that can give a stage to a date in
+// Every observation of the user's member parcels that can give a stage to a date in
 // [from, to], i.e. including the expiry window before `from`. Oldest first.
 export async function getObservationsForPeriod(
 	db: DbClient,
@@ -87,7 +88,7 @@ export async function getObservationsForPeriod(
 ) {
 	return db.phenologyObservation.findMany({
 		where: {
-			parcel: { userId },
+			parcel: parcelAccessWhere(userId),
 			observedAt: { gte: getStageExpiryCutoff(from), lte: to },
 		},
 		orderBy: [{ observedAt: "asc" }, { createdAt: "asc" }],

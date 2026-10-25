@@ -161,7 +161,8 @@
 			"planned": "{dose} planned",
 			"untitled": "Treatment",
 			"name": "{product} on {parcel}",
-			"delete": "Delete {product} on {parcel}"
+			"delete": "Delete {product} on {parcel}",
+			"by": "By {author}"
 		}
 	},
 	"profile": {
