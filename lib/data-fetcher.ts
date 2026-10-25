@@ -160,7 +160,7 @@ export const getStageByParcel = cache(async (userId: string) => {
 });
 
 // Done treatments of the current year, with the parcel's area and each product's
-// substances: what the copper budget pacing needs for the dose per spray (P7).
+// substances: what the copper budget pacing needs for the dose per treatment (P7).
 export const getDoneTreatmentDoses = cache(async (userId: string) => {
 	return await prisma.treatment.findMany({
 		where: {

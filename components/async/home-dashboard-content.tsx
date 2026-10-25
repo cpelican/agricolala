@@ -15,7 +15,7 @@ import {
 } from "@/lib/disease-stage-sensitivity";
 import {
 	getEarliestStage,
-	getMedianSprayDoseGPerHa,
+	getMedianTreatmentDoseGPerHa,
 } from "@/lib/copper-budget-pacing";
 import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
 import { DiseaseRiskSection } from "../phenology/disease-risk-section";
@@ -111,7 +111,7 @@ export async function HomeDashboardContent({
 				isNoActiveDiseaseShownAbove={vineyardStageRisk !== null}
 				copperPacing={{
 					stage: getEarliestStage(parcelStages),
-					medianSprayDoseGPerHa: getMedianSprayDoseGPerHa(
+					medianTreatmentDoseGPerHa: getMedianTreatmentDoseGPerHa(
 						doneTreatmentDoses,
 						COPPER_SUBSTANCE_NAME,
 					),

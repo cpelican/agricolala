@@ -17,7 +17,7 @@ import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
 import Applicability from "@/components/treatments/applicability";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
-import { getMedianSprayDoseGPerHa } from "@/lib/copper-budget-pacing";
+import { getMedianTreatmentDoseGPerHa } from "@/lib/copper-budget-pacing";
 import { COPPER_SUBSTANCE_NAME } from "@/lib/coverage-helpers";
 
 export type PageProps<T extends Record<string, string>> = {
@@ -93,7 +93,7 @@ export default async function ParcelPage({
 						currentStage={currentStage}
 						copperPacing={{
 							stage: currentStage?.stage ?? null,
-							medianSprayDoseGPerHa: getMedianSprayDoseGPerHa(
+							medianTreatmentDoseGPerHa: getMedianTreatmentDoseGPerHa(
 								doneTreatmentDoses.filter(
 									(treatment) => treatment.parcelId === parcel.id,
 								),

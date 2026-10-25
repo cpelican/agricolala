@@ -40,12 +40,12 @@ function CopperPacingNote({
 		: pacing.isInWindow
 			? t("coverage.copperPacingDuring")
 			: t("coverage.copperPacingBefore");
-	const sprays =
-		pacing.spraysAhead === 1
-			? t("coverage.copperPacingSprayOne")
-			: t("coverage.copperPacingSprayOther").replace(
+	const treatments =
+		pacing.treatmentsAhead === 1
+			? t("coverage.copperPacingTreatmentOne")
+			: t("coverage.copperPacingTreatmentOther").replace(
 					"{count}",
-					String(pacing.spraysAhead),
+					String(pacing.treatmentsAhead),
 				);
 	const dose = (
 		pacing.isOwnDose
@@ -53,7 +53,7 @@ function CopperPacingNote({
 			: t("coverage.copperPacingDoseFloor")
 	).replace(
 		"{dose}",
-		`${formatNumber(pacing.sprayDoseGPerHa, locale, 0)} g/ha`,
+		`${formatNumber(pacing.treatmentDoseGPerHa, locale, 0)} g/ha`,
 	);
 	const text = template
 		.replace("{left}", `${formatKgPerHa(pacing.leftKgPerHa, locale)} ${unit}`)
@@ -61,7 +61,7 @@ function CopperPacingNote({
 			"{reserve}",
 			`${formatKgPerHa(pacing.reserveKgPerHa, locale)} ${unit}`,
 		)
-		.replace("{sprays}", sprays)
+		.replace("{treatments}", treatments)
 		.replace("{dose}", dose);
 
 	return (

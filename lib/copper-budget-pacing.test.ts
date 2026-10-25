@@ -1,20 +1,20 @@
 import { describe, test, expect } from "vitest";
 import {
-	COPPER_WINDOW_SPRAYS_BY_STAGE,
+	COPPER_WINDOW_TREATMENTS_BY_STAGE,
 	getCopperBudgetPacing,
 	getEarliestStage,
-	getMedianSprayDoseGPerHa,
+	getMedianTreatmentDoseGPerHa,
 } from "./copper-budget-pacing";
 import { PHENOLOGICAL_STAGES } from "./phenology";
 
 const COPPER = {
 	substanceName: "Copper",
 	maxDosageKgPerHa: 4,
-	medianSprayDoseGPerHa: null,
+	medianTreatmentDoseGPerHa: null,
 } as const;
 
 describe("getCopperBudgetPacing", () => {
-	test("keeps 4 sprays at the 100 g/ha floor before any copper", () => {
+	test("keeps 4 treatments at the 100 g/ha floor before any copper", () => {
 		expect(
 			getCopperBudgetPacing({
 				...COPPER,
@@ -24,34 +24,34 @@ describe("getCopperBudgetPacing", () => {
 		).toEqual({
 			leftKgPerHa: 2.5,
 			reserveKgPerHa: 0.4,
-			spraysAhead: 4,
-			sprayDoseGPerHa: 100,
+			treatmentsAhead: 4,
+			treatmentDoseGPerHa: 100,
 			isOwnDose: false,
 			isInWindow: false,
 			isShort: false,
 		});
 	});
 
-	test("counts the sprays at the grower's median dose", () => {
+	test("counts the treatments at the grower's median dose", () => {
 		const pacing = getCopperBudgetPacing({
 			...COPPER,
 			usedGPerHa: 3_000,
 			stage: "FLOWER_CLUSTERS",
-			medianSprayDoseGPerHa: 300,
+			medianTreatmentDoseGPerHa: 300,
 		});
 		expect(pacing?.reserveKgPerHa).toBeCloseTo(1.2);
 		expect(pacing?.isOwnDose).toBe(true);
 		expect(pacing?.isShort).toBe(false);
 	});
 
-	test("never counts a spray below 100 g/ha", () => {
+	test("never counts a treatment below 100 g/ha", () => {
 		const pacing = getCopperBudgetPacing({
 			...COPPER,
 			usedGPerHa: 500,
 			stage: "FRUIT_SET",
-			medianSprayDoseGPerHa: 60,
+			medianTreatmentDoseGPerHa: 60,
 		});
-		expect(pacing?.sprayDoseGPerHa).toBe(100);
+		expect(pacing?.treatmentDoseGPerHa).toBe(100);
 		expect(pacing?.isOwnDose).toBe(false);
 	});
 
@@ -78,7 +78,7 @@ describe("getCopperBudgetPacing", () => {
 				...COPPER,
 				usedGPerHa: 0,
 				stage: "BUNCH_CLOSURE",
-			})?.spraysAhead,
+			})?.treatmentsAhead,
 		).toBe(1);
 	});
 
@@ -112,12 +112,12 @@ describe("getCopperBudgetPacing", () => {
 		).toBeNull();
 	});
 
-	test("never asks for more sprays later in the season", () => {
-		const sprays = PHENOLOGICAL_STAGES.map(
-			(stage) => COPPER_WINDOW_SPRAYS_BY_STAGE[stage],
+	test("never asks for more treatments later in the season", () => {
+		const counts = PHENOLOGICAL_STAGES.map(
+			(stage) => COPPER_WINDOW_TREATMENTS_BY_STAGE[stage],
 		);
-		sprays.forEach((count, i) => {
-			if (i > 0) expect(count).toBeLessThanOrEqual(sprays[i - 1]);
+		counts.forEach((count, i) => {
+			if (i > 0) expect(count).toBeLessThanOrEqual(counts[i - 1]);
 		});
 	});
 });
@@ -142,13 +142,13 @@ function treatment(
 	};
 }
 
-describe("getMedianSprayDoseGPerHa", () => {
+describe("getMedianTreatmentDoseGPerHa", () => {
 	// 1 000 m² = 0.1 ha: 120 g of a 25 % copper product is 30 g, so 300 g/ha.
 	const tenth = { width: 50, height: 20 };
 
-	test("takes the middle spray, per hectare of each parcel", () => {
+	test("takes the middle treatment, per hectare of each parcel", () => {
 		expect(
-			getMedianSprayDoseGPerHa(
+			getMedianTreatmentDoseGPerHa(
 				[
 					treatment(tenth, [{ dose: 80, composition: [["Copper", 25]] }]),
 					treatment(tenth, [{ dose: 120, composition: [["Copper", 25]] }]),
@@ -161,9 +161,9 @@ describe("getMedianSprayDoseGPerHa", () => {
 		).toBe(300);
 	});
 
-	test("averages the two middle sprays and sums the products of one treatment", () => {
+	test("averages the two middle treatments and sums the products of one", () => {
 		expect(
-			getMedianSprayDoseGPerHa(
+			getMedianTreatmentDoseGPerHa(
 				[
 					treatment(tenth, [
 						{ dose: 80, composition: [["Copper", 25]] },
@@ -184,7 +184,7 @@ describe("getMedianSprayDoseGPerHa", () => {
 
 	test("prefers the measured area and skips treatments without the substance", () => {
 		expect(
-			getMedianSprayDoseGPerHa(
+			getMedianTreatmentDoseGPerHa(
 				[
 					treatment({ width: 1, height: 1, areaM2: 1_000 }, [
 						{ dose: 120, composition: [["Copper", 25]] },
@@ -195,7 +195,7 @@ describe("getMedianSprayDoseGPerHa", () => {
 			),
 		).toBe(300);
 		expect(
-			getMedianSprayDoseGPerHa(
+			getMedianTreatmentDoseGPerHa(
 				[treatment(tenth, [{ dose: 500, composition: [["Sulfur", 80]] }])],
 				"Copper",
 			),
