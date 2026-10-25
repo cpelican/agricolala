@@ -118,7 +118,10 @@ test("an admin approves a request in one click and the account opens", async ({
 			.getByRole("region", { name: "Recently approved" })
 			.getByText(pendingE2eUser.email),
 	).toBeVisible();
-	expect((await getPendingE2eUserAccess()).isAuthorized).toBe(true);
+	const access = await getPendingE2eUserAccess();
+	expect(access.isAuthorized).toBe(true);
+	// As the waiting screen promises: the introduction is gone once the account opens.
+	expect(access.accessRequest?.message).toBe("");
 
 	// Same session, no new sign-in: the next request reads the open account.
 	await pendingPage.reload();

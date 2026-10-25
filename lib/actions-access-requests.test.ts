@@ -166,7 +166,7 @@ describe("[Integration] access requests", () => {
 			expect(sendAccessGrantedEmail).not.toHaveBeenCalled();
 		});
 
-		test("opens the account, marks the request reviewed and emails the user", async () => {
+		test("opens the account, erases the message, marks the request reviewed and emails the user", async () => {
 			const pending = await createPendingRequest();
 			const admin = await createUser(adminEmail, true);
 			await prisma.adminUser.create({ data: { email: adminEmail } });
@@ -188,6 +188,7 @@ describe("[Integration] access requests", () => {
 			});
 			expect(user.isAuthorized).toBe(true);
 			expect(user.accessRequest?.reviewedAt).toBeInstanceOf(Date);
+			expect(user.accessRequest?.message).toBe("");
 			expect(sendAccessGrantedEmail).toHaveBeenCalledWith({
 				email: "ada@example.com",
 				name: "Ada",

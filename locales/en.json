@@ -200,7 +200,7 @@
 			"tipLink": "Something public that shows who you are: a social or LinkedIn profile, a personal or work website… It doesn’t have to be about wine.",
 			"requestExample": "A note like “I make wine and need this app” from someone@nowhere.com gives me nothing to check, so I’d have to say no. But if I can link your email to a real person, you’re in!",
 			"messageLabel": "A few words about you",
-			"messageHint": "Who you are, what you grow, and where I can find you online. Between 20 and 1000 characters. Only I will read it.",
+			"messageHint": "Who you are, what you grow, and where I can find you online. Between 20 and 1000 characters. Only I will read it, and I’ll delete it as soon as your account is open.",
 			"submit": "Send my request",
 			"sending": "Sending…",
 			"errorTooShort": "Please write at least 20 characters.",

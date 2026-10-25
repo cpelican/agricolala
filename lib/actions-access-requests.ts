@@ -97,7 +97,8 @@ export async function requestAccess(
 	}
 }
 
-// One click on the admin page: opens the account, then tells its owner.
+// One click on the admin page: opens the account, erases the introduction, then
+// tells its owner.
 export async function approveAccessRequest(
 	_previous: ApproveAccessRequestState,
 	formData: FormData,
@@ -119,7 +120,10 @@ export async function approveAccessRequest(
 		const user = await prisma.$transaction(async (tx) => {
 			await tx.accessRequest.update({
 				where: { userId },
-				data: { reviewedAt: new Date() },
+				// The introduction was only needed to decide: it's erased once the account
+				// opens, as the waiting screen promises. The row stays as a record that
+				// the account asked and when it was approved.
+				data: { reviewedAt: new Date(), message: "" },
 			});
 			return await tx.user.update({
 				where: { id: userId },

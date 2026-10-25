@@ -200,7 +200,7 @@
 			"tipLink": "Qualcosa di pubblico che mostri chi sei: un profilo social o LinkedIn, un sito personale o di lavoro… Non deve per forza parlare di vino.",
 			"requestExample": "Un messaggio come “Faccio vino e mi serve questa app” da someone@nowhere.com non mi dà niente da verificare, quindi dovrei dire di no. Ma se riesco a collegare la tua email a una persona vera, sei dentro!",
 			"messageLabel": "Qualche parola su di te",
-			"messageHint": "Chi sei, cosa coltivi e dove posso trovarti online. Tra 20 e 1000 caratteri. Lo leggerò solo io.",
+			"messageHint": "Chi sei, cosa coltivi e dove posso trovarti online. Tra 20 e 1000 caratteri. Lo leggerò solo io e lo cancellerò appena il tuo account sarà aperto.",
 			"submit": "Invia la richiesta",
 			"sending": "Invio in corso…",
 			"errorTooShort": "Scrivi almeno 20 caratteri.",
