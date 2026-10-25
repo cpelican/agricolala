@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { type PrismaClient } from "@prisma/client";
 import { cleanDatabase, seedTestData } from "@/test/setup-utilities";
 import { getTestPrisma } from "@/test/test-prisma-client";
@@ -9,7 +9,8 @@ import { createParcel } from "./actions";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
+// lib/auth-utils reads the session through next-auth/next.
+vi.mock("next-auth/next", () => ({ getServerSession: vi.fn() }));
 
 const migrationsDir = path.join(process.cwd(), "prisma/migrations");
 
