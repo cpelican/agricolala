@@ -72,6 +72,7 @@ describe("[Integration] saveWeatherDays", () => {
 			data: {
 				name: "Other place",
 				userId: testUser.id,
+				members: { create: { userId: testUser.id } },
 				latitude: 40,
 				longitude: 9,
 				width: 10,

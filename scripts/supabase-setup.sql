@@ -8,6 +8,7 @@ ALTER TABLE IF EXISTS "Account" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Session" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "VerificationToken" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "Parcel" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS "ParcelMember" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "WeatherHistoryTask" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "WeatherHistory" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS "_WeatherHistoryParcels" ENABLE ROW LEVEL SECURITY;
@@ -565,6 +566,37 @@ CREATE POLICY "Only admins can update access requests" ON "AccessRequest"
 DROP POLICY IF EXISTS "Only admins can delete access requests" ON "AccessRequest";
 CREATE POLICY "Only admins can delete access requests" ON "AccessRequest"
     FOR DELETE USING (private.is_admin((select auth.uid())::text));
+
+-- RLS policies for ParcelMember (users linked to a parcel, see design-docs/shared-parcels.md)
+-- A user sees their own memberships. Members are linked and unlinked from the Supabase dashboard
+-- (service_role) or by an admin; the app only writes the creator's row inside createParcel.
+DROP POLICY IF EXISTS "Users can view their own parcel memberships or admins can view all" ON "ParcelMember";
+CREATE POLICY "Users can view their own parcel memberships or admins can view all" ON "ParcelMember"
+    FOR SELECT USING (
+        (select auth.role()) = 'service_role' OR
+        (select auth.uid())::text = "userId" OR
+        private.is_admin((select auth.uid())::text)
+    );
+
+DROP POLICY IF EXISTS "Only admins can insert parcel memberships" ON "ParcelMember";
+CREATE POLICY "Only admins can insert parcel memberships" ON "ParcelMember"
+    FOR INSERT WITH CHECK (
+        (select auth.role()) = 'service_role' OR
+        private.is_admin((select auth.uid())::text)
+    );
+
+DROP POLICY IF EXISTS "Only admins can update parcel memberships" ON "ParcelMember";
+CREATE POLICY "Only admins can update parcel memberships" ON "ParcelMember"
+    FOR UPDATE
+    USING ((select auth.role()) = 'service_role' OR private.is_admin((select auth.uid())::text))
+    WITH CHECK ((select auth.role()) = 'service_role' OR private.is_admin((select auth.uid())::text));
+
+DROP POLICY IF EXISTS "Only admins can delete parcel memberships" ON "ParcelMember";
+CREATE POLICY "Only admins can delete parcel memberships" ON "ParcelMember"
+    FOR DELETE USING (
+        (select auth.role()) = 'service_role' OR
+        private.is_admin((select auth.uid())::text)
+    );
 
 -- _SubstanceDiseases modification policies (SELECT is handled by "Authenticated users can view" policy above)
 -- Drop old policies if they exist (from previous versions)

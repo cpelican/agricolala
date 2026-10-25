@@ -192,6 +192,7 @@ async function wipeE2eDatabase(tx: E2eTx) {
 	await tx.treatment.deleteMany();
 	await tx.parcelSubstanceAggregation.deleteMany();
 	await tx.userSubstanceAggregation.deleteMany();
+	await tx.parcelMember.deleteMany();
 	await tx.parcel.deleteMany();
 	await tx.session.deleteMany();
 	await tx.accessRequest.deleteMany();
@@ -249,6 +250,7 @@ export async function seedE2eDataOneParcel() {
 				...seededParcel,
 				type: CultureType.VINEYARD,
 				userId: user.id,
+				members: { create: { userId: user.id } },
 			},
 		});
 	});
@@ -285,6 +287,7 @@ export async function seedE2eData() {
 				...seededParcel,
 				type: CultureType.VINEYARD,
 				userId: user.id,
+				members: { create: { userId: user.id } },
 			},
 		});
 

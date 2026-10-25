@@ -300,6 +300,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 				height: 10,
 				type: "VINEYARD",
 				userId: testUser.id,
+				members: { create: { userId: testUser.id } },
 			},
 		});
 		await testPrisma.treatment.create({
@@ -368,6 +369,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 				height: 10,
 				type: "VINEYARD",
 				userId: testUser.id,
+				members: { create: { userId: testUser.id } },
 			},
 		});
 		const parcelLarge = await testPrisma.parcel.create({
@@ -379,6 +381,7 @@ describe("[Integration] updateSubstanceAggregations", () => {
 				height: 20,
 				type: "VINEYARD",
 				userId: testUser.id,
+				members: { create: { userId: testUser.id } },
 			},
 		});
 

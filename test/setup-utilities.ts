@@ -158,6 +158,7 @@ export async function seedTestData() {
 			height: 50,
 			type: "VINEYARD",
 			userId: testUser.id,
+			members: { create: { userId: testUser.id } },
 		},
 	});
 
