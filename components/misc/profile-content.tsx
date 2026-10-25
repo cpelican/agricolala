@@ -75,7 +75,7 @@ function LegalDocumentCard({
 						</div>
 					</div>
 				</LocaleLink>
-				<ChevronRight className="h-6 w-6 text-gray-400" />
+				<ChevronRight className="h-6 w-6 text-neutral-400" />
 			</CardContent>
 		</Card>
 	);
@@ -110,7 +110,7 @@ export function ProfileContent({ user, tosStatus }: ProfileContentProps) {
 						</Avatar>
 						<div>
 							<h3 className="text-lg font-medium">{user?.name}</h3>
-							<div className="flex items-center text-sm text-gray-600">
+							<div className="flex items-center text-sm text-muted-foreground">
 								<Mail className="h-4 w-4 mr-1" />
 								{user?.email}
 							</div>
@@ -148,7 +148,7 @@ export function ProfileContent({ user, tosStatus }: ProfileContentProps) {
 					<CardDescription>Version 1.0.0</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<p className="text-sm text-gray-600">
+					<p className="text-sm text-muted-foreground">
 						{t("profile.aboutDescription")}
 					</p>
 				</CardContent>

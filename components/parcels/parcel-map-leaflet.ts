@@ -214,7 +214,7 @@ export function renderParcelLayers(
 			icon: isHighlighted ? highlightedIcon : parcelMarkerIcon,
 		})
 			.bindPopup(
-				`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3><p class="text-sm text-gray-600">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p></div>`,
+				`<div class="p-2"><h3 class="font-medium">${parcel.name}</h3><p class="text-sm text-muted-foreground">${parcel.latitude.toFixed(4)}, ${parcel.longitude.toFixed(4)}</p></div>`,
 			)
 			.addTo(parcelLayers);
 

@@ -153,10 +153,10 @@ export function ParcelsContent({ parcels, stages }: ParcelsContentProps) {
 							>
 								<X className="h-4 w-4" />
 							</Button>
-							<p className="text-gray-700 font-medium">
+							<p className="text-neutral-700 font-medium">
 								{t("parcels.clickMapToAddFirst")}
 							</p>
-							<p className="text-sm text-gray-500 mt-1">
+							<p className="text-sm text-muted-foreground mt-1">
 								{t("parcels.zoomInToFindLocation")}
 							</p>
 						</div>
@@ -173,13 +173,13 @@ export function ParcelsContent({ parcels, stages }: ParcelsContentProps) {
 									<LocaleLink href={`/parcels/${parcel.id}`} className="flex-1">
 										<div>
 											<h3 className="font-medium">{parcel.name}</h3>
-											<p className="text-sm text-gray-600 capitalize">
+											<p className="text-sm text-muted-foreground capitalize">
 												{parcel.type.toLowerCase()}
 											</p>
-											<p className="text-sm text-gray-500">
+											<p className="text-sm text-muted-foreground">
 												{formatParcelAreaDisplay(parcel)}
 											</p>
-											<div className="flex items-center text-gray-400 mt-2">
+											<div className="flex items-center text-neutral-400 mt-2">
 												<MapPin className="h-4 w-4 mr-1" />
 												<span className="text-xs">
 													{parcel.latitude.toFixed(4)},{" "}
@@ -189,7 +189,7 @@ export function ParcelsContent({ parcels, stages }: ParcelsContentProps) {
 										</div>
 									</LocaleLink>
 									<div className="">
-										<ChevronRight className="h-6 w-6 text-gray-400" />
+										<ChevronRight className="h-6 w-6 text-neutral-400" />
 									</div>
 								</div>
 								<ParcelStageRow

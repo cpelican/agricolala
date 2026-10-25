@@ -75,7 +75,7 @@ export function ChartWrapper({
 	if (!hasData && emptyMessage) {
 		return (
 			<div
-				className="flex items-center justify-center text-center text-gray-500"
+				className="flex items-center justify-center text-center text-muted-foreground"
 				style={{ height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
 			>
 				{emptyMessage}

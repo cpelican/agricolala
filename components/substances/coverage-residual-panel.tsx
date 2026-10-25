@@ -144,7 +144,7 @@ function Gauge({
 				/>
 				<div
 					className={`absolute top-1/2 h-5 w-2 -translate-y-1/2 rounded-full border-2 bg-white ${
-						isOverflow ? "border-red-600" : "border-gray-700"
+						isOverflow ? "border-red-600" : "border-neutral-700"
 					}`}
 					style={{ left: `calc(${pct}% - 4px)` }}
 				/>

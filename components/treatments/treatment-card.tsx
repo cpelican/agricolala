@@ -62,7 +62,7 @@ export function TreatmentCard({
 			<CardContent className="p-4">
 				<div className="flex justify-between items-start mb-3">
 					<div className="flex-1">
-						<p className="text-sm text-gray-600">
+						<p className="text-sm text-muted-foreground">
 							Target:{" "}
 							{treatment.diseaseIds
 								.map((diseaseId) => {
@@ -79,20 +79,20 @@ export function TreatmentCard({
 					/>
 				</div>
 
-				<div className="flex items-center text-sm text-gray-600 mb-2">
+				<div className="flex items-center text-sm text-muted-foreground mb-2">
 					<MapPin className="h-4 w-4 mr-1" />
 					{parcelName}
 				</div>
 
 				{formattedDate && (
-					<div className="flex items-center text-sm text-gray-600 mb-2">
+					<div className="flex items-center text-sm text-muted-foreground mb-2">
 						<Calendar className="h-4 w-4 mr-1" />
 						{formattedDate}
 					</div>
 				)}
 
 				{treatment.waterDose && (
-					<div className="flex items-center text-sm text-gray-600 mb-3">
+					<div className="flex items-center text-sm text-muted-foreground mb-3">
 						<Droplets className="h-4 w-4 mr-1" />
 						Water: {treatment.waterDose}L
 					</div>
@@ -104,7 +104,7 @@ export function TreatmentCard({
 							{treatment.productApplications.map((app, index) => (
 								<div
 									key={index}
-									className="text-sm text-gray-600 bg-gray-50 p-2 rounded"
+									className="text-sm text-muted-foreground bg-neutral-50 p-2 rounded"
 								>
 									<div className="font-medium">
 										{Math.round(app.dose)}g of {app.product.brand}{" "}

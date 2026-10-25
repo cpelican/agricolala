@@ -25,7 +25,7 @@ export function SidebarNavigation() {
 								`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors`,
 								isActive
 									? "text-primary-700 bg-hsl"
-									: "text-gray-500 hover:text-gray-700",
+									: "text-muted-foreground hover:text-neutral-700",
 							)}
 						>
 							<item.icon className="h-6 w-6 mb-1" />
