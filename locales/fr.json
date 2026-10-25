@@ -619,7 +619,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala : application gratuite de viticulture et registre phytosanitaire",
-			"description": "Appli gratuite et open source pour les vignerons. Dessinez vos parcelles, tenez votre registre phytosanitaire avec chaque traitement au stade où il a été fait, suivez le cuivre et le soufre utilisés, et exportez tout vers Excel."
+			"description": "Appli gratuite et open source pour les vignerons et tous les passionnés de vigne. Dessinez vos parcelles, tenez votre registre phytosanitaire avec chaque traitement au stade où il a été fait, suivez le cuivre et le soufre utilisés, et exportez tout vers Excel."
 		},
 		"skipToContent": "Aller au contenu",
 		"homeLink": "Agricolala, accueil",
