@@ -136,3 +136,24 @@ export async function getStageEstimate(
 		seasonStart,
 	);
 }
+
+// Estimates of the given parcels, leaving out those with nothing to confirm.
+export async function getStageEstimates(
+	db: DbClient,
+	parcelIds: string[],
+	date: Date,
+) {
+	const estimates = await Promise.all(
+		parcelIds.map(async (parcelId) => ({
+			parcelId,
+			stage: await getStageEstimate(db, parcelId, date),
+		})),
+	);
+	return estimates.flatMap(({ parcelId, stage }) =>
+		stage ? [{ parcelId, stage }] : [],
+	);
+}
+
+export type ParcelStageEstimate = Awaited<
+	ReturnType<typeof getStageEstimates>
+>[number];

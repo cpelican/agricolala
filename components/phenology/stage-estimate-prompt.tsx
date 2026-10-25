@@ -52,7 +52,7 @@ export function StageEstimatePrompt({
 	parcelId: string;
 	stage: PhenologicalStage;
 }) {
-	const { t, locale } = useTranslations();
+	const { t } = useTranslations();
 	const { recordStage, isSubmitting } = useRecordStage(parcelId);
 	const storageKey = `${NOT_YET_EVENT}:${parcelId}:${stage}`;
 	const isSnoozed = useSyncExternalStore(
@@ -63,8 +63,43 @@ export function StageEstimatePrompt({
 	);
 	if (isSnoozed) return null;
 
-	const label = t(`phenology.stages.${stage}.label`).toLocaleLowerCase(locale);
+	return (
+		<StageEstimateNote t={t} stage={stage}>
+			<Button
+				type="button"
+				size="sm"
+				onClick={() => void recordStage(stage)}
+				disabled={isSubmitting}
+			>
+				{t("phenology.estimateConfirm")}
+			</Button>
+			<Button
+				type="button"
+				size="sm"
+				variant="outline"
+				onClick={() =>
+					writeNotYetUntil(storageKey, Date.now() + NOT_YET_DAYS * MS_PER_DAY)
+				}
+				disabled={isSubmitting}
+			>
+				{t("phenology.estimateNotYet")}
+			</Button>
+		</StageEstimateNote>
+	);
+}
 
+// The estimate's box, shared by the parcel page and the treatment modal; the
+// buttons differ (record now there, pick the stage for the treatment here).
+export function StageEstimateNote({
+	t,
+	stage,
+	children,
+}: {
+	t: (key: string) => string;
+	stage: PhenologicalStage;
+	children: React.ReactNode;
+}) {
+	const label = t(`phenology.stages.${stage}.label`).toLocaleLowerCase();
 	return (
 		<div
 			role="note"
@@ -79,27 +114,7 @@ export function StageEstimatePrompt({
 				<ExperimentalLabel />
 			</div>
 			<p className="m-0 text-muted-foreground">{t("phenology.estimateBody")}</p>
-			<div className="flex flex-wrap gap-2">
-				<Button
-					type="button"
-					size="sm"
-					onClick={() => void recordStage(stage)}
-					disabled={isSubmitting}
-				>
-					{t("phenology.estimateConfirm")}
-				</Button>
-				<Button
-					type="button"
-					size="sm"
-					variant="outline"
-					onClick={() =>
-						writeNotYetUntil(storageKey, Date.now() + NOT_YET_DAYS * MS_PER_DAY)
-					}
-					disabled={isSubmitting}
-				>
-					{t("phenology.estimateNotYet")}
-				</Button>
-			</div>
+			<div className="flex flex-wrap gap-2">{children}</div>
 		</div>
 	);
 }

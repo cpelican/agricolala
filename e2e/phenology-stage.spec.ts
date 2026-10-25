@@ -268,3 +268,21 @@ test("'Not yet' hides the temperature estimate on this device", async ({
 		page.getByRole("main").getByRole("button", { name: "Mark Flowering" }),
 	).toHaveAttribute("aria-pressed", "false");
 });
+
+test("the treatment modal offers the temperature estimate without picking it", async ({
+	page,
+}) => {
+	await openSeededParcelWithFloweringEstimate(page);
+	await page.getByRole("button", { name: "Add Treatment" }).click();
+	const dialog = page.getByRole("dialog", { name: "Add Treatment" });
+	const estimate = dialog.getByTestId("stage-estimate-prompt");
+	await expect(estimate).toContainText("Have your vines reached flowering?");
+	// Only offered: no stage picked and no bee reminder until the grower taps it.
+	await expect(dialog.getByRole("radio", { checked: true })).toHaveCount(0);
+	await expect(dialog.getByTestId("flowering-reminder")).toHaveCount(0);
+
+	await estimate.getByRole("button", { name: "Yes, mark it" }).click();
+	await expect(dialog.getByRole("radio", { name: "Flowering" })).toBeChecked();
+	await expect(dialog.getByTestId("flowering-reminder")).toBeVisible();
+	await expect(estimate).toHaveCount(0);
+});

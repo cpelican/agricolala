@@ -49,6 +49,9 @@ export function ParcelDetail({
 					parcelId={parcel.id}
 					parcels={[]}
 					stages={currentStage ? [currentStage] : []}
+					stageEstimates={
+						stageEstimate ? [{ parcelId: parcel.id, stage: stageEstimate }] : []
+					}
 				/>
 				<ParcelStageCard
 					parcelId={parcel.id}
