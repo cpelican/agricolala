@@ -39,7 +39,7 @@ A parcel has exactly one owner, `Parcel.userId`, and almost every query filters 
 | Area | Where | What it does today | Gap for #74 |
 | --- | --- | --- | --- |
 | Data model | `Parcel.userId`, `Treatment.userId` in `prisma/schema.prisma` | One owner per parcel; treatment stores its author | No way to link a second user |
-| Parcel list, detail, map | `getParcels`, `getParcelDetail` in `lib/data-fetcher.ts:114`, `:123`; `GET /api/parcels` in `app/api/parcels/route.ts:16` | `where: { userId }` on the parcel | Shared parcel invisible to other members |
+| Parcel list, detail, map | `getParcels`, `getParcelDetail` in `lib/data-fetcher.ts:114`, `:123` | `where: { userId }` on the parcel | Shared parcel invisible to other members |
 | Treatment list | `getTreatments` in `lib/data-fetcher.ts:133` | `where: { userId }` on the **treatment** | Hides treatments other members recorded |
 | Create treatment | `createTreatment` in `lib/actions.ts:56` | Checks every selected parcel has `userId = me` | A member cannot treat a shared parcel |
 | Delete treatment / parcel | `deleteTreatment` `lib/actions.ts:166`, `deleteParcel` `lib/actions.ts:278` | Only rows with `userId = me` | Needs a rule (D2, D3) |
@@ -151,7 +151,7 @@ Every row in "Current state" that filters on `userId` switches to these helpers,
 Four PRs, each mergeable on its own. Nothing is visible to users until a parcel is actually shared in Supabase, and **no parcel should be shared in prod before PR 4 is merged**, so a half-shipped state is never seen.
 
 1. **PR 1 — Model and backfill.** `ParcelMember` model + migration with creator backfill, `createParcel` writes the creator row, RLS on the new table, backfill integration test. No read changes: no behaviour change.
-2. **PR 2 — Access through membership.** `lib/parcel-access.ts`; switch parcel list/detail/map, `/api/parcels`, treatment list, `createTreatment`, `deleteTreatment` (D2, author only; delete button hidden on others' treatments), `deleteParcel` (D3, creator only; button hidden for other members), phenology queries and `recordPhenologyObservation`, coverage fetcher. "by …" label on treatment cards (D1) with en/it strings. RLS on `Parcel` and `Treatment`. Two-user integration tests; e2e spec with a seeded second user.
+2. **PR 2 — Access through membership.** `lib/parcel-access.ts`; switch parcel list/detail/map, treatment list, `createTreatment`, `deleteTreatment` (D2, author only; delete button hidden on others' treatments), `deleteParcel` (D3, creator only; button hidden for other members), phenology queries and `recordPhenologyObservation`, coverage fetcher. "by …" label on treatment cards (D1) with en/it strings. RLS on `Parcel` and `Treatment`. Two-user integration tests; e2e spec with a seeded second user.
 3. **PR 3 — Totals per parcel.** Aggregation core rewritten as above (D5), refresh for every member, `npm run aggregations:rebuild` script. Integration tests in `lib/update-substance-aggregations.test.ts`.
 4. **PR 4 — Background jobs, export, runbook.** Suggestions cron loops over parcels with one TODO each (D4); Excel export over member parcels (D6); readme "Share a parcel" runbook. Cron and export tests.
 
