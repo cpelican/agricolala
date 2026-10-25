@@ -170,7 +170,11 @@ export function TreatmentStageField({
 				</p>
 			) : null}
 			{value === null && estimatedStage ? (
-				<StageEstimateNote t={t} stage={estimatedStage}>
+				<StageEstimateNote
+					t={t}
+					stage={estimatedStage}
+					testId="stage-estimate-offer"
+				>
 					<Button
 						type="button"
 						size="sm"

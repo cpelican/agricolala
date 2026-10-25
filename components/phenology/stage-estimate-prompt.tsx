@@ -64,7 +64,7 @@ export function StageEstimatePrompt({
 	if (isSnoozed) return null;
 
 	return (
-		<StageEstimateNote t={t} stage={stage}>
+		<StageEstimateNote t={t} stage={stage} testId="stage-estimate-prompt">
 			<Button
 				type="button"
 				size="sm"
@@ -93,17 +93,19 @@ export function StageEstimatePrompt({
 export function StageEstimateNote({
 	t,
 	stage,
+	testId,
 	children,
 }: {
 	t: (key: string) => string;
 	stage: PhenologicalStage;
+	testId: string;
 	children: React.ReactNode;
 }) {
 	const label = t(`phenology.stages.${stage}.label`).toLocaleLowerCase();
 	return (
 		<div
 			role="note"
-			data-testid="stage-estimate-prompt"
+			data-testid={testId}
 			className="space-y-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm"
 		>
 			<div className="flex flex-wrap items-center gap-x-2 gap-y-1">

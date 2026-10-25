@@ -234,7 +234,10 @@ async function openSeededParcelWithFloweringEstimate(page: Page) {
 		.getByRole("main")
 		.getByRole("link", { name: new RegExp(seededParcel.name) })
 		.click();
-	const prompt = page.getByTestId("stage-estimate-prompt");
+	// The page keeps a hidden copy of the stage card: only count the visible one.
+	const prompt = page
+		.getByTestId("stage-estimate-prompt")
+		.filter({ visible: true });
 	await expect(prompt).toContainText("Have your vines reached flowering?");
 	await expect(prompt.getByText("Experimental")).toBeVisible();
 	return prompt;
@@ -275,7 +278,7 @@ test("the treatment modal offers the temperature estimate without picking it", a
 	await openSeededParcelWithFloweringEstimate(page);
 	await page.getByRole("button", { name: "Add Treatment" }).click();
 	const dialog = page.getByRole("dialog", { name: "Add Treatment" });
-	const estimate = dialog.getByTestId("stage-estimate-prompt");
+	const estimate = dialog.getByTestId("stage-estimate-offer");
 	await expect(estimate).toContainText("Have your vines reached flowering?");
 	// Only offered: no stage picked and no bee reminder until the grower taps it.
 	await expect(dialog.getByRole("radio", { checked: true })).toHaveCount(0);
