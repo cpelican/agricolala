@@ -63,4 +63,4 @@ What it does:
 For amateur winegrowers who want to keep proper records without the complexity of enterprise solutions.
 
 What do you think? Would love feedback from fellow wine growers!
-https://agricolala-eta.vercel.app/
+https://www.agricolala.eu/

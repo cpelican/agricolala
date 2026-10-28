@@ -1,6 +1,6 @@
 # Agricolala
 
-See you at https://agricolala-eta.vercel.app/
+See you at https://www.agricolala.eu/
 
 Agricolala helps you manage your wineyard treatments and track substance usage to ensure compliance with organic EU agricultural regulations.
 
