@@ -11,7 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type TranslationType } from "@/lib/i18n/dictionaries";
-import { getLocaleFromBrowser, type Locale } from "@/lib/i18n/locale";
 import { Button } from "../ui/button";
 
 const signInWithGoogle = () => {
@@ -19,18 +18,17 @@ const signInWithGoogle = () => {
 };
 
 interface SignInContentProps {
-	authDicts: Record<Locale, TranslationType["auth"]>;
+	authDict: TranslationType["auth"];
 	hasCredentialsProvider?: boolean;
 	hasGoogleProvider?: boolean;
 }
 
 export const SignInContent = ({
-	authDicts,
+	authDict,
 	hasCredentialsProvider = false,
 	hasGoogleProvider = true,
 }: SignInContentProps) => {
 	const router = useRouter();
-	const lang = getLocaleFromBrowser();
 	const [hasCheckedSession, setHasCheckedSession] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -75,14 +73,14 @@ export const SignInContent = ({
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl font-bold text-primary-700">
-						{authDicts[lang].title}
+						{authDict.title}
 					</CardTitle>
-					<CardDescription>{authDicts[lang].description}</CardDescription>
+					<CardDescription>{authDict.description}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{hasGoogleProvider && (
 						<Button onClick={signInWithGoogle} className="w-full" size="lg">
-							{authDicts[lang].signInWithGoogle}
+							{authDict.signInWithGoogle}
 						</Button>
 					)}
 					{hasCredentialsProvider && hasGoogleProvider && (
@@ -127,7 +125,7 @@ export const SignInContent = ({
 						</form>
 					)}
 					<p className="pt-2 text-center text-sm leading-relaxed text-muted-foreground">
-						{authDicts[lang].newAccountNote}
+						{authDict.newAccountNote}
 					</p>
 				</CardContent>
 			</Card>

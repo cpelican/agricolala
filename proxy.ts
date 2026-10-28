@@ -8,6 +8,7 @@ import {
 	localeRegex,
 	getLocaleFromPathname,
 	LOCALE_HEADER,
+	LOCALE_COOKIE,
 	languageIsLocale,
 } from "@/lib/i18n/locale";
 
@@ -36,9 +37,6 @@ function getLocaleFromHeaders(request: Request): Locale {
 	return getLocaleFromAcceptLanguage(request.headers.get("accept-language"));
 }
 
-// The language of the last localized page the visitor opened: their latest choice,
-// whether they picked it on the website, in their profile, or by following a link.
-const LOCALE_COOKIE = "NEXT_LOCALE";
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 // Language for a URL without a locale prefix: the remembered choice, then the profile

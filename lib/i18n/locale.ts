@@ -6,6 +6,10 @@ export const appLanguages = {
 
 export const LOCALE_HEADER = "x-locale";
 
+// The language of the last localized page the visitor opened: their latest choice,
+// whether they picked it on the website, in their profile, or by following a link.
+export const LOCALE_COOKIE = "NEXT_LOCALE";
+
 export type Locale = (typeof appLanguages)[keyof typeof appLanguages];
 
 export const defaultLocale = appLanguages.en;
@@ -27,20 +31,4 @@ export const getLanguageAsLocale = (language: string | undefined): Locale => {
 
 export const getLocaleFromPathname = (pathname: string): Locale => {
 	return getLanguageAsLocale(pathname.match(localeRegex)?.[1]);
-};
-
-export const getLocaleFromBrowser = (): Locale => {
-	// SSR has no navigator; sign-in renders null until the client session check, so the real UI uses the browser locale.
-	if (typeof navigator === "undefined") {
-		return defaultLocale;
-	}
-	// Browsers report regional tags ("it-IT"): match on the base language, in the user's
-	// order of preference, like the Accept-Language negotiation on the server.
-	const preferred = navigator.languages?.length
-		? navigator.languages
-		: [navigator.language];
-	const supported = preferred
-		.map((tag) => tag.split("-")[0]?.toLowerCase())
-		.find((language) => languageIsLocale(language));
-	return getLanguageAsLocale(supported);
 };
