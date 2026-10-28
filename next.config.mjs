@@ -12,7 +12,12 @@ const nextConfig = {
 			static: 300,
 		},
 		serverActions: {
-			allowedOrigins: ["agricolala-eta.vercel.app", "*.agricolala-eta.vercel.app"],
+			allowedOrigins: [
+				"www.agricolala.eu",
+				"agricolala.eu",
+				"agricolala-eta.vercel.app",
+				"*.agricolala-eta.vercel.app",
+			],
 		},
 		webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'TTFB', 'INP'],
 	},
