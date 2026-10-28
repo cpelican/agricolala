@@ -1,13 +1,9 @@
 import { dictionaries } from "@/lib/i18n/dictionaries";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { SignInContent } from "@/components/auth/signin-content";
 
-const signinDicts = {
-	en: dictionaries.en.auth,
-	it: dictionaries.it.auth,
-	fr: dictionaries.fr.auth,
-};
-
 export default async function SignIn() {
+	const lang = await getRequestLocale();
 	const hasCredentialsProvider =
 		!!process.env.TEST_USER_EMAIL &&
 		!!process.env.TEST_USER_PASSWORD &&
@@ -17,7 +13,7 @@ export default async function SignIn() {
 
 	return (
 		<SignInContent
-			authDicts={signinDicts}
+			authDict={dictionaries[lang].auth}
 			hasCredentialsProvider={hasCredentialsProvider}
 			hasGoogleProvider={hasGoogleProvider}
 		/>

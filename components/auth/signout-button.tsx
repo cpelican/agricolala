@@ -15,7 +15,7 @@ export const SignOutButton = ({
 }) => {
 	return (
 		<Button
-			onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+			onClick={() => signOut({ callbackUrl: "/welcome" })}
 			variant={variant}
 			className={className}
 		>
