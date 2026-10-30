@@ -106,6 +106,7 @@ Findings from English, Italian and French sources. Numbers are given with their 
 ### Measuring sugar: Babo, density and the end of fermentation
 
 - 1 °Babo ≈ 10 g of grape sugar per kg of must; Babo hydrometers are calibrated at 15 °C or 17.5 °C and the reading must be corrected at other temperatures. Potential alcohol ≈ Babo × 0.65 (around 15 °Babo), × 0.68 (around 20), × 0.70 (around 24) (Pisciotta 2018, Rivista di Agraria).
+- **White vs red: the sugar → alcohol factor differs.** The EU factor is 16.83 g of sugar per litre for 1 % vol of alcohol, and yeast strains range from 16.5 to 17.2 g/L. Warmer fermentation, mixing juice with skins and open vats lose more alcohol to evaporation (Theron 2020, Wineland). Cellar practice in France uses about 17 g/L for whites and rosés and 18 g/L for reds (winemakers' forum, not a technical reference); some put reds fermented warm with pump-overs at 19–20 g/L (forum). **Implication:** the potential alcohol shown from the first Babo reading uses 17 g/L for white and rosé lots and 18 g/L for red lots (g/L of sugar ≈ Babo × 10 × must density), shown as an estimate.
 - Refractometers are only valid on must: once alcohol is above about 1 % they read too high. Hydrometers are the tool to follow the fermentation (same source).
 - Exact conversion: °Oe = °KMW × (4.54 + 0.022 × °KMW) (German Wikipedia, Klosterneuburger Mostwaage). Density = 1 + °Oe / 1000.
 - At the end, alcohol makes the liquid lighter than water: the BNIC follow-up sheet runs from density 1.095 down to 0.990. On a Babo hydrometer this means readings at or below 0.
@@ -114,7 +115,6 @@ Findings from English, Italian and French sources. Numbers are given with their 
 ### How to follow a fermentation
 
 - Measure density (Babo) at least once a day, ideally twice, until a plateau (at least two identical readings in a row); then confirm the end with a sugar analysis (< 2 g/L). Write down every input added (BNIC 2024, *Suivi de la fermentation alcoolique*).
-- Measure twice a day Baumé or Brix **and** temperature and plot them as a curve, to see the slowdown before the stop (AWRI 2013).
 - **Implication:** the reading form takes value + temperature together; the curve shows both; "plateau" = two identical readings.
 
 ### Temperature and pH
@@ -282,12 +282,12 @@ The grower creates a lot in the cellar, on the phone, often with wet hands. So t
 | # | Question | Answers | Used for | Field |
 | --- | --- | --- | --- | --- |
 | Q1 | Name of the vat | Text ("Vasca 1") | List, export | `name` |
-| Q2 | White, rosé or red? | White · Rosé · Red | Temperature ranges (whites 12–18 °C, reds 20–28 °C, alert > 32 °C), SO₂ limit (Demeter 140 vs 100 mg/L dry), which follow-up questions appear | `color` |
+| Q2 | White, rosé or red? | White · Rosé · Red | Potential alcohol factor (17 vs 18 g/L per % vol), temperature ranges (whites 12–18 °C, reds 20–28 °C, alert > 32 °C), SO₂ limit (Demeter 140 vs 100 mg/L dry), which follow-up questions appear | `color` |
 | Q3 | How will it ferment? | Spontaneous (default) · Pied de cuve · Selected yeast | "Not started" window, advice ladder, Demeter status | `mode` |
 | Q4 | Which rules do you follow? | Biodynamic (default) · Organic · Conventional | Highest advice level shown, SO₂ limit, allowed inputs | `standard` |
 | Q5 | When were the grapes picked? | Date (last picking day if several) | Days between last sulfur/copper spray and harvest, rain in the 30 days before harvest, pied de cuve reminder | `harvestedAt` |
 | Q6 | When did the fermentation start (or the must go into the vat)? | Date, default today | Time axis of the curve, "not started" window | `startedAt` |
-| Q7 | First reading | Babo and temperature | Baseline of the curve: ⅓ of the drop for the yeast-hulls hint, "not started" check, potential alcohol (Babo × 0.65–0.70) | first `FermentationReading` |
+| Q7 | First reading | Babo and temperature | Baseline of the curve: ⅓ of the drop for the yeast-hulls hint, "not started" check, potential alcohol (17 g/L of sugar per % vol for white and rosé, 18 g/L for red) | first `FermentationReading` |
 
 **Recommended (step 2 — "Add details", each skippable):**
 
@@ -608,6 +608,7 @@ Pages opened for this doc (as of 25 Oct 2026):
 20. [Réussir Vigne (15 Apr 2025) — Sulfitage : vaut-il mieux apporter de petites doses de SO₂ régulièrement ou des doses plus importantes ?](https://www.reussir.fr/vigne/sulfitage-vaut-il-mieux-apporter-de-petites-doses-de-so2-regulierement-ou-des-doses-plus)
 21. [Réussir Vigne (31 Mar 2016) — Comment réduire les doses de SO₂](https://www.reussir.fr/vigne/comment-reduire-les-doses-de-so2)
 22. [Crowe — Protecting your wine from oxygen during racking, Winemaker Magazine](https://winemakermag.com/wine-wizard/protecting-your-wine-from-oxygen-during-racking)
+23. [Theron (1 Apr 2020) — The conversion of sugar to alcohol, Wineland](https://wineland.co.za/the-conversion-of-sugar-to-alcohol)
 
 Abstract only (full text unreachable):
 
@@ -620,6 +621,8 @@ Found through search, summary only (not opened in full):
 - [Michigan State University — Late-season fungicide sprays in grapes and potential effects on fermentation](https://www.canr.msu.edu/news/late_season_fungicide_sprays_in_grapes_and_potential_effects_on_fermentatio)
 - [Virginia Tech — Vintner's Corner (Botrytis, laccase)](https://enology.fst.vt.edu/VC/NOVDEC96.html)
 - [Réussir Vigne — Des densimètres connectés pour maîtriser la fermentation alcoolique](https://www.reussir.fr/vigne/des-densimetres-connectes-pour-maitriser-la-fermentation-alcoolique-avec-precision)
+- [Wine Making Talk — How many grams of sugar equal 1 % alcohol?](https://www.winemakingtalk.com/threads/how-many-grams-of-sugar-equal-1-alcohol.33077/latest) (forum)
+- [La Passion du Vin — Titre volumique](https://www.lapassionduvin.com/de-la-terre-au-verre/5858-titre-volumique) (forum)
 - [Vinetur (2023) — Tipos de fermentación: cómo es el proceso en el vino](https://www.vinetur.com/2023040572846/tipos-de-fermentacion-como-es-el-proceso-en-el-vino.html)
 - [Mettler Toledo — Density of wine during fermentation](https://www.mt.com/ch/it/home/library/applications/lab-analytical-instruments/density-of-wine-during-fermentation.html)
 - [Isolation and identification of indigenous wine yeasts and their use in alcoholic fermentation (PMC7709452)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7709452/)
