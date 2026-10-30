@@ -191,7 +191,7 @@
 		"email": "E-mail",
 		"password": "Mot de passe",
 		"signInWithGoogle": "Se connecter avec Google",
-		"newAccountNote": "Nouveau ici ? Se connecter avec Google crée aussi votre compte. Pour éviter les robots, j’ouvre chaque compte à la main : la première fois, je vous demanderai quelques mots sur vous.",
+		"newAccountNote": "Première visite ? Se connecter avec Google crée aussi votre compte. Pour éviter les robots, j’ouvre chaque compte à la main : la première fois, je vous demanderai quelques mots sur vous.",
 		"pending": {
 			"title": "Vous y êtes presque !",
 			"why": "Agricolala est un projet mené par une seule personne, et j’ouvre chaque nouveau compte à la main pour éviter les robots. Présentez-vous en quelques mots ci-dessous : je vous laisserai entrer avec plaisir.",
@@ -213,7 +213,7 @@
 			"replyDelay": "quelques jours",
 			"sentTitle": "Demande envoyée le {date}",
 			"sentText": "Je réponds généralement sous {delay}. Vous recevrez un e-mail à {email} dès que votre compte sera ouvert ; il vous suffira alors de vous reconnecter.",
-			"signedInAs": "Connecté en tant que"
+			"signedInAs": "Connecté·e en tant que"
 		},
 		"grantedEmail": {
 			"subject": "Votre carnet Agricolala est ouvert",
@@ -327,7 +327,7 @@
 				},
 				"description": {
 					"title": "2. Description du Service",
-					"content": "Agricolala est une application de gestion agricole qui permet aux utilisateurs de :",
+					"content": "Agricolala est une application de gestion agricole qui permet aux utilisateur·ices de :",
 					"listItems": [
 						"Suivre les parcelles agricoles et leurs caractéristiques",
 						"Enregistrer les traitements et l’utilisation de produits chimiques",
@@ -336,14 +336,14 @@
 					]
 				},
 				"responsibilities": {
-					"title": "3. Responsabilités de l’utilisateur",
-					"content": "En tant qu’utilisateur du Service, vous vous engagez à :",
+					"title": "3. Vos responsabilités",
+					"content": "En utilisant le Service, vous vous engagez à :",
 					"listItems": [
 						"Fournir des informations exactes et complètes sur vos activités agricoles",
 						"Respecter toutes les réglementations agricoles locales, régionales et nationales applicables",
 						"Utiliser le Service uniquement à des fins agricoles licites",
 						"Préserver la sécurité de vos identifiants de connexion",
-						"Ne pas partager votre compte avec des utilisateurs non autorisés",
+						"Ne pas partager votre compte avec des personnes non autorisées",
 						"Signaler immédiatement toute faille de sécurité suspectée"
 					]
 				},
@@ -351,9 +351,9 @@
 					"title": "4. Données agricoles et conformité",
 					"content": "Avertissement important : cette application est conçue pour aider à la tenue des registres agricoles et ne remplace ni un conseil agricole professionnel ni le respect de la réglementation.",
 					"listItems": [
-						"Les utilisateurs sont responsables du respect de toutes les réglementations agricoles applicables",
+						"Il vous appartient de respecter toutes les réglementations agricoles applicables",
 						"Le Service ne garantit ni la conformité réglementaire ni les résultats agricoles",
-						"Les utilisateurs doivent vérifier toutes les données d’utilisation de produits chimiques par rapport aux étiquettes officielles des produits et à la réglementation",
+						"Vous devez vérifier toutes les données d’utilisation de produits chimiques par rapport aux étiquettes officielles des produits et à la réglementation",
 						"Les décisions agricoles doivent être prises en concertation avec des professionnels qualifiés"
 					]
 				},
@@ -406,7 +406,7 @@
 						"Améliorer le Service et développer de nouvelles fonctions",
 						"Entraîner des modèles d’apprentissage automatique à partir de données anonymisées pour améliorer les analyses et prévisions agricoles",
 						"Assurer le respect de la réglementation agricole",
-						"Fournir une assistance aux utilisateurs"
+						"Vous fournir une assistance"
 					]
 				},
 				"sharing": {
@@ -459,7 +459,7 @@
 				},
 				"children": {
 					"title": "8. Protection des mineurs",
-					"content": "Notre Service ne s’adresse pas aux enfants de moins de 13 ans. Nous ne collectons pas sciemment d’informations personnelles auprès d’enfants de moins de 13 ans. Si vous êtes parent ou tuteur et pensez que votre enfant nous a fourni des informations personnelles, veuillez nous contacter."
+					"content": "Notre Service ne s’adresse pas aux enfants de moins de 13 ans. Nous ne collectons pas sciemment d’informations personnelles auprès d’enfants de moins de 13 ans. Si vous êtes parent ou tuteur·ice et pensez que votre enfant nous a fourni des informations personnelles, veuillez nous contacter."
 				},
 				"international": {
 					"title": "9. Transferts internationaux de données",
@@ -619,7 +619,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala : application gratuite de viticulture et registre phytosanitaire",
-			"description": "Appli gratuite et open source pour les vignerons et tous les passionnés de vigne. Dessinez vos parcelles, tenez votre registre phytosanitaire avec chaque traitement au stade où il a été fait, suivez le cuivre et le soufre utilisés, et exportez tout vers Excel."
+			"description": "Appli gratuite et open source pour les vigneron·nes et tous·tes les passionné·es de vigne. Dessinez vos parcelles, tenez votre registre phytosanitaire avec chaque traitement au stade où il a été fait, suivez le cuivre et le soufre utilisés, et exportez tout vers Excel."
 		},
 		"skipToContent": "Aller au contenu",
 		"homeLink": "Agricolala, accueil",
@@ -693,12 +693,12 @@
 		},
 		"openSource": {
 			"eyebrow": "Gratuit et open source",
-			"title": "Gratuit pour chaque vigneron. Ouvert à la lecture de tous.",
-			"description": "Agricolala ne coûte rien, et son code est public. Nous pensons que les outils qui aident les vignerons à cultiver plus proprement doivent appartenir à celles et ceux qui les utilisent : vous pouvez vérifier comment chaque chiffre est calculé, proposer des améliorations ou l’héberger vous-même.",
+			"title": "Gratuit pour chaque vigneron·ne. Ouvert à la lecture de tous·tes.",
+			"description": "Agricolala ne coûte rien, et son code est public. Nous pensons que les outils qui aident les vigneron·nes à cultiver plus proprement doivent appartenir à qui les utilise : vous pouvez vérifier comment chaque chiffre est calculé, proposer des améliorations ou l’héberger vous-même.",
 			"github": "Voir le code sur GitHub"
 		},
 		"closing": {
-			"title": "Prêt pour votre première parcelle ?",
+			"title": "Prêt·e pour votre première parcelle ?",
 			"cta": "Commencer"
 		},
 		"faq": {
@@ -706,7 +706,7 @@
 			"items": [
 				{
 					"question": "Agricolala est-elle gratuite ?",
-					"answer": "Oui. Agricolala est gratuite pour chaque vigneron et son code est open source sur GitHub. Il n’y a aucune offre payante."
+					"answer": "Oui. Agricolala est gratuite pour chaque vigneron·ne et son code est open source sur GitHub. Il n’y a aucune offre payante."
 				},
 				{
 					"question": "Puis-je l’utiliser comme registre phytosanitaire ?",
@@ -722,7 +722,7 @@
 				},
 				{
 					"question": "Qui peut voir mes données ?",
-					"answer": "Vous seul, et les personnes avec qui vous choisissez de partager une parcelle. Vos données ne sont jamais vendues, et vous pouvez les exporter à tout moment."
+					"answer": "Vous seul·e, et les personnes avec qui vous choisissez de partager une parcelle. Vos données ne sont jamais vendues, et vous pouvez les exporter à tout moment."
 				}
 			]
 		},

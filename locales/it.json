@@ -45,7 +45,7 @@
 		"peaches": "Pesche",
 		"noParcels": "Nessun campo trovato",
 		"deleteParcel": "Elimina Campo",
-		"deleteParcelConfirm": "Sei sicuro di voler eliminare questo campo?",
+		"deleteParcelConfirm": "Vuoi davvero eliminare questo campo?",
 		"parcelDeleted": "Campo eliminato con successo",
 		"parcelAdded": "Campo aggiunto con successo",
 		"parcelUpdated": "Campo aggiornato con successo",
@@ -117,7 +117,7 @@
 		"appliedDate": "Data Applicazione",
 		"noTreatments": "Nessun trattamento trovato",
 		"deleteTreatment": "Elimina Trattamento",
-		"deleteTreatmentConfirm": "Sei sicuro di voler eliminare questo trattamento?",
+		"deleteTreatmentConfirm": "Vuoi davvero eliminare questo trattamento?",
 		"treatmentDeleted": "Trattamento eliminato con successo",
 		"treatmentAdded": "Trattamento aggiunto con successo",
 		"treatmentUpdated": "Trattamento aggiornato con successo",
@@ -191,7 +191,7 @@
 		"signInWithGoogle": "Accedi con Google",
 		"title": "Agricolala",
 		"description": "Gestisci i trattamenti e i campi della tua vigna",
-		"newAccountNote": "Sei nuovo? Accedendo con Google crei anche il tuo account. Per tenere lontani i bot apro ogni account a mano: la prima volta ti chiederò qualche parola su di te.",
+		"newAccountNote": "Prima volta qui? Accedendo con Google crei anche il tuo account. Per tenere lontani i bot apro ogni account a mano: la prima volta ti chiederò qualche parola su di te.",
 		"pending": {
 			"title": "Ci siamo quasi!",
 			"why": "Agricolala è un progetto di una sola persona, e apro ogni nuovo account a mano per tenere lontani i bot. Raccontami qualcosa di te qui sotto: sarò felice di farti entrare.",
@@ -235,8 +235,8 @@
 			"noName": "Senza nome",
 			"approve": "Approva",
 			"approving": "Approvazione…",
-			"approvedEmailSent": "{name} approvato; email di benvenuto inviata.",
-			"approvedEmailNotSent": "{name} approvato; email non inviata.",
+			"approvedEmailSent": "Richiesta di {name} approvata; email di benvenuto inviata.",
+			"approvedEmailNotSent": "Richiesta di {name} approvata; email non inviata.",
 			"approveError": "Non è stato possibile approvare la richiesta. Riprova."
 		}
 	},
@@ -281,7 +281,7 @@
 	},
 	"deleteTreatment": {
 		"title": "Elimina Trattamento",
-		"description": "Sei sicuro di voler eliminare il trattamento \"{name}\"? Questa azione non può essere annullata.",
+		"description": "Vuoi davvero eliminare il trattamento \"{name}\"? Questa azione non può essere annullata.",
 		"warningTitle": "Questo rimuoverà permanentemente:",
 		"warningItems": [
 			"Il trattamento e tutti i suoi dati",
@@ -294,7 +294,7 @@
 	},
 	"deleteParcel": {
 		"title": "Elimina Campo",
-		"description": "Sei sicuro di voler eliminare \"{name}\"? Questa azione non può essere annullata e rimuoverà permanentemente:",
+		"description": "Vuoi davvero eliminare \"{name}\"? Questa azione non può essere annullata e rimuoverà permanentemente:",
 		"warningItems": [
 			"Il campo e tutti i suoi dati",
 			"Tutti i trattamenti associati a questo campo",
@@ -327,7 +327,7 @@
 				},
 				"description": {
 					"title": "2. Descrizione del Servizio",
-					"content": "Agricolala è un'applicazione di gestione agricola che consente agli utenti di:",
+					"content": "Agricolala è un'applicazione di gestione agricola che consente a chi la usa di:",
 					"listItems": [
 						"Tracciare le parcelle agricole e le loro caratteristiche",
 						"Registrare le applicazioni di trattamenti e l'uso di prodotti chimici",
@@ -343,7 +343,7 @@
 						"Rispettare tutte le normative agricole locali, statali e federali applicabili",
 						"Utilizzare il Servizio solo per scopi agricoli legittimi",
 						"Mantenere la sicurezza delle credenziali del tuo account",
-						"Non condividere il tuo account con utenti non autorizzati",
+						"Non condividere il tuo account con persone non autorizzate",
 						"Segnalare immediatamente qualsiasi sospetta violazione della sicurezza"
 					]
 				},
@@ -351,9 +351,9 @@
 					"title": "4. Dati Agricoli e Conformità",
 					"content": "Importante Disclaimer: Questa applicazione è progettata per assistere nella tenuta dei registri agricoli e non è un sostituto per consigli agricoli professionali o conformità normativa.",
 					"listItems": [
-						"Gli utenti sono responsabili di garantire la conformità con tutte le normative agricole applicabili",
+						"Chi usa il Servizio è responsabile di garantire la conformità con tutte le normative agricole applicabili",
 						"Il Servizio non garantisce la conformità normativa o i risultati agricoli",
-						"Gli utenti devono verificare tutti i dati di utilizzo dei prodotti chimici rispetto alle etichette ufficiali dei prodotti e alle normative",
+						"Chi usa il Servizio deve verificare tutti i dati di utilizzo dei prodotti chimici rispetto alle etichette ufficiali dei prodotti e alle normative",
 						"Le decisioni agricole dovrebbero essere prese in consultazione con professionisti qualificati"
 					]
 				},
@@ -406,7 +406,7 @@
 						"Migliorare e sviluppare nuove funzionalità",
 						"Addestrare modelli di machine learning utilizzando dati anonimizzati per migliorare approfondimenti e previsioni agricole",
 						"Garantire la conformità alle normative agricole",
-						"Fornire supporto clienti"
+						"Fornire assistenza a chi usa il Servizio"
 					]
 				},
 				"sharing": {
@@ -459,7 +459,7 @@
 				},
 				"children": {
 					"title": "8. Privacy dei Minori",
-					"content": "Il nostro Servizio non è destinato a minori di 13 anni. Non raccogliamo consapevolmente informazioni personali da minori di 13 anni. Se sei un genitore o tutore e ritieni che tuo figlio ci abbia fornito informazioni personali, contattaci."
+					"content": "Il nostro Servizio non è destinato a minori di 13 anni. Non raccogliamo consapevolmente informazioni personali da minori di 13 anni. Se eserciti la responsabilità genitoriale o la tutela su un minore e ritieni che ci abbia fornito informazioni personali, contattaci."
 				},
 				"international": {
 					"title": "9. Trasferimenti Internazionali di Dati",
@@ -619,7 +619,7 @@
 	"welcome": {
 		"meta": {
 			"title": "Agricolala: app gratuita per la viticoltura e quaderno di campagna",
-			"description": "App gratuita e open source per viticoltori. Disegna i tuoi vigneti, registra ogni trattamento nel quaderno di campagna alla fase fenologica in cui è stato fatto, tieni il conto di rame e zolfo usati ed esporta tutto in Excel."
+			"description": "App gratuita e open source per chi coltiva la vite. Disegna i tuoi vigneti, registra ogni trattamento nel quaderno di campagna alla fase fenologica in cui è stato fatto, tieni il conto di rame e zolfo usati ed esporta tutto in Excel."
 		},
 		"skipToContent": "Vai al contenuto",
 		"homeLink": "Agricolala, pagina iniziale",
@@ -693,12 +693,12 @@
 		},
 		"openSource": {
 			"eyebrow": "Gratuito e open source",
-			"title": "Gratis per ogni viticoltore. Aperto alla lettura di tutti.",
-			"description": "Agricolala non costa nulla e il suo codice è pubblico. Crediamo che gli strumenti che aiutano a coltivare in modo più pulito debbano appartenere a chi li usa: puoi verificare come viene calcolato ogni numero, proporre miglioramenti o installarlo tu stesso.",
+			"title": "Gratis per chi coltiva la vite. Aperto alla lettura di chiunque.",
+			"description": "Agricolala non costa nulla e il suo codice è pubblico. Crediamo che gli strumenti che aiutano a coltivare in modo più pulito debbano appartenere a chi li usa: puoi verificare come viene calcolato ogni numero, proporre miglioramenti o installarlo in autonomia.",
 			"github": "Guarda il codice su GitHub"
 		},
 		"closing": {
-			"title": "Pronto per il tuo primo campo?",
+			"title": "Tutto pronto per il tuo primo campo?",
 			"cta": "Inizia ora"
 		},
 		"faq": {
@@ -706,7 +706,7 @@
 			"items": [
 				{
 					"question": "Agricolala è gratuita?",
-					"answer": "Sì. Agricolala è gratuita per ogni viticoltore e il suo codice è open source su GitHub. Non c’è nessun piano a pagamento."
+					"answer": "Sì. Agricolala è gratuita per chi coltiva la vite e il suo codice è open source su GitHub. Non c’è nessun piano a pagamento."
 				},
 				{
 					"question": "Posso usarla come quaderno di campagna?",
