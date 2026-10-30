@@ -610,7 +610,7 @@ PR 1 and 2 before the next vintage starts; PR 3 tuned on that vintage's real cur
 - [x] Escalation triggers between levels (2 days of "Slowing", "Not started" past its window): agreed as proposals, tuned on real curves after the first vintage.
 - [x] Start windows (48 h / 96 h) and the "slowing" ratio: kept as proposals for now, tuned on real curves from the first vintage before turning warnings red.
 - [ ] Normal band: no source gives a reference curve, a maximum daily drop or a spontaneous start delay. Find one (IFV, ICV, Ribéreau-Gayon) or build the band from the first vintage's curves.
-- [ ] Navigation: a fifth bottom-nav icon, or Cellar under Treatments? Hand off to Claude Design along with the list, lot and creation screens.
+- [ ] Navigation: a fifth bottom-nav icon, or Cellar under Treatments? Handed off to Claude Design along with the list, lot and creation screens: [design-docs/fermentation-claude-design-brief.md](fermentation-claude-design-brief.md).
 
 - **Risk — false precision:** fermentation advice is guidance; wording says "consider", products are never prescribed, and doses always quote the legal limit.
 - **Later — water balance:** Kc of the vine by stage (FAO-56 or an IFV table?) is still unsourced; the soil reserve is settled (one editable number per parcel, default 150 mm).
