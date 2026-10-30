@@ -73,18 +73,14 @@ Added after the issue (product owner, 25 Oct 2026):
 
 ## Status
 
-As of 25 Oct 2026. Design only; nothing started.
+As of 30 Oct 2026. Design only; nothing started. The first version is scoped down to **plotting the fermentation against a "normal" curve and advising when to add substances** (product owner, 30 Oct 2026); everything else is "Later".
 
 | Phase | PR | State |
 | --- | --- | --- |
-| PR 1 — models, actions, fermentation list and readings form | — | Not started |
-| PR 2 — fermentation curve and additions on the chart | — | Not started |
-| PR 3 — curve checks and the biodynamic advice level (temperature, aeration, pied de cuve, organic yeast hulls) | — | Not started |
-| PR 3b — escalation beyond biodynamic, with explicit opt-in | — | Not started |
-| PR 3c — SO₂ budget and timing, argon | — | Not started |
-| PR 4 — season summary and fermentation risks | — | Not started |
-| PR 5 — Excel export sheet | — | Not started |
-| PR 6 — ET₀ in weather history, per-parcel water balance and water-stress risk line | — | Not started |
+| v1 · PR 1 — models, lot creation, readings and additions, list and lot pages | — | Not started |
+| v1 · PR 2 — curve with the "normal fermentation" band and status chip | — | Not started |
+| v1 · PR 3 — advice on when to add substances (advice ladder, SO₂ timing) | — | Not started |
+| Later — season summary, botrytis in the catalogue, SO₂ analyses, Excel export, water balance | — | Not planned yet |
 
 ## Current state
 
@@ -116,6 +112,14 @@ Findings from English, Italian and French sources. Numbers are given with their 
 
 - Measure density (Babo) at least once a day, ideally twice, until a plateau (at least two identical readings in a row); then confirm the end with a sugar analysis (< 2 g/L). Write down every input added (BNIC 2024, *Suivi de la fermentation alcoolique*).
 - **Implication:** the reading form takes value + temperature together; the curve shows both; "plateau" = two identical readings.
+
+### What a normal fermentation looks like
+
+- Sources agree that cool white fermentations run longer than warm red ones, but no source found gives a day-by-day reference curve, a maximum daily drop, or a start delay for spontaneous fermentation.
+- Whites at 12–16 °C: 3–6 weeks; reds at 18–24 °C: 7–14 days (Winegrowers Supplies, opened). Whites at 18–20 °C: usually 10–14 days, up to a month for a very dry white (iDealwine, search summary). Reds 10–14 days at ≤ 29 °C, whites about 21 days at 18–20 °C (Pradorey, search summary).
+- Shape: a lag phase, a fast drop, then a slow tail to the plateau; the CRAAQ guide places the activity peak around density 1.060 (search summary).
+- Start: an inoculated must should start quickly with ~1–2 × 10⁶ yeast cells/mL (OIV 631-2020); spontaneous fermentations are led by non-*Saccharomyces* yeasts for the first ~5 days and start more slowly (Italian sources above), but no source gives a number for the delay.
+- **Implication:** the "normal" band on the curve is a **proposal built from these ranges**, not a validated model. It is labelled experimental and tuned on the first vintage's real curves.
 
 ### Temperature and pH
 
@@ -215,6 +219,8 @@ Read in full: the Demeter standard's wine chapter (International Demeter Biodyna
 
 ### Water stress → fermentation risks
 
+*Not in v1: a nice-to-have for later (product owner, 30 Oct 2026). Kept here so the research is not lost.*
+
 **Effect on the must.** Five vintages (2021–2025) of must analyses from 140+ parcels in the canton of Vaud (Chasselas, Pinot noir, Gamay) (Aleid-Germanier, Verdenal, Zufferey, Viret 2026, *Agrarforschung Schweiz*):
 
 - Hot, dry vintages (2022, 2023) give more sugar, less acidity and much less yeast-assimilable nitrogen (YAN). Malic acid in particular drops under water stress and heat.
@@ -243,6 +249,8 @@ Same picture from other sources: dry, hot vintages give more sugar, less acidity
 
 ### Season → fermentation risks
 
+*Not in v1: feeds the season summary, which comes later.*
+
 | Season signal | Risk in the cellar | Source |
 | --- | --- | --- |
 | Rainy last weeks before harvest | Botrytis and sour rot | Rainy vintages bring downy mildew, then botrytis, aggressive near harvest (MeteoWeb 2014; L'Adige) |
@@ -258,20 +266,25 @@ Same picture from other sources: dry, hot vintages give more sugar, less acidity
 
 ### Goals and non-goals
 
-- **Goal:** record readings (Babo, temperature, pH) and additions (yeast, nutrients, yeast hulls) per lot, from the phone, in the cellar.
-- **Goal:** one curve per lot with readings and additions on the same time axis.
-- **Goal:** spontaneous fermentation is the default path. Every advice starts at the biodynamic level (temperature, aeration, pied de cuve, Demeter/organic yeast hulls) and only escalates when the curve is clearly in trouble.
-- **Goal:** simple checks that say "normal / slowing / stopped / too hot / too cold / low pH", tuned by mode and colour, plus the yeast-hulls hint.
-- **Goal:** each advice says which level it belongs to, and whether following it keeps or loses Demeter or organic certification.
-- **Goal:** a season summary with the risks it implies for this vintage.
+**v1 goals:**
+
+- **Goal:** record readings (Babo, temperature, pH) and additions (yeast, pied de cuve, yeast hulls, argon, SO₂…) per lot, from the phone, in the cellar.
+- **Goal:** plot the fermentation: one curve per lot, readings and additions on the same time axis.
+- **Goal:** show on the same plot what a **normal fermentation** looks like for the grower's choices (colour, spontaneous / pied de cuve / selected yeast, temperature), so they see when theirs drifts away from it.
+- **Goal:** simple checks that say "normal / slowing / stopped / too hot / too cold / low pH", tuned by mode and colour.
+- **Goal:** advise **when to add substances**: spontaneous fermentation is the default path, every advice starts at the biodynamic level (pied de cuve, argon, temperature, aeration, Demeter/organic yeast hulls, SO₂ at the end) and only escalates when the curve is clearly in trouble. Each advice says which level it belongs to and whether following it keeps or loses Demeter or organic certification.
+
+**Later (not in v1):** a season summary of cellar risks (rain, diseases including botrytis, sulfur and copper before harvest), the water balance and water stress, SO₂ analyses and molecular SO₂, the Excel export sheet.
+
+**Non-goals:**
+
 - **Non-goal:** certifying anything. The app quotes the standards; the grower's certifier has the last word (some advice explicitly needs their approval).
-- **Goal:** follow SO₂ additions and analyses against the lot's limit (Demeter, organic, conventional), and say when to add SO₂ and when not to.
 - **Non-goal:** oenological tannins, including gall tannin: not in the Demeter positive list for wine (tannic acid is listed only for sweeteners and spirits), so the app never suggests them.
 - **Non-goal:** following malolactic fermentation, ageing and bottling step by step (SO₂ advice only marks the end of fermentation / malolactic as the moment to sulphite).
 - **Non-goal:** connected sensors and density readings (density probes exist, e.g. those in Réussir Vigne; manual entry first).
 - **Non-goal:** must clarification and turbidity (débourbage, NTU). Too-clear musts can ferment slowly, but the targets found were not solid enough (product owner: out of scope for now).
 - **Non-goal:** requiring lab analyses. pH, acidity, YAN and sugar are optional fields (Q20); the checks work without them.
-- **Non-goal:** choosing which parcels go into which vat (v1 counts all parcels, as the issue says; see D4).
+- **Non-goal:** choosing which parcels go into which vat (the season summary, later, counts all parcels, as the issue says; see D4).
 
 ### Questions asked when creating a fermentation
 
@@ -309,7 +322,7 @@ The grower creates a lot in the cellar, on the phone, often with wet hands. So t
 | Q21 | What wine do you aim for? | Always | Dry · Off-dry · Sweet | End-of-fermentation check (< 2 g/L for dry), SO₂ limit (dry vs ≥ 5 g/L sugar), molecular SO₂ target 0.6 vs 0.8 mg/L | `targetStyle` |
 | Q22 | Will it do malolactic fermentation? | Always | Yes · No · Let it happen | When to sulphite: end of alcoholic fermentation, or a few days after malolactic | `malolactic` |
 
-Not asked here: soil reserve and irrigation (they belong to the parcel, for the water balance in PR 6).
+Not asked here: soil reserve and irrigation (they belong to the parcel, for the water balance, later).
 
 
 ### Data model
@@ -484,6 +497,21 @@ Run `npx prisma migrate dev --name add_fermentation` after editing the schema; n
 | D13 | Must analyses at the start live on the first reading, not on the lot | Same fields as later readings (pH, sugar, YAN, acidity), one place for the chart |
 | D14 | Add Botrytis and Sour rot to the disease catalogue (seed), with Botrytis stage levels from the matrix in `design-docs/phenological-stage.md` | Growers record their treatments against botrytis like any other; the season summary reads them instead of guessing from rain |
 
+### Normal fermentation band (`lib/fermentation-reference.ts`)
+
+The curve shows, behind the grower's readings, a shaded band of where a normal fermentation would be for this lot. Pure function of the lot's choices and its first reading, unit-tested.
+
+| Input | Effect on the band | Source |
+| --- | --- | --- |
+| First reading (Q7) | Start of the band; the band ends at the plateau, Babo ≈ −1 (dry) | BNIC end criteria |
+| Colour (Q2) and temperature of the readings | Length of the fast phase + tail: whites 10–42 days (shorter when warmer), reds 7–14 days | Winegrowers Supplies; iDealwine; Pradorey |
+| Mode (Q3) | Start delay before the drop: selected yeast short (≤ 48 h), pied de cuve in between, spontaneous longer (≤ 96 h) | OIV (inoculation for a quick start); Italian sources (non-*Saccharomyces* first days); windows are proposals |
+| Additions | Markers only; the band does not move when the grower adds something | — |
+
+- Shape: flat during the start delay, then a steep drop, then a tail flattening towards the plateau. The band is wide on purpose (earliest to latest normal end), so it says "inside / outside normal", not a prediction.
+- When the readings leave the band (above it: slower than normal), the status chip turns to "Slowing" or "Not started" and the advice ladder takes over.
+- Labelled experimental; durations and delays tuned on real curves after the first vintage.
+
 ### Curve checks (`lib/fermentation-curve.ts`)
 
 Pure functions over the readings, unit-tested like `lib/phenology.ts`. Each returns a status and a translation key, never a number dressed as precision.
@@ -505,7 +533,7 @@ Every advice belongs to one level. The app shows the lowest level that fits the 
 | Level | When it is offered | Advice (examples) |
 | --- | --- | --- |
 | 1 — Biodynamic | Always; the only level while the curve is normal | Before harvest: prepare a pied de cuve a few days early. At crush and pressing: protect the must with argon. During: keep the temperature in range (heat or cool), aerate during the growth phase, Demeter/organic yeast hulls at ⅓ of the fermentation, measure twice a day, no SO₂ during fermentation. After: inert tanks and headspace with argon, one SO₂ dose at the end of fermentation (or a few days after malolactic) sized from free SO₂ and pH, within the Demeter limit |
-| 2 — Biodynamic, certifier approval | "Slowing" persists for two days despite level 1, or the season summary flags a risk (botrytis, water stress) | Other yeast nutrients such as thiamine, after asking the certifier. A justified stuck fermentation at ≤ 50 g/L sugar: certified-organic neutral yeast is still within Demeter |
+| 2 — Biodynamic, certifier approval | "Slowing" persists for two days despite level 1, or the grapes were damaged (Q11 = some or much rot; later also the season summary) | Other yeast nutrients such as thiamine, after asking the certifier. A justified stuck fermentation at ≤ 50 g/L sugar: certified-organic neutral yeast is still within Demeter |
 | 3 — Organic (loses Demeter) | "Stopped" with more than 50 g/L of sugar left, or "Not started" well past its window | Selected organic yeast, DAP, autolysates, fresh lees from a dry wine (≤ 5 %), SO₂ up to the organic limit |
 | 4 — Conventional (loses organic) | Only if the lot's standard is `CONVENTIONAL` | Inputs outside the organic list |
 
@@ -514,22 +542,25 @@ Every advice belongs to one level. The app shows the lowest level that fits the 
 - **SO₂ before fermentation** is a very optional suggestion: never a hint, never a warning. It only appears folded under the argon advice ("If you also want SO₂ at crush: keep it small and adapted to pH; 4 g/hL for healthy grapes, 5–6 g/hL for damaged ones"), because OIV and Demeter both ask for the minimum and no source covers spontaneous fermentation specifically.
 - Escalation triggers are proposals: tune them on the first vintage, like the curve thresholds.
 
-### SO₂ budget (`lib/fermentation-so2.ts`)
+### SO₂ timing and limit (`lib/fermentation-so2.ts`)
 
-- **Limit** from the lot's `standard`, `color` and the last `sugarGL` (dry vs sweet), using the table in the research section.
-- **Budget used**: the last `totalSo2MgL` measured; otherwise the sum of `SO2` additions in mg/L, shown as "at least".
-- **Molecular SO₂** from the last `freeSo2MgL` and `ph`, compared with 0.6 (dry) or 0.8 (sweet) mg/L.
+**v1:**
+
+- **Limit** from the lot's `standard`, `color` and target style (Q21) or last `sugarGL`, using the table in the research section.
+- **Added so far**: the sum of `SO2` additions in mg/L, shown as "at least" (yeasts make SO₂ too).
 - **Hints:** "No SO₂ during fermentation" when a reading shows the fermentation is active; "Good moment to sulphite" once the fermentation is finished (and a few days after malolactic is marked); "Measure free SO₂ again" a few days after an addition; "Above 80 % of the Demeter limit" before any further addition; "Restarting a stuck fermentation: a small SO₂ addition first, with yeast hulls" (OIV).
-- The dose helper turns a free SO₂ target into g/hL (SO₂ or metabisulfite), but never proposes a dose that would push the budget over the lot's limit.
+- Dose shown at the end of fermentation: 4–6 g/hL (Réussir Vigne 2025), capped so that the sum stays under the lot's limit.
 
-### Season summary (`lib/fermentation-season.ts`)
+**Later:** measured free and total SO₂ replacing the sum (D11), molecular SO₂ from free SO₂ and pH, and a dose helper from a free SO₂ target.
+
+### Season summary (`lib/fermentation-season.ts`) — later
 
 For the lot's vintage, across all the user's parcels:
 
 - Rain since 1 March and in the 30 days before `harvestedAt` (sum of `cumulativePrecipitation` over the parcels' weather tasks; average across tasks).
 - Number of treatments per disease (`Treatment.diseaseIds`) this year.
 - Days between the last sulfur application and harvest; days between the last copper application and harvest.
-- Derived risk lines, each tagged with its advice level: "Botrytis this season → plan a pied de cuve and yeast hulls (level 1); thiamine with certifier approval (level 2)" (botrytis or sour-rot treatments recorded this year, or Q11 = some/much rot), "Sulfur within 30 days of harvest → H₂S risk", "Late copper → yeast stress", "Dry season / water stress → low YAN likely: yeast hulls (level 1), other nutrients with approval (level 2)" (water balance from "Water stress → fermentation risks", PR 6).
+- Derived risk lines, each tagged with its advice level: "Botrytis this season → plan a pied de cuve and yeast hulls (level 1); thiamine with certifier approval (level 2)" (botrytis or sour-rot treatments recorded this year, or Q11 = some/much rot), "Sulfur within 30 days of harvest → H₂S risk", "Late copper → yeast stress", "Dry season / water stress → low YAN likely: yeast hulls (level 1), other nutrients with approval (level 2)" (water balance from "Water stress → fermentation risks").
 
 Reads go through `lib/data-fetcher.ts`. If #74 lands first, "the user's parcels" follows its membership rule instead of `Parcel.userId`.
 
@@ -539,45 +570,50 @@ Reads go through `lib/data-fetcher.ts`. If #74 lands first, "the user's parcels"
 - List page: one card per lot (name, mode, colour, last reading, status chip). "New fermentation" dialog in two steps: Q1–Q7 on one screen, then "Add details" (Q8–Q22, only those that apply to the colour and mode), skippable. On the lot page, a missing detail is asked inline when an advice needs it (e.g. "How healthy were the grapes?" next to the SO₂ dose helper).
 - Lot page:
   - Header with status chip and the current hint.
-  - Curve: Babo on the left axis, temperature on the right, additions as markers. Recharts via `components/ui/chart.tsx`.
+  - Curve: Babo on the left axis, temperature on the right, additions as markers, the "normal fermentation" band shaded behind the readings. Recharts via `components/ui/chart.tsx`.
   - "Add reading" dialog: date/time (defaults to now), Babo (negative allowed), temperature, optional pH. Big numeric inputs for wet hands.
   - "Add addition" dialog: kind, product, dose (g/hL).
-  - Season summary card, with the "experimental" label used for coverage.
+  - Later: season summary card, with the "experimental" label used for coverage.
 - All new strings in `locales/en.json` and `locales/it.json`.
 
 ### Testing
 
-- Unit: every curve check on synthetic Babo series (normal inoculated, slow spontaneous start, plateau at 5 °Babo, finished at −1.5 °Babo, red at 33 °C), season sums with missing weather days.
+- Unit: the normal band for each colour × mode (start delay, end window), and every curve check on synthetic Babo series (normal inoculated, slow spontaneous start, plateau at 5 °Babo, finished at −1.5 °Babo, red at 33 °C).
 - Integration: server actions reject readings on another user's lot; creating a lot with only Q1–Q7 works, and the conditional questions (e.g. Q14 for whites) are rejected or ignored.
-- Unit: SO₂ budget (measured vs summed), molecular SO₂ from free SO₂ and pH, limit by standard/colour/sugar, the dose helper never exceeding the limit.
+- Unit: SO₂ sum of additions against the limit by standard/colour/style; the end-of-fermentation dose never exceeding the limit.
 - Unit: the advice ladder never returns a level above the lot's `standard` unless opted in; a stuck lot at 40 g/L stays at level 2, at 80 g/L reaches level 3.
-- E2e: create a lot (spontaneous and biodynamic by default), add three readings and a yeast-hulls addition, see the curve and a level-1 hint; opt in to non-biodynamic options and see the warning.
+- E2e: create a lot (spontaneous and biodynamic by default), add three readings and a yeast-hulls addition, see the curve inside the normal band and a level-1 hint; opt in to non-biodynamic options and see the warning.
 
 ## Rollout plan
 
+**v1 — plot the fermentation and advise when to add substances**
+
 | Phase | Scope | Ships to users? |
 | --- | --- | --- |
-| PR 1 | Models + migration, Zod schemas, actions (create lot, add/delete reading, add/delete addition), list page and lot page with a table of readings; nav entry | Yes — usable as a digital fermentation sheet |
-| PR 2 | Curve (Babo + temperature, additions as markers) | Yes |
-| PR 3 | `lib/fermentation-curve.ts` checks, status chip, level-1 (biodynamic) advice incl. pied de cuve reminder and yeast-hulls hint, behind the "experimental" label | Yes |
-| PR 3b | Levels 2–4 of the advice ladder, the opt-in action and the certification warning | Yes |
-| PR 3c | SO₂ readings and additions, budget against the limit, molecular SO₂, SO₂ timing hints and dose helper; argon addition kind | Yes |
-| PR 4 | Botrytis and Sour rot in the disease catalogue (seed + stage levels, D14); season summary card and risk lines | Yes |
-| PR 5 | "Fermentation" sheet in the Excel export | Yes |
-| PR 6 | Fetch daily `et0_fao_evapotranspiration` into `WeatherHistory`; editable soil reserve on each parcel (default 150 mm); FTSW estimate and the water-stress line in the season summary | Yes |
-| Later | Parcel ↔ lot link, malolactic follow-up, connected probes, must turbidity | — |
+| PR 1 | Models + migration, Zod schemas, actions; lot creation (Q1–Q7, optional details); add/delete readings and additions; list page and lot page with a table of readings; nav entry (placement from Claude Design) | Yes — usable as a digital fermentation sheet |
+| PR 2 | Curve (Babo + temperature, additions as markers), the "normal fermentation" band by colour and mode, curve checks and status chip, behind the "experimental" label | Yes |
+| PR 3 | Advice on when to add substances: level 1 (pied de cuve reminder, argon at crush, yeast hulls at ⅓, aeration, temperature, no SO₂ during fermentation, SO₂ at the end within the limit), levels 2–4 with the opt-in and certification warning | Yes |
 
-Each PR stays small enough to test during one harvest: PR 1–2 before the next vintage starts, PR 3–4 tuned on real curves from that vintage.
+PR 1 and 2 before the next vintage starts; PR 3 tuned on that vintage's real curves.
+
+**Later (not planned yet), roughly in this order**
+
+- Season summary: Botrytis and Sour rot in the disease catalogue (D14), rain, diseases, sulfur and copper before harvest, risk lines feeding the advice ladder.
+- SO₂ analyses: free and total SO₂, molecular SO₂, dose helper.
+- "Fermentation" sheet in the Excel export.
+- Water balance: ET₀ in weather history, editable soil reserve per parcel (default 150 mm), water-stress line (nice to have).
+- Parcel ↔ lot link, malolactic follow-up, connected probes, must turbidity.
 
 ## Open questions and risks
 
 - [ ] Pied de cuve reminder: tie it to the `RIPE` stage or to a planned harvest date entered by the grower?
 - [x] Escalation triggers between levels (2 days of "Slowing", "Not started" past its window): agreed as proposals, tuned on real curves after the first vintage.
 - [x] Start windows (48 h / 96 h) and the "slowing" ratio: kept as proposals for now, tuned on real curves from the first vintage before turning warnings red.
-- [ ] Water balance: Kc of the vine by stage (FAO-56 or an IFV table?). The soil reserve is settled: one editable number per parcel, default 150 mm.
+- [ ] Normal band: no source gives a reference curve, a maximum daily drop or a spontaneous start delay. Find one (IFV, ICV, Ribéreau-Gayon) or build the band from the first vintage's curves.
 - [ ] Navigation: a fifth bottom-nav icon, or Cellar under Treatments? Hand off to Claude Design along with the list, lot and creation screens.
 
 - **Risk — false precision:** fermentation advice is guidance; wording says "consider", products are never prescribed, and doses always quote the legal limit.
+- **Later — water balance:** Kc of the vine by stage (FAO-56 or an IFV table?) is still unsourced; the soil reserve is settled (one editable number per parcel, default 150 mm).
 - **Risk — data gaps:** growers read once a day or skip days; checks must work on uneven intervals (per-day rates, not per-reading).
 - **Risk — temperature correction:** a hydrometer read away from its calibration temperature is off; v1 trusts the typed value and says so in a hint.
 
@@ -609,6 +645,7 @@ Pages opened for this doc (as of 25 Oct 2026):
 21. [Réussir Vigne (31 Mar 2016) — Comment réduire les doses de SO₂](https://www.reussir.fr/vigne/comment-reduire-les-doses-de-so2)
 22. [Crowe — Protecting your wine from oxygen during racking, Winemaker Magazine](https://winemakermag.com/wine-wizard/protecting-your-wine-from-oxygen-during-racking)
 23. [Theron (1 Apr 2020) — The conversion of sugar to alcohol, Wineland](https://wineland.co.za/the-conversion-of-sugar-to-alcohol)
+24. [Winegrowers Supplies — Temperatures for fermentation and storage](https://winegrowers.info/wine-making/temperatures.htm)
 
 Abstract only (full text unreachable):
 
@@ -623,6 +660,8 @@ Found through search, summary only (not opened in full):
 - [Réussir Vigne — Des densimètres connectés pour maîtriser la fermentation alcoolique](https://www.reussir.fr/vigne/des-densimetres-connectes-pour-maitriser-la-fermentation-alcoolique-avec-precision)
 - [Wine Making Talk — How many grams of sugar equal 1 % alcohol?](https://www.winemakingtalk.com/threads/how-many-grams-of-sugar-equal-1-alcohol.33077/latest) (forum)
 - [La Passion du Vin — Titre volumique](https://www.lapassionduvin.com/de-la-terre-au-verre/5858-titre-volumique) (forum)
+- [iDealwine — La vinification des vins blancs](https://www.idealwine.net/la-vinification-des-vins-blancs-methodes-et-consequences/)
+- [Pradorey — Wine fermentation](https://pradorey.es/en/?p=165787)
 - [Vinetur (2023) — Tipos de fermentación: cómo es el proceso en el vino](https://www.vinetur.com/2023040572846/tipos-de-fermentacion-como-es-el-proceso-en-el-vino.html)
 - [Mettler Toledo — Density of wine during fermentation](https://www.mt.com/ch/it/home/library/applications/lab-analytical-instruments/density-of-wine-during-fermentation.html)
 - [Isolation and identification of indigenous wine yeasts and their use in alcoholic fermentation (PMC7709452)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7709452/)
