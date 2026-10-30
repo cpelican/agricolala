@@ -12,7 +12,7 @@ Files the migration moves, splits or rewires.
 | Vercel | [vercel.json](../vercel.json) | Crons (`suggest-treatments`, `fetch-weather-history`) — must stay with agricolala only |
 | Database | [prisma/schema.prisma](../prisma/schema.prisma), [prisma/migrations](../prisma/migrations), [prisma/seed.ts](../prisma/seed.ts) | Single schema and migration history, to move into a shared package |
 | Prisma client | [lib/prisma.ts](../lib/prisma.ts), [lib/taint-utils.ts](../lib/taint-utils.ts) | The client singleton and credential tainting |
-| Data access | [lib/data-fetcher.ts](../lib/data-fetcher.ts) and `lib/data-fetcher-*.ts`, [lib/actions.ts](../lib/actions.ts) and `lib/actions-*.ts`, [lib/cron-*.ts](../lib/cron-fetch-weather-history.ts) | DB access already sealed in these modules (#97); future shared reads come from here |
+| Data access | [lib/data-fetcher.ts](../lib/data-fetcher.ts) and `lib/data-fetcher-*.ts`, [lib/actions.ts](../lib/actions.ts) and `lib/actions-*.ts`, [lib/cron-*.ts](../lib/cron-fetch-weather-history.ts) | DB access already sealed in these modules (#97); the reads cantinanana needs move from here into `packages/db` |
 | Auth | [lib/auth.ts](../lib/auth.ts), [lib/auth-utils.ts](../lib/auth-utils.ts), [proxy.ts](../proxy.ts), [app/auth](../app/auth), [app/api/auth](../app/api/auth) | NextAuth 4.24 with `strategy: "jwt"`, Credentials + Google providers, sign-in page `/auth/signin`, `withAuth` in the proxy |
 | Users and access | `User`, `AccessRequest`, `AdminUser` in the schema; [lib/access-requests.ts](../lib/access-requests.ts), [lib/actions-tos.ts](../lib/actions-tos.ts) | Approval (`isAuthorized`) and terms acceptance — one of each for both apps (D7) |
 | i18n | [lib/i18n](../lib/i18n), [locales](../locales), [contexts/translations-context.tsx](../contexts/translations-context.tsx) | Both apps need the same locale handling |
@@ -36,7 +36,7 @@ Files the migration moves, splits or rewires.
 | Package | Shared code imported by the apps (`packages/db`, later `packages/auth`, `packages/ui`…). Not deployed on its own. |
 | Root Directory | Vercel project setting telling it which folder of the repo to build. |
 | SSO (single sign-on) | Logging in once and being logged in on both apps. |
-| Session cookie | NextAuth's cookie holding the JWT (`__Secure-next-auth.session-token` in production). |
+| Session cookie | NextAuth's cookie holding the JWT (today `__Secure-next-auth.session-token` in production; renamed in PR 4). |
 | Public suffix | A domain under which sites cannot share cookies with each other, e.g. `vercel.app`. |
 
 ## Context
@@ -58,7 +58,7 @@ As of 30 Oct 2026. Design only; nothing started.
 | PR 1 — pin the 7 dependencies on `latest` | — | Not started |
 | PR 2 — npm workspaces; move the app to `apps/agricolala`; CI, scripts, Vercel Root Directory | — | Not started |
 | PR 3 — `packages/db`: schema, migrations, seed, Prisma client | — | Not started |
-| PR 4 — session cookie shared on `.agricolala.eu` | — | Not started |
+| PR 4 — session cookie shared on `.agricolala.eu`, in `lib/auth.ts` | — | Not started |
 | PR 5 — `packages/auth`, `packages/ui`, `packages/i18n` as the second app needs them; `apps/cantinanana` skeleton with SSO | — | Not started |
 
 ## Current state
@@ -125,13 +125,18 @@ docker-compose*.yml       ← test and e2e databases, shared
 
 - NextAuth uses JWT sessions, so no auth server is needed: both apps verify the same cookie if they share **the same `NEXTAUTH_SECRET`** and **the cookie is set on the parent domain**.
 - Parent domain: `agricolala.eu`, already agricolala's custom domain. agricolala stays on `www.agricolala.eu`; cantinanana gets `cantinanana.agricolala.eu`. Two `*.vercel.app` URLs could not share a cookie.
-- In `packages/auth`, override `cookies.sessionToken` with `domain: ".agricolala.eu"` in production only. NextAuth notes that custom cookies opt out of its defaults, so all options of that cookie must be given, and the same cookie name must be passed to `withAuth` and `getToken`. The CSRF and callback cookies stay per host.
+- Override `cookies.sessionToken` in the shared auth options (`lib/auth.ts` in PR 4, moved to `packages/auth` in PR 5):
+  - **Domain from an env var** (`AUTH_COOKIE_DOMAIN`): `.agricolala.eu` in production, unset on previews (cookie stays per host), and a shared local parent domain in dev (e.g. `.agricolala.localhost`, with the apps on `agricolala.localhost` and `cantinanana.agricolala.localhost`; to verify in browsers in PR 5).
+  - **New cookie name** (e.g. `agricolala.session-token`, with the `__Secure-` prefix only on HTTPS). Keeping today's name would leave two cookies with the same name (the old one on `www.agricolala.eu`, the new one on `.agricolala.eu`); the browser sends both and NextAuth may read the old one. A new name makes the switch clean: the old cookie is ignored and expires.
+  - NextAuth notes that custom cookies opt out of its defaults, so all options of that cookie must be given, and the same cookie name must be passed to `withAuth` and `getToken`. The CSRF and callback cookies stay per host.
 - **One sign-in page, hosted by agricolala only** (`www.agricolala.eu/auth/signin`). cantinanana has no sign-in page and no NextAuth route: when it finds no session, it redirects there with `callbackUrl` set to its own URL. One set of Google redirect URIs.
 - **New `redirect` callback:** after sign-in the user goes back to the app they came from. NextAuth's default `redirect` only allows the same origin, so a `callbackUrl` on `cantinanana.agricolala.eu` would land on agricolala. The callback allows `https://*.agricolala.eu` origins too, and falls back to agricolala for anything else.
-- **agricolala keeps writing the users:** sign-in (including the Google `signIn` callback that creates `User`), access requests, the waiting screen for unapproved users, terms acceptance and `/admin/access-requests` stay in agricolala. cantinanana only reads the session.
+- **agricolala keeps writing the users:** sign-in (including the Google `signIn` callback that creates `User`), access requests, the waiting screen for unapproved users, terms acceptance and `/admin/access-requests` stay in agricolala.
+- **How cantinanana reads the session:** on the server only (`getServerSession`, `withAuth` in its proxy), with the same shared auth options. So its `jwt` callback runs too: it re-reads `isAuthorized` and `locale` from `User` and rewrites the cookie, as agricolala does today. This is a read of `User`, not a write, and it means a new approval shows up in cantinanana at the next request. Client-side `useSession` is not available in cantinanana (it needs the `/api/auth` routes); pages pass the user down from the server.
+- **Sign-out:** `signOut()` posts to `/api/auth/signout` on the current host, which cantinanana does not have. cantinanana's sign-out button links to agricolala's sign-out instead (a page on `www.agricolala.eu` that calls `signOut()`); the cookie is shared, so the user is signed out of both apps.
 - One approval (`isAuthorized`) and one terms-of-service acceptance cover both apps; no per-app access flag. An unapproved or not-yet-accepted user on cantinanana is redirected to agricolala, which shows the waiting or terms screen.
-- `serverActions.allowedOrigins`, `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` are set per app (`https://www.agricolala.eu` and `https://cantinanana.agricolala.eu`). Without `NEXT_PUBLIC_SITE_URL`, `lib/site-url.ts` falls back to `VERCEL_PROJECT_PRODUCTION_URL`, which may be `agricolala.eu` instead of `www.agricolala.eu`.
-- Preview deployments stay on `*.vercel.app`, so SSO only works in production (and locally if both apps run on `*.localhost`). Since cantinanana has no sign-in of its own, its previews cannot log in; to test it, run it locally next to agricolala.
+- `serverActions.allowedOrigins` and `NEXT_PUBLIC_SITE_URL` are set per app (`https://www.agricolala.eu` and `https://cantinanana.agricolala.eu`). `NEXTAUTH_URL` only in agricolala, the only app with NextAuth routes. Without `NEXT_PUBLIC_SITE_URL`, `lib/site-url.ts` falls back to `VERCEL_PROJECT_PRODUCTION_URL`, which may be `agricolala.eu` instead of `www.agricolala.eu`.
+- Preview deployments stay on `*.vercel.app`, so SSO only works in production and locally (with `AUTH_COOKIE_DOMAIN` set, see above). Since cantinanana has no sign-in of its own, its previews cannot log in; to test it, run it locally next to agricolala.
 
 ### Vercel projects
 
@@ -171,8 +176,8 @@ docker-compose*.yml       ← test and e2e databases, shared
 | PR 1 | Pin the 7 dependencies on `latest` (`prisma`, `@prisma/client`, `next-auth`, `@next-auth/prisma-adapter`, `chart.js`, `date-fns`, `react-chartjs-2`) to the versions in the lockfile | Low | `npm ci`, `npm run tsc`, CI green |
 | PR 2 | Root `package.json` with `workspaces`; `git mv` the app into `apps/agricolala` (incl. `prisma/` for now, `e2e/`, `test/`); root scripts delegate; CI working directories; scripts' paths; docs. Vercel Root Directory switched at merge | Medium: deploy config | CI green; preview deploy works; after merge, production deploy, login, a cron run by hand (`/api/cron/...` with the secret) |
 | PR 3 | `packages/db`: move `prisma/` and the client; apps import `@agricolala/db`; `migrate-prod.sh`, test DB scripts and CI migrate from the package | Medium: generated client path | `prisma generate` in CI; Vitest integration tests; e2e; `npm run migrate:deploy:prod` dry run against a local DB (the script refuses localhost, so test the path change with a copy) |
-| PR 4 | Production-only session cookie on `.agricolala.eu`; `redirect` callback allowing `*.agricolala.eu` | Medium: everyone is logged out once when the cookie changes | Log in, check the cookie's domain; logout/login; `withAuth` still protects pages |
-| PR 5 | Extract `packages/auth` (then `ui`, `i18n` as needed); `apps/cantinanana` skeleton: one protected page showing the logged-in user and a count from a `packages/db` read function; its Vercel project and `cantinanana.agricolala.eu` | Low for agricolala | Logged into agricolala → open cantinanana → already logged in; logged out → open cantinanana → sign in on agricolala → back on cantinanana |
+| PR 4 | In `lib/auth.ts` and `proxy.ts` (still in agricolala): session cookie with its new name and `AUTH_COOKIE_DOMAIN` (`.agricolala.eu` in production); `redirect` callback allowing `*.agricolala.eu` | Medium: everyone is logged out once (new cookie name) | Log in, check the cookie's name and domain; logout/login; `withAuth` still protects pages |
+| PR 5 | Move the auth options from `lib/auth.ts` into `packages/auth` (then `ui`, `i18n` as needed); agricolala sign-out page for cantinanana; `apps/cantinanana` skeleton: one protected page showing the logged-in user and a count from a `packages/db` read function; its Vercel project and `cantinanana.agricolala.eu` | Low for agricolala | Logged into agricolala → open cantinanana → already logged in; logged out → open cantinanana → sign in on agricolala → back on cantinanana; sign out from cantinanana → signed out of both |
 
 Then the winemaking app's v1 ([design-docs/fermentation.md](fermentation.md), its PR 1–3) is built in `apps/cantinanana`.
 
@@ -185,12 +190,13 @@ Then the winemaking app's v1 ([design-docs/fermentation.md](fermentation.md), it
 - [x] Who writes the user tables: agricolala, for now (D7).
 - [x] Supabase RLS (`scripts/supabase-setup.sql`): tables stay together in the same schema, so one script covers them (D8).
 - [x] Supabase RLS for new tables: the PR that adds a table adds its policy to `scripts/supabase-setup.sql`, so cellar tables get theirs from cantinanana's PRs (D4).
+- [ ] Local SSO: check that browsers accept a cookie on `.agricolala.localhost` (PR 5); if not, use another local parent domain.
 - [ ] Turborepo: worth it once CI runs two apps (cached `tsc`, lint, tests per workspace)? Deferred; decide later.
 
 - **Risk — the Vercel Root Directory switch:** a wrong setting breaks production deploys. Mitigation: switch at merge time, keep the previous deployment ready to promote back.
 - **Risk — crons running twice:** only `apps/agricolala/vercel.json` declares crons; the second project has none.
 - **Risk — one schema, two release paces:** a migration for one app ships to the shared DB before the other app is deployed. Rule: migrations are additive (new tables/columns, nullable or with defaults); destructive changes in two steps.
-- **Risk — logout on cookie change (PR 4):** announce it, or ship it with a release growers expect.
+- **Risk — logout on cookie change (PR 4):** the new cookie name logs everyone out once; announce it, or ship it with a release growers expect.
 - **Risk — Prisma client in workspaces:** `@prisma/client` generated into the hoisted `node_modules`; if an app resolves another copy, queries fail at runtime. Check with a production build of each app, not only `dev`.
 
 ## Sources
