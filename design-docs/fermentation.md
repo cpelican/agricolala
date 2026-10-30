@@ -18,7 +18,7 @@ Files the feature reads from, extends or copies patterns from.
 | Phenology | [lib/phenology.ts](../lib/phenology.ts), [lib/phenology-observations.ts](../lib/phenology-observations.ts) | `RIPE` stage dates as a harvest-date hint |
 | Substances | [lib/substance-helpers.ts](../lib/substance-helpers.ts), [lib/product-dose-to-grams.ts](../lib/product-dose-to-grams.ts) | Last copper and sulfur applications before harvest |
 | Excel export | [lib/excel-export.ts](../lib/excel-export.ts), [lib/actions-export.ts](../lib/actions-export.ts) | A later "Fermentation" sheet |
-| Navigation | [lib/app-shell.ts](../lib/app-shell.ts), [components/routing/bottom-navigation.tsx](../components/routing/bottom-navigation.tsx), [components/routing/sidebar-navigation.tsx](../components/routing/sidebar-navigation.tsx) | A fifth entry, "Cellar" |
+| Navigation (agricolala side) | [lib/app-shell.ts](../lib/app-shell.ts), [components/routing/bottom-navigation.tsx](../components/routing/bottom-navigation.tsx), [components/routing/sidebar-navigation.tsx](../components/routing/sidebar-navigation.tsx) | A link to Cantina from agricolala (the app switcher in the design) |
 | Routes | [app/[lang]/(app)/treatments/page.tsx](../app/%5Blang%5D/%28app%29/treatments/page.tsx), [app/[lang]/(app)/parcels/[parcelId]/page.tsx](../app/%5Blang%5D/%28app%29/parcels/%5BparcelId%5D/page.tsx) | List and detail page patterns for `/fermentations` and `/fermentations/[id]` |
 | Charts | [components/ui/chart.tsx](../components/ui/chart.tsx) (Recharts), [components/substances/chart-wrapper.tsx](../components/substances/chart-wrapper.tsx) (Chart.js) | The fermentation curve |
 | Dialogs | [components/phenology/update-stage-dialog.tsx](../components/phenology/update-stage-dialog.tsx), [components/treatments/add-treatment-dialog-form.tsx](../components/treatments/add-treatment-dialog-form.tsx) | Modal + form patterns for "Add reading" / "Add addition" |
@@ -124,7 +124,7 @@ Findings from English, Italian and French sources. Numbers are given with their 
 ### Temperature and pH
 
 - Reds: yeasts struggle above 32 °C. Whites: activity drops below 15 °C (AWRI 2013).
-- Typical ranges: whites 12–18 °C, reds 20–28 °C (Vinetur 2023). French extension advice: no more than 24–25 °C at the peak to keep aromas (Réussir Vigne).
+- Typical ranges: whites 12–18 °C, reds 20–28 °C (Vinetur 2023). No source found for rosés; the design uses 14–20 °C as a proposal. French extension advice: no more than 24–25 °C at the peak to keep aromas (Réussir Vigne).
 - Some yeasts cannot ferment at pH 3.0 or below, especially with sulfites (AWRI 2013). A pH above 3.2–3.3 is preferable (Vinetur 2023).
 - **Implication:** the lot stores its colour (white, rosé, red) to pick the range; pH is optional and checked against 3.0.
 
@@ -309,12 +309,12 @@ The grower creates a lot in the cellar, on the phone, often with wet hands. So t
 | Q8 | Volume in the vat | Always | Litres | Turns g/hL advice into grams to weigh (yeast hulls, SO₂) | `volumeL` |
 | Q9 | Grape varieties | Always | List | Low-YAN varieties (e.g. Chasselas often < 140 mg N/L, Agrarforschung Schweiz 2026) raise the nutrient advice | `varieties` |
 | Q10 | Hand or machine harvest? | Always | Hand · Machine | OIV advises SO₂ at machine harvest for whites/rosés; Demeter prefers hand harvest | `harvestMethod` |
-| Q11 | How healthy were the grapes? Were they sorted? | Always | Healthy · Some rot · Much rot (botrytis / sour rot); sorted yes/no | SO₂ dose (4 g/hL healthy vs 5–6 damaged), botrytis → thiamine (level 2) and higher SO₂ need (OIV); together with the botrytis treatments recorded in the vineyard (D14) | `grapeHealth`, `sorted` |
+| Q11 | How healthy were the grapes? Were they sorted? | Always | Healthy · Some rot · Much rot (botrytis / sour rot); sorting: none · in the vineyard · at the sorting table | SO₂ dose (4 g/hL healthy vs 5–6 damaged), botrytis → thiamine (level 2) and higher SO₂ need (OIV); together with the botrytis treatments recorded in the vineyard (D14) | `grapeHealth`, `sorting` |
 | Q12 | Did the must macerate on the skins? How long? | Always | No · Yes: hours (white skin contact, *macerazione pellicolare*, usually 4–24 h before pressing) or days (rosé, red, orange wine) | Phenols and tannins extracted (tannins mostly after 3–4 days, with alcohol), temperature range for skin-contact whites, pressing reminder | `skinContactHours`, `macerationDays`, `pressedAt` |
 | Q13 | Destemmed or whole bunches? | Red, rosé, skin contact | Destemmed · Whole bunch · Part (%) | Whole bunch: the cap can't be punched down until later in the ferment, so cap reminders start later | `wholeClusterPct` |
-| Q14 | How do you manage the cap? | Red / maceration | None · Punch down · Pump over · Both; times per day | Aeration advice (punch-downs bring air that helps yeasts make sterols), dry-cap warning (volatile acidity), heat spread | `capManagement` |
+| Q14 | How do you manage the cap? | Red / maceration | None · Punch down · Pump over · Délestage (one or more) | Aeration advice (punch-downs bring air that helps yeasts make sterols), dry-cap warning (volatile acidity), heat spread | `capManagement` |
 | Q15 | Did you protect the must at crush or in the press? | Always | Nothing · Argon / inert gas · SO₂: dose (g/hL of SO₂ or metabisulfite), date | Argon: curve marker. SO₂: starts the SO₂ budget | first `INERT_GAS` or `SO2` addition |
-| Q16 | Pied de cuve: when was it started, what share of the volume? | Mode = pied de cuve | Date; % (often 5–10 %) | Curve marker, start window | `PIED_DE_CUVE` addition |
+| Q16 | Pied de cuve: when was it started, what share of the volume? | Mode = pied de cuve | Date; % of the vat's volume (often 5–10 %) | Curve marker, start window | `PIED_DE_CUVE` addition, dose in % of volume |
 | Q17 | Which yeast, how much? | Mode = selected yeast | Product, g/hL; organic? | Curve marker; Demeter allows only certified-organic neutral yeast for a stuck fermentation | `YEAST` addition |
 | Q18 | What is the vat made of? | Always | Stainless steel · Wood · Concrete · Amphora / clay · Fibreglass or epoxy · Plastic | Demeter: no new fibreglass/epoxy tanks since 2022, plastic only for transfers; temperature inertia and oxygen exchange | `container` |
 | Q19 | Can you cool or heat the vat? | Always | No · Cool · Heat · Both | Only shows temperature advice the grower can act on (Demeter allows heating/cooling to steer the fermentation, red mash up to 35 °C) | `temperatureControl` |
@@ -358,6 +358,12 @@ enum GrapeHealth {
   MUCH_ROT
 }
 
+enum GrapeSorting {
+  NONE
+  VINEYARD
+  SORTING_TABLE
+}
+
 enum FermentationContainer {
   STAINLESS_STEEL
   WOOD
@@ -376,10 +382,9 @@ enum TemperatureControl {
 }
 
 enum CapManagement {
-  NONE
   PUNCH_DOWN
   PUMP_OVER
-  BOTH
+  DELESTAGE
 }
 
 enum TargetStyle {
@@ -392,6 +397,12 @@ enum MalolacticPlan {
   YES
   NO
   LET_IT_HAPPEN
+}
+
+enum DoseUnit {
+  G_PER_HL
+  MG_PER_HL
+  PERCENT_VOLUME
 }
 
 enum FermentationAdditionKind {
@@ -421,13 +432,12 @@ model Fermentation {
   varieties          String[]
   harvestMethod      HarvestMethod?
   grapeHealth        GrapeHealth?
-  sorted             Boolean?
+  sorting            GrapeSorting?
   skinContactHours   Float?
   macerationDays     Float?
   pressedAt          DateTime?
   wholeClusterPct    Float?
-  capManagement      CapManagement?
-  capActionsPerDay   Int?
+  capManagement      CapManagement[]
   container          FermentationContainer?
   temperatureControl TemperatureControl?
   targetStyle        TargetStyle?
@@ -468,7 +478,8 @@ model FermentationAddition {
   addedAt        DateTime
   kind           FermentationAdditionKind
   productName    String?
-  doseGPerHl     Float?
+  dose           Float?
+  doseUnit       DoseUnit?                // g/hL by default; mg/hL for thiamine; % of volume for a pied de cuve
   createdAt      DateTime                 @default(now())
   fermentation   Fermentation             @relation(fields: [fermentationId], references: [id], onDelete: Cascade)
 
@@ -487,9 +498,9 @@ Run `npx prisma migrate dev --name add_fermentation` after editing the schema; n
 | D3 | `mode` and `color` on the lot | They change the thresholds: start window (mode) and temperature range (colour) |
 | D4 | No parcel link in v1; the season summary uses all the user's parcels | What the issue asks for. A `parcels` relation can be added when growers vinify parcels apart |
 | D5 | Yeast is an addition of kind `YEAST`, not a field on the lot | The issue asks "how much and when"; a second inoculation (restart) is just another row |
-| D6 | Doses in g/hL | The unit of the data sheets and of the EU 40 g/hL limit |
+| D6 | Doses in g/hL by default, with a unit per addition: mg/hL for thiamine (legal maximum 60 mg/hL, Duncan & Divol 2022), % of volume for a pied de cuve | g/hL is the unit of the data sheets and of the EU 40 g/hL limit for yeast hulls; thiamine at 5 g/hL would be about 80 times the limit, and a pied de cuve is a share of the vat (seen in the [Cantina v1 design](https://claude.ai/artifact/YV444cNjYQzUj3fcFFvjpu)) |
 | D7 | `mode` defaults to `SPONTANEOUS`, `standard` to `BIODYNAMIC` | The feature exists to help spontaneous and biodynamic fermentation; the grower lowers the standard, never the app |
-| D8 | Escalating beyond the lot's `standard` needs an explicit opt-in on that lot | Following a non-biodynamic advice can cost the certification for the whole vat; the grower must choose it knowingly, and the choice is recorded |
+| D8 | Seeing advice beyond the lot's `standard` needs an explicit opt-in on that lot; **seeing changes nothing, following does** | Following a non-biodynamic advice can cost the certification for the whole vat; the grower must choose it knowingly. The opt-in (with its date) only reveals levels 3–4; the lot loses its standard when the grower records an addition from those levels (as in the [Cantina v1 design](https://claude.ai/artifact/YV444cNjYQzUj3fcFFvjpu)) |
 | D9 | Pied de cuve is both a mode (the vat was started with one) and an addition kind (when it was added, how much) | Same pattern as yeast in D5 |
 | D10 | SO₂ additions stored like other additions (`SO2`, dose in g/hL of SO₂ equivalent; metabisulfite converted on input at 57.6 %) | One timeline for the curve and the budget; the conversion is stoichiometric |
 | D11 | The SO₂ budget prefers the last measured total SO₂ over the sum of additions | Yeasts make SO₂ too (up to 100 mg/L), so additions alone underestimate it |
@@ -522,7 +533,7 @@ Pure functions over the readings, unit-tested like `lib/phenology.ts`. Each retu
 | Slowing | Daily drop below ⅓ of the best daily drop so far while Babo > 2 (density ≈ 1.010) | Idea from AWRI "see the slowdown before the stop"; thresholds to validate |
 | Stopped / stuck | Two identical readings in a row with Babo > 0 (density > 1.000) | BNIC plateau rule |
 | Finished? | Two identical readings at Babo ≤ −1 (density ≈ 0.995): "confirm with a sugar test (< 2 g/L)" | BNIC |
-| Temperature | White/rosé: warn below 15 °C or above 20 °C; red: warn above 30 °C, alert above 32 °C | AWRI; Vinetur; Réussir Vigne |
+| Temperature | Range shaded on the chart: white 12–18 °C, rosé 14–20 °C (proposal), red 20–28 °C. "Too cold" below the range; for whites a note that activity drops below 15 °C. "Too hot" above the range for whites and rosés; for reds warn above 30 °C, alert above 32 °C | AWRI; Vinetur; Réussir Vigne |
 | pH | Warn at ≤ 3.0 | AWRI |
 | Yeast-hulls hint | Babo has lost ⅓ of its starting value (drop towards 0) and no `NUTRIENT`/`YEAST_HULLS` addition yet → "Good moment for yeast hulls (20–40 g/hL, max 40) — Demeter/organic hulls for a biodynamic lot". Shown earlier when "Slowing". Other nutrients only from the "with certifier approval" level up | Osborne 2018; Lallemand; AEB/Enartis data sheets; Demeter standard |
 
@@ -537,7 +548,7 @@ Every advice belongs to one level. The app shows the lowest level that fits the 
 | 3 — Organic (loses Demeter) | "Stopped" with more than 50 g/L of sugar left, or "Not started" well past its window | Selected organic yeast, DAP, autolysates, fresh lees from a dry wine (≤ 5 %), SO₂ up to the organic limit |
 | 4 — Conventional (loses organic) | Only if the lot's standard is `CONVENTIONAL` | Inputs outside the organic list |
 
-- Levels 3 and 4 are hidden behind a "Show non-biodynamic options" action on the lot. It says what certification the vat would lose, and the choice is saved on the lot (`standard` lowered, with the date).
+- Levels 3 and 4 are hidden behind a "Show non-biodynamic options" action on the lot, offered once level 2 has been shown. The confirmation says what certification the vat would lose **if the grower follows one of them**, asks to tick "I understand", and records the opt-in date. Only the grower can hide them again, from the vat's settings; other vats are not affected. Recording an addition from level 3 or 4 lowers the lot's `standard` (D8).
 - Every advice links to its source and says "consider" or "ask your certifier", never "add".
 - **SO₂ before fermentation** is a very optional suggestion: never a hint, never a warning. It only appears folded under the argon advice ("If you also want SO₂ at crush: keep it small and adapted to pH; 4 g/hL for healthy grapes, 5–6 g/hL for damaged ones"), because OIV and Demeter both ask for the minimum and no source covers spontaneous fermentation specifically.
 - Escalation triggers are proposals: tune them on the first vintage, like the curve thresholds.
@@ -546,7 +557,8 @@ Every advice belongs to one level. The app shows the lowest level that fits the 
 
 **v1:**
 
-- **Limit** from the lot's `standard`, `color` and target style (Q21) or last `sugarGL`, using the table in the research section.
+- **Limit** from the lot's `standard`, `color` and target style (Q21) or last `sugarGL`, using the table in the research section. With neither, the meter asks for the style instead of guessing (as in the [Cantina v1 design](https://claude.ai/artifact/YV444cNjYQzUj3fcFFvjpu)).
+- **Near the limit** from 80 % of it: "consider not adding more".
 - **Added so far**: the sum of `SO2` additions in mg/L, shown as "at least" (yeasts make SO₂ too).
 - **Hints:** "No SO₂ during fermentation" when a reading shows the fermentation is active; "Good moment to sulphite" once the fermentation is finished (and a few days after malolactic is marked); "Measure free SO₂ again" a few days after an addition; "Above 80 % of the Demeter limit" before any further addition; "Restarting a stuck fermentation: a small SO₂ addition first, with yeast hulls" (OIV).
 - Dose shown at the end of fermentation: 4–6 g/hL (Réussir Vigne 2025), capped so that the sum stays under the lot's limit.
@@ -566,8 +578,8 @@ Reads go through `lib/data-fetcher.ts`. If #74 lands first, "the user's parcels"
 
 ### UX
 
-- New entry **Cellar** (`/fermentations`). Where it lives (fifth bottom-nav icon at 375 px, or under Treatments) is handed off to Claude Design.
-- List page: one card per lot (name, mode, colour, last reading, status chip). "New fermentation" dialog in two steps: Q1–Q7 on one screen, then "Add details" (Q8–Q22, only those that apply to the colour and mode), skippable. On the lot page, a missing detail is asked inline when an advice needs it (e.g. "How healthy were the grapes?" next to the SO₂ dose helper).
+- The fermentation app is **Cantina**, a separate app sharing users and data with agricolala ([design-docs/monorepo.md](monorepo.md)). Design: [Cantina v1 design](https://claude.ai/artifact/YV444cNjYQzUj3fcFFvjpu), made from [the Claude Design brief](fermentation-claude-design-brief.md). Same shell as agricolala with the "Cantina" wordmark; bottom navigation **Vasche · Profilo · Agricolala**, where Agricolala opens an app switcher ("Le tue app": Agricolala for the vineyard, Cantina for the cellar). Desktop: the same three entries in the sidebar.
+- List page ("Vasche"): lots grouped into **Da controllare** (not normal: too hot, too cold, stuck, slowing) and **Nella norma**; each card shows name, colour, mode, day and time since the last reading, the last reading, the status chip (label + icon, never colour alone) and a sparkline of the Babo curve over its normal band. Empty state for the first vintage. "New fermentation" dialog in two steps: Q1–Q7 on one screen, then "Add details" (Q8–Q22, only those that apply to the colour and mode), skippable. On the lot page, a missing detail is asked inline when an advice needs it (e.g. "How healthy were the grapes?" next to the SO₂ dose helper).
 - Lot page:
   - Header with status chip and the current hint.
   - Curve: Babo on the left axis, temperature on the right, additions as markers, the "normal fermentation" band shaded behind the readings. Recharts via `components/ui/chart.tsx`.
@@ -610,7 +622,8 @@ PR 1 and 2 before the next vintage starts; PR 3 tuned on that vintage's real cur
 - [x] Escalation triggers between levels (2 days of "Slowing", "Not started" past its window): agreed as proposals, tuned on real curves after the first vintage.
 - [x] Start windows (48 h / 96 h) and the "slowing" ratio: kept as proposals for now, tuned on real curves from the first vintage before turning warnings red.
 - [ ] Normal band: no source gives a reference curve, a maximum daily drop or a spontaneous start delay. Find one (IFV, ICV, Ribéreau-Gayon) or build the band from the first vintage's curves.
-- [ ] Navigation: a fifth bottom-nav icon, or Cellar under Treatments? Handed off to Claude Design along with the list, lot and creation screens: [design-docs/fermentation-claude-design-brief.md](fermentation-claude-design-brief.md).
+- [x] Navigation: settled by the [Cantina v1 design](https://claude.ai/artifact/YV444cNjYQzUj3fcFFvjpu) — Cantina is its own app with its own bottom navigation and an app switcher to Agricolala (see UX).
+- [ ] Spontaneous start window: the design says a spontaneous fermentation "can start in 2–5 days" and draws the normal start up to day 5; this doc proposes 96 h (4 days). Neither is sourced; pick one for v1.
 
 - **Risk — false precision:** fermentation advice is guidance; wording says "consider", products are never prescribed, and doses always quote the legal limit.
 - **Later — water balance:** Kc of the vine by stage (FAO-56 or an IFV table?) is still unsourced; the soil reserve is settled (one editable number per parcel, default 150 mm).
