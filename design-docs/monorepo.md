@@ -6,7 +6,7 @@ Files the migration moves, splits or rewires.
 
 | Area | File | Why it matters |
 | --- | --- | --- |
-| Package and scripts | [package.json](../package.json), [package-lock.json](../package-lock.json) | Becomes the workspace root; every script (`dev`, `build`, `test`, `test:e2e`, `migrate:deploy:prod`, `seed`…) is moved or delegated. `prisma`, `@prisma/client`, `next-auth` are on `latest` |
+| Package and scripts | [package.json](../package.json), [package-lock.json](../package-lock.json) | Becomes the workspace root; every script (`dev`, `build`, `test`, `test:e2e`, `migrate:deploy:prod`, `seed`…) is moved or delegated. 7 dependencies are on `latest` |
 | TypeScript | [tsconfig.json](../tsconfig.json) | `@/*` → `./*` alias used by 155 files (247 imports from `@/lib`, 151 from `@/components`) |
 | Next.js | [next.config.mjs](../next.config.mjs) | `serverExternalPackages: ["@prisma/client"]`, `serverActions.allowedOrigins` (`www.agricolala.eu`, `agricolala.eu`, `agricolala-eta.vercel.app`), Turbopack SVG rule |
 | Vercel | [vercel.json](../vercel.json) | Crons (`suggest-treatments`, `fetch-weather-history`) — must stay with agricolala only |
@@ -17,7 +17,7 @@ Files the migration moves, splits or rewires.
 | Users and access | `User`, `AccessRequest`, `AdminUser` in the schema; [lib/access-requests.ts](../lib/access-requests.ts), [lib/actions-tos.ts](../lib/actions-tos.ts) | Approval (`isAuthorized`) and terms acceptance — one of each for both apps (D7) |
 | i18n | [lib/i18n](../lib/i18n), [locales](../locales), [contexts/translations-context.tsx](../contexts/translations-context.tsx) | Both apps need the same locale handling |
 | UI | [components/ui](../components/ui), [components.json](../components.json), [app/globals.css](../app/globals.css), [tailwind.config.js](../tailwind.config.js), [postcss.config.mjs](../postcss.config.mjs) | shadcn components and theme, shareable |
-| Site URL | [lib/site-url.ts](../lib/site-url.ts) | Uses `VERCEL_PROJECT_PRODUCTION_URL`; one value per project |
+| Site URL | [lib/site-url.ts](../lib/site-url.ts) | Uses `NEXT_PUBLIC_SITE_URL`, else `VERCEL_PROJECT_PRODUCTION_URL`, which may not be the `www.` address; each project sets `NEXT_PUBLIC_SITE_URL` |
 | Unit / integration tests | [vitest.config.mts](../vitest.config.mts), [test](../test) | `globalSetup` boots Next on port 3001 from the repo root (`next({ dev })`) |
 | E2e | [playwright.config.ts](../playwright.config.ts), [e2e](../e2e), [docker-compose.e2e.yml](../docker-compose.e2e.yml) | `webServer` runs `npm run dev` on 127.0.0.1:3002 |
 | Test DB scripts | [scripts](../scripts) (`run-test-integration.sh`, `setup-e2e-db.sh`, `setup-e2e-native.sh`, `migrate-prod.sh`, `supabase-setup.sql`…), [docker-compose.test.yml](../docker-compose.test.yml), [docker-compose.yml](../docker-compose.yml) | Hard-coded paths to `prisma/`, run from the repo root |
@@ -55,7 +55,7 @@ As of 30 Oct 2026. Design only; nothing started.
 
 | Phase | PR | State |
 | --- | --- | --- |
-| PR 1 — pin `prisma`, `@prisma/client`, `next-auth` | — | Not started |
+| PR 1 — pin the 7 dependencies on `latest` | — | Not started |
 | PR 2 — npm workspaces; move the app to `apps/agricolala`; CI, scripts, Vercel Root Directory | — | Not started |
 | PR 3 — `packages/db`: schema, migrations, seed, Prisma client | — | Not started |
 | PR 4 — session cookie shared on `.agricolala.eu` | — | Not started |
@@ -70,7 +70,7 @@ One Next.js 16 app at the repo root, deployed as one Vercel project (`www.agrico
 | Layout | Everything at the root: `app/`, `components/`, `lib/`, `prisma/`, `e2e/`, `test/`, `scripts/` | No place for a second app or shared code |
 | Imports | `@/…` alias rooted at the repo | Must keep working after the move, without touching 155 files |
 | Database | `prisma/schema.prisma` + migrations, client in `lib/prisma.ts`, `prisma generate` in `build` | Two apps must use the same schema and client, and only one place may run migrations |
-| Dependencies | `prisma`, `@prisma/client`, `next-auth`, `chart.js`, `date-fns`, `react-chartjs-2` on `latest` | A workspace install can pull a new major mid-migration (Prisma 8 is in release candidate: `8.0.0-rc.29`) |
+| Dependencies | `prisma`, `@prisma/client`, `next-auth`, `@next-auth/prisma-adapter`, `chart.js`, `date-fns`, `react-chartjs-2` on `latest` | A workspace install can pull a new major mid-migration (Prisma 8 is in release candidate: `8.0.0-rc.29`) |
 | Auth | NextAuth 4.24.15, JWT sessions, default cookies, Credentials + Google | Cookie bound to the current host; no sharing across apps |
 | Domain | Custom domain `www.agricolala.eu` (since 28 Oct 2026), plus `agricolala-eta.vercel.app` | The second app needs a subdomain of `agricolala.eu`; `vercel.app` is a public suffix, so two `*.vercel.app` projects cannot share a cookie |
 | Tests and CI | Vitest boots Next from the root on 3001; Playwright runs `npm run dev` on 3002; CI runs everything from the root | All paths and working directories change |
@@ -130,7 +130,7 @@ docker-compose*.yml       ← test and e2e databases, shared
 - **New `redirect` callback:** after sign-in the user goes back to the app they came from. NextAuth's default `redirect` only allows the same origin, so a `callbackUrl` on `cantinanana.agricolala.eu` would land on agricolala. The callback allows `https://*.agricolala.eu` origins too, and falls back to agricolala for anything else.
 - **agricolala keeps writing the users:** sign-in (including the Google `signIn` callback that creates `User`), access requests, the waiting screen for unapproved users, terms acceptance and `/admin/access-requests` stay in agricolala. cantinanana only reads the session.
 - One approval (`isAuthorized`) and one terms-of-service acceptance cover both apps; no per-app access flag. An unapproved or not-yet-accepted user on cantinanana is redirected to agricolala, which shows the waiting or terms screen.
-- `serverActions.allowedOrigins` and `NEXTAUTH_URL` are set per app.
+- `serverActions.allowedOrigins`, `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` are set per app (`https://www.agricolala.eu` and `https://cantinanana.agricolala.eu`). Without `NEXT_PUBLIC_SITE_URL`, `lib/site-url.ts` falls back to `VERCEL_PROJECT_PRODUCTION_URL`, which may be `agricolala.eu` instead of `www.agricolala.eu`.
 - Preview deployments stay on `*.vercel.app`, so SSO only works in production (and locally if both apps run on `*.localhost`). Since cantinanana has no sign-in of its own, its previews cannot log in; to test it, run it locally next to agricolala.
 
 ### Vercel projects
@@ -159,7 +159,7 @@ docker-compose*.yml       ← test and e2e databases, shared
 | D3 | `packages/db` is the only shared package before the second app starts; it also holds the cross-app read functions | The schema is the one thing that must never be duplicated; an app cannot import another app's `lib/` |
 | D4 | One database, table ownership per app, reads across apps through functions in `packages/db` | Same data without sync; keeps the "DB access in a few modules" rule of #97 |
 | D5 | SSO through a shared JWT cookie on the parent domain | No auth server; works because sessions are already JWT |
-| D6 | Pin `prisma`, `@prisma/client`, `next-auth` before moving | Avoids a major upgrade sneaking in through the new workspace install |
+| D6 | Pin all 7 dependencies on `latest` before moving | Avoids a major upgrade sneaking in through the new workspace install |
 | D7 | One sign-in page hosted by agricolala, one approval and one terms acceptance for both apps; agricolala writes the user tables | Same users in both apps; a `redirect` callback sends the user back to where they arrived from |
 | D8 | All tables in the same Postgres schema | Keeps one place for the data and one RLS script |
 | D9 | The winemaking app is named `cantinanana` | Product owner's choice |
@@ -168,7 +168,7 @@ docker-compose*.yml       ← test and e2e databases, shared
 
 | Phase | Scope | Risk | How to check |
 | --- | --- | --- | --- |
-| PR 1 | Pin `prisma`, `@prisma/client`, `next-auth` (and the other `latest` dependencies) to the versions in the lockfile | Low | `npm ci`, `npm run tsc`, CI green |
+| PR 1 | Pin the 7 dependencies on `latest` (`prisma`, `@prisma/client`, `next-auth`, `@next-auth/prisma-adapter`, `chart.js`, `date-fns`, `react-chartjs-2`) to the versions in the lockfile | Low | `npm ci`, `npm run tsc`, CI green |
 | PR 2 | Root `package.json` with `workspaces`; `git mv` the app into `apps/agricolala` (incl. `prisma/` for now, `e2e/`, `test/`); root scripts delegate; CI working directories; scripts' paths; docs. Vercel Root Directory switched at merge | Medium: deploy config | CI green; preview deploy works; after merge, production deploy, login, a cron run by hand (`/api/cron/...` with the secret) |
 | PR 3 | `packages/db`: move `prisma/` and the client; apps import `@agricolala/db`; `migrate-prod.sh`, test DB scripts and CI migrate from the package | Medium: generated client path | `prisma generate` in CI; Vitest integration tests; e2e; `npm run migrate:deploy:prod` dry run against a local DB (the script refuses localhost, so test the path change with a copy) |
 | PR 4 | Production-only session cookie on `.agricolala.eu`; `redirect` callback allowing `*.agricolala.eu` | Medium: everyone is logged out once when the cookie changes | Log in, check the cookie's domain; logout/login; `withAuth` still protects pages |
@@ -184,7 +184,7 @@ Then the winemaking app's v1 ([design-docs/fermentation.md](fermentation.md), it
 - [x] Sign-in page: hosted by agricolala only; a `redirect` callback sends the user back to the app they arrived from (D7).
 - [x] Who writes the user tables: agricolala, for now (D7).
 - [x] Supabase RLS (`scripts/supabase-setup.sql`): tables stay together in the same schema, so one script covers them (D8).
-- [ ] Supabase RLS: who adds the policies for new cellar tables?
+- [x] Supabase RLS for new tables: the PR that adds a table adds its policy to `scripts/supabase-setup.sql`, so cellar tables get theirs from cantinanana's PRs (D4).
 - [ ] Turborepo: worth it once CI runs two apps (cached `tsc`, lint, tests per workspace)? Deferred; decide later.
 
 - **Risk — the Vercel Root Directory switch:** a wrong setting breaks production deploys. Mitigation: switch at merge time, keep the previous deployment ready to promote back.
