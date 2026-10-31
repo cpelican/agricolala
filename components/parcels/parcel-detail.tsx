@@ -24,7 +24,6 @@ interface ParcelDetailProps {
 	currentStage: CurrentParcelStage | null;
 	copperPacing: CopperPacingInput;
 	currentUserId: string;
-	children: React.ReactNode;
 }
 
 export function ParcelDetail({
@@ -35,7 +34,6 @@ export function ParcelDetail({
 	currentStage,
 	copperPacing,
 	currentUserId,
-	children,
 }: ParcelDetailProps) {
 	const { t } = useTranslations();
 	const diseases = useDiseases();
@@ -50,7 +48,6 @@ export function ParcelDetail({
 					stages={currentStage ? [currentStage] : []}
 				/>
 				<ParcelStageCard parcelId={parcel.id} observation={currentStage} />
-				{children}
 				{upcomingTreatments.length === 0 ? null : (
 					<Card>
 						<CardHeader>

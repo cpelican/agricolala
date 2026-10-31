@@ -95,16 +95,3 @@ export async function getObservationsForPeriod(
 		select: { parcelId: true, stage: true, observedAt: true },
 	});
 }
-
-// Latest observation of a parcel on or before `date`, expired or not.
-export async function getLatestObservation(
-	db: DbClient,
-	parcelId: string,
-	date: Date,
-) {
-	return db.phenologyObservation.findFirst({
-		where: { parcelId, observedAt: { lte: date } },
-		orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
-		select: { stage: true, observedAt: true },
-	});
-}

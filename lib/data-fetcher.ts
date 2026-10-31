@@ -3,7 +3,6 @@ import { cache } from "react";
 import { prisma } from "./prisma";
 import {
 	getCurrentStagesByParcel,
-	getLatestObservation,
 	getObservationsForPeriod,
 } from "./phenology-observations";
 import { getStageExpiryCutoff } from "./phenology";
@@ -197,20 +196,6 @@ export const getTreatmentsForYear = cache(
 export const getObservationsForYear = cache(
 	async (userId: string, yearStart: Date, yearEnd: Date) => {
 		return await getObservationsForPeriod(prisma, userId, yearStart, yearEnd);
-	},
-);
-
-// Not filtered by user: callers load the parcel through getParcelDetail first.
-export const getParcelLocation = cache(async (parcelId: string) => {
-	return await prisma.parcel.findUnique({
-		where: { id: parcelId },
-		select: { latitude: true, longitude: true },
-	});
-});
-
-export const getLatestParcelObservation = cache(
-	async (parcelId: string, now: Date) => {
-		return await getLatestObservation(prisma, parcelId, now);
 	},
 );
 
