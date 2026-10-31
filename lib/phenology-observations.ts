@@ -4,7 +4,7 @@ import {
 	type PrismaClient,
 } from "@prisma/client";
 import { Errors } from "@/lib/constants";
-import { getStageExpiryCutoff } from "./phenology";
+import { getStageExpiryCutoff, isObservationExpired } from "./phenology";
 import { parcelAccessWhere } from "./parcel-access";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
@@ -63,7 +63,7 @@ export async function getCurrentStagesByParcel(
 	userId: string,
 	date: Date,
 ) {
-	return db.phenologyObservation.findMany({
+	const latest = await db.phenologyObservation.findMany({
 		where: {
 			parcel: parcelAccessWhere(userId),
 			observedAt: { lte: date, gte: getStageExpiryCutoff(date) },
@@ -72,6 +72,9 @@ export async function getCurrentStagesByParcel(
 		distinct: ["parcelId"],
 		select: { parcelId: true, stage: true, observedAt: true },
 	});
+	return latest.filter(
+		(observation) => !isObservationExpired(observation, date),
+	);
 }
 
 export type CurrentParcelStage = Awaited<

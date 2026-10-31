@@ -9,7 +9,10 @@ import {
 	getCurrentStagesByParcel,
 	getObservationsForPeriod,
 } from "./phenology-observations";
-import { STAGE_EXPIRES_AFTER_DAYS } from "./phenology";
+import {
+	DORMANT_EXPIRES_AFTER_DAYS,
+	STAGE_EXPIRES_AFTER_DAYS,
+} from "./phenology";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const NOW = new Date(2026, 5, 1, 12);
@@ -151,6 +154,38 @@ describe("[Integration] phenology observations", () => {
 		});
 	});
 
+	test("keeps a dormant stage past the usual expiry, not an older one behind an expired stage", async () => {
+		const { testUser, testParcel } = testData;
+		const secondParcel = await createParcel(testUser.id);
+
+		await testPrisma.phenologyObservation.createMany({
+			data: [
+				// First parcel: marked dormant long ago → still dormant
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 60),
+				},
+				// Second parcel: dormant, then a bud break that has expired → unknown
+				{
+					parcelId: secondParcel.id,
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 60),
+				},
+				{
+					parcelId: secondParcel.id,
+					stage: PhenologicalStage.BUD_BREAK,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1),
+				},
+			],
+		});
+
+		const stages = await getCurrentStagesByParcel(testPrisma, testUser.id, NOW);
+		expect(stages.map((s) => [s.parcelId, s.stage])).toEqual([
+			[testParcel.id, PhenologicalStage.DORMANT],
+		]);
+	});
+
 	test("ignores observations on other users' parcels", async () => {
 		const { testUser } = testData;
 		const otherUser = await createOtherUser();
@@ -181,17 +216,17 @@ describe("[Integration] phenology observations", () => {
 					stage: PhenologicalStage.FLOWERING,
 					observedAt: daysAgo(2),
 				},
-				// Within the expiry window before `from`: still gives a stage at `from`
+				// Within the dormant expiry window before `from`: may still give a stage at `from`
 				{
 					parcelId: testParcel.id,
-					stage: PhenologicalStage.BUD_BREAK,
-					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS),
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(30 + DORMANT_EXPIRES_AFTER_DAYS),
 				},
 				// Too old to matter for the period
 				{
 					parcelId: testParcel.id,
-					stage: PhenologicalStage.BUD_BREAK,
-					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS + 1),
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(30 + DORMANT_EXPIRES_AFTER_DAYS + 1),
 				},
 				// After the period
 				{
@@ -216,7 +251,7 @@ describe("[Integration] phenology observations", () => {
 		);
 
 		expect(observations.map((o) => o.stage)).toEqual([
-			PhenologicalStage.BUD_BREAK,
+			PhenologicalStage.DORMANT,
 			PhenologicalStage.FLOWERING,
 		]);
 	});

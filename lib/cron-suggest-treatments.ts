@@ -7,6 +7,7 @@ import {
 	getCachedDiseaseWindows,
 } from "./data-fetcher";
 import { getActiveDiseaseIds } from "./disease-stage-sensitivity";
+import { isObservationExpired } from "./phenology";
 import { buildTreatmentSuggestion } from "./treatment-suggestions";
 
 // Replaces every TODO treatment with a fresh suggestion per parcel: one TODO for a
@@ -44,7 +45,11 @@ export async function suggestTreatments(currentDate: Date) {
 		if (!lastTreatment) continue;
 
 		// Diseases are active by the parcel's stage, or by month without one.
-		const stage = parcel.phenologyObservations[0]?.stage ?? null;
+		const observation = parcel.phenologyObservations[0];
+		const stage =
+			observation && !isObservationExpired(observation, currentDate)
+				? observation.stage
+				: null;
 		const suggestion = buildTreatmentSuggestion({
 			lastTreatment,
 			date: currentDate,

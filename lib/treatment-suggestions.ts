@@ -70,7 +70,7 @@ export function isCriticalCadence(
 	>[],
 ): boolean {
 	if (!stage) return false;
-	const stages = [stage, getNextStage(stage)].filter((s) => s !== null);
+	const stages = [stage, getNextStage(stage)];
 	return diseaseIds.some((diseaseId) =>
 		stages.some(
 			(s) =>

@@ -569,6 +569,10 @@
 			"VERY_HIGH": "Risque très élevé"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Repos végétatif",
+				"description": "Repos hivernal : bourgeons fermés, aucun organe vert"
+			},
 			"BUD_BREAK": {
 				"label": "Débourrement",
 				"description": "Pointe verte visible à travers la bourre"

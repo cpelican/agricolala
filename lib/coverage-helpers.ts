@@ -37,9 +37,11 @@ export const COPPER_LEAF_AREA_FACTOR = 4 * 10;
 // https://www.bonnepratiqueagricole.ch/fileadmin/Viticulture/Maladies/Dosage_des_fongicides_en_fonction_du_stade_phenologique.pdf
 // Buds opening has no value in the table, so it keeps the first-leaves share rather than
 // a smaller one that would inflate the readout; flower clusters takes the top of its
-// range (more leaves = lower mg/m², the safe side). Parcels without a current stage keep
+// range (more leaves = lower mg/m², the safe side). Dormant vines have no leaves; they
+// keep the smallest share for the same reason. Parcels without a current stage keep
 // the full canopy.
 export const LEAF_AREA_SHARE_BY_STAGE = {
+	DORMANT: 0.38,
 	BUD_BREAK: 0.38,
 	LEAVES_UNFOLDING: 0.38,
 	FLOWER_CLUSTERS: 0.63,

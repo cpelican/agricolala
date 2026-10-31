@@ -569,6 +569,10 @@
 			"VERY_HIGH": "Rischio molto alto"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Riposo vegetativo",
+				"description": "Riposo invernale: gemme chiuse, nessun organo verde"
+			},
 			"BUD_BREAK": {
 				"label": "Germogliamento",
 				"description": "Punta verde visibile attraverso la lanugine"

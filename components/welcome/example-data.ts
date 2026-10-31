@@ -14,6 +14,7 @@ export const EXAMPLE_COPPER_PERCENT = Math.round(
 
 // Treatments made at each stage of the example season.
 export const EXAMPLE_TREATMENTS_PER_STAGE = {
+	[PhenologicalStage.DORMANT]: 0,
 	[PhenologicalStage.BUD_BREAK]: 0,
 	[PhenologicalStage.LEAVES_UNFOLDING]: 1,
 	[PhenologicalStage.FLOWER_CLUSTERS]: 2,

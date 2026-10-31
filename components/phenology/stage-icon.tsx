@@ -5,6 +5,7 @@ const GREEN = "#1a9e1a";
 const YELLOW = "#f2b01e";
 const PURPLE = "#4b3aa6";
 const GROUND = "#b8b8b0";
+const WOOD = "#8a6a4a";
 
 // Bunch shape shared by every cluster pictogram: rows of 4, 4, 3, 2, 1 berries.
 const BUNCH_ROWS = [4, 4, 3, 2, 1] as const;
@@ -107,6 +108,21 @@ function hangingBunch(
 }
 
 const PICTOGRAMS = {
+	[PhenologicalStage.DORMANT]: (
+		<>
+			<Ground />
+			<line
+				x1={22}
+				y1={46}
+				x2={22}
+				y2={14}
+				stroke={WOOD}
+				strokeWidth={3}
+				strokeLinecap="round"
+			/>
+			<ellipse cx={26} cy={24} rx={3} ry={4} fill={WOOD} />
+		</>
+	),
 	[PhenologicalStage.BUD_BREAK]: (
 		<>
 			<Ground />

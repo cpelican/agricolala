@@ -22,7 +22,7 @@ const PILL_CLASS =
 	"inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/5 disabled:opacity-50";
 
 // Parcel list card footer: current stage, plus a pill to mark the next stage
-// after confirming (or a dialog to pick one when unknown or already ripe).
+// after confirming (dormant after ripe), or a dialog to pick one when unknown.
 export function ParcelStageRow({
 	parcelId,
 	parcelName,

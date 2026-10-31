@@ -569,6 +569,10 @@
 			"VERY_HIGH": "Very high risk"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Dormant",
+				"description": "Winter rest: buds closed, no green tissue"
+			},
 			"BUD_BREAK": {
 				"label": "Buds opening",
 				"description": "Green tip visible through the wool"

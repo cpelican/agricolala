@@ -1,8 +1,8 @@
 import {
 	DiseaseSensitivityLevel,
+	PhenologicalStage,
 	type Disease,
 	type DiseaseStageSensitivity,
-	type PhenologicalStage,
 } from "@prisma/client";
 import { PHENOLOGICAL_STAGES } from "./phenology";
 
@@ -24,9 +24,11 @@ export const CRITICAL_FROM_LEVEL = DiseaseSensitivityLevel.HIGH;
 // catalogue, keyed by disease name. Ranges in the matrix ("Low–Medium") are rounded
 // up, and the level is the higher of bunch and leaf risk where the matrix notes it.
 // Only used when a parcel has a current stage: with no stage (never set, or expired
-// after STAGE_EXPIRES_AFTER_DAYS) it is ignored and the month windows apply.
+// after STAGE_EXPIRES_AFTER_DAYS) it is ignored and the month windows apply. Dormant
+// vines have no green tissue to infect.
 export const DISEASE_STAGE_SENSITIVITY_MATRIX = {
 	Peronospora: {
+		DORMANT: DiseaseSensitivityLevel.NONE,
 		BUD_BREAK: DiseaseSensitivityLevel.NONE,
 		LEAVES_UNFOLDING: DiseaseSensitivityLevel.MEDIUM,
 		FLOWER_CLUSTERS: DiseaseSensitivityLevel.HIGH,
@@ -37,6 +39,7 @@ export const DISEASE_STAGE_SENSITIVITY_MATRIX = {
 		RIPE: DiseaseSensitivityLevel.LOW,
 	},
 	Oidium: {
+		DORMANT: DiseaseSensitivityLevel.NONE,
 		BUD_BREAK: DiseaseSensitivityLevel.LOW,
 		LEAVES_UNFOLDING: DiseaseSensitivityLevel.MEDIUM,
 		FLOWER_CLUSTERS: DiseaseSensitivityLevel.HIGH,
@@ -87,13 +90,15 @@ export function getSensitivityLevel(
 }
 
 // Whether a disease is active for a parcel: by its level at the parcel's stage, or by
-// the month window when the stage is unknown (or expired) or has no matrix row.
+// the month window when the stage is unknown (or expired) or has no matrix row. Never
+// on dormant vines, even for a disease without a matrix row.
 export function isDiseaseActive(
 	disease: Pick<Disease, "id" | "sensitivityMonthMin" | "sensitivityMonthMax">,
 	sensitivities: StageSensitivity[],
 	stage: PhenologicalStage | null,
 	date: Date,
 ): boolean {
+	if (stage === PhenologicalStage.DORMANT) return false;
 	const level = stage
 		? getSensitivityLevel(sensitivities, disease.id, stage)
 		: null;

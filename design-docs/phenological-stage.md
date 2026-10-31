@@ -79,6 +79,7 @@ Eight choices, each an illustration + one plain label. The BBCH range is stored 
 
 | Enum value | Label shown (en) | What the grower sees | BBCH |
 | --- | --- | --- | --- |
+| `DORMANT` | Dormant | Winter rest: buds closed, no green tissue | 00–03 |
 | `BUD_BREAK` | Buds opening | Green tip visible through the wool | 05–09 |
 | `LEAVES_UNFOLDING` | First leaves | 2–6 leaves spread out, shoots < 20 cm | 11–16 |
 | `FLOWER_CLUSTERS` | Flower clusters visible | Clusters separated, flowers still closed | 53–57 |
@@ -88,7 +89,7 @@ Eight choices, each an illustration + one plain label. The BBCH range is stored 
 | `VERAISON` | Colour change | Berries soften and change colour | 81–85 |
 | `RIPE` | Ripe / harvested | Ready for harvest or picked | 89–91 |
 
-Dormancy (BBCH 00–03) is implied when no observation exists for the current season.
+`DORMANT` was added after v3 so growers can say the vines are resting instead of seeing "Stage unknown" all winter (before, dormancy was only implied when no observation existed for the current season). It comes first in the stage order and follows `RIPE`, so the "Mark next stage" pill loops ripe → dormant → buds opening. A dormant observation expires after 240 days (`DORMANT_EXPIRES_AFTER_DAYS`, long enough for a winter marked right after harvest) instead of 21, and the picker keeps suggesting it rather than moving on after 14 days. While a parcel is dormant: no disease is active (whatever the matrix rows or month windows say), so no treatment is suggested; copper pacing ignores the parcel (all-dormant farms get no pacing note). Leaf area keeps the bud-break share (38 %).
 
 Picture options; all are kept small so the modal does not need much scrolling:
 
@@ -106,6 +107,7 @@ A separate model rather than a column on `Treatment`: the stage belongs to the p
 
 ```prisma
 enum PhenologicalStage {
+  DORMANT
   BUD_BREAK
   LEAVES_UNFOLDING
   FLOWER_CLUSTERS
@@ -133,13 +135,13 @@ Migration generated with `npx prisma migrate dev` (no hand-written SQL). `lib/ph
 
 ### UX in the treatment modal
 
-1. New optional block after the date: "How do your vines look?" with 2 rows of 4 illustrated tiles. One stage per treatment, recorded for every selected parcel (decided).
+1. New optional block after the date: "How do your vines look?" with 2 rows (5 + 4) of illustrated tiles. One stage per treatment, recorded for every selected parcel (decided).
 2. Nothing is selected by default (changed in #70): the selected parcels' last stage, as of the treatment date, is only **suggested** with a dashed outline. If it is older than 14 days, the next stage is suggested instead; after 21 days the stage expires, the parcel shows "Stage unknown" and nothing is suggested. A stage is saved only when the grower taps it, so an untouched picker never re-records a stage and a backdated treatment does not get today's stage.
 3. "Skip" is always possible; the treatment is saved without an observation.
 4. If the chosen stage is earlier than the last recorded one, show a soft warning ("Earlier than what you recorded on 12 May — correct?"), never a blocker.
 5. Parcel pages, for observations without a treatment (server action `recordPhenologyObservation` in `lib/actions-phenology.ts`):
-    - List card: current stage or "Stage unknown", plus a dashed **Mark <next stage>** pill; when the stage is unknown or ripe, the pill opens the full **Update stage** picker.
-    - Detail page: "Growth stage" with "Set N days ago" and the 8 stages as tiles.
+    - List card: current stage or "Stage unknown", plus a dashed **Mark <next stage>** pill; after ripe it offers **Mark Dormant**; when the stage is unknown, the pill opens the full **Update stage** picker.
+    - Detail page: "Growth stage" with "Set N days ago" and the 9 stages as tiles.
     - Tapping a tile or the pill opens a confirmation dialog (picture, description, current stage); only **Confirm** records it. A newer observation also corrects a wrong one.
 
 ### Server changes
@@ -147,7 +149,7 @@ Migration generated with `npx prisma migrate dev` (no hand-written SQL). `lib/ph
 - `createTreatmentSchema`: optional `phenologicalStage`.
 - `createTreatment` in `lib/actions.ts`: in the same transaction, one observation per `parcelIds` entry with `observedAt = appliedDate`.
 - DB queries in `lib/phenology-observations.ts`: observations for a treatment, a standalone observation (own parcels only), the current stage per parcel, and the observations for a period (used by the export).
-- Fetcher `getStageByParcel(userId)` in `lib/data-fetcher.ts`: latest non-expired observation per parcel as of now, cached like the other fetchers. An observation older than 21 days (`STAGE_EXPIRES_AFTER_DAYS`) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows (P8 adds one exception, a parcel still dormant this season, see P8). Types derived from the query (`Awaited<ReturnType<…>>`), not a hand-written interface.
+- Fetcher `getStageByParcel(userId)` in `lib/data-fetcher.ts`: latest non-expired observation per parcel as of now, cached like the other fetchers. An observation older than 21 days (`STAGE_EXPIRES_AFTER_DAYS`; 240 days for `DORMANT`) counts as expired: the parcel has no current stage and every stage-based calculation (P1–P4, P8, P10) falls back to today's month windows (P8 adds one exception, a parcel still dormant this season, see P8). Types derived from the query (`Awaited<ReturnType<…>>`), not a hand-written interface.
 - Excel export (`lib/excel-export.ts`, v1 PR 3): "Product Applications" sheet gets a `phenologicalStage` column, e.g. "Flowering (BBCH 60–69)": the parcel's stage on the treatment date, by the same rule (latest observation on or before the date, empty if none or expired). English labels, like the rest of the export.
 - i18n: stage labels and descriptions in `locales/en.json` and `locales/it.json`.
 
@@ -170,10 +172,11 @@ The literature agrees on one window: bunches are most at risk from about 2 weeks
 
 ### Sensitivity matrix (app stages)
 
-Qualitative synthesis of the sources above, mapped to the 8 stages proposed for #66. "Fruit" and "leaves" differ for the mildews, so the level shown is for the bunch; leaf risk is noted where it matters. BBCH codes follow [Lorenz et al. 1995](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1755-0238.1995.tb00085.x).
+Qualitative synthesis of the sources above, mapped to the 8 stages proposed for #66 (Dormant, added later, is None for every disease). "Fruit" and "leaves" differ for the mildews, so the level shown is for the bunch; leaf risk is noted where it matters. BBCH codes follow [Lorenz et al. 1995](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1755-0238.1995.tb00085.x).
 
 | Stage (BBCH) | Downy mildew | Powdery mildew | Black rot | Botrytis |
 | --- | --- | --- | --- | --- |
+| Dormant (00–03) | None | None | None | None |
 | Buds opening (05–09) | None — shoots < 10 cm | Low | Low | None |
 | First leaves (11–16) | Medium — primary infections once shoots ≥ 10 cm | Medium (leaves) | Medium (leaves) | None |
 | Flower clusters visible (53–57) | High | Medium–High | Medium | Low |
@@ -239,6 +242,7 @@ Four phases, each usable on its own and built on the previous one. Progress is t
     2. ✅ PR [#85](https://github.com/cpelican/agricolala/pull/85): treatment window from bud break, a dormant hint until bud break is recorded, an evening-only reminder at flowering in the spray-weather widget, and the fixed "Applicable" day rule (P8, P10).
     3. ✅ PR [#86](https://github.com/cpelican/agricolala/pull/86): copper mg/m² readout and its 3-day projection scaled by each parcel's leaf area at its stage (P3).
     4. ✅ PR [#87](https://github.com/cpelican/agricolala/pull/87): copper budget pacing in the cumulated-dose section, with a reserve for the flowering → bunch-closure window (P7).
+    5. PR: a `DORMANT` stage the grower can mark, valid 240 days, that turns off disease activity, suggestions and copper pacing (see [Simple stages shown to the user](#simple-stages-shown-to-the-user)).
 4. **v4 — Estimate the stage automatically.** Design in [Stage estimate from temperature (P5)](#stage-estimate-from-temperature-p5).
     1. 🔄 PR [#93](https://github.com/cpelican/agricolala/pull/93) (in review): weather history per location and day, backfilled from 1 March (no UI change; also fixes coverage for vineyards in different places).
     2. 🔄 PR [#94](https://github.com/cpelican/agricolala/pull/94) (in review, on top of #93): GFV thermal sum and the "Have your vines reached flowering?" prompt on the parcel page and in the treatment modal (P5).

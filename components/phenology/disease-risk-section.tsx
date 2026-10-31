@@ -43,7 +43,7 @@ const HIGH_LEVELS = new Set<DiseaseSensitivityLevel>([
 ]);
 // Stage with no matrix row for the disease.
 const UNKNOWN_LEVEL_COLOR = "bg-muted";
-// One disease: its name, a thin band of the 8 stages coloured by its level with the
+// One disease: its name, a thin band of the 9 stages coloured by its level with the
 // current stage ringed and the others faded. Tapping it
 // lists each stage's level in words (a popover, so it also works on phones).
 function DiseaseRiskRow({
@@ -90,7 +90,7 @@ function DiseaseRiskRow({
 								</span>
 							)}
 						</span>
-						<ol className="grid grid-cols-8 gap-[3px]">
+						<ol className="grid grid-cols-9 gap-[3px]">
 							{timeline.map(({ stage, level }) => (
 								<li
 									key={stage}

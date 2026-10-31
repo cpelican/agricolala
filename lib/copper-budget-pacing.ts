@@ -1,4 +1,4 @@
-import { type PhenologicalStage } from "@prisma/client";
+import { PhenologicalStage } from "@prisma/client";
 import { GRAMS_PER_KILOGRAM } from "./constants";
 import { COPPER_SUBSTANCE_NAME, FULL_DOSE_G_PER_HA } from "./coverage-helpers";
 import { type getDoneTreatmentDoses } from "./data-fetcher";
@@ -12,7 +12,10 @@ const HECTARE_IN_M2 = 10_000;
 // design doc's sensitivity matrix); copper is avoided during the few days of flowering
 // (P10), so the window holds about 3 weeks of small berries and 1 of bunch closing, at
 // one treatment a week (the 7-day label interval of the seeded copper products).
+// Dormant vines are not paced: after harvest this year's window is over, and the
+// next one starts with a new yearly limit.
 export const COPPER_WINDOW_TREATMENTS_BY_STAGE = {
+	DORMANT: 0,
 	BUD_BREAK: 4,
 	LEAVES_UNFOLDING: 4,
 	FLOWER_CLUSTERS: 4,
@@ -112,13 +115,17 @@ export type CopperPacingInput = {
 };
 
 // The farm-wide copper total spans every parcel, so pacing follows the parcel with
-// the most of the window still ahead: the earliest current stage.
+// the most of the window still ahead: the earliest current stage. Dormant parcels
+// count only when every parcel is dormant, so they never hide the others' pacing.
 export function getEarliestStage(
 	stages: { stage: PhenologicalStage }[],
 ): PhenologicalStage | null {
 	return stages.reduce<PhenologicalStage | null>(
 		(earliest, { stage }) =>
-			earliest === null || compareStages(stage, earliest) < 0
+			earliest === null ||
+			earliest === PhenologicalStage.DORMANT ||
+			(stage !== PhenologicalStage.DORMANT &&
+				compareStages(stage, earliest) < 0)
 				? stage
 				: earliest,
 		null,

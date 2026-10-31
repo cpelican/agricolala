@@ -1,7 +1,8 @@
 import { PhenologicalStage } from "@prisma/client";
 
-// Stages in the order the vine goes through them during the season.
+// Stages in the order the vine goes through them during the season, from winter rest.
 export const PHENOLOGICAL_STAGES = [
+	PhenologicalStage.DORMANT,
 	PhenologicalStage.BUD_BREAK,
 	PhenologicalStage.LEAVES_UNFOLDING,
 	PhenologicalStage.FLOWER_CLUSTERS,
@@ -13,8 +14,8 @@ export const PHENOLOGICAL_STAGES = [
 ] as const;
 
 // BBCH range behind each simplified stage (Lorenz et al. 1995, extended BBCH scale).
-// Dormancy (BBCH 00–03) is implied when a parcel has no current observation.
 export const PHENOLOGY_STAGE_BBCH = {
+	DORMANT: { min: 0, max: 3 },
 	BUD_BREAK: { min: 5, max: 9 },
 	LEAVES_UNFOLDING: { min: 11, max: 16 },
 	FLOWER_CLUSTERS: { min: 53, max: 57 },
@@ -30,6 +31,9 @@ export const STAGE_HINT_NEXT_AFTER_DAYS = 14;
 // After this many days an observation no longer counts: the parcel has no current
 // stage and stage-based calculations fall back to the month windows.
 export const STAGE_EXPIRES_AFTER_DAYS = 21;
+// Dormancy lasts from leaf fall to bud break, so a "Dormant" observation holds much
+// longer: about 8 months, enough to span a winter marked right after harvest.
+export const DORMANT_EXPIRES_AFTER_DAYS = 240;
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -45,37 +49,56 @@ export function compareStages(
 	return getStageIndex(a) - getStageIndex(b);
 }
 
-export function getNextStage(
-	stage: PhenologicalStage,
-): PhenologicalStage | null {
-	return PHENOLOGICAL_STAGES.at(getStageIndex(stage) + 1) ?? null;
+// The season loops: after ripe the vines go dormant again.
+export function getNextStage(stage: PhenologicalStage): PhenologicalStage {
+	return PHENOLOGICAL_STAGES[
+		(getStageIndex(stage) + 1) % PHENOLOGICAL_STAGES.length
+	];
 }
 
 function daysBetween(from: Date, to: Date): number {
 	return (to.getTime() - from.getTime()) / MS_PER_DAY;
 }
 
-export function isObservationExpired(observedAt: Date, date: Date): boolean {
-	return daysBetween(observedAt, date) > STAGE_EXPIRES_AFTER_DAYS;
+function getExpiresAfterDays(stage: PhenologicalStage): number {
+	return stage === PhenologicalStage.DORMANT
+		? DORMANT_EXPIRES_AFTER_DAYS
+		: STAGE_EXPIRES_AFTER_DAYS;
+}
+
+export function isObservationExpired(
+	observation: { stage: PhenologicalStage; observedAt: Date },
+	date: Date,
+): boolean {
+	return (
+		daysBetween(observation.observedAt, date) >
+		getExpiresAfterDays(observation.stage)
+	);
 }
 
 // Stage to pre-select in the picker: the last observed stage, or the next one once
-// the observation is older than STAGE_HINT_NEXT_AFTER_DAYS. Null once it has expired.
+// the observation is older than STAGE_HINT_NEXT_AFTER_DAYS (except for dormant vines,
+// whose bud break no number of days predicts). Null once it has expired.
 export function getSuggestedStage(
 	observation: { stage: PhenologicalStage; observedAt: Date } | null,
 	date: Date,
 ): PhenologicalStage | null {
-	if (!observation || isObservationExpired(observation.observedAt, date)) {
+	if (!observation || isObservationExpired(observation, date)) {
 		return null;
 	}
-	if (daysBetween(observation.observedAt, date) > STAGE_HINT_NEXT_AFTER_DAYS) {
-		return getNextStage(observation.stage) ?? observation.stage;
+	if (
+		observation.stage !== PhenologicalStage.DORMANT &&
+		daysBetween(observation.observedAt, date) > STAGE_HINT_NEXT_AFTER_DAYS
+	) {
+		return getNextStage(observation.stage);
 	}
 	return observation.stage;
 }
 
+// Oldest observation that can still give a stage at `date` (a dormant one). Queries
+// fetch from here, then `isObservationExpired` drops the expired ones.
 export function getStageExpiryCutoff(date: Date): Date {
-	return new Date(date.getTime() - STAGE_EXPIRES_AFTER_DAYS * MS_PER_DAY);
+	return new Date(date.getTime() - DORMANT_EXPIRES_AFTER_DAYS * MS_PER_DAY);
 }
 
 // Stage of a parcel at `date`: its latest observation on or before that date, unless
@@ -87,7 +110,7 @@ export function getStageAt(
 	const latest = observations.findLast(
 		(observation) => observation.observedAt <= date,
 	);
-	if (!latest || isObservationExpired(latest.observedAt, date)) {
+	if (!latest || isObservationExpired(latest, date)) {
 		return null;
 	}
 	return latest.stage;
