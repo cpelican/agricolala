@@ -9,7 +9,10 @@ import {
 	getCurrentStagesByParcel,
 	getObservationsForPeriod,
 } from "./phenology-observations";
-import { STAGE_EXPIRES_AFTER_DAYS } from "./phenology";
+import {
+	DORMANT_EXPIRES_AFTER_DAYS,
+	STAGE_EXPIRES_AFTER_DAYS,
+} from "./phenology";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const NOW = new Date(2026, 5, 1, 12);
@@ -213,17 +216,17 @@ describe("[Integration] phenology observations", () => {
 					stage: PhenologicalStage.FLOWERING,
 					observedAt: daysAgo(2),
 				},
-				// Within the expiry window before `from`: still gives a stage at `from`
+				// Within the dormant expiry window before `from`: may still give a stage at `from`
 				{
 					parcelId: testParcel.id,
-					stage: PhenologicalStage.BUD_BREAK,
-					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS),
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(30 + DORMANT_EXPIRES_AFTER_DAYS),
 				},
 				// Too old to matter for the period
 				{
 					parcelId: testParcel.id,
-					stage: PhenologicalStage.BUD_BREAK,
-					observedAt: daysAgo(30 + STAGE_EXPIRES_AFTER_DAYS + 1),
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(30 + DORMANT_EXPIRES_AFTER_DAYS + 1),
 				},
 				// After the period
 				{
@@ -248,7 +251,7 @@ describe("[Integration] phenology observations", () => {
 		);
 
 		expect(observations.map((o) => o.stage)).toEqual([
-			PhenologicalStage.BUD_BREAK,
+			PhenologicalStage.DORMANT,
 			PhenologicalStage.FLOWERING,
 		]);
 	});
