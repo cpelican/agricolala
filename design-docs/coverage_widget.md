@@ -43,7 +43,7 @@ The correct answer is **89%** — because 100 g/ha is what science defines as fu
   - Source: Cabùs et al. (2017) as cited in [Bassi dosaggi di rame in viticoltura — InfoWine](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/)
 - **Dose-to-leaf-surface conversion:** 200 g/ha metallic copper ≈ 5 mg/m² on leaf; 400 g/ha ≈ 10 mg/m² (using Leaf Area Index ≈ 4 for vineyards, implied by the article's own conversion table)
   - Source: [InfoWine article](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/)
-- **Washoff threshold used for `k` calibration:** 25mm cumulative rain — already present in the codebase as `MAX_CUMULATIVE_PRECIPITATION_FOR_TREATMENT` in `lib/applicability.ts`, citing [Come funziona la resistenza al dilavamento — TerraEVita](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/)
+- **Washoff threshold used for `k` calibration:** 25mm cumulative rain — same threshold the removed spray-weather widget used (`MAX_CUMULATIVE_PRECIPITATION_FOR_TREATMENT`), citing [Come funziona la resistenza al dilavamento — TerraEVita](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/)
 - **Regulatory annual limit:** 28 kg/ha over 7 years (EU Regulation 2018/1981)
   - Source: [InfoWine article](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/)
 - **Mechanism:** contact deposit — copper ions sit on the leaf surface and physically block *Plasmopara viticola* spore penetration. Coverage degrades gradually with rainfall.
@@ -145,7 +145,7 @@ weighted_remaining_s = Σ(total_remaining_s_p × areaM2_p) / Σ areaM2_p
 
 | Substance | k_rain | Calibration & source |
 |-----------|--------|----------------------|
-| Copper    | 0.028  | 25mm rain → ~50% loss. Source: [TerraEVita — Come funziona la resistenza al dilavamento](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/) (already cited in `lib/applicability.ts`). Formula: `ln(2) / 25` — same ln(2) trick as k_time: pick the rain amount at which you want 50% loss, divide ln(2) by it. |
+| Copper    | 0.028  | 25mm rain → ~50% loss. Source: [TerraEVita — Come funziona la resistenza al dilavamento](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/) (also cited by the removed spray-weather widget). Formula: `ln(2) / 25` — same ln(2) trick as k_time: pick the rain amount at which you want 50% loss, divide ln(2) by it. |
 | Sulfur    | 0.277  | 2.5mm rain → ~50% loss. Source: [McGill University — Temperature-based sulfur application](https://eap.mcgill.ca/CPG_5.htm): *"sulfur is reapplied if rain exceeds 0.10 inch (2.5mm)"*. Formula: `ln(2) / 2.5` — same logic, much smaller rain amount = much larger k = much faster washoff. |
 | Default   | 0.030  | Conservative fallback close to copper, for any substance without a cited threshold |
 
@@ -580,7 +580,7 @@ Mirrors `lib/substance-helpers.test.ts` pattern (vitest, no DB):
 | Copper efficacy threshold: 2.5 mg Cu/m² | [InfoWine — Bassi dosaggi di rame in viticoltura](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/) |
 | Copper dose-to-leaf-surface conversion (LAI ≈ 4) | [InfoWine — Bassi dosaggi di rame in viticoltura](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/) |
 | Copper EU limit: 28 kg/ha over 7 years | EU Regulation 2018/1981, cited in [InfoWine article](https://www.infowine.com/bassi-dosaggi-di-rame-in-viticoltura-per-il-controllo-della-peronospora-efficacia-e-stabilita-2/) |
-| Copper washoff threshold: 25mm (k calibration anchor) | [Come funziona la resistenza al dilavamento — TerraEVita](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/) (already cited in `lib/applicability.ts`) |
+| Copper washoff threshold: 25mm (k calibration anchor) | [Come funziona la resistenza al dilavamento — TerraEVita](https://terraevita.edagricole.it/featured/come-funziona-resistenza-dilavamento/) (also cited by the removed spray-weather widget) |
 | Sulfur mechanism: vapor phase sublimation, not contact | [McGill University — Temperature-based sulfur application](https://eap.mcgill.ca/CPG_5.htm) |
 | Sulfur washoff threshold: 2.5mm (k calibration anchor) | [McGill University — Temperature-based sulfur application](https://eap.mcgill.ca/CPG_5.htm) |
 | Sulfur temperature range: 18–32°C | [McGill University](https://eap.mcgill.ca/CPG_5.htm); [Terra e Vita — Oidio della Vite](https://terraevita.edagricole.it/agrofarmaci-difesa/vite-sviluppo-primaverile-oidio/) |
