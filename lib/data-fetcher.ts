@@ -240,7 +240,7 @@ export async function getParcelsWithLastTreatments(referenceDate: Date) {
 				take: 1, // Get only the most recent treatment per parcel
 				select: { ...lastTreatmentSelect, userId: true },
 			},
-			// Current stage: latest observation on or before the date, unless expired.
+			// Latest observation that may still be current; the cron drops it if expired.
 			phenologyObservations: {
 				where: {
 					observedAt: {
@@ -250,7 +250,7 @@ export async function getParcelsWithLastTreatments(referenceDate: Date) {
 				},
 				orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
 				take: 1,
-				select: { stage: true },
+				select: { stage: true, observedAt: true },
 			},
 		},
 	});

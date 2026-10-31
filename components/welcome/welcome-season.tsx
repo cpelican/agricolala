@@ -25,7 +25,7 @@ export function WelcomeSeason({ dict }: { dict: TranslationType }) {
 			</div>
 
 			<figure className="m-0 flex flex-col gap-4">
-				<ol className="m-0 mt-2 list-none rounded-lg border border-neutral-200 bg-white px-4 py-1 min-[900px]:mt-0 min-[900px]:grid min-[900px]:grid-cols-8 min-[900px]:gap-2 min-[900px]:px-6 min-[900px]:pt-7 min-[900px]:pb-6">
+				<ol className="m-0 mt-2 list-none rounded-lg border border-neutral-200 bg-white px-4 py-1 min-[900px]:mt-0 min-[900px]:grid min-[900px]:grid-cols-9 min-[900px]:gap-2 min-[900px]:px-6 min-[900px]:pt-7 min-[900px]:pb-6">
 					{PHENOLOGICAL_STAGES.map((stage) => {
 						const count = EXAMPLE_TREATMENTS_PER_STAGE[stage];
 						return (

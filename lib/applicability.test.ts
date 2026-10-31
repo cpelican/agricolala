@@ -49,7 +49,28 @@ describe("getTreatmentSeason", () => {
 				},
 				MAY,
 			),
-		).toEqual({ state: "dormant" });
+		).toEqual({ state: "dormant", recorded: false });
+	});
+
+	test("is dormant while a dormant stage marked over the winter holds", () => {
+		expect(
+			getTreatmentSeason(
+				{ stage: PhenologicalStage.DORMANT, observedAt: new Date(2025, 10, 5) },
+				new Date(2026, 3, 1, 12),
+			),
+		).toEqual({ state: "dormant", recorded: true });
+	});
+
+	test("is closed, not open, for a dormant stage outside the month window", () => {
+		expect(
+			getTreatmentSeason(
+				{
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysBefore(NOVEMBER, 2),
+				},
+				NOVEMBER,
+			),
+		).toEqual({ state: "closed" });
 	});
 
 	test("falls back to the month window when this season's stage expired", () => {

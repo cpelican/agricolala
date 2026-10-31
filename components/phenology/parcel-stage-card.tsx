@@ -18,7 +18,7 @@ interface ParcelStageCardProps {
 	observation: CurrentParcelStage | null;
 }
 
-// Parcel detail: the season as 8 tiles, the current stage highlighted. Tapping
+// Parcel detail: the season as 9 tiles, the current stage highlighted. Tapping
 // another tile asks for confirmation, then records it as today's stage.
 export function ParcelStageCard({
 	parcelId,
@@ -50,7 +50,7 @@ export function ParcelStageCard({
 						</span>
 					) : null}
 				</div>
-				<div className="grid grid-cols-8 gap-1.5">
+				<div className="grid grid-cols-9 gap-1.5">
 					{PHENOLOGICAL_STAGES.map((stage) => {
 						const isCurrent = stage === current;
 						const label = t(`phenology.stages.${stage}.label`);

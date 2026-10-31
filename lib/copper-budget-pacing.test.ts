@@ -125,9 +125,9 @@ describe("getCopperBudgetPacing", () => {
 	});
 
 	test("never asks for more treatments later in the season", () => {
-		const counts = PHENOLOGICAL_STAGES.map(
-			(stage) => COPPER_WINDOW_TREATMENTS_BY_STAGE[stage],
-		);
+		const counts = PHENOLOGICAL_STAGES.filter(
+			(stage) => stage !== "DORMANT",
+		).map((stage) => COPPER_WINDOW_TREATMENTS_BY_STAGE[stage]);
 		counts.forEach((count, i) => {
 			if (i > 0) expect(count).toBeLessThanOrEqual(counts[i - 1]);
 		});
@@ -224,6 +224,29 @@ describe("getEarliestStage", () => {
 				{ stage: "FLOWERING" },
 			]),
 		).toBe("FLOWER_CLUSTERS");
+	});
+
+	test("skips dormant parcels unless every parcel is dormant", () => {
+		expect(
+			getEarliestStage([
+				{ stage: "DORMANT" },
+				{ stage: "FRUIT_SET" },
+				{ stage: "FLOWERING" },
+			]),
+		).toBe("FLOWERING");
+		expect(getEarliestStage([{ stage: "DORMANT" }])).toBe("DORMANT");
+	});
+
+	test("does not pace a dormant vineyard", () => {
+		expect(
+			getCopperBudgetPacing({
+				substanceName: "Copper",
+				usedGPerHa: 3000,
+				maxDosageKgPerHa: 4,
+				stage: "DORMANT",
+				medianTreatmentDoseGPerHa: 400,
+			}),
+		).toBeNull();
 	});
 
 	test("is null without a current stage", () => {

@@ -53,7 +53,11 @@ const Applicability = async ({
 					data-testid="applicability-dormant"
 					className="text-sm text-muted-foreground"
 				>
-					{t("treatments.applicability.dormant")}
+					{t(
+						applicability.recorded
+							? "treatments.applicability.dormantRecorded"
+							: "treatments.applicability.dormant",
+					)}
 				</p>
 			) : (
 				<div className="space-y-3">

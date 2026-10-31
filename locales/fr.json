@@ -148,6 +148,7 @@
 			"mm": "mm",
 			"kmh": "km/h",
 			"dormant": "Aucun stade enregistré cette saison : indiquez « Débourrement » dans Stade de développement à l’ouverture des bourgeons pour savoir quand vous pouvez traiter.",
+			"dormantRecorded": "Vigne en repos : indiquez « Débourrement » dans Stade de développement à l’ouverture des bourgeons pour savoir quand vous pouvez traiter.",
 			"flowering": "Floraison : pour protéger les abeilles, traitez uniquement entre 2 heures avant et 3 heures après le coucher du soleil."
 		},
 		"eyebrow": "Saison {year}",
@@ -580,6 +581,10 @@
 			"VERY_HIGH": "Risque très élevé"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Repos végétatif",
+				"description": "Repos hivernal : bourgeons fermés, aucun organe vert"
+			},
 			"BUD_BREAK": {
 				"label": "Débourrement",
 				"description": "Pointe verte visible à travers la bourre"

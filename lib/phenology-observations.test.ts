@@ -152,6 +152,38 @@ describe("[Integration] phenology observations", () => {
 		});
 	});
 
+	test("keeps a dormant stage past the usual expiry, not an older one behind an expired stage", async () => {
+		const { testUser, testParcel } = testData;
+		const secondParcel = await createParcel(testUser.id);
+
+		await testPrisma.phenologyObservation.createMany({
+			data: [
+				// First parcel: marked dormant long ago → still dormant
+				{
+					parcelId: testParcel.id,
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 60),
+				},
+				// Second parcel: dormant, then a bud break that has expired → unknown
+				{
+					parcelId: secondParcel.id,
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 60),
+				},
+				{
+					parcelId: secondParcel.id,
+					stage: PhenologicalStage.BUD_BREAK,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1),
+				},
+			],
+		});
+
+		const stages = await getCurrentStagesByParcel(testPrisma, testUser.id, NOW);
+		expect(stages.map((s) => [s.parcelId, s.stage])).toEqual([
+			[testParcel.id, PhenologicalStage.DORMANT],
+		]);
+	});
+
 	test("ignores observations on other users' parcels", async () => {
 		const { testUser } = testData;
 		const otherUser = await createOtherUser();

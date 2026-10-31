@@ -148,6 +148,7 @@
 			"mm": "mm",
 			"kmh": "km/h",
 			"dormant": "No stage recorded yet this season: mark “Buds opening” under Growth stage when the buds open to see when you can treat.",
+			"dormantRecorded": "Vines dormant: mark “Buds opening” under Growth stage when the buds open to see when you can treat.",
 			"flowering": "Flowering: to protect the bees, treat only from 2 hours before to 3 hours after sunset."
 		},
 		"eyebrow": "Season {year}",
@@ -580,6 +581,10 @@
 			"VERY_HIGH": "Very high risk"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Dormant",
+				"description": "Winter rest: buds closed, no green tissue"
+			},
 			"BUD_BREAK": {
 				"label": "Buds opening",
 				"description": "Green tip visible through the wool"

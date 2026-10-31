@@ -148,6 +148,7 @@
 			"mm": "mm",
 			"kmh": "km/h",
 			"dormant": "Nessuna fase registrata in questa stagione: segna “Germogliamento” in Fase di crescita quando le gemme si aprono per vedere il meteo per i trattamenti.",
+			"dormantRecorded": "Vite in riposo: segna “Germogliamento” in Fase di crescita quando le gemme si aprono per vedere il meteo per i trattamenti.",
 			"flowering": "Fioritura: per proteggere le api, tratta solo da 2 ore prima a 3 ore dopo il tramonto."
 		},
 		"eyebrow": "Stagione {year}",
@@ -580,6 +581,10 @@
 			"VERY_HIGH": "Rischio molto alto"
 		},
 		"stages": {
+			"DORMANT": {
+				"label": "Riposo vegetativo",
+				"description": "Riposo invernale: gemme chiuse, nessun organo verde"
+			},
 			"BUD_BREAK": {
 				"label": "Germogliamento",
 				"description": "Punta verde visibile attraverso la lanugine"

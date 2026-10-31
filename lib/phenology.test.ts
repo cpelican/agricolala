@@ -1,6 +1,7 @@
 import { PhenologicalStage } from "@prisma/client";
 import { describe, test, expect } from "vitest";
 import {
+	DORMANT_EXPIRES_AFTER_DAYS,
 	PHENOLOGICAL_STAGES,
 	PHENOLOGY_STAGE_BBCH,
 	STAGE_EXPIRES_AFTER_DAYS,
@@ -49,27 +50,52 @@ describe("stage order and BBCH mapping", () => {
 		).toBe(0);
 	});
 
-	test("getNextStage returns the following stage, null after ripe", () => {
+	test("getNextStage returns the following stage, dormant after ripe", () => {
 		expect(getNextStage(PhenologicalStage.FLOWER_CLUSTERS)).toBe(
 			PhenologicalStage.FLOWERING,
 		);
-		expect(getNextStage(PhenologicalStage.RIPE)).toBeNull();
+		expect(getNextStage(PhenologicalStage.RIPE)).toBe(
+			PhenologicalStage.DORMANT,
+		);
+		expect(getNextStage(PhenologicalStage.DORMANT)).toBe(
+			PhenologicalStage.BUD_BREAK,
+		);
 	});
 });
 
 describe("expiry and suggestions", () => {
 	test("an observation expires only after STAGE_EXPIRES_AFTER_DAYS", () => {
-		expect(isObservationExpired(daysAgo(STAGE_EXPIRES_AFTER_DAYS), NOW)).toBe(
-			false,
-		);
+		const observedDaysAgo = (days: number) => ({
+			stage: PhenologicalStage.FLOWERING,
+			observedAt: daysAgo(days),
+		});
 		expect(
-			isObservationExpired(daysAgo(STAGE_EXPIRES_AFTER_DAYS + 1), NOW),
+			isObservationExpired(observedDaysAgo(STAGE_EXPIRES_AFTER_DAYS), NOW),
+		).toBe(false);
+		expect(
+			isObservationExpired(observedDaysAgo(STAGE_EXPIRES_AFTER_DAYS + 1), NOW),
 		).toBe(true);
 	});
 
-	test("expiry cutoff is STAGE_EXPIRES_AFTER_DAYS before the date", () => {
+	test("a dormant observation lasts DORMANT_EXPIRES_AFTER_DAYS", () => {
+		const dormantDaysAgo = (days: number) => ({
+			stage: PhenologicalStage.DORMANT,
+			observedAt: daysAgo(days),
+		});
+		expect(
+			isObservationExpired(dormantDaysAgo(STAGE_EXPIRES_AFTER_DAYS + 1), NOW),
+		).toBe(false);
+		expect(
+			isObservationExpired(dormantDaysAgo(DORMANT_EXPIRES_AFTER_DAYS), NOW),
+		).toBe(false);
+		expect(
+			isObservationExpired(dormantDaysAgo(DORMANT_EXPIRES_AFTER_DAYS + 1), NOW),
+		).toBe(true);
+	});
+
+	test("expiry cutoff reaches back to the oldest dormant observation", () => {
 		expect(getStageExpiryCutoff(NOW).getTime()).toBe(
-			daysAgo(STAGE_EXPIRES_AFTER_DAYS).getTime(),
+			daysAgo(DORMANT_EXPIRES_AFTER_DAYS).getTime(),
 		);
 	});
 
@@ -94,7 +120,7 @@ describe("expiry and suggestions", () => {
 		).toBe(PhenologicalStage.FRUIT_SET);
 	});
 
-	test("keeps ripe when there is no next stage", () => {
+	test("suggests dormant once ripe is stale", () => {
 		expect(
 			getSuggestedStage(
 				{
@@ -103,7 +129,19 @@ describe("expiry and suggestions", () => {
 				},
 				NOW,
 			),
-		).toBe(PhenologicalStage.RIPE);
+		).toBe(PhenologicalStage.DORMANT);
+	});
+
+	test("keeps dormant however long ago it was marked", () => {
+		expect(
+			getSuggestedStage(
+				{
+					stage: PhenologicalStage.DORMANT,
+					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 30),
+				},
+				NOW,
+			),
+		).toBe(PhenologicalStage.DORMANT);
 	});
 
 	test("suggests nothing when there is no observation or it expired", () => {

@@ -245,6 +245,7 @@ model ParcelSubstanceAggregation {
 
 /// Simplified phenological stage picked by the grower; BBCH ranges live in lib/phenology.ts.
 enum PhenologicalStage {
+  DORMANT
   BUD_BREAK
   LEAVES_UNFOLDING
   FLOWER_CLUSTERS

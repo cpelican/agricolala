@@ -39,26 +39,27 @@ export interface DayApplicability {
 const MIN_MONTH_FOR_TREATMENT = 3;
 const MAX_MONTH_FOR_TREATMENT = 10;
 
-// "open": show the next days. "dormant": the parcel's stages are tracked but none
-// was recorded yet this season, so the vines have not reached bud break.
-// "closed": outside the month window, for parcels without a current stage.
+// "open": show the next days. "dormant": the vines have not reached bud break,
+// either marked dormant (`recorded`) or tracked with no stage recorded yet this
+// season. "closed": outside the month window, for parcels without a current stage.
 export type TreatmentSeason =
 	| { state: "open"; stage: PhenologicalStage | null }
-	| { state: "dormant" }
+	| { state: "dormant"; recorded: boolean }
 	| { state: "closed" };
 
 // Treatment window from bud break (design doc P8). A current stage opens it in
-// any month. Without one, the month window applies, except for a parcel whose
-// latest observation is from a previous season: it is still dormant.
+// any month, except dormant. Without one, the month window applies, except for a
+// parcel marked dormant or whose latest observation is from a previous season.
 export function getTreatmentSeason(
 	latestObservation: { stage: PhenologicalStage; observedAt: Date } | null,
 	now: Date,
 ): TreatmentSeason {
-	if (
-		latestObservation &&
-		!isObservationExpired(latestObservation.observedAt, now)
-	) {
-		return { state: "open", stage: latestObservation.stage };
+	const current =
+		latestObservation && !isObservationExpired(latestObservation, now)
+			? latestObservation
+			: null;
+	if (current && current.stage !== PhenologicalStage.DORMANT) {
+		return { state: "open", stage: current.stage };
 	}
 
 	const currentMonth = now.getMonth() + 1;
@@ -69,18 +70,21 @@ export function getTreatmentSeason(
 		return { state: "closed" };
 	}
 
+	if (current) {
+		return { state: "dormant", recorded: true };
+	}
 	if (
 		latestObservation &&
 		latestObservation.observedAt.getFullYear() < now.getFullYear()
 	) {
-		return { state: "dormant" };
+		return { state: "dormant", recorded: false };
 	}
 
 	return { state: "open", stage: null };
 }
 
 export type TreatmentApplicability =
-	| { state: "dormant" }
+	| { state: "dormant"; recorded: boolean }
 	| { state: "closed" }
 	| { state: "open"; flowering: boolean; days: DayApplicability[] };
 

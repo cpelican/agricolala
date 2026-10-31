@@ -14,7 +14,7 @@ interface StagePickerProps {
 	onChange: (stage: PhenologicalStage | null) => void;
 }
 
-// Two rows of 4 small pictograms; tapping the selected stage again clears it.
+// Two rows (5 + 4) of small pictograms; tapping the selected stage again clears it.
 export function StagePicker({
 	t,
 	value,
@@ -26,7 +26,7 @@ export function StagePicker({
 			<div
 				role="radiogroup"
 				aria-label={t("phenology.title")}
-				className="grid grid-cols-4 gap-1"
+				className="grid grid-cols-5 gap-1"
 			>
 				{PHENOLOGICAL_STAGES.map((stage) => {
 					const isSelected = stage === value;

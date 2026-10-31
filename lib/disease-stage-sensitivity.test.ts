@@ -129,6 +129,12 @@ describe("isDiseaseActive", () => {
 		);
 	});
 
+	test("is never active on dormant vines, even without matrix rows", () => {
+		expect(
+			isDiseaseActive(peronospora, [], PhenologicalStage.DORMANT, MAY),
+		).toBe(false);
+	});
+
 	test("falls back to the month window when the disease has no rows", () => {
 		expect(
 			isDiseaseActive(peronospora, [], PhenologicalStage.BUD_BREAK, MAY),
