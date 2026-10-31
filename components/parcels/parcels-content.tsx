@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MapPin, Pencil, X } from "lucide-react";
+import { ChevronRight, MapPin, Plus, X } from "lucide-react";
 import { LocaleLink } from "../locale/locale-link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,12 +90,11 @@ export function ParcelsContent({ parcels, stages }: ParcelsContentProps) {
 									<Button
 										type="button"
 										variant="outline"
-										size="icon"
-										className="absolute top-3 right-3 z-[1000] h-10 w-10 bg-background text-foreground shadow-md"
+										className="absolute top-3 right-3 z-[1000] h-10 bg-background text-foreground shadow-md"
 										onClick={handleStartDrawing}
-										aria-label={t("parcels.drawParcelHint")}
 									>
-										<Pencil className="h-4 w-4" />
+										{t("parcels.addParcel")}
+										<Plus className="h-4 w-4" />
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent side="left">

@@ -1,8 +1,8 @@
 /** Matches `parcels.locationMap` in `locales/en.json` (e2e uses `/en`). */
 export const parcelLocationMapLabel = "Parcel location map";
 
-/** Pencil draw control (`parcels.drawParcelHint` in `locales/en.json`). */
-export const drawParcelButtonLabel = "Draw the parcel boundary on the map";
+/** Map control that starts a new parcel (`parcels.addParcel` in `locales/en.json`). */
+export const drawParcelButtonLabel = "Add Parcel";
 
 /** Copy from `parcels.locationDenied` / `locationUnavailable` (and siblings). */
 export const locationFailurePattern =
