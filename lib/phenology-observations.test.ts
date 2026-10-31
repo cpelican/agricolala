@@ -7,7 +7,6 @@ import {
 	createObservationsForParcels,
 	createStandaloneObservation,
 	getCurrentStagesByParcel,
-	getLatestObservation,
 	getObservationsForPeriod,
 } from "./phenology-observations";
 import { STAGE_EXPIRES_AFTER_DAYS } from "./phenology";
@@ -252,40 +251,5 @@ describe("[Integration] phenology observations", () => {
 			PhenologicalStage.BUD_BREAK,
 			PhenologicalStage.FLOWERING,
 		]);
-	});
-
-	test("returns a parcel's latest observation, even expired, not a future one", async () => {
-		const { testParcel } = testData;
-		const latestPast = daysAgo(STAGE_EXPIRES_AFTER_DAYS + 30);
-		await testPrisma.phenologyObservation.createMany({
-			data: [
-				{
-					parcelId: testParcel.id,
-					stage: PhenologicalStage.BUD_BREAK,
-					observedAt: daysAgo(STAGE_EXPIRES_AFTER_DAYS + 40),
-				},
-				{
-					parcelId: testParcel.id,
-					stage: PhenologicalStage.LEAVES_UNFOLDING,
-					observedAt: latestPast,
-				},
-				{
-					parcelId: testParcel.id,
-					stage: PhenologicalStage.FLOWERING,
-					observedAt: new Date(NOW.getTime() + MS_PER_DAY),
-				},
-			],
-		});
-
-		expect(await getLatestObservation(testPrisma, testParcel.id, NOW)).toEqual({
-			stage: PhenologicalStage.LEAVES_UNFOLDING,
-			observedAt: latestPast,
-		});
-	});
-
-	test("returns null for a parcel without observations", async () => {
-		expect(
-			await getLatestObservation(testPrisma, testData.testParcel.id, NOW),
-		).toBeNull();
 	});
 });

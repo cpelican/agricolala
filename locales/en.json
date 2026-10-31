@@ -139,18 +139,6 @@
 		"warnings": {
 			"doseAdvice": "It is advised not to go beyond the dosage of {dose} g"
 		},
-		"applicability": {
-			"title": "Next 3 Days Treatment Applicability",
-			"applicable": "Applicable",
-			"notApplicable": "Not Applicable",
-			"rain": "Rain",
-			"avgWind": "Avg Wind",
-			"mm": "mm",
-			"kmh": "km/h",
-			"dormant": "No stage recorded yet this season: mark “Buds opening” under Growth stage when the buds open to see when you can treat.",
-			"dormantRecorded": "Vines dormant: mark “Buds opening” under Growth stage when the buds open to see when you can treat.",
-			"flowering": "Flowering: to protect the bees, treat only from 2 hours before to 3 hours after sunset."
-		},
 		"eyebrow": "Season {year}",
 		"export": "Export",
 		"card": {

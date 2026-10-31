@@ -139,18 +139,6 @@
 		"warnings": {
 			"doseAdvice": "Il est conseillé de ne pas dépasser la dose de {dose} g"
 		},
-		"applicability": {
-			"title": "Conditions de traitement sur les 3 prochains jours",
-			"applicable": "Favorable",
-			"notApplicable": "Défavorable",
-			"rain": "Pluie",
-			"avgWind": "Vent moyen",
-			"mm": "mm",
-			"kmh": "km/h",
-			"dormant": "Aucun stade enregistré cette saison : indiquez « Débourrement » dans Stade de développement à l’ouverture des bourgeons pour savoir quand vous pouvez traiter.",
-			"dormantRecorded": "Vigne en repos : indiquez « Débourrement » dans Stade de développement à l’ouverture des bourgeons pour savoir quand vous pouvez traiter.",
-			"flowering": "Floraison : pour protéger les abeilles, traitez uniquement entre 2 heures avant et 3 heures après le coucher du soleil."
-		},
 		"eyebrow": "Saison {year}",
 		"export": "Exporter",
 		"card": {

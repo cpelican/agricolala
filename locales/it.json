@@ -139,18 +139,6 @@
 		"warnings": {
 			"doseAdvice": "Si consiglia di non superare la dose di {dose} gr"
 		},
-		"applicability": {
-			"title": "Applicabilità Trattamenti Prossimi 3 Giorni",
-			"applicable": "Applicabile",
-			"notApplicable": "Non Applicabile",
-			"rain": "Pioggia",
-			"avgWind": "Vento Medio",
-			"mm": "mm",
-			"kmh": "km/h",
-			"dormant": "Nessuna fase registrata in questa stagione: segna “Germogliamento” in Fase di crescita quando le gemme si aprono per vedere il meteo per i trattamenti.",
-			"dormantRecorded": "Vite in riposo: segna “Germogliamento” in Fase di crescita quando le gemme si aprono per vedere il meteo per i trattamenti.",
-			"flowering": "Fioritura: per proteggere le api, tratta solo da 2 ore prima a 3 ore dopo il tramonto."
-		},
 		"eyebrow": "Stagione {year}",
 		"export": "Esporta",
 		"card": {

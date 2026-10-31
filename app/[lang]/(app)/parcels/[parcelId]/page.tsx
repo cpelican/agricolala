@@ -14,7 +14,6 @@ import { ParcelDetailSkeleton } from "@/components/parcels/parcel-detail-skeleto
 import { type Locale } from "@/lib/i18n/locale";
 import { Header } from "@/components/layout/header";
 import { DeleteParcelButton } from "@/components/parcels/delete-parcel-button";
-import Applicability from "@/components/treatments/applicability";
 import { formatParcelAreaDisplay } from "@/lib/parcel-geometry";
 import { SUBSTANCE_FALLBACK_COLOR } from "@/lib/substance-colors";
 import { getMedianTreatmentDoseGPerHa } from "@/lib/copper-budget-pacing";
@@ -104,9 +103,7 @@ export default async function ParcelPage({
 								COPPER_SUBSTANCE_NAME,
 							),
 						}}
-					>
-						<Applicability parcelId={parcel.id} locale={lang} />
-					</ParcelDetail>
+					/>
 					<ParcelMapWrapper parcels={[parcel]} highlightParcelId={parcel.id} />
 				</div>
 			</Suspense>
