@@ -5,16 +5,21 @@
 --   * substances are matched by name, products by brand + name;
 --   * an existing product is left as is, composition included, except
 --     'Prosper 300 CS', matched by name only and updated if found;
---   * 'Copper', 'Sulfur', 'Olio essenziale di arancio dolce' are only referenced
+--   * 'Copper', 'Sulfur', 'SPIROXAMINA' are only referenced
 --     (maintained directly in production): the script stops if one is missing.
 -- Diseases must already exist ("Oidium", "Peronospora"); missing ones are simply not linked.
 
 BEGIN;
 
 DO $$
+DECLARE
+  missing text[] := ARRAY(
+    SELECT n FROM unnest(ARRAY['Copper', 'Sulfur', 'SPIROXAMINA']) AS n
+    WHERE NOT EXISTS (SELECT 1 FROM "Substance" s WHERE s.name = n)
+  );
 BEGIN
-  IF (SELECT count(*) FROM "Substance" WHERE name IN ('Copper', 'Sulfur', 'Olio essenziale di arancio dolce')) <> 3 THEN
-    RAISE EXCEPTION 'Missing one of the existing substances: %', ARRAY['Copper', 'Sulfur', 'Olio essenziale di arancio dolce'];
+  IF cardinality(missing) > 0 THEN
+    RAISE EXCEPTION 'Missing existing substances (check their exact names): %', missing;
   END IF;
 END $$;
 
@@ -22,7 +27,7 @@ END $$;
 INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
 (gen_random_uuid(), 'Potassium bicarbonate', 71.6, 'KG_PER_HA', false, NOW(), NOW()),
 (gen_random_uuid(), 'Cerevisane', 2.35, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Spiroxamine', 1.17, 'KG_PER_HA', false, NOW(), NOW())
+(gen_random_uuid(), 'Olio essenziale di arancio dolce', 10, 'KG_PER_HA', true, NOW(), NOW())
 ON CONFLICT (name) DO NOTHING;
 
 -- Substance <-> disease links
@@ -32,7 +37,8 @@ FROM "Disease" d, "Substance" s
 WHERE (d.name = 'Oidium' AND s.name = 'Potassium bicarbonate')
    OR (d.name = 'Peronospora' AND s.name = 'Cerevisane')
    OR (d.name = 'Oidium' AND s.name = 'Cerevisane')
-   OR (d.name = 'Oidium' AND s.name = 'Spiroxamine')
+   OR (d.name = 'Oidium' AND s.name = 'Olio essenziale di arancio dolce')
+   OR (d.name = 'Peronospora' AND s.name = 'Olio essenziale di arancio dolce')
 ON CONFLICT DO NOTHING;
 
 -- Products, each created together with its composition (SubstanceDose.dose = % of active substance)
@@ -209,11 +215,11 @@ JOIN "Substance" s ON s.name = v.name;
 UPDATE "Product" p SET "doseUnit" = 'MILLILITER'::"ProductDoseUnit", "productLiterToKiloGramConversionRate" = 1, "maxApplications" = 3, "daysBetweenApplications" = 10, "updatedAt" = NOW()
 WHERE lower(p.name) = lower('Prosper 300 CS');
 UPDATE "SubstanceDose" sd SET dose = v.dose, "updatedAt" = NOW()
-FROM "Product" p, "Substance" s, (VALUES (30, 'Spiroxamine')) AS v(dose, name)
+FROM "Product" p, "Substance" s, (VALUES (30, 'SPIROXAMINA')) AS v(dose, name)
 WHERE lower(p.name) = lower('Prosper 300 CS') AND s.name = v.name AND sd."productId" = p.id AND sd."substanceId" = s.id;
 INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
 SELECT gen_random_uuid(), v.dose, s.id, p.id, NOW(), NOW()
-FROM "Product" p, "Substance" s, (VALUES (30, 'Spiroxamine')) AS v(dose, name)
+FROM "Product" p, "Substance" s, (VALUES (30, 'SPIROXAMINA')) AS v(dose, name)
 WHERE lower(p.name) = lower('Prosper 300 CS') AND s.name = v.name
   AND NOT EXISTS (SELECT 1 FROM "SubstanceDose" sd WHERE sd."productId" = p.id AND sd."substanceId" = s.id);
 WITH new_product AS (
@@ -225,7 +231,7 @@ WITH new_product AS (
 INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
 SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
 FROM new_product np
-CROSS JOIN (VALUES (30, 'Spiroxamine')) AS v(dose, name)
+CROSS JOIN (VALUES (30, 'SPIROXAMINA')) AS v(dose, name)
 JOIN "Substance" s ON s.name = v.name;
 
 -- Not included for now (include_in_sql = no). To add one, uncomment its whole block:

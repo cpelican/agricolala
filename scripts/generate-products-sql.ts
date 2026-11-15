@@ -19,11 +19,7 @@ const CSV_FILES = ["organic-products.csv", "conventional-products.csv"];
 const OUTPUT_FILE = join(RESEARCH_DIR, "products.sql");
 const SUBSTANCE_SLOTS = [1, 2];
 /** Already in production and maintained there: never created, updated or re-linked here. */
-const EXISTING_SUBSTANCES = new Set([
-	"Copper",
-	"Sulfur",
-	"Olio essenziale di arancio dolce",
-]);
+const EXISTING_SUBSTANCES = new Set(["Copper", "Sulfur", "SPIROXAMINA"]);
 /**
  * Products that may already have been entered by hand in production: matched by name only
  * (case-insensitive, whatever the brand) and updated with the CSV values when found, their
@@ -305,9 +301,14 @@ JOIN "Substance" s ON s.name = v.name;`;
 BEGIN;
 
 DO $$
+DECLARE
+  missing text[] := ARRAY(
+    SELECT n FROM unnest(ARRAY[${existingList}]) AS n
+    WHERE NOT EXISTS (SELECT 1 FROM "Substance" s WHERE s.name = n)
+  );
 BEGIN
-  IF (SELECT count(*) FROM "Substance" WHERE name IN (${existingList})) <> ${EXISTING_SUBSTANCES.size} THEN
-    RAISE EXCEPTION 'Missing one of the existing substances: %', ARRAY[${existingList}];
+  IF cardinality(missing) > 0 THEN
+    RAISE EXCEPTION 'Missing existing substances (check their exact names): %', missing;
   END IF;
 END $$;
 
