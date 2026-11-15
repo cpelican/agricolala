@@ -26,6 +26,7 @@
 		"create-admin-user": "npx tsx scripts/create-admin-user.ts",
 		"prepare": "husky",
 		"seed": "npx tsx prisma/seed.ts",
+		"products:sql": "npx tsx scripts/generate-products-sql.ts",
 		"studio": "npx prisma studio",
 		"aggregations:rebuild": "npx tsx scripts/rebuild-aggregations.ts",
 		"aggregations:rebuild:prod": "scripts/with-prod-db.sh npx tsx scripts/rebuild-aggregations.ts",
