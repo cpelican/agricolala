@@ -22,38 +22,16 @@ END $$;
 INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
 (gen_random_uuid(), 'Potassium bicarbonate', 71.6, 'KG_PER_HA', false, NOW(), NOW()),
 (gen_random_uuid(), 'Cerevisane', 2.35, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Oxathiapiprolin', 0.04, 'KG_PER_HA', true, NOW(), NOW()),
-(gen_random_uuid(), 'Zoxamide', 0.3, 'KG_PER_HA', true, NOW(), NOW()),
-(gen_random_uuid(), 'Cyazofamid', 0.34, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Disodium phosphonate', 3.38, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Potassium phosphonates', 15.1, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Folpet', 11, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Cymoxanil', 0.24, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Metalaxyl-M', 0.4, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Metrafenone', 0.375, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Penconazole', 0.09, 'KG_PER_HA', false, NOW(), NOW()),
-(gen_random_uuid(), 'Proquinazid', 0.15, 'KG_PER_HA', false, NOW(), NOW()),
 (gen_random_uuid(), 'Spiroxamine', 1.17, 'KG_PER_HA', false, NOW(), NOW())
 ON CONFLICT (name) DO NOTHING;
 
--- Substance <-> disease links ("A" = Disease, "B" = Substance)
+-- Substance <-> disease links
 INSERT INTO "_SubstanceDiseases" ("A", "B")
 SELECT d.id, s.id
 FROM "Disease" d, "Substance" s
 WHERE (d.name = 'Oidium' AND s.name = 'Potassium bicarbonate')
    OR (d.name = 'Peronospora' AND s.name = 'Cerevisane')
    OR (d.name = 'Oidium' AND s.name = 'Cerevisane')
-   OR (d.name = 'Peronospora' AND s.name = 'Oxathiapiprolin')
-   OR (d.name = 'Peronospora' AND s.name = 'Zoxamide')
-   OR (d.name = 'Peronospora' AND s.name = 'Cyazofamid')
-   OR (d.name = 'Peronospora' AND s.name = 'Disodium phosphonate')
-   OR (d.name = 'Peronospora' AND s.name = 'Potassium phosphonates')
-   OR (d.name = 'Peronospora' AND s.name = 'Folpet')
-   OR (d.name = 'Peronospora' AND s.name = 'Cymoxanil')
-   OR (d.name = 'Peronospora' AND s.name = 'Metalaxyl-M')
-   OR (d.name = 'Oidium' AND s.name = 'Metrafenone')
-   OR (d.name = 'Oidium' AND s.name = 'Penconazole')
-   OR (d.name = 'Oidium' AND s.name = 'Proquinazid')
    OR (d.name = 'Oidium' AND s.name = 'Spiroxamine')
 ON CONFLICT DO NOTHING;
 
@@ -227,123 +205,6 @@ FROM new_product np
 CROSS JOIN (VALUES (6, 'Olio essenziale di arancio dolce')) AS v(dose, name)
 JOIN "Substance" s ON s.name = v.name;
 
--- Corteva / Zorvec Vinabel (conventional; FR; confidence: medium)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Corteva', 'Zorvec Vinabel', 'MILLILITER'::"ProductDoseUnit", 1, 2, NULL, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Corteva' AND p.name = 'Zorvec Vinabel')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (4, 'Oxathiapiprolin'), (30, 'Zoxamide')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- Certis Belchim / Mildicut (conventional; FR; CH; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Certis Belchim', 'Mildicut', 'MILLILITER'::"ProductDoseUnit", 1, 3, 14, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Certis Belchim' AND p.name = 'Mildicut')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (2.5, 'Cyazofamid'), (25, 'Disodium phosphonate')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- De Sangosse / LBG-01F34 (conventional; FR; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'De Sangosse', 'LBG-01F34', 'MILLILITER'::"ProductDoseUnit", 1, 5, 10, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'De Sangosse' AND p.name = 'LBG-01F34')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (75.5, 'Potassium phosphonates')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- ADAMA / Folpan 80 WDG (conventional; FR; CH (as Folpet 80 WDG); confidence: medium)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'ADAMA', 'Folpan 80 WDG', 'GRAM'::"ProductDoseUnit", NULL, 7, 10, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'ADAMA' AND p.name = 'Folpan 80 WDG')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (80, 'Folpet')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- Ascenza / Corteva / Curzate EFFE WG (conventional; IT; confidence: medium)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Ascenza / Corteva', 'Curzate EFFE WG', 'GRAM'::"ProductDoseUnit", NULL, 2, NULL, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Ascenza / Corteva' AND p.name = 'Curzate EFFE WG')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (8, 'Cymoxanil'), (66, 'Folpet')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- Syngenta / Ridomil Gold R WG (conventional; IT; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Syngenta', 'Ridomil Gold R WG', 'GRAM'::"ProductDoseUnit", NULL, 4, 10, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Syngenta' AND p.name = 'Ridomil Gold R WG')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (2, 'Metalaxyl-M'), (14.19, 'Copper')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- BASF / Vivando (conventional; IT; CH; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'BASF', 'Vivando', 'MILLILITER'::"ProductDoseUnit", 1, 3, 8, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'BASF' AND p.name = 'Vivando')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (50, 'Metrafenone')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- Syngenta / Topas 10 EC (conventional; IT; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Syngenta', 'Topas 10 EC', 'MILLILITER'::"ProductDoseUnit", 1, 3, 8, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Syngenta' AND p.name = 'Topas 10 EC')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (10, 'Penconazole')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
--- Corteva / Talendo (conventional; IT; FR; RO; SI; MD; confidence: high)
-WITH new_product AS (
-  INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
-  SELECT gen_random_uuid(), 'Corteva', 'Talendo', 'MILLILITER'::"ProductDoseUnit", 1, 3, 10, NOW(), NOW()
-  WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Corteva' AND p.name = 'Talendo')
-  RETURNING id
-)
-INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
-SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
-FROM new_product np
-CROSS JOIN (VALUES (20, 'Proquinazid')) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;
-
 -- Bayer / Prosper 300 CS (conventional; IT; confidence: high; updated if it already exists)
 UPDATE "Product" p SET "doseUnit" = 'MILLILITER'::"ProductDoseUnit", "productLiterToKiloGramConversionRate" = 1, "maxApplications" = 3, "daysBetweenApplications" = 10, "updatedAt" = NOW()
 WHERE lower(p.name) = lower('Prosper 300 CS');
@@ -366,5 +227,202 @@ SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
 FROM new_product np
 CROSS JOIN (VALUES (30, 'Spiroxamine')) AS v(dose, name)
 JOIN "Substance" s ON s.name = v.name;
+
+-- Not included for now (include_in_sql = no). To add one, uncomment its whole block:
+-- it creates the substances it needs too.
+-- Corteva / Zorvec Vinabel (conventional; FR; confidence: medium)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Oxathiapiprolin', 0.04, 'KG_PER_HA', true, NOW(), NOW()),
+-- (gen_random_uuid(), 'Zoxamide', 0.3, 'KG_PER_HA', true, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Oxathiapiprolin')
+--    OR (d.name = 'Peronospora' AND s.name = 'Zoxamide')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Corteva', 'Zorvec Vinabel', 'MILLILITER'::"ProductDoseUnit", 1, 2, NULL, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Corteva' AND p.name = 'Zorvec Vinabel')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (4, 'Oxathiapiprolin'), (30, 'Zoxamide')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- Certis Belchim / Mildicut (conventional; FR; CH; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Cyazofamid', 0.34, 'KG_PER_HA', false, NOW(), NOW()),
+-- (gen_random_uuid(), 'Disodium phosphonate', 3.38, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Cyazofamid')
+--    OR (d.name = 'Peronospora' AND s.name = 'Disodium phosphonate')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Certis Belchim', 'Mildicut', 'MILLILITER'::"ProductDoseUnit", 1, 3, 14, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Certis Belchim' AND p.name = 'Mildicut')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (2.5, 'Cyazofamid'), (25, 'Disodium phosphonate')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- De Sangosse / LBG-01F34 (conventional; FR; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Potassium phosphonates', 15.1, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Potassium phosphonates')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'De Sangosse', 'LBG-01F34', 'MILLILITER'::"ProductDoseUnit", 1, 5, 10, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'De Sangosse' AND p.name = 'LBG-01F34')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (75.5, 'Potassium phosphonates')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- ADAMA / Folpan 80 WDG (conventional; FR; CH (as Folpet 80 WDG); confidence: medium)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Folpet', 11, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Folpet')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'ADAMA', 'Folpan 80 WDG', 'GRAM'::"ProductDoseUnit", NULL, 7, 10, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'ADAMA' AND p.name = 'Folpan 80 WDG')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (80, 'Folpet')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- Ascenza / Corteva / Curzate EFFE WG (conventional; IT; confidence: medium)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Cymoxanil', 0.24, 'KG_PER_HA', false, NOW(), NOW()),
+-- (gen_random_uuid(), 'Folpet', 11, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Cymoxanil')
+--    OR (d.name = 'Peronospora' AND s.name = 'Folpet')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Ascenza / Corteva', 'Curzate EFFE WG', 'GRAM'::"ProductDoseUnit", NULL, 2, NULL, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Ascenza / Corteva' AND p.name = 'Curzate EFFE WG')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (8, 'Cymoxanil'), (66, 'Folpet')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- Syngenta / Ridomil Gold R WG (conventional; IT; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Metalaxyl-M', 0.4, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Peronospora' AND s.name = 'Metalaxyl-M')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Syngenta', 'Ridomil Gold R WG', 'GRAM'::"ProductDoseUnit", NULL, 4, 10, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Syngenta' AND p.name = 'Ridomil Gold R WG')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (2, 'Metalaxyl-M'), (14.19, 'Copper')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- BASF / Vivando (conventional; IT; CH; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Metrafenone', 0.375, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Oidium' AND s.name = 'Metrafenone')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'BASF', 'Vivando', 'MILLILITER'::"ProductDoseUnit", 1, 3, 8, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'BASF' AND p.name = 'Vivando')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (50, 'Metrafenone')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- Syngenta / Topas 10 EC (conventional; IT; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Penconazole', 0.09, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Oidium' AND s.name = 'Penconazole')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Syngenta', 'Topas 10 EC', 'MILLILITER'::"ProductDoseUnit", 1, 3, 8, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Syngenta' AND p.name = 'Topas 10 EC')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (10, 'Penconazole')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
+
+-- Corteva / Talendo (conventional; IT; FR; RO; SI; MD; confidence: high)
+-- INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+-- (gen_random_uuid(), 'Proquinazid', 0.15, 'KG_PER_HA', false, NOW(), NOW())
+-- ON CONFLICT (name) DO NOTHING;
+-- INSERT INTO "_SubstanceDiseases" ("A", "B")
+-- SELECT d.id, s.id
+-- FROM "Disease" d, "Substance" s
+-- WHERE (d.name = 'Oidium' AND s.name = 'Proquinazid')
+-- ON CONFLICT DO NOTHING;
+-- WITH new_product AS (
+--   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
+--   SELECT gen_random_uuid(), 'Corteva', 'Talendo', 'MILLILITER'::"ProductDoseUnit", 1, 3, 10, NOW(), NOW()
+--   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE p.brand = 'Corteva' AND p.name = 'Talendo')
+--   RETURNING id
+-- )
+-- INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", "updatedAt")
+-- SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
+-- FROM new_product np
+-- CROSS JOIN (VALUES (20, 'Proquinazid')) AS v(dose, name)
+-- JOIN "Substance" s ON s.name = v.name;
 
 COMMIT;

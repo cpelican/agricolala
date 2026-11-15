@@ -7,6 +7,9 @@
  * The SQL only adds what is missing: a substance (matched by name) or product (matched by
  * brand + name) that already exists is left untouched, composition included. Substances in
  * EXISTING_SUBSTANCES are maintained directly in production, so the SQL only references them.
+ *
+ * Rows with include_in_sql = "no" are written as commented-out blocks that carry their own
+ * substances and disease links, so uncommenting one block is enough to add that product.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -120,14 +123,58 @@ interface SubstanceRow {
 	diseases: string[];
 }
 
+function substancesSql(substances: SubstanceRow[]): string {
+	if (substances.length === 0) return "";
+	const values = substances
+		.map(
+			(s) =>
+				`(gen_random_uuid(), ${sqlString(s.name)}, ${s.maxDosage}, 'KG_PER_HA', ${s.restrictedAtFlowering}, NOW(), NOW())`,
+		)
+		.join(",\n");
+	return `INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
+${values}
+ON CONFLICT (name) DO NOTHING;`;
+}
+
+/** "A" = Disease, "B" = Substance. */
+function diseaseLinksSql(substances: SubstanceRow[]): string {
+	const links = substances.flatMap((s) =>
+		s.diseases.map(
+			(disease) =>
+				`(d.name = ${sqlString(disease)} AND s.name = ${sqlString(s.name)})`,
+		),
+	);
+	if (links.length === 0) return "";
+	return `INSERT INTO "_SubstanceDiseases" ("A", "B")
+SELECT d.id, s.id
+FROM "Disease" d, "Substance" s
+WHERE ${links.join("\n   OR ")}
+ON CONFLICT DO NOTHING;`;
+}
+
+function commentOut(sql: string): string {
+	return sql
+		.split("\n")
+		.map((line) => (line === "" ? "--" : `-- ${line}`))
+		.join("\n");
+}
+
 function buildProductsSql(rows: Record<string, string>[]): string {
 	const substances = new Map<string, SubstanceRow>();
+	const includedSubstances = new Set<string>();
 	const productStatements: string[] = [];
+	const excludedStatements: string[] = [];
 
 	for (const row of rows) {
 		const brand = column(row, "brand");
 		const name = column(row, "name");
 		const label = `${brand} / ${name}`;
+		const includeValue = column(row, "include_in_sql");
+		if (includeValue !== "yes" && includeValue !== "no") {
+			throw new Error(`${label}: include_in_sql must be yes or no`);
+		}
+		const included = includeValue === "yes";
+		const rowSubstances: SubstanceRow[] = [];
 		const doseUnit = column(row, "doseUnit");
 		if (!isDoseUnit(doseUnit))
 			throw new Error(`${label}: unknown doseUnit "${doseUnit}"`);
@@ -181,6 +228,8 @@ function buildProductsSql(rows: Record<string, string>[]): string {
 			}
 			if (!EXISTING_SUBSTANCES.has(substanceName)) {
 				substances.set(substanceName, substance);
+				rowSubstances.push(substance);
+				if (included) includedSubstances.add(substanceName);
 			}
 
 			const dose = sqlNumber(
@@ -211,8 +260,7 @@ WHERE ${productMatch} AND s.name = v.name
 			: "";
 		// Product has no unique key on brand + name, hence NOT EXISTS. The composition is
 		// inserted from the RETURNING row only, so a skipped product is never modified.
-		productStatements.push(`${comment}
-${update}WITH new_product AS (
+		const productSql = `${update}WITH new_product AS (
   INSERT INTO "Product" (id, brand, name, "doseUnit", "productLiterToKiloGramConversionRate", "maxApplications", "daysBetweenApplications", "createdAt", "updatedAt")
   SELECT gen_random_uuid(), ${sqlString(brand)}, ${sqlString(name)}, ${unit}, ${conversionRate}, ${maxApplications}, ${daysBetween}, NOW(), NOW()
   WHERE NOT EXISTS (SELECT 1 FROM "Product" p WHERE ${productMatch})
@@ -222,23 +270,24 @@ INSERT INTO "SubstanceDose" (id, dose, "substanceId", "productId", "createdAt", 
 SELECT gen_random_uuid(), v.dose, s.id, np.id, NOW(), NOW()
 FROM new_product np
 CROSS JOIN (VALUES ${doses.join(", ")}) AS v(dose, name)
-JOIN "Substance" s ON s.name = v.name;`);
+JOIN "Substance" s ON s.name = v.name;`;
+		if (included) {
+			productStatements.push(`${comment}\n${productSql}`);
+		} else {
+			const block = [
+				substancesSql(rowSubstances),
+				diseaseLinksSql(rowSubstances),
+				productSql,
+			]
+				.filter((sql) => sql !== "")
+				.join("\n");
+			excludedStatements.push(`${comment}\n${commentOut(block)}`);
+		}
 	}
 
-	const substanceValues = [...substances.values()]
-		.map(
-			(s) =>
-				`(gen_random_uuid(), ${sqlString(s.name)}, ${s.maxDosage}, 'KG_PER_HA', ${s.restrictedAtFlowering}, NOW(), NOW())`,
-		)
-		.join(",\n");
-	const diseaseLinks = [...substances.values()]
-		.flatMap((s) =>
-			s.diseases.map(
-				(disease) =>
-					`(d.name = ${sqlString(disease)} AND s.name = ${sqlString(s.name)})`,
-			),
-		)
-		.join("\n   OR ");
+	const included = [...substances.values()].filter((s) =>
+		includedSubstances.has(s.name),
+	);
 
 	const existingList = [...EXISTING_SUBSTANCES].map(sqlString).join(", ");
 
@@ -263,19 +312,17 @@ BEGIN
 END $$;
 
 -- Substances
-INSERT INTO "Substance" (id, name, "maxDosage", "maxDosageUnitPerAreaUnit", "restrictedAtFlowering", "createdAt", "updatedAt") VALUES
-${substanceValues}
-ON CONFLICT (name) DO NOTHING;
+${substancesSql(included)}
 
--- Substance <-> disease links ("A" = Disease, "B" = Substance)
-INSERT INTO "_SubstanceDiseases" ("A", "B")
-SELECT d.id, s.id
-FROM "Disease" d, "Substance" s
-WHERE ${diseaseLinks}
-ON CONFLICT DO NOTHING;
+-- Substance <-> disease links
+${diseaseLinksSql(included)}
 
 -- Products, each created together with its composition (SubstanceDose.dose = % of active substance)
 ${productStatements.join("\n\n")}
+
+-- Not included for now (include_in_sql = no). To add one, uncomment its whole block:
+-- it creates the substances it needs too.
+${excludedStatements.join("\n\n")}
 
 COMMIT;
 `;
@@ -286,7 +333,12 @@ function main() {
 		parseCsv(readFileSync(join(RESEARCH_DIR, file), "utf8")),
 	);
 	writeFileSync(OUTPUT_FILE, buildProductsSql(rows));
-	console.log(`Wrote ${rows.length} products to ${OUTPUT_FILE}`);
+	const included = rows.filter(
+		(row) => column(row, "include_in_sql") === "yes",
+	);
+	console.log(
+		`Wrote ${included.length} products (${rows.length - included.length} commented out) to ${OUTPUT_FILE}`,
+	);
 }
 
 if (process.argv[1]?.endsWith("generate-products-sql.ts")) {
